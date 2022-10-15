@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sputnik::renderer::animation
+namespace sputnik::animation
 {
 
 enum class Interpolation
@@ -10,4 +10,4 @@ enum class Interpolation
     CUBIC
 };
 
-} // namespace sputnik::renderer::animation
+} // namespace sputnik::animation

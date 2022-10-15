@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sputnik::renderer::animation
+namespace sputnik::animation
 {
 
 /**
