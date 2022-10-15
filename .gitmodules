@@ -1,0 +1,3 @@
+[submodule "sputnik/externals/ramanujan"]
+	path = sputnik/externals/ramanujan
+	url = git@github.com:dushyant-shukla/ramanujan.git

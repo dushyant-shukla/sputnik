@@ -1,0 +1,33 @@
+#pragma once
+
+namespace sputnik::renderer
+{
+
+///////////////////////////////////////// TYPE DECORATORS /////////////////////////////////////////
+
+/**
+ * A type decorator to make the type non-copyable
+ */
+#define NON_COPYABLE(T)               \
+    T(const T&)             = delete; \
+    T(const T&&)            = delete; \
+    T& operator=(const T&)  = delete; \
+    T& operator=(const T&&) = delete;
+
+/**
+ * A type decorator to make the type non-instantiable
+ */
+#define NON_INSTATIABLE(T)            \
+    T()                     = delete; \
+    T(const T&)             = delete; \
+    T(const T&&)            = delete; \
+    ~T()                    = delete; \
+    T& operator=(const T&)  = delete; \
+    T& operator=(const T&&) = delete;
+
+//////////////////////////////////////////// UTILITIES ////////////////////////////////////////////
+
+#define SPUTNIK_ASSERT(x) \
+    if(!(x))              \
+    __debugbreak()
+} // namespace sputnik::renderer
