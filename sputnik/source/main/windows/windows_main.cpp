@@ -23,7 +23,9 @@ typedef int(WINAPI* PFNWGLGETSWAPINTERVALEXTPROC)(void);
 extern sputnik::main::Application* sputnik::main::CreateApplication();
 
 sputnik::main::Application* gp_application        = 0;
-GLuint                    g_vertex_array_object = 0;
+GLuint                      g_vertex_array_object = 0;
+float                       gScaleFactor          = 1.0f;
+float                       gInvScaleFactor       = 1.0f;
 
 #ifdef SPUTNIK_DEBUG
 int main(int argc, const char** argv)
@@ -51,10 +53,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     wndclass.lpszClassName = "Win32 Game Window";
     RegisterClassEx(&wndclass);
 
-    int  screenWidth  = GetSystemMetrics(SM_CXSCREEN);
-    int  screenHeight = GetSystemMetrics(SM_CYSCREEN);
-    int  clientWidth  = 800;
-    int  clientHeight = 600;
+    int screenWidth  = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    int clientWidth  = 800;
+    int clientHeight = 600;
+
+    UINT DPI        = GetDpiForSystem();
+    gScaleFactor    = (float)DPI / 96.0f;
+    gInvScaleFactor = 1.0f / gScaleFactor;
+    clientWidth     = (int)((float)clientWidth * gScaleFactor);
+    clientHeight    = (int)((float)clientHeight * gScaleFactor);
+
     RECT windowRect;
     SetRect(&windowRect,
             (screenWidth / 2) - (clientWidth / 2),
@@ -194,6 +203,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
             glFrontFace(GL_CW);
 
             glPointSize(5.0f);
+            glLineWidth(1.5f * gScaleFactor);
+
             glBindVertexArray(g_vertex_array_object);
 
             glClearColor(0.5f, 0.6f, 0.7f, 1.0f);

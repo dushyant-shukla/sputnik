@@ -10,22 +10,18 @@ class TransformTrack
 {
 
 public:
-    // public interface
-
     TransformTrack();
     unsigned int         GetId();
     void                 SetId(unsigned int id);
     VectorTrack&         GetPositionTrack();
     VectorTrack&         GetScaleTrack();
-    QuaternionTrack&     GetRotationTrick();
+    QuaternionTrack&     GetRotationTrack();
     float                GetStartTime();
     float                GetEndTime();
     bool                 IsValid();
     ramanujan::Transform Sample(const ramanujan::Transform& transform, float time, bool looping);
 
 protected:
-    // protected methods
-
     unsigned int    m_id;
     VectorTrack     m_position;
     VectorTrack     m_scale;

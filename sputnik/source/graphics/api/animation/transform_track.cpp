@@ -26,7 +26,7 @@ VectorTrack& TransformTrack::GetScaleTrack()
     return m_scale;
 }
 
-QuaternionTrack& TransformTrack::GetRotationTrick()
+QuaternionTrack& TransformTrack::GetRotationTrack()
 {
     return m_rotation;
 }
