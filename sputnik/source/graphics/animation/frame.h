@@ -16,7 +16,7 @@ struct Frame
     float m_time;
 };
 
-typedef Frame<1> ScalerFrame;
+typedef Frame<1> ScalarFrame;
 typedef Frame<3> VectorFrame;
 typedef Frame<4> QuaternionFrame;
 

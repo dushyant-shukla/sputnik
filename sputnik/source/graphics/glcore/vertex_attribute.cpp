@@ -93,7 +93,7 @@ void VertexAttribute<T>::Bind(unsigned int slot)
     glBindBuffer(GL_ARRAY_BUFFER, m_id);
     glEnableVertexAttribArray(slot);
     SetVertexAttributePointer(slot);
-    glBindBuffer(GL_VERTEX_ARRAY, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Todo: Understand this better + what is GL_VERTEX_ARRAY used for?
 }
 
 template <typename T>
@@ -101,7 +101,7 @@ void VertexAttribute<T>::Unbind(unsigned int slot)
 {
     glBindBuffer(GL_ARRAY_BUFFER, m_id);
     glDisableVertexAttribArray(slot);
-    glBindBuffer(GL_VERTEX_ARRAY, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Todo: Understand this better
 }
 
 template <typename T>

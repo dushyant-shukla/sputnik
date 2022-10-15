@@ -46,10 +46,15 @@ staticruntime "off"
 runtime "Release"
 
 -- include the dependencies
+group "dependencies"
 include "sputnik/externals/ramanujan/ramanujan-project.lua"
+group ""
 
 -- include the renderer project
 include "sputnik/sputnik-project.lua"
 
--- include the scene projects
+-- include the demo projects
+group "demos"
 include "demos/sandbox/sandbox.lua"
+include "demos/curve-plotting/curve-plotting.lua"
+group ""
