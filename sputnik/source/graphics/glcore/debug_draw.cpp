@@ -67,7 +67,7 @@ void sputnik::glcore::DebugDraw::Push(const ramanujan::Vector3& v)
     m_points.push_back(v);
 }
 
-void sputnik::glcore::DebugDraw::FromPose(animation::Pose& pose)
+void sputnik::glcore::DebugDraw::FromPose(api::animation::Pose& pose)
 {
     unsigned int requiredVerts = 0;
     unsigned int numJoints     = pose.GetNumJoints();

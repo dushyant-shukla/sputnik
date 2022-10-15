@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "core/core.h"
-#include "graphics/animation/pose.h"
+#include "graphics/api/animation/pose.h"
 #include "graphics/glcore/vertex_attribute.h"
 #include "graphics/glcore/shader.h"
 
@@ -36,7 +36,7 @@ public:
     ramanujan::Vector3& operator[](unsigned int index);
     void                Push(const ramanujan::Vector3& v);
 
-    void FromPose(animation::Pose& pose);
+    void FromPose(api::animation::Pose& pose);
 
     void UpdateOpenGLBuffers();
     void Draw(DebugDrawMode mode, const ramanujan::Vector3& color, const ramanujan::Matrix4& mvp);

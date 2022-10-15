@@ -3,7 +3,7 @@
 #include "quaternion.h"
 #include "vector3.h"
 
-namespace sputnik::animation
+namespace sputnik::api::animation
 {
 
 inline float Interpolate(float a, float b, float t)
@@ -55,4 +55,4 @@ inline void Neighborhood(const ramanujan::Quaternion& a, ramanujan::Quaternion& 
     }
 }
 
-} // namespace sputnik::animation
+} // namespace sputnik::api::animation

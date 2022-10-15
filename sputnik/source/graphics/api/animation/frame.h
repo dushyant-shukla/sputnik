@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sputnik::animation
+namespace sputnik::api::animation
 {
 
 /**
@@ -20,4 +20,4 @@ typedef Frame<1> ScalarFrame;
 typedef Frame<3> VectorFrame;
 typedef Frame<4> QuaternionFrame;
 
-} // namespace sputnik::renderer::animation
+} // namespace sputnik::api::animation

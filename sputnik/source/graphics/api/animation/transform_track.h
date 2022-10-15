@@ -3,7 +3,7 @@
 #include "track.h"
 #include "transform.h"
 
-namespace sputnik::animation
+namespace sputnik::api::animation
 {
 
 class TransformTrack
@@ -32,4 +32,4 @@ protected:
     QuaternionTrack m_rotation;
 };
 
-} // namespace sputnik::animation
+} // namespace sputnik::api::animation

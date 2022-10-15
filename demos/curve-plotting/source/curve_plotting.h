@@ -9,8 +9,8 @@
 #include <vector2.h>
 #include <vector3.h>
 #include <graphics/glcore/debug_draw.h>
-#include <graphics/animation/track.h>
-#include <graphics/animation/interpolation.h>
+#include <graphics/api/animation/track.h>
+#include <graphics/api/animation/interpolation.h>
 
 #include <memory>
 
@@ -30,24 +30,26 @@ public:
     virtual void Shutdown() override;
 
 private:
-    sputnik::animation::ScalarFrame MakeFrame(float time, float value);
-    sputnik::animation::ScalarFrame MakeFrame(float time, float in, float value, float out);
-    sputnik::animation::VectorFrame MakeFrame(float time, const ramanujan::Vector3& value);
-    sputnik::animation::VectorFrame
+    sputnik::api::animation::ScalarFrame MakeFrame(float time, float value);
+    sputnik::api::animation::ScalarFrame MakeFrame(float time, float in, float value, float out);
+    sputnik::api::animation::VectorFrame MakeFrame(float time, const ramanujan::Vector3& value);
+    sputnik::api::animation::VectorFrame
     MakeFrame(float time, const ramanujan::Vector3& in, const ramanujan::Vector3& value, const ramanujan::Vector3& out);
-    sputnik::animation::QuaternionFrame MakeFrame(float time, const ramanujan::Quaternion& value);
-    sputnik::animation::QuaternionFrame MakeFrame(float                        time,
-                                                  const ramanujan::Quaternion& in,
-                                                  const ramanujan::Quaternion& out,
-                                                  const ramanujan::Quaternion& value);
-    sputnik::animation::ScalarTrack     MakeScalarTrack(sputnik::animation::Interpolation interp, int numFrames, ...);
-    sputnik::animation::VectorTrack     MakeVectorTrack(sputnik::animation::Interpolation interp, int numFrames, ...);
-    sputnik::animation::QuaternionTrack
-    MakeQuaternionTrack(sputnik::animation::Interpolation interp, int numFrames, ...);
+    sputnik::api::animation::QuaternionFrame MakeFrame(float time, const ramanujan::Quaternion& value);
+    sputnik::api::animation::QuaternionFrame MakeFrame(float                        time,
+                                                       const ramanujan::Quaternion& in,
+                                                       const ramanujan::Quaternion& out,
+                                                       const ramanujan::Quaternion& value);
+    sputnik::api::animation::ScalarTrack
+    MakeScalarTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...);
+    sputnik::api::animation::VectorTrack
+    MakeVectorTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...);
+    sputnik::api::animation::QuaternionTrack
+    MakeQuaternionTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...);
 
 private:
-    std::vector<sputnik::animation::ScalarTrack> mScalarTracks;
-    std::vector<bool>                            mScalarTracksLooping;
+    std::vector<sputnik::api::animation::ScalarTrack> mScalarTracks;
+    std::vector<bool>                                 mScalarTracksLooping;
 
     sputnik::glcore::DebugDraw* mScalarTrackLines;
     sputnik::glcore::DebugDraw* mHandleLines;

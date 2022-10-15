@@ -6,7 +6,7 @@
 #include "quaternion.h"
 #include "vector3.h"
 
-namespace sputnik::animation
+namespace sputnik::api::animation
 {
 
 /**
@@ -100,4 +100,4 @@ typedef Track<float, 1>                 ScalarTrack;
 typedef Track<ramanujan::Vector3, 3>    VectorTrack;
 typedef Track<ramanujan::Quaternion, 4> QuaternionTrack;
 
-} // namespace sputnik::animation
+} // namespace sputnik::api::animation
