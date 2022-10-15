@@ -4,7 +4,7 @@
 #include <matrix4.h>
 #include <camera_transforms.h>
 #include <graphics/glcore/uniform.h>
-#include <graphics/glcore/renderer.h>
+#include <graphics/api/renderer.h>
 
 namespace sputnik
 {

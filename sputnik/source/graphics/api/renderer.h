@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/core.h"
-#include "index_buffer.h"
+#include "graphics/glcore/index_buffer.h"
 
 #include <glad/glad.h>
 
