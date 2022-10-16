@@ -8,7 +8,7 @@ namespace sputnik::api::animation
 
 inline float Interpolate(float a, float b, float t)
 {
-    return a * (b - a) * t;
+    return a + (b - a) * t;
 }
 
 inline ramanujan::Vector3 Interpolate(const ramanujan::Vector3& a, const ramanujan::Vector3& b, float t)

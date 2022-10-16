@@ -73,11 +73,14 @@ void VertexAttribute<ramanujan::Vector4>::SetVertexAttributePointer(unsigned int
 template <typename T>
 void VertexAttribute<T>::Set(T* input_array, unsigned int array_length)
 {
-    m_count           = array_length;
-    unsigned int size = sizeof(T);
+    m_count                       = array_length;
+    unsigned int size_per_element = sizeof(T);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_id);                                        // Bind to the allocated OpenGL buffer
-    glBufferData(GL_ARRAY_BUFFER, size * m_count, input_array, GL_STREAM_DRAW); // Update the allocated buffer with data
+    glBindBuffer(GL_ARRAY_BUFFER, m_id); // Bind to the allocated OpenGL buffer
+    glBufferData(GL_ARRAY_BUFFER,
+                 size_per_element * m_count,
+                 input_array,
+                 GL_STREAM_DRAW); // Update the allocated buffer with data
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
