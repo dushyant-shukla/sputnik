@@ -6,13 +6,14 @@
 namespace sputnik::api::animation
 {
 
+// Todo: Rename this class to TrackTransform
 class TransformTrack
 {
 
 public:
     TransformTrack();
-    unsigned int         GetId();
-    void                 SetId(unsigned int id);
+    unsigned int         GetJointId();
+    void                 SetJointId(unsigned int joint_id);
     VectorTrack&         GetPositionTrack();
     VectorTrack&         GetScaleTrack();
     QuaternionTrack&     GetRotationTrack();
@@ -22,7 +23,7 @@ public:
     ramanujan::Transform Sample(const ramanujan::Transform& transform, float time, bool looping);
 
 protected:
-    unsigned int    m_id;
+    unsigned int    m_joint_id;
     VectorTrack     m_position;
     VectorTrack     m_scale;
     QuaternionTrack m_rotation;

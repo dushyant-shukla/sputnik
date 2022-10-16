@@ -4,16 +4,16 @@
 namespace sputnik::api::animation
 {
 
-TransformTrack::TransformTrack() : m_id(0) {}
+TransformTrack::TransformTrack() : m_joint_id(0) {}
 
-unsigned int TransformTrack::GetId()
+unsigned int TransformTrack::GetJointId()
 {
-    return m_id;
+    return m_joint_id;
 }
 
-void TransformTrack::SetId(unsigned int id)
+void TransformTrack::SetJointId(unsigned int joint_id)
 {
-    m_id = id;
+    m_joint_id = joint_id;
 }
 
 VectorTrack& TransformTrack::GetPositionTrack()

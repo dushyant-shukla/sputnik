@@ -27,7 +27,7 @@ public:
     unsigned int         GetNumJoints();
     int                  GetParent(unsigned int joint_index);
     int                  SetParent(unsigned int joint_index, int parent_joint_index);
-    ramanujan::Transform GlobalLocalTransform(unsigned int joint_index);
+    ramanujan::Transform GetLocalTransform(unsigned int joint_index);
     void                 SetLocalTransform(unsigned int joint_index, const ramanujan::Transform& transform);
     ramanujan::Transform GetGlobalTransform(unsigned int joint_index);
     ramanujan::Transform operator[](unsigned int joint_index);

@@ -67,7 +67,7 @@ int Pose::SetParent(unsigned int joint_index, int parent_joint_index)
     return m_parents[joint_index] = parent_joint_index;
 }
 
-ramanujan::Transform Pose::GlobalLocalTransform(unsigned int joint_index)
+ramanujan::Transform Pose::GetLocalTransform(unsigned int joint_index)
 {
     return m_joints[joint_index];
 }
