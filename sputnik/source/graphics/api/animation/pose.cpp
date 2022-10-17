@@ -11,7 +11,7 @@ Pose::Pose(const Pose& other)
     *this = other;
 }
 
-Pose::Pose(unsigned int num_joints)
+Pose::Pose(size_t num_joints)
 {
     SetNumJoints(num_joints);
 }
@@ -46,33 +46,33 @@ Pose& Pose::operator=(const Pose& other)
     return *this;
 }
 
-void Pose::SetNumJoints(unsigned int new_num_joints)
+void Pose::SetNumJoints(size_t new_num_joints)
 {
     m_parents.resize(new_num_joints);
     m_joints.resize(new_num_joints);
 }
 
-unsigned int Pose::GetNumJoints()
+size_t Pose::GetNumJoints()
 {
-    return static_cast<unsigned int>(m_joints.size());
+    return m_joints.size();
 }
 
-int Pose::GetParent(unsigned int joint_index)
+int Pose::GetParent(size_t joint_index)
 {
     return m_parents[joint_index];
 }
 
-int Pose::SetParent(unsigned int joint_index, int parent_joint_index)
+void Pose::SetParent(size_t joint_index, int parent_joint_index)
 {
-    return m_parents[joint_index] = parent_joint_index;
+    m_parents[joint_index] = parent_joint_index;
 }
 
-ramanujan::Transform Pose::GetLocalTransform(unsigned int joint_index)
+ramanujan::Transform Pose::GetLocalTransform(size_t joint_index)
 {
     return m_joints[joint_index];
 }
 
-void Pose::SetLocalTransform(unsigned int joint_index, const ramanujan::Transform& transform)
+void Pose::SetLocalTransform(size_t joint_index, const ramanujan::Transform& transform)
 {
     m_joints[joint_index] = transform;
 }
@@ -84,7 +84,7 @@ void Pose::SetLocalTransform(unsigned int joint_index, const ramanujan::Transfor
  * \param joint_index
  * \return
  */
-ramanujan::Transform Pose::GetGlobalTransform(unsigned int joint_index)
+ramanujan::Transform Pose::GetGlobalTransform(size_t joint_index)
 {
     ramanujan::Transform result = m_joints[joint_index]; // start with the transform for the joint
     for(int parent_index = m_parents[joint_index]; parent_index >= 0; parent_index = m_parents[parent_index])
@@ -102,14 +102,14 @@ ramanujan::Transform Pose::GetGlobalTransform(unsigned int joint_index)
  * \param index
  * \return
  */
-ramanujan::Transform Pose::operator[](unsigned int joint_index)
+ramanujan::Transform Pose::operator[](size_t joint_index)
 {
     return GetGlobalTransform(joint_index);
 }
 
 void Pose::GetMatrixPalette(std::vector<ramanujan::Matrix4>& out)
 {
-    unsigned int size = GetNumJoints();
+    size_t size = GetNumJoints();
     if(out.size() != size)
     {
         out.resize(size);

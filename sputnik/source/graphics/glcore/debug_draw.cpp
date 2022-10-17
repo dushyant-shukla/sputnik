@@ -70,8 +70,8 @@ void sputnik::glcore::DebugDraw::Push(const ramanujan::Vector3& v)
 void sputnik::glcore::DebugDraw::FromPose(api::animation::Pose& pose)
 {
     unsigned int requiredVerts = 0;
-    unsigned int numJoints     = pose.GetNumJoints();
-    for(unsigned int i = 0; i < numJoints; ++i)
+    size_t       numJoints     = pose.GetNumJoints();
+    for(size_t i = 0; i < numJoints; ++i)
     {
         if(pose.GetParent(i) < 0)
         {

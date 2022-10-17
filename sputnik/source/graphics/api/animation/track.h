@@ -30,7 +30,7 @@ public:
     Track();
     ~Track() = default;
 
-    void          Resize(unsigned int new_size);
+    void          Resize(size_t new_size);
     unsigned int  GetSize();
     Interpolation GetInterpolation();
     void          SetInterpolation(Interpolation interpolation);
@@ -45,7 +45,7 @@ public:
     /**
      * The subscript operator returns a reference to the Frame at an index.
      */
-    Frame<SIZE>& operator[](unsigned int index);
+    Frame<SIZE>& operator[](size_t index);
 
 protected:
     /**

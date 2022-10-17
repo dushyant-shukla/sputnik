@@ -46,7 +46,7 @@ public:
     void RecalculateDuration();
 
     std::string& GetName();
-    void         SetName(std::string& name);
+    void         SetName(const std::string& name);
     float        GetDuration();
     float        GetStartTime();
     float        GetEndTime();

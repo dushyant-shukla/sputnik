@@ -50,13 +50,13 @@ T Track<T, SIZE>::Sample(float time, bool looping)
 }
 
 template <typename T, unsigned int SIZE>
-Frame<SIZE>& Track<T, SIZE>::operator[](unsigned int index)
+Frame<SIZE>& Track<T, SIZE>::operator[](size_t index)
 {
     return m_frames[index];
 }
 
 template <typename T, unsigned int SIZE>
-void Track<T, SIZE>::Resize(unsigned int new_size)
+void Track<T, SIZE>::Resize(size_t new_size)
 {
     return m_frames.resize(new_size);
 }

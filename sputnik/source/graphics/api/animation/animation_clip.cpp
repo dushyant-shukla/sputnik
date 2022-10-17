@@ -37,8 +37,8 @@ float AnimationClip::Sample(Pose& out_pose, float in_time)
 
     in_time = AdjustTimeToFitRange(in_time); // Ensure that the interpolation time is in the valid range of the clip
 
-    unsigned int size = m_tracks.size();
-    for(unsigned int i = 0; i < size; ++i)
+    size_t size = m_tracks.size();
+    for(size_t i = 0; i < size; ++i)
     {
         unsigned int         joint_id            = m_tracks[i].GetJointId();
         ramanujan::Transform local_transform     = out_pose.GetLocalTransform(joint_id);
@@ -57,7 +57,7 @@ float AnimationClip::Sample(Pose& out_pose, float in_time)
  */
 TransformTrack& AnimationClip::operator[](unsigned int joint_id)
 {
-    unsigned int num_tracks = m_tracks.size();
+    size_t num_tracks = m_tracks.size();
 
     // perform a linear search to see whether any of them targets the specified joint.
     for(int i = 0; i < num_tracks; ++i)
@@ -84,8 +84,8 @@ void AnimationClip::RecalculateDuration()
     m_end_time              = 0.0f;
     bool         start_set  = false;
     bool         end_set    = false;
-    unsigned int num_tracks = m_tracks.size();
-    for(unsigned int i = 0; i < num_tracks; ++i)
+    size_t num_tracks = m_tracks.size();
+    for(size_t i = 0; i < num_tracks; ++i)
     {
         if(m_tracks[i].IsValid())
         {
@@ -112,7 +112,7 @@ std::string& AnimationClip::GetName()
     return m_name;
 }
 
-void AnimationClip::SetName(std::string& name)
+void AnimationClip::SetName(const std::string& name)
 {
     m_name = name;
 }
