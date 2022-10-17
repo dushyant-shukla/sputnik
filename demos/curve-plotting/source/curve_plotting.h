@@ -1,6 +1,6 @@
 #pragma once
 
-#include <main/windows/windows_main.h>
+#include <platform/windows/windows_main.h>
 #include <main/application.h>
 #include <graphics/glcore/shader.h>
 #include <graphics/glcore/texture.h>

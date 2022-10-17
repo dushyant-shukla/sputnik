@@ -57,5 +57,5 @@ filter "files:$(SolutionDir)sputnik/externals/stb_image/stb_image.cpp"
 flags { "NoPCH" }
 
 -- Do not expect pch for this file
-filter "files:source/main/windows/windows_main.cpp" -- $(SolutionDir)sputnik/source/main/windows/windows_main.cpp does not work
+filter "files:source/platform/windows/windows_main.cpp" -- $(SolutionDir)sputnik/source/main/windows/windows_main.cpp does not work
 flags { "NoPCH" }
