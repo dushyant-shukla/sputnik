@@ -7,7 +7,7 @@ sputnik::glcore::DebugDraw::DebugDraw()
 {
     m_vertex_attributes = new VertexAttribute<ramanujan::Vector3>();
 
-    m_shader = new Shader("#version 330 core\n"
+    m_shader = new Shader("#version 460 core\n"
                           "uniform mat4 mvp;\n"
                           "in vec3 position;\n"
                           "void main() {\n"
@@ -25,7 +25,7 @@ sputnik::glcore::DebugDraw::DebugDraw(unsigned int size)
 {
     m_vertex_attributes = new VertexAttribute<ramanujan::Vector3>();
 
-    m_shader = new Shader("#version 330 core\n"
+    m_shader = new Shader("#version 460 core\n"
                           "uniform mat4 mvp;\n"
                           "in vec3 position;\n"
                           "void main() {\n"
@@ -69,20 +69,20 @@ void sputnik::glcore::DebugDraw::Push(const ramanujan::Vector3& v)
 
 void sputnik::glcore::DebugDraw::FromPose(api::animation::Pose& pose)
 {
-    unsigned int requiredVerts = 0;
-    size_t       numJoints     = pose.GetNumJoints();
-    for(size_t i = 0; i < numJoints; ++i)
+    unsigned int required_verts = 0;
+    size_t       num_joints     = pose.GetNumJoints();
+    for(size_t i = 0; i < num_joints; ++i)
     {
         if(pose.GetParent(i) < 0)
         {
             continue;
         }
 
-        requiredVerts += 2;
+        required_verts += 2;
     }
 
-    m_points.resize(requiredVerts);
-    for(unsigned int i = 0; i < numJoints; ++i)
+    m_points.resize(required_verts);
+    for(unsigned int i = 0; i < num_joints; ++i)
     {
         if(pose.GetParent(i) < 0)
         {

@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "gltf_loader.h"
-#include "graphics/api/animation/pose.h"
 #include "graphics/api/animation/track.h"
-#include "graphics/api/animation/animation_clip.h"
 
 #include <transform.h>
 
@@ -14,9 +12,6 @@ using namespace ramanujan;
 
 namespace gltf
 {
-
-using Node = cgltf_node;
-using Data = cgltf_data;
 
 namespace helper
 {
@@ -39,7 +34,8 @@ ramanujan::Transform GetNodeLocalTransform(Node& node)
 
     if(node.has_translation)
     {
-        local_transform.position = ramanujan::Vector3(&node.translation[0]);
+        // local_transform.position = ramanujan::Vector3(&node.translation[0]);
+        local_transform.position = ramanujan::Vector3(node.translation[0], node.translation[1], node.translation[2]);
     }
 
     if(node.has_rotation)
@@ -81,46 +77,6 @@ int GetNodeIndex(Node* target, Node* all_nodes, size_t num_nodes)
     return -1;
 }
 
-/**
- * .
- */
-Pose LoadRestPose(Data* data)
-{
-    size_t joint_count = data->nodes_count;
-    Pose         rest_pose(joint_count);
-
-    for(size_t joint_index = 0; joint_index < joint_count; ++joint_index)
-    {
-        Node*     node            = &(data->nodes[joint_index]);
-        Transform local_transform = GetNodeLocalTransform(*node);
-        rest_pose.SetLocalTransform(joint_index, local_transform);
-        int parent_node_index = GetNodeIndex(node->parent, data->nodes, joint_count);
-        rest_pose.SetParent(joint_index, parent_node_index);
-    }
-
-    return rest_pose;
-}
-
-std::vector<std::string> LoadJointNanes(Data* data)
-{
-    size_t                   joint_count = data->nodes_count;
-    std::vector<std::string> joint_names(joint_count, "Not Set");
-
-    for(size_t joint_index = 0; joint_index < joint_count; ++joint_index)
-    {
-        Node* node = &(data->nodes[joint_index]);
-        if(node->name == 0)
-        {
-            joint_names[joint_index] = "EMPTY NODE";
-        }
-        else
-        {
-            joint_names[joint_index] = node->name;
-        }
-    }
-    return joint_names;
-}
-
 void GetScalarValues(std::vector<float>& out, unsigned int comp_count, const cgltf_accessor& in_accessor)
 {
     out.resize(in_accessor.count * comp_count);
@@ -160,7 +116,7 @@ void CreateTrackFromChannel(Track<T, N>& result, const cgltf_animation_channel& 
 
     for(size_t i = 0; i < num_frames; ++i)
     {
-        int       base_index = static_cast<int>(1 * comp_count);
+        int       base_index = static_cast<int>(i * comp_count);
         Frame<N>& frame      = result[i];
         int       offset     = 0;
 
@@ -182,44 +138,6 @@ void CreateTrackFromChannel(Track<T, N>& result, const cgltf_animation_channel& 
         }
     }
 }
-
-void LoadAnimationClips(Data* data, std::vector<AnimationClip>& out_animation_clips)
-{
-    size_t       num_clips = data->animations_count;
-    size_t num_nodes = data->nodes_count;
-
-    out_animation_clips.resize(num_clips);
-
-    for(size_t i = 0; i < num_clips; ++i)
-    {
-        out_animation_clips[i].SetName(data->animations[i].name);
-        size_t num_channels = data->animations[i].channels_count;
-        for(size_t j = 0; j < num_channels; ++j)
-        {
-            cgltf_animation_channel& channel = data->animations[i].channels[j];
-            cgltf_node*              target  = channel.target_node;
-            int                      node_id = GetNodeIndex(target, data->nodes, num_nodes);
-            if(channel.target_path == cgltf_animation_path_type_translation)
-            {
-                VectorTrack& track = out_animation_clips[i][node_id].GetPositionTrack();
-                CreateTrackFromChannel<Vector3, 3>(track, channel);
-            }
-            else if(channel.target_path == cgltf_animation_path_type_scale)
-            {
-                VectorTrack& track = out_animation_clips[i][node_id].GetScaleTrack();
-                CreateTrackFromChannel<Vector3, 3>(track, channel);
-            }
-            else if(channel.target_path == cgltf_animation_path_type_rotation)
-            {
-                QuaternionTrack& track = out_animation_clips[i][node_id].GetRotationTrack();
-                CreateTrackFromChannel<Quaternion, 4>(track, channel);
-            }
-        } // channel loop ends
-
-        out_animation_clips[i].RecalculateDuration();
-    } // clip loop ends
-} // LoadAnimationClips() ends
-
 } // namespace helper
 
 Data* GltfLoader::LoadFile(const char* path)
@@ -263,6 +181,83 @@ void GltfLoader::FreeFile(Data* data)
     {
         cgltf_free(data);
     }
+}
+
+void GltfLoader::LoadAnimationClips(Data*                                                data,
+                                    std::vector<sputnik::api::animation::AnimationClip>& out_animation_clips)
+{
+    size_t num_clips = data->animations_count;
+    size_t num_nodes = data->nodes_count;
+
+    out_animation_clips.resize(num_clips);
+
+    for(size_t i = 0; i < num_clips; ++i)
+    {
+        out_animation_clips[i].SetName(data->animations[i].name);
+        size_t num_channels = data->animations[i].channels_count;
+        for(size_t j = 0; j < num_channels; ++j)
+        {
+            cgltf_animation_channel& channel = data->animations[i].channels[j];
+            cgltf_node*              target  = channel.target_node;
+            int                      node_id = helper::GetNodeIndex(target, data->nodes, num_nodes);
+            if(channel.target_path == cgltf_animation_path_type_translation)
+            {
+                VectorTrack& track = out_animation_clips[i][node_id].GetPositionTrack();
+                helper::CreateTrackFromChannel<Vector3, 3>(track, channel);
+            }
+            else if(channel.target_path == cgltf_animation_path_type_scale)
+            {
+                VectorTrack& track = out_animation_clips[i][node_id].GetScaleTrack();
+                helper::CreateTrackFromChannel<Vector3, 3>(track, channel);
+            }
+            else if(channel.target_path == cgltf_animation_path_type_rotation)
+            {
+                QuaternionTrack& track = out_animation_clips[i][node_id].GetRotationTrack();
+                helper::CreateTrackFromChannel<Quaternion, 4>(track, channel);
+            }
+        } // channel loop ends
+
+        out_animation_clips[i].RecalculateDuration();
+    } // clip loop ends
+} // LoadAnimationClips() ends
+
+std::vector<std::string> GltfLoader::LoadJointNanes(Data* data)
+{
+    size_t                   joint_count = data->nodes_count;
+    std::vector<std::string> joint_names(joint_count, "Not Set");
+
+    for(size_t joint_index = 0; joint_index < joint_count; ++joint_index)
+    {
+        Node* node = &(data->nodes[joint_index]);
+        if(node->name == 0)
+        {
+            joint_names[joint_index] = "EMPTY NODE";
+        }
+        else
+        {
+            joint_names[joint_index] = node->name;
+        }
+    }
+    return joint_names;
+}
+
+/**
+ * .
+ */
+sputnik::api::animation::Pose GltfLoader::LoadRestPose(Data* data)
+{
+    size_t joint_count = data->nodes_count;
+    Pose   rest_pose(joint_count);
+
+    for(size_t joint_index = 0; joint_index < joint_count; ++joint_index)
+    {
+        Node*     node            = &(data->nodes[joint_index]);
+        Transform local_transform = helper::GetNodeLocalTransform(*node);
+        rest_pose.SetLocalTransform(joint_index, local_transform);
+        int parent_node_index = helper::GetNodeIndex(node->parent, data->nodes, joint_count);
+        rest_pose.SetParent(joint_index, parent_node_index);
+    }
+    return rest_pose;
 }
 
 } // namespace gltf

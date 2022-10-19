@@ -43,6 +43,8 @@ void VertexAttribute<int>::SetVertexAttributePointer(unsigned int slot)
 template <>
 void VertexAttribute<ramanujan::IVector4>::SetVertexAttributePointer(unsigned int slot)
 {
+    // stride == 0 is a special case, it means that your attributes are tightly packed. So e.g. if you're
+    // passing a dvec4 (vector of 4 doubles) per vertex, it doesn't matter if you use 0 or 32
     glVertexAttribIPointer(slot, 4, GL_INT, 0, (void*)0);
 }
 

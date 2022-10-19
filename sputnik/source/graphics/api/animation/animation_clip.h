@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "transform_track.h"
+#include "track_transform.h"
 #include "pose.h"
 
 namespace sputnik::api::animation
@@ -37,7 +37,7 @@ public:
      * The [] operator returns a transform track for the specified joint. If no track exists for a given joint, one is
      * created and returned.
      */
-    TransformTrack& operator[](unsigned int joint_id);
+    TrackTransform& operator[](unsigned int joint_id);
 
     /**
      * This method calculates the duration of an animation clip by determining the start and end times of an animation
@@ -57,7 +57,7 @@ protected:
     // protected methods
 
 protected:
-    std::vector<TransformTrack> m_tracks; // An animation clip is a collection of animation tracks, where each track
+    std::vector<TrackTransform> m_tracks; // An animation clip is a collection of animation tracks, where each track
                                           // describes the motion of one joint over time.
     std::string m_name;
     float       m_start_time;

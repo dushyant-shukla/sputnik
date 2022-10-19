@@ -55,7 +55,7 @@ float AnimationClip::Sample(Pose& out_pose, float in_time)
  *
  * This method is intended to be called when loading an animation clip from a file.
  */
-TransformTrack& AnimationClip::operator[](unsigned int joint_id)
+TrackTransform& AnimationClip::operator[](unsigned int joint_id)
 {
     size_t num_tracks = m_tracks.size();
 
@@ -69,7 +69,8 @@ TransformTrack& AnimationClip::operator[](unsigned int joint_id)
     }
 
     // If no required track transform is found, a new one is created and returned.
-    m_tracks.push_back(TransformTrack());
+    m_tracks.push_back(TrackTransform());
+    num_tracks = m_tracks.size();
     m_tracks[num_tracks - 1].SetJointId(joint_id);
     return m_tracks[num_tracks - 1];
 }
@@ -80,10 +81,10 @@ TransformTrack& AnimationClip::operator[](unsigned int joint_id)
  */
 void AnimationClip::RecalculateDuration()
 {
-    m_start_time            = 0.0f;
-    m_end_time              = 0.0f;
-    bool         start_set  = false;
-    bool         end_set    = false;
+    m_start_time      = 0.0f;
+    m_end_time        = 0.0f;
+    bool   start_set  = false;
+    bool   end_set    = false;
     size_t num_tracks = m_tracks.size();
     for(size_t i = 0; i < num_tracks; ++i)
     {
@@ -119,7 +120,7 @@ void AnimationClip::SetName(const std::string& name)
 
 float AnimationClip::GetDuration()
 {
-    return m_end_time = m_start_time;
+    return m_end_time - m_start_time;
 }
 
 float AnimationClip::GetStartTime()

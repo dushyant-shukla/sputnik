@@ -6,12 +6,11 @@
 namespace sputnik::api::animation
 {
 
-// Todo: Rename this class to TrackTransform
-class TransformTrack
+class TrackTransform
 {
 
 public:
-    TransformTrack();
+    TrackTransform();
     unsigned int         GetJointId();
     void                 SetJointId(unsigned int joint_id);
     VectorTrack&         GetPositionTrack();

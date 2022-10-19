@@ -25,7 +25,7 @@ float Track<T, SIZE>::GetStartTime()
 }
 
 template <typename T, unsigned int SIZE>
-float Track<T, SIZE>::EndTime()
+float Track<T, SIZE>::GetEndTime()
 {
     return m_frames[m_frames.size() - 1].m_time;
 }
@@ -113,7 +113,7 @@ int Track<T, SIZE>::FrameIndex(float time, bool looping)
     // end frames.
     if(looping)
     {
-        const float end_time = EndTime();
+        const float end_time = GetEndTime();
         float       duration = end_time - start_time;
 
         if(duration < 0.0f)
@@ -179,7 +179,7 @@ float Track<T, SIZE>::AdjustTimeToFitTrack(float time, bool looping)
     }
 
     const float start_time = GetStartTime();
-    const float end_time   = EndTime();
+    const float end_time   = GetEndTime();
     const float duration   = end_time - start_time;
     if(duration <= 0.0f)
     {

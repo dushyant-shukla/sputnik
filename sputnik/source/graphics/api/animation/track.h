@@ -35,7 +35,7 @@ public:
     Interpolation GetInterpolation();
     void          SetInterpolation(Interpolation interpolation);
     float         GetStartTime();
-    float         EndTime();
+    float         GetEndTime();
 
     /**
      * This method samples the track at a given time. The booleann flag represents whether the track is looping or not.

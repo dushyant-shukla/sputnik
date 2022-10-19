@@ -40,7 +40,7 @@ Pose& Pose::operator=(const Pose& other)
 
     if(m_joints.size() != 0)
     {
-        memcpy(&m_joints[0], &other.m_joints[0], sizeof(int) * m_joints.size());
+        memcpy(&m_joints[0], &other.m_joints[0], sizeof(ramanujan::Transform) * m_joints.size());
     }
 
     return *this;
