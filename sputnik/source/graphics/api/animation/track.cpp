@@ -307,7 +307,7 @@ T Track<T, SIZE>::SampleCubic(float time, bool looping)
     slope_1 = slope_1 * delta_time;
 
     T point_2 = Cast(&m_frames[next_frame_index].m_value[0]);
-    T slope_2; // = mFrames[nextFrame].mIn * frameDelta;
+    T slope_2;
     memcpy(&slope_2, m_frames[next_frame_index].m_in_tangents, SIZE * sizeof(float));
     slope_2 = slope_2 * delta_time;
 

@@ -17,6 +17,7 @@
 namespace sputnik::demos
 {
 
+// Todo: Refactor the class to change naming variables.
 class CurvePlotting : public sputnik::main::Application
 {
 

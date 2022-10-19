@@ -32,7 +32,8 @@ LoadingAnimationClips::~LoadingAnimationClips() {}
 
 void LoadingAnimationClips::Initialize()
 {
-    cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
+    // cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
+    cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
     m_rest_pose      = sputnik::gltf::GltfLoader::LoadRestPose(gltf);
     sputnik::gltf::GltfLoader::LoadAnimationClips(gltf, m_clips);
     sputnik::gltf::GltfLoader::FreeFile(gltf);
@@ -57,7 +58,7 @@ void LoadingAnimationClips::Update(float delta_time)
 void LoadingAnimationClips::Render(float aspect_ratio)
 {
     ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
-    ramanujan::Matrix4 view       = ramanujan::LookAt({0.0f, 4.0f, -7.0f}, {0.0f, 4.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+    ramanujan::Matrix4 view       = ramanujan::LookAt({0.0f, 4.0f, -500.0f}, {0.0f, 4.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
     ramanujan::Matrix4 mvp        = projection * view;
 
     if(m_show_rest_pose)
