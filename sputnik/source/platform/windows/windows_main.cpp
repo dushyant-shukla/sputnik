@@ -197,11 +197,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
 
-            // Disable this and disable pvm matrices from shader, and the geometry is rendered as long as the positions
-            // are defined in CCW.
-            // With pvm enabled, we need to set the front face to clockwise, only then the geometry is rendered.
-            glFrontFace(GL_CW);
-
             glPointSize(5.0f);
             glLineWidth(1.5f * gScaleFactor);
 

@@ -161,6 +161,11 @@ void MeshFromAttribute(sputnik::api::Mesh& out_mesh,
     {
         component_count = 4;
     }
+    else
+    {
+        std::cout << "Unknown data type!\n";
+        return;
+    }
 
     std::vector<float> values;
     GetScalarValues(values, component_count, accessor);
@@ -192,7 +197,7 @@ void MeshFromAttribute(sputnik::api::Mesh& out_mesh,
             ramanujan::Vector3 normal = ramanujan::Vector3(values[index + 0], values[index + 1], values[index + 2]);
             if(ramanujan::LengthSq(normal) < ramanujan::constants::EPSILON)
             {
-                normal = ramanujan::Vector3(0.0f, 1.0f, 0.0f);
+                normal = ramanujan::Vector3(0.0f, 0.0f, 1.0f);
             }
             normals.push_back(ramanujan::Normalized(normal));
             break;
@@ -214,11 +219,51 @@ void MeshFromAttribute(sputnik::api::Mesh& out_mesh,
             joints.z = std::max(0, joints.z);
             joints.w = std::max(0, joints.w);
 
+            //joints.x = joints.x < 0 ? 0 : GetNodeIndex(skin->joints[joints.x], nodes, node_count);
+            //joints.y = joints.y < 0 ? 0 : GetNodeIndex(skin->joints[joints.y], nodes, node_count);
+            //joints.z = joints.z < 0 ? 0 : GetNodeIndex(skin->joints[joints.z], nodes, node_count);
+            //joints.w = joints.w < 0 ? 0 : GetNodeIndex(skin->joints[joints.w], nodes, node_count);
+
+            //joints.x = joints.x < 0 ? 0 : joints.x;
+            //joints.y = joints.y < 0 ? 0 : joints.y;
+            //joints.z = joints.z < 0 ? 0 : joints.z;
+            //joints.w = joints.w < 0 ? 0 : joints.w;
+
             influences.push_back(joints);
             break;
         }
         }
     }
+
+    //std::cout << "writing mesh data." << std::endl;
+    //std::ofstream ofs("mesh_data_sputnik.txt", std::ofstream::out);
+    ////std::cout << "Position:" << std::endl;
+    //ofs << "Position:" << std::endl;
+    //for(int i = 0; i < positions.size(); ++i)
+    //{
+    //    //std::cout << positions[i].x << ", " << positions[i].y << ", " << positions[i].z << std::endl;
+    //    ofs << positions[i].x << ", " << positions[i].y << ", " << positions[i].z << std::endl;
+    //}
+
+    ////std::cout << "Normals:" << std::endl;
+    //ofs << "Normals:" << std::endl;
+    //for(int i = 0; i < normals.size(); ++i)
+    //{
+    //    //std::cout << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << std::endl;
+    //    ofs << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << std::endl;
+    //}
+
+    ////std::cout << "Texture Coordinates:" << std::endl;
+    //ofs << "Texture Coordinates:" << std::endl;
+    //for(int i = 0; i < uv.size(); ++i)
+    //{
+    //    //std::cout << uv[i].x << ", " << uv[i].y << std::endl;
+    //    ofs << uv[i].x << ", " << uv[i].y << std::endl;
+    //}
+
+    //ofs.close();
+    //std::cout << "finished writing mesh data!";
+
 } // End of MeshFromAttribute()
 
 } // namespace helper
@@ -449,7 +494,7 @@ std::vector<sputnik::api::Mesh> GltfLoader::LoadMeshes(Data* data)
 
                 for(size_t k = 0; k < ic; ++k)
                 {
-                    indices[k] = cgltf_accessor_read_index(primitive->indices, k);
+                    indices[k] = (unsigned int)cgltf_accessor_read_index(primitive->indices, k);
                 }
             }
 

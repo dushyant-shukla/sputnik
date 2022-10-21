@@ -7,6 +7,9 @@
 #include <graphics/api/animation/pose.h>
 #include <graphics/glcore/debug_draw.h>
 #include <graphics/api/animation/skeleton.h>
+#include <graphics/glcore/texture.h>
+#include <graphics/api/animation/skinning_type.h>
+#include <graphics/api/mesh.h>
 
 #include <memory>
 #include <vector>
@@ -27,9 +30,18 @@ public:
     virtual void Shutdown() override;
 
 private:
-    sputnik::glcore::DebugDraw* m_rest_pose_visual;
-    sputnik::glcore::DebugDraw* m_current_pose_visual;
-    sputnik::glcore::DebugDraw* m_bind_pose_visual;
+    std::shared_ptr<sputnik::glcore::Texture> m_diffuse_texture;
+
+    sputnik::api::animation::SkinningType    m_skinning_type;
+    std::shared_ptr<sputnik::glcore::Shader> m_static_shader;
+    std::shared_ptr<sputnik::glcore::Shader> m_skinning_shader;
+
+    std::shared_ptr<sputnik::glcore::DebugDraw> m_rest_pose_visual;
+    std::shared_ptr<sputnik::glcore::DebugDraw> m_bind_pose_visual;
+    std::shared_ptr<sputnik::glcore::DebugDraw> m_current_pose_visual;
+
+    std::vector<sputnik::api::Mesh> m_meshes;
+    std::vector<ramanujan::Matrix4> m_pose_palette;
 
     sputnik::api::animation::Skeleton m_skeleton;
     sputnik::api::animation::Pose     m_current_pose;

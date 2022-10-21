@@ -2,7 +2,6 @@
 
 #include <platform/windows/windows_main.h>
 #include <main/application.h>
-#include <graphics/glcore/shader.h>
 #include <graphics/api/animation/animation_clip.h>
 #include <graphics/api/animation/pose.h>
 #include <graphics/glcore/debug_draw.h>

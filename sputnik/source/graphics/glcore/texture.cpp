@@ -47,6 +47,7 @@ void Texture::Load(const char* path)
     glBindTexture(GL_TEXTURE_2D, m_id);
 
     int            width, height, channels;
+    //stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(path, &width, &height, &channels, 4);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);

@@ -10,7 +10,7 @@ uniform mat4 projection;
 
 layout (location = 0) out VS_OUT
 {
-    vec3 frag_pos;
+    vec3 frag_position;
     vec2 uv;
     vec3 normal;
 } vs_out;
@@ -18,7 +18,7 @@ layout (location = 0) out VS_OUT
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0);
-    vs_out.frag_pos = vec3(model * vec4(position, 1.0));
+    vs_out.frag_position = vec3(model * vec4(position, 1.0));
     vs_out.normal = vec3(model * vec4(normal, 1.0));
     vs_out.uv = uv;
 }

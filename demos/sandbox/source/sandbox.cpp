@@ -35,9 +35,10 @@ void Sandbox::Initialize()
     // setting vertex positions counter clockwise
     std::vector<ramanujan::Vector3> positions;
     positions.push_back({-1.0f, -1.0f, 0});
-    positions.push_back({1.0f, -1.0f, 0});
-    positions.push_back({1.0f, 1.0f, 0});
     positions.push_back({-1.0f, 1.0f, 0});
+    positions.push_back({1.0f, 1.0f, 0});
+    positions.push_back({1.0f, -1.0f, 0});
+
     m_vertex_positions->Set(positions);
 
     std::vector<ramanujan::Vector3> normals;
@@ -46,9 +47,9 @@ void Sandbox::Initialize()
 
     std::vector<ramanujan::Vector2> uvs;
     uvs.push_back({0.0f, 0.0f});
-    uvs.push_back({1.0f, 0.0f});
-    uvs.push_back({1.0f, 1.0f});
     uvs.push_back({0.0f, 1.0f});
+    uvs.push_back({1.0f, 1.0f});
+    uvs.push_back({1.0f, 0.0f});
     m_vertex_uv->Set(uvs);
 
     std::vector<unsigned int> indices;
