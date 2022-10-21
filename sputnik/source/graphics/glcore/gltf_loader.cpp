@@ -413,7 +413,7 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
     }
 
     // Phase#3: Convert the world bind pose to a regular bind pose
-    std::cout << "local bind pose initialization from world bind pose:\n";
+    //std::cout << "local bind pose initialization from world bind pose:\n";
     sputnik::api::animation::Pose bind_pose = rest_pose;
     for(size_t i = 0; i < num_joints_rest_pose; ++i)
     {
@@ -424,16 +424,15 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
             // Bringing the world space transform into local space transform relative to the parent node.
             ramanujan::Transform parent_transform = world_bind_pose[parent_node_index];
             current_transform = ramanujan::Combine(ramanujan::Inverse(parent_transform), current_transform);
-            // current_transform = ramanujan::Combine(parent_transform, current_transform);
         }
         bind_pose.SetLocalTransform(i, current_transform);
-        std::cout << "joint index: " << i << std::endl;
-        std::cout << "Position:\t" << current_transform.position.x << ", " << current_transform.position.y << ", "
-                  << current_transform.position.z << std::endl;
-        std::cout << "Scale:\t" << current_transform.scale.x << ", " << current_transform.scale.y << ", "
-                  << current_transform.scale.z << std::endl;
-        std::cout << "Rotation:\t" << current_transform.rotation.x << ", " << current_transform.rotation.y << ", "
-                  << current_transform.rotation.z << ", " << current_transform.rotation.w << std::endl;
+        //std::cout << "joint index: " << i << std::endl;
+        //std::cout << "Position:\t" << current_transform.position.x << ", " << current_transform.position.y << ", "
+        //          << current_transform.position.z << std::endl;
+        //std::cout << "Scale:\t" << current_transform.scale.x << ", " << current_transform.scale.y << ", "
+        //          << current_transform.scale.z << std::endl;
+        //std::cout << "Rotation:\t" << current_transform.rotation.x << ", " << current_transform.rotation.y << ", "
+        //          << current_transform.rotation.z << ", " << current_transform.rotation.w << std::endl;
     }
     return bind_pose;
 } // End of LoadBindPose()
