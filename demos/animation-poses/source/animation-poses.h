@@ -13,12 +13,12 @@
 namespace sputnik::demos
 {
 
-class LoadingAnimationClips : public sputnik::main::Application
+class AnimationPoses : public sputnik::main::Application
 {
 
 public:
-    LoadingAnimationClips();
-    ~LoadingAnimationClips();
+    AnimationPoses();
+    ~AnimationPoses();
 
     virtual void Initialize() override;
     virtual void Update(float delta_time) override;

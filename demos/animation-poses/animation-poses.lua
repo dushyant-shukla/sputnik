@@ -1,6 +1,6 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "loading-animation-clips"
+project "animation-poses"
 language "C++"
 characterset("MBCS")
 

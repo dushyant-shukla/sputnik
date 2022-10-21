@@ -1,4 +1,4 @@
-#include "loading_animation_clips.h"
+#include "animation-poses.h"
 
 #include <graphics/api/renderer.h>
 #include <graphics/glcore/gltf_loader.h>
@@ -11,13 +11,13 @@ namespace sputnik
 
 sputnik::main::Application* sputnik::main::CreateApplication()
 {
-    return new demos::LoadingAnimationClips();
+    return new demos::AnimationPoses();
 }
 
 namespace demos
 {
 
-LoadingAnimationClips::LoadingAnimationClips()
+AnimationPoses::AnimationPoses()
     : sputnik::main::Application::Application()
     , m_show_current_pose(true)
     , m_show_rest_pose(true)
@@ -30,9 +30,9 @@ LoadingAnimationClips::LoadingAnimationClips()
 {
 }
 
-LoadingAnimationClips::~LoadingAnimationClips() {}
+AnimationPoses::~AnimationPoses() {}
 
-void LoadingAnimationClips::Initialize()
+void AnimationPoses::Initialize()
 {
     cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
     // cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
@@ -57,13 +57,13 @@ void LoadingAnimationClips::Initialize()
     m_current_pose_visual->UpdateOpenGLBuffers();
 }
 
-void LoadingAnimationClips::Update(float delta_time)
+void AnimationPoses::Update(float delta_time)
 {
     m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + delta_time);
     m_current_pose_visual->FromPose(m_current_pose);
 }
 
-void LoadingAnimationClips::Render(float aspect_ratio)
+void AnimationPoses::Render(float aspect_ratio)
 {
     ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
     // ramanujan::Matrix4 view       = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
@@ -86,7 +86,7 @@ void LoadingAnimationClips::Render(float aspect_ratio)
     }
 }
 
-void LoadingAnimationClips::Shutdown()
+void AnimationPoses::Shutdown()
 {
     delete m_rest_pose_visual;
     delete m_current_pose_visual;

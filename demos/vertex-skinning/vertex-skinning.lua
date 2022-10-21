@@ -1,6 +1,6 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "cpu-skinning"
+project "vertex-skinning"
 language "C++"
 characterset("MBCS")
 

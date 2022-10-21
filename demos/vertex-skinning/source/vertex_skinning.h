@@ -17,12 +17,12 @@
 namespace sputnik::demos
 {
 
-class CpuSkinning : public sputnik::main::Application
+class VertexSkinning : public sputnik::main::Application
 {
 
 public:
-    CpuSkinning();
-    ~CpuSkinning();
+    VertexSkinning();
+    ~VertexSkinning();
 
     virtual void Initialize() override;
     virtual void Update(float delta_time) override;
