@@ -352,22 +352,10 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
 
     // Convert each transform in the rest pose into a world space transform. This ensures that is a skin didn't provide
     // an inverse bind pose matrix of a joint, a good default value is available.
-    // std::cout << "world bind pose initialization:\n";
     std::vector<ramanujan::Transform> world_bind_pose(num_joints_rest_pose);
     for(size_t rest_pose_joint_index = 0; rest_pose_joint_index < num_joints_rest_pose; ++rest_pose_joint_index)
     {
         world_bind_pose[rest_pose_joint_index] = rest_pose.GetGlobalTransform(rest_pose_joint_index);
-        // std::cout << "joint index: " << rest_pose_joint_index << std::endl;
-        // std::cout << "Position:\t" << world_bind_pose[rest_pose_joint_index].position.x << ", "
-        //           << world_bind_pose[rest_pose_joint_index].position.y << ", "
-        //           << world_bind_pose[rest_pose_joint_index].position.z << std::endl;
-        // std::cout << "Scale:\t" << world_bind_pose[rest_pose_joint_index].scale.x << ", "
-        //           << world_bind_pose[rest_pose_joint_index].scale.y << ", "
-        //           << world_bind_pose[rest_pose_joint_index].scale.z << std::endl;
-        // std::cout << "Rotation:\t" << world_bind_pose[rest_pose_joint_index].rotation.x << ", "
-        //           << world_bind_pose[rest_pose_joint_index].rotation.y << ", "
-        //           << world_bind_pose[rest_pose_joint_index].rotation.z << ", "
-        //           << world_bind_pose[rest_pose_joint_index].rotation.w << std::endl;
     }
 
     // Phase#2:
@@ -385,7 +373,6 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
         // For every joint in the skinned mesh, invert the inverse bind pose matrix of each joint. Inverting the inverse
         // bind pose matrix results in the bind pose matrix.
         size_t num_joints_in_current_skin = current_skin->joints_count;
-        //std::cout << "world bind pose initialization from mesh:\n";
         for(size_t joint_index_current_skin = 0; joint_index_current_skin < num_joints_in_current_skin;
             ++joint_index_current_skin)
         {
@@ -399,21 +386,10 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
             Node* joint_node             = current_skin->joints[joint_index_current_skin];
             int   joint_index            = helper::GetNodeIndex(joint_node, data->nodes, num_joints_rest_pose);
             world_bind_pose[joint_index] = bind_transform;
-            //std::cout << "joint index: " << joint_index << std::endl;
-            //std::cout << "Position:\t" << world_bind_pose[joint_index].position.x << ", "
-            //          << world_bind_pose[joint_index].position.y << ", " << world_bind_pose[joint_index].position.z
-            //          << std::endl;
-            //std::cout << "Scale:\t" << world_bind_pose[joint_index].scale.x << ", "
-            //          << world_bind_pose[joint_index].scale.y << ", " << world_bind_pose[joint_index].scale.z
-            //          << std::endl;
-            //std::cout << "Rotation:\t" << world_bind_pose[joint_index].rotation.x << ", "
-            //          << world_bind_pose[joint_index].rotation.y << ", " << world_bind_pose[joint_index].rotation.z
-            //          << ", " << world_bind_pose[joint_index].rotation.w << std::endl;
         }
     }
 
     // Phase#3: Convert the world bind pose to a regular bind pose
-    //std::cout << "local bind pose initialization from world bind pose:\n";
     sputnik::api::animation::Pose bind_pose = rest_pose;
     for(size_t i = 0; i < num_joints_rest_pose; ++i)
     {
@@ -426,13 +402,6 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
             current_transform = ramanujan::Combine(ramanujan::Inverse(parent_transform), current_transform);
         }
         bind_pose.SetLocalTransform(i, current_transform);
-        //std::cout << "joint index: " << i << std::endl;
-        //std::cout << "Position:\t" << current_transform.position.x << ", " << current_transform.position.y << ", "
-        //          << current_transform.position.z << std::endl;
-        //std::cout << "Scale:\t" << current_transform.scale.x << ", " << current_transform.scale.y << ", "
-        //          << current_transform.scale.z << std::endl;
-        //std::cout << "Rotation:\t" << current_transform.rotation.x << ", " << current_transform.rotation.y << ", "
-        //          << current_transform.rotation.z << ", " << current_transform.rotation.w << std::endl;
     }
     return bind_pose;
 } // End of LoadBindPose()
