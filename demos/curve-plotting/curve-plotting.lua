@@ -32,7 +32,8 @@ externalincludedirs
   -- these imcludes should not be required here as we write a better abstraction over lower level libraries
   "%{include_dir.glad}",
   "%{include_dir.stb_image}",
-  "%{include_dir.cgltf}"
+  "%{include_dir.cgltf}",
+  "%{include_dir.imgui}"
 }
 
 links

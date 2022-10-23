@@ -17,12 +17,16 @@ files
   "source/**.cpp",
   "source/**.inl",
 
-  "%{externals.glad}/src/glad.c",
-  -- "%{externals.glad}/src/**.c", -- (**.c) does not work for some reason
+  -- external source files
+  "%{externals.glad}/src/glad.c",   -- "%{externals.glad}/src/**.c", -- (**.c) does not work for some reason
   "%{externals.stb_image}/stb_image.h",
   "%{externals.stb_image}/stb_image.cpp",
   "%{externals.cgltf}/cgltf.h",
-  "%{externals.cgltf}/cgltf.c"
+  "%{externals.cgltf}/cgltf.c",
+  "%{externals.imgui}/backends/imgui_impl_win32.h",
+  "%{externals.imgui}/backends/imgui_impl_win32.cpp",
+  "%{externals.imgui}/backends/imgui_impl_opengl3.h",
+  "%{externals.imgui}/backends/imgui_impl_opengl3.cpp"
 }
 
 includedirs
@@ -35,7 +39,8 @@ externalincludedirs
   "%{include_dir.glad}",
   "%{include_dir.stb_image}",
   "%{include_dir.cgltf}",
-  "%{include_dir.ramanujan}"
+  "%{include_dir.ramanujan}",
+  "%{include_dir.imgui}"
 }
 
 links
@@ -54,6 +59,12 @@ flags { "NoPCH" }
 -- flags { "NoPCH" }
 
 filter "files:$(SolutionDir)sputnik/externals/stb_image/stb_image.cpp"
+flags { "NoPCH" }
+
+filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_win32.cpp"
+flags { "NoPCH" }
+
+filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_opengl3.cpp"
 flags { "NoPCH" }
 
 -- Do not expect pch for this file

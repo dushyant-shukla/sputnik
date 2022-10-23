@@ -14,12 +14,14 @@ externals["glad"]       = "$(SolutionDir)sputnik/externals/glad"
 externals["stb_image"]  = "$(SolutionDir)sputnik/externals/stb_image"
 externals["cgltf"]      = "$(SolutionDir)sputnik/externals/cgltf"
 externals["ramanujan"]  = "$(SolutionDir)sputnik/externals/ramanujan"
+externals["imgui"]      = "$(SolutionDir)sputnik/externals/imgui"
 
 include_dir              = {}
 include_dir["glad"]      = "%{externals.glad}/include"
 include_dir["stb_image"] = "%{externals.stb_image}"
 include_dir["cgltf"]     = "%{externals.cgltf}"
 include_dir["ramanujan"] = "%{externals.ramanujan}/source"
+include_dir["imgui"]     = "%{externals.imgui}"
 
 static_libs           = {}
 static_libs["opengl"] = "opengl32.lib"
@@ -48,6 +50,7 @@ runtime "Release"
 -- include the dependencies
 group "dependencies"
 include "sputnik/externals/ramanujan/ramanujan-project.lua"
+include "sputnik/externals/imgui"
 group ""
 
 -- include the renderer project
