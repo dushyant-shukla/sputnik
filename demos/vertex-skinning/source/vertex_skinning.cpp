@@ -41,16 +41,16 @@ void VertexSkinning::Initialize()
     m_skinning_shader =
         std::make_shared<sputnik::glcore::Shader>("../../data/shaders/skinned.vert", "../../data/shaders/simple.frag");
 
-    //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
-    //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Woman.png");
+    cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
+    m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Woman.png");
 
-     cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
-     m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
-         "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
+     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
+     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+     //    "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
 
-    // cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
-    //    "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
+     //cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
+     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+     //   "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
 
     m_skeleton = sputnik::gltf::GltfLoader::LoadSkeleton(gltf);
     m_meshes   = sputnik::gltf::GltfLoader::LoadMeshes(gltf);
@@ -85,7 +85,7 @@ void VertexSkinning::Update(float delta_time)
     {
         for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
         {
-            m_meshes[i].CpuSkin(m_skeleton, m_current_pose);
+            m_meshes[i].CpuSkin(m_skeleton, m_current_pose); // Todo: when do we update uv and indices for cpu skin?
         }
         break;
     }
@@ -107,14 +107,14 @@ void VertexSkinning::Update(float delta_time)
 
 void VertexSkinning::Render(float aspect_ratio)
 {
-     ramanujan::Matrix4 model      = ramanujan::ToMatrix4(ramanujan::AngleAxis(135.0f, {0.0f, 1.0f, 0.0f}));
-    //ramanujan::Matrix4 model;
+     //ramanujan::Matrix4 model      = ramanujan::ToMatrix4(ramanujan::AngleAxis(135.0f, {0.0f, 1.0f, 0.0f}));
+    ramanujan::Matrix4 model;
     ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
-    //ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
+    ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
     // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman 
 
-     ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
-     0.0f}); // spiderman + nathan
+     //ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
+     //0.0f}); // spiderman + nathan
 
     ramanujan::Matrix4 mvp = projection * view * model;
 

@@ -37,7 +37,7 @@ public:
     std::vector<ramanujan::IVector4>& GetInfluences();
     std::vector<unsigned int>&        GetIndices();
 
-    void CpuSkin(animation::Skeleton& skeleton, animation::Pose& pose);
+    void CpuSkin(const animation::Skeleton& skeleton, const animation::Pose& pose);
     void UpdateOpenglBuffers();
     void Bind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot);
 

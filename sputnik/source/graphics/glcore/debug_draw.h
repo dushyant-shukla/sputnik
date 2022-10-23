@@ -36,7 +36,7 @@ public:
     ramanujan::Vector3& operator[](unsigned int index);
     void                Push(const ramanujan::Vector3& v);
 
-    void FromPose(api::animation::Pose& pose);
+    void FromPose(const api::animation::Pose& pose);
 
     void UpdateOpenGLBuffers();
     void Draw(DebugDrawMode mode, const ramanujan::Vector3& color, const ramanujan::Matrix4& mvp);

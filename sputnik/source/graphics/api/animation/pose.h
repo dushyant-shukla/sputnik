@@ -24,13 +24,13 @@ public:
     Pose(size_t num_joints);
 
     void                 SetNumJoints(size_t new_num_joints);
-    size_t               GetNumJoints();
-    int                  GetParent(size_t joint_index);
+    size_t               GetNumJoints() const;
+    int                  GetParent(size_t joint_index) const;
     void                 SetParent(size_t joint_index, int parent_joint_index);
-    ramanujan::Transform GetLocalTransform(size_t joint_index);
+    ramanujan::Transform GetLocalTransform(size_t joint_index) const;
     void                 SetLocalTransform(size_t joint_index, const ramanujan::Transform& transform);
-    ramanujan::Transform GetGlobalTransform(size_t joint_index);
-    ramanujan::Transform operator[](size_t joint_index);
+    ramanujan::Transform GetGlobalTransform(size_t joint_index) const;
+    ramanujan::Transform operator[](size_t joint_index) const;
 
     /**
      * Global transforms for every joint in the transform hierarchy has to be passed to the gpu, therefore it must be

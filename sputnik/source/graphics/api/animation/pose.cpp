@@ -52,12 +52,12 @@ void Pose::SetNumJoints(size_t new_num_joints)
     m_joints.resize(new_num_joints);
 }
 
-size_t Pose::GetNumJoints()
+size_t Pose::GetNumJoints() const
 {
     return m_joints.size();
 }
 
-int Pose::GetParent(size_t joint_index)
+int Pose::GetParent(size_t joint_index) const
 {
     return m_parents[joint_index];
 }
@@ -67,7 +67,7 @@ void Pose::SetParent(size_t joint_index, int parent_joint_index)
     m_parents[joint_index] = parent_joint_index;
 }
 
-ramanujan::Transform Pose::GetLocalTransform(size_t joint_index)
+ramanujan::Transform Pose::GetLocalTransform(size_t joint_index) const
 {
     return m_joints[joint_index];
 }
@@ -84,7 +84,7 @@ void Pose::SetLocalTransform(size_t joint_index, const ramanujan::Transform& tra
  * \param joint_index
  * \return
  */
-ramanujan::Transform Pose::GetGlobalTransform(size_t joint_index)
+ramanujan::Transform Pose::GetGlobalTransform(size_t joint_index) const
 {
     ramanujan::Transform result = m_joints[joint_index]; // start with the transform for the joint
     for(int parent_index = m_parents[joint_index]; parent_index >= 0; parent_index = m_parents[parent_index])
@@ -102,7 +102,7 @@ ramanujan::Transform Pose::GetGlobalTransform(size_t joint_index)
  * \param index
  * \return
  */
-ramanujan::Transform Pose::operator[](size_t joint_index)
+ramanujan::Transform Pose::operator[](size_t joint_index) const
 {
     return GetGlobalTransform(joint_index);
 }

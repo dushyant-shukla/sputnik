@@ -20,12 +20,12 @@ void Skeleton::Set(const Pose& rest_pose, const Pose& bind_pose, const std::vect
     UpdateInverseBindPose();
 }
 
-Pose& Skeleton::GetBindPose()
+const Pose& Skeleton::GetBindPose() const
 {
     return m_bind_pose;
 }
 
-Pose& Skeleton::GetRestPose()
+const Pose& Skeleton::GetRestPose() const
 {
     return m_rest_pose;
 }

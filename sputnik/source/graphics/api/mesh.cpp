@@ -75,7 +75,7 @@ std::vector<unsigned int>& Mesh::GetIndices()
     return m_indices;
 }
 
-void Mesh::CpuSkin(animation::Skeleton& skeleton, animation::Pose& pose)
+void Mesh::CpuSkin(const animation::Skeleton& skeleton, const animation::Pose& pose)
 {
     size_t num_vertices = m_position.size();
     if(num_vertices == 0)
@@ -85,7 +85,7 @@ void Mesh::CpuSkin(animation::Skeleton& skeleton, animation::Pose& pose)
 
     m_skinned_position.resize(num_vertices);
     m_skinned_normal.resize(num_vertices);
-    sputnik::api::animation::Pose& bind_pose = skeleton.GetBindPose();
+    const sputnik::api::animation::Pose& bind_pose = skeleton.GetBindPose();
 
     for(size_t vertex_index = 0; vertex_index < num_vertices; ++vertex_index)
     {

@@ -23,8 +23,8 @@ public:
 
     void Set(const Pose& rest_pose, const Pose& bind_pose, const std::vector<std::string>& joint_names);
 
-    Pose& GetBindPose();
-    Pose& GetRestPose();
+    const Pose& GetBindPose() const;
+    const Pose& GetRestPose() const;
 
     std::vector<ramanujan::Matrix4>& GetInverseBindPose();
     std::vector<std::string>&        GetJointNames();
