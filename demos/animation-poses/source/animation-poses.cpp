@@ -5,6 +5,7 @@
 #include <matrix4.h>
 #include <vector3.h>
 #include <camera_transforms.h>
+#include <imgui.h>
 
 namespace sputnik
 {
@@ -70,6 +71,15 @@ void AnimationPoses::Render(float aspect_ratio)
     // 0.0f}); // nathan and spiderman
     ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 4.0f, -7.0f}, {0.0f, 4.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
     ramanujan::Matrix4 mvp  = projection * view;
+
+    if(ImGui::Begin("Animation Poses"))
+    {
+        ImGui::Text("Settings:");
+        ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
+        ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
+        ImGui::Checkbox("Show current pose", &m_show_current_pose);
+        ImGui::End();
+    }
 
     if(m_show_rest_pose)
     {

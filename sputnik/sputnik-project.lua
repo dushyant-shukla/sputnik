@@ -46,7 +46,8 @@ externalincludedirs
 links
 {
   "%{static_libs.opengl}",
-  "ramanujan"
+  "ramanujan",
+  "ImGui"
 }
 
 filter { "files:**.c" }
