@@ -33,7 +33,9 @@ externalincludedirs
   "%{include_dir.glad}",
   "%{include_dir.stb_image}",
   "%{include_dir.cgltf}",
-  "%{include_dir.imgui}"
+  "%{include_dir.imgui}",
+  "%{include_dir.spdlog}",
+  "%{include_dir.imguizmo}"
 }
 
 links

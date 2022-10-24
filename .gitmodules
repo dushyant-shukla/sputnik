@@ -4,3 +4,9 @@
 [submodule "sputnik/externals/imgui"]
 	path = sputnik/externals/imgui
 	url = git@github.com:dushyant-shukla/imgui.git
+[submodule "sputnik/externals/spdlog"]
+	path = sputnik/externals/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "sputnik/externals/ImGuizmo"]
+	path = sputnik/externals/ImGuizmo
+	url = https://github.com/dushyant-shukla/ImGuizmo.git

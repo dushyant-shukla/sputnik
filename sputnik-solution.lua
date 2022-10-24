@@ -15,6 +15,8 @@ externals["stb_image"]  = "$(SolutionDir)sputnik/externals/stb_image"
 externals["cgltf"]      = "$(SolutionDir)sputnik/externals/cgltf"
 externals["ramanujan"]  = "$(SolutionDir)sputnik/externals/ramanujan"
 externals["imgui"]      = "$(SolutionDir)sputnik/externals/imgui"
+externals["spdlog"]     = "$(SolutionDir)sputnik/externals/spdlog"
+externals["imguizmo"]   = "$(SolutionDir)sputnik/externals/ImGuizmo"
 
 include_dir              = {}
 include_dir["glad"]      = "%{externals.glad}/include"
@@ -22,6 +24,8 @@ include_dir["stb_image"] = "%{externals.stb_image}"
 include_dir["cgltf"]     = "%{externals.cgltf}"
 include_dir["ramanujan"] = "%{externals.ramanujan}/source"
 include_dir["imgui"]     = "%{externals.imgui}"
+include_dir["spdlog"]    = "%{externals.spdlog}/include"
+include_dir["imguizmo"]  = "%{externals.imguizmo}"
 
 static_libs           = {}
 static_libs["opengl"] = "opengl32.lib"

@@ -26,7 +26,9 @@ files
   "%{externals.imgui}/backends/imgui_impl_win32.h",
   "%{externals.imgui}/backends/imgui_impl_win32.cpp",
   "%{externals.imgui}/backends/imgui_impl_opengl3.h",
-  "%{externals.imgui}/backends/imgui_impl_opengl3.cpp"
+  "%{externals.imgui}/backends/imgui_impl_opengl3.cpp",
+  "%{externals.imguizmo}/ImGuizmo.h",
+  "%{externals.imguizmo}/ImGuizmo.cpp"
 }
 
 includedirs
@@ -40,7 +42,9 @@ externalincludedirs
   "%{include_dir.stb_image}",
   "%{include_dir.cgltf}",
   "%{include_dir.ramanujan}",
-  "%{include_dir.imgui}"
+  "%{include_dir.imgui}",
+  "%{include_dir.spdlog}",
+  "%{include_dir.imguizmo}"
 }
 
 links
@@ -66,6 +70,9 @@ filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_win32.cp
 flags { "NoPCH" }
 
 filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_opengl3.cpp"
+flags { "NoPCH" }
+
+filter "files:$(SolutionDir)sputnik/externals/ImGuizmo/ImGuizmo.cpp"
 flags { "NoPCH" }
 
 -- Do not expect pch for this file
