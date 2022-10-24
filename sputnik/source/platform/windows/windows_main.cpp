@@ -126,6 +126,8 @@ void InitializeOpenGLForWindows(HDC device_context)
     {
         std::cout << "OpenGL Version " << GLVersion.major << "." << GLVersion.minor << " loaded\n";
     }
+
+    EnableVsync(1);
 }
 
 ImVec4 ImColorLerp(const ImVec4& a, const ImVec4& b, float t)

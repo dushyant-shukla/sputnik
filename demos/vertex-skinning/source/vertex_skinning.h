@@ -53,6 +53,10 @@ private:
     std::vector<sputnik::api::animation::AnimationClip> m_clips;
     size_t                                              m_current_clip;
     float                                               m_playback_time;
+
+    // GUI stuff
+    int m_skinning_type_index;
+    std::string m_skinnig_types_str;
 };
 
 } // namespace sputnik::demos

@@ -38,6 +38,7 @@ public:
     std::vector<unsigned int>&        GetIndices();
 
     void CpuSkin(const animation::Skeleton& skeleton, const animation::Pose& pose);
+    void CpuSkin(const std::vector<ramanujan::Matrix4>& skin_transform);
     void UpdateOpenglBuffers();
     void Bind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot);
 

@@ -10,8 +10,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform mat4 pose[120];
-uniform mat4 inv_bind_pose[120];
+uniform mat4 skin_transforms[120];
 
 layout (location = 0) out VS_OUT
 {
@@ -22,17 +21,15 @@ layout (location = 0) out VS_OUT
 
 void main()
 {
-    mat4 skin = (pose[joints.x] * inv_bind_pose[joints.x]) * weights.x;
-    skin += (pose[joints.y] * inv_bind_pose[joints.y]) * weights.y;
-    skin += (pose[joints.z] * inv_bind_pose[joints.z]) * weights.z;
-    skin += (pose[joints.w] * inv_bind_pose[joints.w]) * weights.w;
+    mat4 skin = skin_transforms[joints.x] * weights.x;
+    skin += skin_transforms[joints.y] * weights.y;
+    skin += skin_transforms[joints.z] * weights.z;
+    skin += skin_transforms[joints.w] * weights.w;
 
     gl_Position = projection * view * model * skin * vec4(position, 1.0);
+    mat4 normal_matrix = transpose(inverse(model));
+
     vs_out.frag_position = vec3(model * skin * vec4(position, 1.0));
-
-    //mat3 normal_matrix = mat3(transpose(inverse(model)));
-    //vs_out.normal = normal_matrix * normal;
-
-    vs_out.normal = vec3(model * skin * vec4(normal, 1.0));
+    vs_out.normal = mat3(skin * normal_matrix) * normal;
     vs_out.uv = uv;
 }

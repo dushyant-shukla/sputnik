@@ -85,7 +85,8 @@ void Mesh::CpuSkin(const animation::Skeleton& skeleton, const animation::Pose& p
 
     m_skinned_position.resize(num_vertices);
     m_skinned_normal.resize(num_vertices);
-    const sputnik::api::animation::Pose& bind_pose = skeleton.GetBindPose();
+    // const sputnik::api::animation::Pose& bind_pose = skeleton.GetBindPose();
+    const std::vector<ramanujan::Matrix4>& inv_bind_pose = skeleton.GetInverseBindPose();
 
     for(size_t vertex_index = 0; vertex_index < num_vertices; ++vertex_index)
     {
@@ -100,24 +101,70 @@ void Mesh::CpuSkin(const animation::Skeleton& skeleton, const animation::Pose& p
         // vertex). A skin transform is the combination of the inverse bind pose and the pose transformations.
 
         // Skin transform#1
-        ramanujan::Transform skin_0 = ramanujan::Combine(pose[joint.x], ramanujan::Inverse(bind_pose[joint.x]));
+        // ramanujan::Transform skin_0 = ramanujan::Combine(pose[joint.x], ramanujan::Inverse(bind_pose[joint.x]));
+        ramanujan::Transform skin_0 = ramanujan::Combine(pose[joint.x], ramanujan::ToTransform(inv_bind_pose[joint.x]));
         ramanujan::Vector3   p_0    = ramanujan::TransformPoint(skin_0, m_position[vertex_index]);
         ramanujan::Vector3   n_0    = ramanujan::TransformPoint(skin_0, m_normal[vertex_index]);
 
         // Skin transform#2
-        ramanujan::Transform skin_1 = ramanujan::Combine(pose[joint.y], ramanujan::Inverse(bind_pose[joint.y]));
+        // ramanujan::Transform skin_1 = ramanujan::Combine(pose[joint.y], ramanujan::Inverse(bind_pose[joint.y]));
+        ramanujan::Transform skin_1 = ramanujan::Combine(pose[joint.y], ramanujan::ToTransform(inv_bind_pose[joint.y]));
         ramanujan::Vector3   p_1    = ramanujan::TransformPoint(skin_1, m_position[vertex_index]);
-        ramanujan::Vector3   n_1    = ramanujan::TransformPoint(skin_1, m_normal[vertex_index]);
+        ramanujan::Vector3   n_1    = ramanujan::TransformVector(skin_1, m_normal[vertex_index]);
 
         // Skin transform#3
-        ramanujan::Transform skin_2 = ramanujan::Combine(pose[joint.z], ramanujan::Inverse(bind_pose[joint.z]));
+        // ramanujan::Transform skin_2 = ramanujan::Combine(pose[joint.z], ramanujan::Inverse(bind_pose[joint.z]));
+        ramanujan::Transform skin_2 = ramanujan::Combine(pose[joint.z], ramanujan::ToTransform(inv_bind_pose[joint.z]));
         ramanujan::Vector3   p_2    = ramanujan::TransformPoint(skin_2, m_position[vertex_index]);
-        ramanujan::Vector3   n_2    = ramanujan::TransformPoint(skin_2, m_normal[vertex_index]);
+        ramanujan::Vector3   n_2    = ramanujan::TransformVector(skin_2, m_normal[vertex_index]);
 
         // Skin transform#4
-        ramanujan::Transform skin_3 = ramanujan::Combine(pose[joint.w], ramanujan::Inverse(bind_pose[joint.w]));
+        // ramanujan::Transform skin_3 = ramanujan::Combine(pose[joint.w], ramanujan::Inverse(bind_pose[joint.w]));
+        ramanujan::Transform skin_3 = ramanujan::Combine(pose[joint.w], ramanujan::ToTransform(inv_bind_pose[joint.w]));
         ramanujan::Vector3   p_3    = ramanujan::TransformPoint(skin_3, m_position[vertex_index]);
-        ramanujan::Vector3   n_3    = ramanujan::TransformPoint(skin_3, m_normal[vertex_index]);
+        ramanujan::Vector3   n_3    = ramanujan::TransformVector(skin_3, m_normal[vertex_index]);
+
+        // Combine the above transforms for final vertex positions and normals
+        m_skinned_position[vertex_index] = p_0 * weight.x + p_1 * weight.y + p_2 * weight.z + p_3 * weight.w;
+        m_skinned_normal[vertex_index]   = n_0 * weight.x + n_1 * weight.y + n_2 * weight.z + n_3 * weight.w;
+    }
+
+    // update the gpu buffers
+    m_position_attribute->Set(m_skinned_position);
+    m_normal_attribute->Set(m_skinned_normal);
+}
+
+void Mesh::CpuSkin(const std::vector<ramanujan::Matrix4>& skin_transform)
+{
+    size_t num_vertices = m_position.size();
+    if(num_vertices == 0)
+    {
+        return;
+    }
+
+    m_skinned_position.resize(num_vertices);
+    m_skinned_normal.resize(num_vertices);
+
+    for(size_t vertex_index = 0; vertex_index < num_vertices; ++vertex_index)
+    {
+        // The x,y,z,w components of a influencers are indices in the animated pose and inverse bind pose matrix arrays.
+        ramanujan::IVector4& joint = m_influences[vertex_index];
+
+        // The x,y,z,w components of influencer weight are the scalar weights to apply to the same components of the
+        // influencers.
+        ramanujan::Vector4& weight = m_weights[vertex_index];
+
+        ramanujan::Vector3 p_0 = ramanujan::TransformPoint(skin_transform[joint.x], m_position[vertex_index]);
+        ramanujan::Vector3 n_0 = ramanujan::TransformVector(skin_transform[joint.x], m_normal[vertex_index]);
+
+        ramanujan::Vector3 p_1 = ramanujan::TransformPoint(skin_transform[joint.y], m_position[vertex_index]);
+        ramanujan::Vector3 n_1 = ramanujan::TransformVector(skin_transform[joint.y], m_normal[vertex_index]);
+
+        ramanujan::Vector3 p_2 = ramanujan::TransformPoint(skin_transform[joint.z], m_position[vertex_index]);
+        ramanujan::Vector3 n_2 = ramanujan::TransformVector(skin_transform[joint.z], m_normal[vertex_index]);
+
+        ramanujan::Vector3 p_3 = ramanujan::TransformPoint(skin_transform[joint.w], m_position[vertex_index]);
+        ramanujan::Vector3 n_3 = ramanujan::TransformVector(skin_transform[joint.w], m_normal[vertex_index]);
 
         // Combine the above transforms for final vertex positions and normals
         m_skinned_position[vertex_index] = p_0 * weight.x + p_1 * weight.y + p_2 * weight.z + p_3 * weight.w;

@@ -30,12 +30,12 @@ const Pose& Skeleton::GetRestPose() const
     return m_rest_pose;
 }
 
-std::vector<ramanujan::Matrix4>& Skeleton::GetInverseBindPose()
+const std::vector<ramanujan::Matrix4>& Skeleton::GetInverseBindPose() const
 {
     return m_inv_bind_pose;
 }
 
-std::vector<std::string>& Skeleton::GetJointNames()
+const std::vector<std::string>& Skeleton::GetJointNames() const
 {
     return m_joint_names;
 }

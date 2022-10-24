@@ -6,6 +6,7 @@
 #include <matrix4.h>
 #include <vector3.h>
 #include <camera_transforms.h>
+#include <imgui.h>
 
 namespace sputnik
 {
@@ -28,8 +29,16 @@ VertexSkinning::VertexSkinning()
     , m_current_pose_visual(nullptr)
     , m_rest_pose_visual(nullptr)
     , m_bind_pose_visual(nullptr)
-    , m_skinning_type(sputnik::api::animation::SkinningType::GPU)
+    , m_skinning_type(sputnik::api::animation::SkinningType::NONE)
+    , m_skinning_type_index(0)
 {
+    m_skinnig_types_str += "NONE";
+    m_skinnig_types_str += '\0';
+    m_skinnig_types_str += "CPU";
+    m_skinnig_types_str += '\0';
+    m_skinnig_types_str += "GPU";
+    m_skinnig_types_str += '\0';
+    m_skinnig_types_str += '\0';
 }
 
 VertexSkinning::~VertexSkinning() {}
@@ -43,6 +52,12 @@ void VertexSkinning::Initialize()
 
     cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
     m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Woman.png");
+
+     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/CesiumMan/CesiumMan.gltf");
+     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
+
+     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
+     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Fox/Texture.png");
 
      //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
      //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
@@ -74,9 +89,47 @@ void VertexSkinning::Initialize()
 
 void VertexSkinning::Update(float delta_time)
 {
+    if(ImGui::Begin("Vertex Skinning"))
+    {
+        if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
+        {
+            m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);
+            // This is important when changing the animation model/current clip/skinning type, etc.
+            for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+            {
+                m_meshes[i].UpdateOpenglBuffers();
+            }
+        }
+        ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
+        ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
+        ImGui::Checkbox("Show current pose", &m_show_current_pose);
+    }
+    ImGui::End();
+
     m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + delta_time);
     m_current_pose_visual->FromPose(m_current_pose);
 
+    if(m_skinning_type != sputnik::api::animation::SkinningType::NONE)
+    {
+        m_current_pose.GetMatrixPalette(m_pose_palette);
+        const std::vector<ramanujan::Matrix4>& inverse_bind_pose = m_skeleton.GetInverseBindPose();
+        for(size_t i = 0; i < m_pose_palette.size(); ++i)
+        {
+            m_pose_palette[i] = m_pose_palette[i] * inverse_bind_pose[i];
+        }
+
+        if(m_skinning_type == sputnik::api::animation::SkinningType::CPU)
+        {
+            for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+            {
+                m_meshes[i].CpuSkin(m_pose_palette); // Todo: when do we update uv and indices for cpu skin?
+            }
+        }
+    }
+
+#ifdef NON_OPTIMIZED
+
+    // This implementation is not optimized
     switch(m_skinning_type)
     {
     case sputnik::api::animation::SkinningType::NONE:
@@ -92,6 +145,11 @@ void VertexSkinning::Update(float delta_time)
     case sputnik::api::animation::SkinningType::GPU:
     {
         m_current_pose.GetMatrixPalette(m_pose_palette);
+        const std::vector<ramanujan::Matrix4>& inverse_bind_pose = m_skeleton.GetInverseBindPose();
+        for(size_t i = 0; i < m_pose_palette.size(); ++i)
+        {
+            m_pose_palette[i] = m_pose_palette[i] * inverse_bind_pose[i];
+        }
 
         // This is important when changing the animation model or changing the animation clips.
         for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
@@ -103,6 +161,8 @@ void VertexSkinning::Update(float delta_time)
     default:
         break;
     }
+
+#endif // 0
 }
 
 void VertexSkinning::Render(float aspect_ratio)
@@ -111,7 +171,8 @@ void VertexSkinning::Render(float aspect_ratio)
     ramanujan::Matrix4 model;
     ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
     ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
-    // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman 
+    // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); //
+    // woman
 
      //ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
      //0.0f}); // spiderman + nathan
@@ -132,9 +193,7 @@ void VertexSkinning::Render(float aspect_ratio)
 
     if(m_skinning_type == sputnik::api::animation::SkinningType::GPU)
     {
-        sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("pose"), m_pose_palette);
-        sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("inv_bind_pose"),
-                                                          m_skeleton.GetInverseBindPose());
+        sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("skin_transforms"), m_pose_palette);
     }
 
     m_diffuse_texture->Set(active_shader->GetUniform("diffuse"), 0);
