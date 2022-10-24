@@ -222,7 +222,7 @@ void InitializeImGui(HWND hwnd)
     // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/Ruda/Ruda-Regular.ttf", 15.0f);
 
     // Setup Dear ImGui style
-    //ImGui::StyleColorsDark();
+    // ImGui::StyleColorsDark();
     // ImGui::StyleColorsClassic();
     SetMayaThemecolors();
 
@@ -267,7 +267,7 @@ void EndImGuiFrame(HWND hwnd)
         HDC   device_context    = GetDC(hwnd);
         HGLRC gl_render_context = wglGetCurrentContext();
         // GLFWwindow* backup_current_context = glfwGetCurrentContext();
-        //wglMakeCurrent(device_context, gl_render_context);
+        // wglMakeCurrent(device_context, gl_render_context);
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
         wglMakeCurrent(device_context, gl_render_context);
@@ -401,8 +401,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
         Fatal("ERROR: Couldn't create window!");
     }
 
+#pragma warning(push)
+#pragma warning(disable: 6387)
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
+#pragma warning(pop)
 
     HDC device_context = GetDC(hwnd);
 
@@ -441,7 +444,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
         if(gp_application != 0)
         {
             RECT clientRect;
+#pragma warning(push)
+#pragma warning(disable : 6387)
             GetClientRect(hwnd, &clientRect);
+#pragma warning(pop)
             clientWidth  = clientRect.right - clientRect.left;
             clientHeight = clientRect.bottom - clientRect.top;
             glViewport(0, 0, clientWidth, clientHeight);

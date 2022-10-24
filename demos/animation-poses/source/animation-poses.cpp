@@ -78,8 +78,8 @@ void AnimationPoses::Render(float aspect_ratio)
         ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
         ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
         ImGui::Checkbox("Show current pose", &m_show_current_pose);
-        ImGui::End();
     }
+    ImGui::End();
 
     if(m_show_rest_pose)
     {
