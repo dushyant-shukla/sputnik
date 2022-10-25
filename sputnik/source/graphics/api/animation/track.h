@@ -1,8 +1,8 @@
 #pragma once
 
 #include "pch.h"
-#include "frame.h"
-#include "interpolation.h"
+#include "key_frame.h"
+#include "interpolation_type.h"
 #include "quaternion.h"
 #include "vector3.h"
 
@@ -30,12 +30,12 @@ public:
     Track();
     ~Track() = default;
 
-    void          Resize(size_t new_size);
-    unsigned int  GetSize();
-    Interpolation GetInterpolation();
-    void          SetInterpolation(Interpolation interpolation);
-    float         GetStartTime();
-    float         GetEndTime();
+    void              Resize(size_t new_size);
+    unsigned int      GetSize() const;
+    InterpolationType GetInterpolation();
+    void              SetInterpolation(InterpolationType interpolation_type);
+    float             GetStartTime();
+    float             GetEndTime();
 
     /**
      * This method samples the track at a given time. The booleann flag represents whether the track is looping or not.
@@ -90,7 +90,7 @@ protected:
 
 protected:
     std::vector<KeyFrame<SIZE>> m_frames;
-    Interpolation               m_interpolation;
+    InterpolationType           m_interpolation;
 };
 
 /**

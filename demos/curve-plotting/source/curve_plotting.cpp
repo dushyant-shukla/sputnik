@@ -25,26 +25,26 @@ CurvePlotting::~CurvePlotting() {}
 
 void CurvePlotting::Initialize()
 {
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::LINEAR,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::LINEAR,
                                             2,
                                             MakeFrame(0.0f, 0.0f),
                                             MakeFrame(1.0f, 1.0f)));
     mScalarTracksLooping.push_back(false);
 
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::LINEAR,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::LINEAR,
                                             2,
                                             MakeFrame(0.0f, 0.0f),
                                             MakeFrame(0.5f, 1.0f)));
     mScalarTracksLooping.push_back(false);
 
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::LINEAR,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::LINEAR,
                                             3,
                                             MakeFrame(0.25f, 0.0f),
                                             MakeFrame(0.5f, 1.0f),
                                             MakeFrame(0.75f, 0.0f)));
     mScalarTracksLooping.push_back(true);
 
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::LINEAR,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::LINEAR,
                                             3,
                                             MakeFrame(0.25f, 0.0f),
                                             MakeFrame(0.5f, 1.0f),
@@ -53,7 +53,7 @@ void CurvePlotting::Initialize()
 
     sputnik::api::animation::ScalarTrack stepTrack;
     stepTrack.Resize(11);
-    stepTrack.SetInterpolation(sputnik::api::animation::Interpolation::CONSTANT);
+    stepTrack.SetInterpolation(sputnik::api::animation::InterpolationType::CONSTANT);
     for(int i = 0; i < 11; ++i)
     {
         float time   = (float)i / 10.0f * 0.5f + 0.25f;
@@ -64,20 +64,20 @@ void CurvePlotting::Initialize()
     mScalarTracksLooping.push_back(true);
     mScalarTracksLooping.push_back(false);
 
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::CUBIC,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::CUBIC,
                                             2,
                                             MakeFrame(0.25f, 0.676221f, 0.0f, 0.676221f),
                                             MakeFrame(0.75f, 4.043837f, 1.0f, 4.043837f)));
     mScalarTracksLooping.push_back(false);
 
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::CUBIC,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::CUBIC,
                                             3,
                                             MakeFrame(0.25f, 0, 0, 0),
                                             MakeFrame(0.5f, 0, 1, 0),
                                             MakeFrame(0.75f, 0, 0, 0)));
     mScalarTracksLooping.push_back(true);
 
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::CUBIC,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::CUBIC,
                                             5,
                                             MakeFrame(0.25f, 0, 0, 0),
                                             MakeFrame(0.3833333f, -10.11282f, 0.5499259f, -10.11282f),
@@ -86,7 +86,7 @@ void CurvePlotting::Initialize()
                                             MakeFrame(0.75f, 0, 0, 0)));
     mScalarTracksLooping.push_back(true);
 
-    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::Interpolation::CUBIC,
+    mScalarTracks.push_back(MakeScalarTrack(sputnik::api::animation::InterpolationType::CUBIC,
                                             5,
                                             MakeFrame(0.25f, 0, 0, 0),
                                             MakeFrame(0.3833333f, 13.25147f, 0.5499259f, -10.11282f),
@@ -169,7 +169,7 @@ void CurvePlotting::Initialize()
             }
 
             if(j < numFrames - 1 &&
-               mScalarTracks[i].GetInterpolation() != sputnik::api::animation::Interpolation::CONSTANT)
+               mScalarTracks[i].GetInterpolation() != sputnik::api::animation::InterpolationType::CONSTANT)
             {
                 float nextY = yPosition + mScalarTracks[i].Sample(thisTime + 0.0005f, mScalarTracksLooping[i]) * height;
                 float nextX = left + (thisTime + 0.0005f) * xRange;
@@ -283,16 +283,16 @@ sputnik::api::animation::QuaternionFrame CurvePlotting::MakeFrame(float         
 }
 
 sputnik::api::animation::ScalarTrack
-CurvePlotting::MakeScalarTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...)
+CurvePlotting::MakeScalarTrack(sputnik::api::animation::InterpolationType interpolation_type, int num_frames, ...)
 {
     sputnik::api::animation::ScalarTrack result;
-    result.SetInterpolation(interp);
-    result.Resize(numFrames);
+    result.SetInterpolation(interpolation_type);
+    result.Resize(num_frames);
 
     va_list args;
-    va_start(args, numFrames);
+    va_start(args, num_frames);
 
-    for(int i = 0; i < numFrames; ++i)
+    for(int i = 0; i < num_frames; ++i)
     {
         result[i] = va_arg(args, sputnik::api::animation::ScalarFrame);
     }
@@ -303,16 +303,16 @@ CurvePlotting::MakeScalarTrack(sputnik::api::animation::Interpolation interp, in
 }
 
 sputnik::api::animation::VectorTrack
-CurvePlotting::MakeVectorTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...)
+CurvePlotting::MakeVectorTrack(sputnik::api::animation::InterpolationType interpolation_type, int num_frames, ...)
 {
     sputnik::api::animation::VectorTrack result;
-    result.SetInterpolation(interp);
-    result.Resize(numFrames);
+    result.SetInterpolation(interpolation_type);
+    result.Resize(num_frames);
 
     va_list args;
-    va_start(args, numFrames);
+    va_start(args, num_frames);
 
-    for(int i = 0; i < numFrames; ++i)
+    for(int i = 0; i < num_frames; ++i)
     {
         result[i] = va_arg(args, sputnik::api::animation::VectorFrame);
     }
@@ -323,16 +323,16 @@ CurvePlotting::MakeVectorTrack(sputnik::api::animation::Interpolation interp, in
 }
 
 sputnik::api::animation::QuaternionTrack
-CurvePlotting::MakeQuaternionTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...)
+CurvePlotting::MakeQuaternionTrack(sputnik::api::animation::InterpolationType interpolation_type, int num_frames, ...)
 {
     sputnik::api::animation::QuaternionTrack result;
-    result.SetInterpolation(interp);
-    result.Resize(numFrames);
+    result.SetInterpolation(interpolation_type);
+    result.Resize(num_frames);
 
     va_list args;
-    va_start(args, numFrames);
+    va_start(args, num_frames);
 
-    for(int i = 0; i < numFrames; ++i)
+    for(int i = 0; i < num_frames; ++i)
     {
         result[i] = va_arg(args, sputnik::api::animation::QuaternionFrame);
     }

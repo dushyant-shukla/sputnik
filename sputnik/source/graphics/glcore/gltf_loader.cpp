@@ -89,20 +89,20 @@ void GetScalarValues(std::vector<float>& out, unsigned int component_count, cons
 template <typename T, unsigned int N>
 void CreateTrackFromChannel(Track<T, N>& result, const cgltf_animation_channel& channel)
 {
-    cgltf_animation_sampler& sampler          = *channel.sampler;
-    Interpolation            interpolation    = Interpolation::CONSTANT;
-    bool                     is_sampler_cubic = false;
+    cgltf_animation_sampler& sampler            = *channel.sampler;
+    InterpolationType        interpolation_type = InterpolationType::CONSTANT;
+    bool                     is_sampler_cubic   = false;
     if(sampler.interpolation == cgltf_interpolation_type_linear)
     {
-        interpolation = Interpolation::LINEAR;
+        interpolation_type = InterpolationType::LINEAR;
     }
     else if(sampler.interpolation == cgltf_interpolation_type_cubic_spline)
     {
-        is_sampler_cubic = true;
-        interpolation    = Interpolation::CUBIC;
+        is_sampler_cubic   = true;
+        interpolation_type = InterpolationType::CUBIC;
     }
 
-    result.SetInterpolation(interpolation);
+    result.SetInterpolation(interpolation_type);
 
     std::vector<float> time;
     GetScalarValues(time, 1, *sampler.input);

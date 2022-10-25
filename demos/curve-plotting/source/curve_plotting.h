@@ -10,7 +10,7 @@
 #include <vector3.h>
 #include <graphics/glcore/debug_draw.h>
 #include <graphics/api/animation/track.h>
-#include <graphics/api/animation/interpolation.h>
+#include <graphics/api/animation/interpolation_type.h>
 
 #include <memory>
 
@@ -42,11 +42,11 @@ private:
                                                        const ramanujan::Quaternion& out,
                                                        const ramanujan::Quaternion& value);
     sputnik::api::animation::ScalarTrack
-    MakeScalarTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...);
+    MakeScalarTrack(sputnik::api::animation::InterpolationType interpolation_type, int num_frames, ...);
     sputnik::api::animation::VectorTrack
-    MakeVectorTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...);
+    MakeVectorTrack(sputnik::api::animation::InterpolationType interpolation_type, int num_frames, ...);
     sputnik::api::animation::QuaternionTrack
-    MakeQuaternionTrack(sputnik::api::animation::Interpolation interp, int numFrames, ...);
+    MakeQuaternionTrack(sputnik::api::animation::InterpolationType interpolation_type, int num_frames, ...);
 
 private:
     std::vector<sputnik::api::animation::ScalarTrack> mScalarTracks;

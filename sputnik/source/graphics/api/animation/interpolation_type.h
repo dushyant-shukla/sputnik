@@ -3,7 +3,7 @@
 namespace sputnik::api::animation
 {
 
-enum class Interpolation
+enum class InterpolationType
 {
     CONSTANT,
     LINEAR,

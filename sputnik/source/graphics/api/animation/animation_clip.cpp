@@ -55,7 +55,7 @@ float AnimationClip::Sample(Pose& out_pose, float in_time)
  *
  * This method is intended to be called when loading an animation clip from a file.
  */
-TrackTransform& AnimationClip::operator[](unsigned int joint_id)
+AnimationTrack& AnimationClip::operator[](unsigned int joint_id)
 {
     size_t num_tracks = m_tracks.size();
 
@@ -69,7 +69,7 @@ TrackTransform& AnimationClip::operator[](unsigned int joint_id)
     }
 
     // If no required track transform is found, a new one is created and returned.
-    m_tracks.push_back(TrackTransform());
+    m_tracks.push_back(AnimationTrack());
     num_tracks = m_tracks.size();
     m_tracks[num_tracks - 1].SetJointId(joint_id);
     return m_tracks[num_tracks - 1];

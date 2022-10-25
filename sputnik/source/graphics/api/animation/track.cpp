@@ -14,7 +14,7 @@ template Track<ramanujan::Vector3, 3>;
 template Track<ramanujan::Quaternion, 4>;
 
 template <typename T, unsigned int SIZE>
-Track<T, SIZE>::Track() : m_interpolation(Interpolation::LINEAR)
+Track<T, SIZE>::Track() : m_interpolation(InterpolationType::LINEAR)
 {
 }
 
@@ -35,13 +35,13 @@ T Track<T, SIZE>::Sample(float time, bool looping)
 {
     switch(m_interpolation)
     {
-    case sputnik::api::animation::Interpolation::CONSTANT:
+    case sputnik::api::animation::InterpolationType::CONSTANT:
         return SampleConstant(time, looping);
 
-    case sputnik::api::animation::Interpolation::LINEAR:
+    case sputnik::api::animation::InterpolationType::LINEAR:
         return SampleLinear(time, looping);
 
-    case sputnik::api::animation::Interpolation::CUBIC:
+    case sputnik::api::animation::InterpolationType::CUBIC:
         return SampleCubic(time, looping);
 
     default:
@@ -62,21 +62,21 @@ void Track<T, SIZE>::Resize(size_t new_size)
 }
 
 template <typename T, unsigned int SIZE>
-unsigned int Track<T, SIZE>::GetSize()
+unsigned int Track<T, SIZE>::GetSize() const
 {
     return static_cast<unsigned int>(m_frames.size());
 }
 
 template <typename T, unsigned int SIZE>
-Interpolation Track<T, SIZE>::GetInterpolation()
+InterpolationType Track<T, SIZE>::GetInterpolation()
 {
     return m_interpolation;
 }
 
 template <typename T, unsigned int SIZE>
-void Track<T, SIZE>::SetInterpolation(Interpolation interpolation)
+void Track<T, SIZE>::SetInterpolation(InterpolationType interpolation_type)
 {
-    m_interpolation = interpolation;
+    m_interpolation = interpolation_type;
 }
 
 template <typename T, unsigned int SIZE>
