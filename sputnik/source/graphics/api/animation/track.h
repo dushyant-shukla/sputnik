@@ -45,7 +45,7 @@ public:
     /**
      * The subscript operator returns a reference to the Frame at an index.
      */
-    Frame<SIZE>& operator[](size_t index);
+    KeyFrame<SIZE>& operator[](size_t index);
 
 protected:
     /**
@@ -74,7 +74,7 @@ protected:
     /**
      * This method retrives the frame index for a given time. This is the last frame right before the request time.
      */
-    int FrameIndex(float time, bool looping);
+    int GetKeyFrameIndex(float time, bool looping);
 
     /**
      * This function takes in a time value that is outside the range of the track, and adjusts it to be a valid time on
@@ -89,8 +89,8 @@ protected:
     T Cast(float* value);
 
 protected:
-    std::vector<Frame<SIZE>> m_frames;
-    Interpolation            m_interpolation;
+    std::vector<KeyFrame<SIZE>> m_frames;
+    Interpolation               m_interpolation;
 };
 
 /**

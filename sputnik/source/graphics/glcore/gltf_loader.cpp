@@ -116,9 +116,9 @@ void CreateTrackFromChannel(Track<T, N>& result, const cgltf_animation_channel& 
 
     for(size_t i = 0; i < num_frames; ++i)
     {
-        int       base_index = static_cast<int>(i * comp_count);
-        Frame<N>& frame      = result[i];
-        int       offset     = 0;
+        int          base_index = static_cast<int>(i * comp_count);
+        KeyFrame<N>& frame      = result[i];
+        int          offset     = 0;
 
         frame.m_time = time[i];
 
@@ -219,15 +219,15 @@ void MeshFromAttribute(sputnik::api::Mesh& out_mesh,
             joints.z = std::max(0, joints.z);
             joints.w = std::max(0, joints.w);
 
-            //joints.x = joints.x < 0 ? 0 : GetNodeIndex(skin->joints[joints.x], nodes, node_count);
-            //joints.y = joints.y < 0 ? 0 : GetNodeIndex(skin->joints[joints.y], nodes, node_count);
-            //joints.z = joints.z < 0 ? 0 : GetNodeIndex(skin->joints[joints.z], nodes, node_count);
-            //joints.w = joints.w < 0 ? 0 : GetNodeIndex(skin->joints[joints.w], nodes, node_count);
+            // joints.x = joints.x < 0 ? 0 : GetNodeIndex(skin->joints[joints.x], nodes, node_count);
+            // joints.y = joints.y < 0 ? 0 : GetNodeIndex(skin->joints[joints.y], nodes, node_count);
+            // joints.z = joints.z < 0 ? 0 : GetNodeIndex(skin->joints[joints.z], nodes, node_count);
+            // joints.w = joints.w < 0 ? 0 : GetNodeIndex(skin->joints[joints.w], nodes, node_count);
 
-            //joints.x = joints.x < 0 ? 0 : joints.x;
-            //joints.y = joints.y < 0 ? 0 : joints.y;
-            //joints.z = joints.z < 0 ? 0 : joints.z;
-            //joints.w = joints.w < 0 ? 0 : joints.w;
+            // joints.x = joints.x < 0 ? 0 : joints.x;
+            // joints.y = joints.y < 0 ? 0 : joints.y;
+            // joints.z = joints.z < 0 ? 0 : joints.z;
+            // joints.w = joints.w < 0 ? 0 : joints.w;
 
             influences.push_back(joints);
             break;
@@ -235,34 +235,34 @@ void MeshFromAttribute(sputnik::api::Mesh& out_mesh,
         }
     }
 
-    //std::cout << "writing mesh data." << std::endl;
-    //std::ofstream ofs("mesh_data_sputnik.txt", std::ofstream::out);
+    // std::cout << "writing mesh data." << std::endl;
+    // std::ofstream ofs("mesh_data_sputnik.txt", std::ofstream::out);
     ////std::cout << "Position:" << std::endl;
-    //ofs << "Position:" << std::endl;
-    //for(int i = 0; i < positions.size(); ++i)
+    // ofs << "Position:" << std::endl;
+    // for(int i = 0; i < positions.size(); ++i)
     //{
-    //    //std::cout << positions[i].x << ", " << positions[i].y << ", " << positions[i].z << std::endl;
-    //    ofs << positions[i].x << ", " << positions[i].y << ", " << positions[i].z << std::endl;
-    //}
+    //     //std::cout << positions[i].x << ", " << positions[i].y << ", " << positions[i].z << std::endl;
+    //     ofs << positions[i].x << ", " << positions[i].y << ", " << positions[i].z << std::endl;
+    // }
 
     ////std::cout << "Normals:" << std::endl;
-    //ofs << "Normals:" << std::endl;
-    //for(int i = 0; i < normals.size(); ++i)
+    // ofs << "Normals:" << std::endl;
+    // for(int i = 0; i < normals.size(); ++i)
     //{
-    //    //std::cout << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << std::endl;
-    //    ofs << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << std::endl;
-    //}
+    //     //std::cout << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << std::endl;
+    //     ofs << normals[i].x << ", " << normals[i].y << ", " << normals[i].z << std::endl;
+    // }
 
     ////std::cout << "Texture Coordinates:" << std::endl;
-    //ofs << "Texture Coordinates:" << std::endl;
-    //for(int i = 0; i < uv.size(); ++i)
+    // ofs << "Texture Coordinates:" << std::endl;
+    // for(int i = 0; i < uv.size(); ++i)
     //{
-    //    //std::cout << uv[i].x << ", " << uv[i].y << std::endl;
-    //    ofs << uv[i].x << ", " << uv[i].y << std::endl;
-    //}
+    //     //std::cout << uv[i].x << ", " << uv[i].y << std::endl;
+    //     ofs << uv[i].x << ", " << uv[i].y << std::endl;
+    // }
 
-    //ofs.close();
-    //std::cout << "finished writing mesh data!";
+    // ofs.close();
+    // std::cout << "finished writing mesh data!";
 
 } // End of MeshFromAttribute()
 

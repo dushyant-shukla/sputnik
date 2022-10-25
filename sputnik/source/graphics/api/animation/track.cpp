@@ -50,7 +50,7 @@ T Track<T, SIZE>::Sample(float time, bool looping)
 }
 
 template <typename T, unsigned int SIZE>
-Frame<SIZE>& Track<T, SIZE>::operator[](size_t index)
+KeyFrame<SIZE>& Track<T, SIZE>::operator[](size_t index)
 {
     return m_frames[index];
 }
@@ -99,7 +99,7 @@ T Track<T, SIZE>::Hermite(float time, const T& p1, const T& s1, const T& p2, con
 }
 
 template <typename T, unsigned int SIZE>
-int Track<T, SIZE>::FrameIndex(float time, bool looping)
+int Track<T, SIZE>::GetKeyFrameIndex(float time, bool looping)
 {
     unsigned int size = (unsigned int)m_frames.size();
     if(size <= 1)
@@ -240,7 +240,7 @@ ramanujan::Quaternion Track<ramanujan::Quaternion, 4>::Cast(float* values)
 template <typename T, unsigned int SIZE>
 T Track<T, SIZE>::SampleConstant(float time, bool looping)
 {
-    int frame_index = FrameIndex(time, looping);
+    int frame_index = GetKeyFrameIndex(time, looping);
     if(frame_index < 0 || frame_index >= static_cast<int>(m_frames.size())) // check for validity of the frame
     {
         return T();
@@ -252,7 +252,7 @@ T Track<T, SIZE>::SampleConstant(float time, bool looping)
 template <typename T, unsigned int SIZE>
 T Track<T, SIZE>::SampleLinear(float time, bool looping)
 {
-    int current_frame_index = FrameIndex(time, looping);
+    int current_frame_index = GetKeyFrameIndex(time, looping);
     if(current_frame_index < 0 || current_frame_index >= static_cast<int>(m_frames.size() - 1))
     {
         return T();
@@ -280,7 +280,7 @@ T Track<T, SIZE>::SampleLinear(float time, bool looping)
 template <typename T, unsigned int SIZE>
 T Track<T, SIZE>::SampleCubic(float time, bool looping)
 {
-    int current_frame_index = FrameIndex(time, looping);
+    int current_frame_index = GetKeyFrameIndex(time, looping);
     if(current_frame_index < 0 || current_frame_index >= static_cast<int>(m_frames.size() - 1))
     {
         return T();

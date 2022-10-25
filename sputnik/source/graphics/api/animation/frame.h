@@ -8,7 +8,7 @@ namespace sputnik::api::animation
  * keyframes.
  */
 template <unsigned int SIZE>
-struct Frame
+struct KeyFrame
 {
     float m_value[SIZE];
     float m_in_tangents[SIZE];
@@ -16,8 +16,8 @@ struct Frame
     float m_time;
 };
 
-typedef Frame<1> ScalarFrame;
-typedef Frame<3> VectorFrame;
-typedef Frame<4> QuaternionFrame;
+typedef KeyFrame<1> ScalarFrame;
+typedef KeyFrame<3> VectorFrame;
+typedef KeyFrame<4> QuaternionFrame;
 
 } // namespace sputnik::api::animation
