@@ -19,13 +19,13 @@ Track<T, SIZE>::Track() : m_interpolation(InterpolationType::LINEAR)
 }
 
 template <typename T, unsigned int SIZE>
-float Track<T, SIZE>::GetStartTime()
+float Track<T, SIZE>::GetStartTime() const
 {
     return m_frames[0].m_time;
 }
 
 template <typename T, unsigned int SIZE>
-float Track<T, SIZE>::GetEndTime()
+float Track<T, SIZE>::GetEndTime() const
 {
     return m_frames[m_frames.size() - 1].m_time;
 }
@@ -68,7 +68,7 @@ unsigned int Track<T, SIZE>::GetSize() const
 }
 
 template <typename T, unsigned int SIZE>
-InterpolationType Track<T, SIZE>::GetInterpolation()
+InterpolationType Track<T, SIZE>::GetInterpolation() const
 {
     return m_interpolation;
 }

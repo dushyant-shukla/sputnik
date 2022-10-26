@@ -32,10 +32,10 @@ public:
 
     void              Resize(size_t new_size);
     unsigned int      GetSize() const;
-    InterpolationType GetInterpolation();
+    InterpolationType GetInterpolation() const;
     void              SetInterpolation(InterpolationType interpolation_type);
-    float             GetStartTime();
-    float             GetEndTime();
+    float             GetStartTime() const;
+    float             GetEndTime() const;
 
     /**
      * This method samples the track at a given time. The booleann flag represents whether the track is looping or not.

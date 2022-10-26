@@ -40,7 +40,7 @@ const std::vector<std::string>& Skeleton::GetJointNames() const
     return m_joint_names;
 }
 
-std::string& Skeleton::GetJointName(size_t joint_index)
+const std::string& Skeleton::GetJointName(size_t joint_index) const
 {
     return m_joint_names[joint_index];
 }

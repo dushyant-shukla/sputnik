@@ -28,7 +28,7 @@ public:
 
     const std::vector<ramanujan::Matrix4>& GetInverseBindPose() const;
     const std::vector<std::string>&        GetJointNames() const;
-    std::string&                           GetJointName(size_t joint_index);
+    const std::string&                     GetJointName(size_t joint_index) const;
 
 protected:
     void UpdateInverseBindPose();
