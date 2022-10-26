@@ -34,6 +34,19 @@ int                         g_display_w           = 800;
 int                         g_display_h           = 600;
 int                         g_vsync               = 0;
 
+struct
+{
+    unsigned int display_frequency;
+    bool         is_vsync_on;
+    float        frame_budget;
+} system_information;
+
+struct
+{
+    float frame_time;
+    float delta_time;
+} runtime_information;
+
 void Fatal(const char* msg, ...)
 {
     va_list args;
@@ -336,6 +349,22 @@ void EnableDockSpace()
     ImGui::End(); // DockSpace Demo
 }
 
+void RenderSystemUI()
+{
+    if(ImGui::Begin("System Information"))
+    {
+        std::string display_frequency = "Display Frequency: %d";
+        ImGui::Text(display_frequency.c_str(), system_information.display_frequency);
+
+        std::string vsync = "VSync: %s";
+        ImGui::Text(vsync.c_str(), system_information.is_vsync_on ? "ON" : "OFF");
+
+        std::string frame_budget = "Frame Budget: %10.2f %s";
+        ImGui::Text(frame_budget.c_str(), system_information.frame_budget, "ms");
+    }
+    ImGui::End();
+}
+
 #ifdef SPUTNIK_DEBUG
 int main(int argc, const char** argv)
 {
@@ -404,12 +433,24 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     }
 
 #pragma warning(push)
-#pragma warning(disable: 6387)
+#pragma warning(disable : 6387)
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
 #pragma warning(pop)
 
     HDC device_context = GetDC(hwnd);
+
+    HMONITOR      monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFOEX monitor_info;
+    monitor_info.cbSize = sizeof(MONITORINFOEX);
+    GetMonitorInfo(monitor, &monitor_info);
+    DEVMODE dev_mode;
+    dev_mode.dmSize        = sizeof(DEVMODE);
+    dev_mode.dmDriverExtra = 0;
+    EnumDisplaySettings(monitor_info.szDevice, ENUM_CURRENT_SETTINGS, &dev_mode);
+    system_information.display_frequency = (int)dev_mode.dmDisplayFrequency;
+    system_information.is_vsync_on       = g_vsync ? true : false;
+    system_information.frame_budget      = (1000.0f / system_information.display_frequency);
 
     InitializeOpenGLForWindows(device_context);
 
@@ -466,6 +507,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
             float aspect = (float)clientWidth / (float)clientHeight;
             gp_application->Render(aspect);
+            RenderSystemUI();
         }
         if(gp_application != 0)
         {

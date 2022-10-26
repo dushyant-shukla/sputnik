@@ -72,6 +72,13 @@ void VertexSkinning::Initialize()
     sputnik::gltf::GltfLoader::LoadAnimationClips(gltf, m_clips);
     sputnik::gltf::GltfLoader::FreeFile(gltf);
 
+    for(auto& clip : m_clips)
+    {
+        m_clip_types_str += clip.GetName();
+        m_clip_types_str += '\0';
+    }
+    m_clip_types_str += '\0';
+
     m_rest_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
     m_rest_pose_visual->FromPose(m_skeleton.GetRestPose());
     m_rest_pose_visual->UpdateOpenGLBuffers();
@@ -91,6 +98,9 @@ void VertexSkinning::Update(float delta_time)
 {
     if(ImGui::Begin("Vertex Skinning"))
     {
+        if(ImGui::Combo("Animation Clip", &m_current_clip, m_clip_types_str.c_str()))
+        {
+        }
         if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
         {
             m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);

@@ -51,11 +51,12 @@ private:
     bool m_show_bind_pose;
 
     std::vector<sputnik::api::animation::AnimationClip> m_clips;
-    size_t                                              m_current_clip;
+    int                                                 m_current_clip;
     float                                               m_playback_time;
+    std::string                                         m_clip_types_str;
 
     // GUI stuff
-    int m_skinning_type_index;
+    int         m_skinning_type_index;
     std::string m_skinnig_types_str;
 };
 
