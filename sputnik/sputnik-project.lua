@@ -76,5 +76,8 @@ filter "files:$(SolutionDir)sputnik/externals/ImGuizmo/ImGuizmo.cpp"
 flags { "NoPCH" }
 
 -- Do not expect pch for this file
-filter "files:source/platform/windows/windows_main.cpp" -- $(SolutionDir)sputnik/source/main/windows/windows_main.cpp does not work
+filter "files:source/platform/win32/win32_window.cpp" -- $(SolutionDir)sputnik/source/main/windows/windows_main.cpp does not work
+flags { "NoPCH" }
+
+filter "files:source/graphics/glcore/utilitiy/gl_api_wrapper.cpp"
 flags { "NoPCH" }

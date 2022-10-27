@@ -1,5 +1,6 @@
-#include "windows_main.h"
+#include "win32_window.h"
 #include "main/application.h"
+#include "graphics/glcore/utilitiy/gl_core.h"
 
 #include <glad/glad.h>
 #undef APIENTRY
@@ -33,6 +34,7 @@ float                       gInvScaleFactor       = 1.0f;
 int                         g_display_w           = 800;
 int                         g_display_h           = 600;
 int                         g_vsync               = 0;
+GlWrapperAPI                gl_api;
 
 struct
 {
@@ -131,6 +133,7 @@ void InitializeOpenGLForWindows(HDC device_context)
     wglDeleteContext(legacy_context);
     wglMakeCurrent(device_context, gl_rendering_context);
 
+    // Todo:: We will not need glad after the wrapper is fully active
     if(!gladLoadGL())
     {
         std::cout << "Could not initialize GLAD\n";
@@ -269,7 +272,7 @@ void BeginImGuiFrame()
     ImGui::NewFrame();
 }
 
-void EndImGuiFrame(HWND hwnd)
+void EndImGuiFrame(const HWND& hwnd)
 {
     ImGuiIO& io    = ImGui::GetIO();
     io.DisplaySize = ImVec2(static_cast<float>(g_display_w), static_cast<float>(g_display_h));
@@ -373,6 +376,18 @@ int main(int argc, const char** argv)
 #else
 #endif
 
+void* GetAnyGLFuncAddress(const char* name)
+{
+    void* p = (void*)wglGetProcAddress(name);
+    if(p == 0 || (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) || (p == (void*)-1))
+    {
+        HMODULE module = LoadLibraryA("opengl32.dll");
+        p              = (void*)GetProcAddress(module, name);
+    }
+
+    return p;
+}
+
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
     gp_application         = sputnik::main::CreateApplication();
@@ -380,8 +395,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     wndclass.cbSize        = sizeof(WNDCLASSEX);
     wndclass.style         = CS_HREDRAW | CS_VREDRAW;
     wndclass.lpfnWndProc   = WndProc;
-    wndclass.cbClsExtra    = 0;
-    wndclass.cbWndExtra    = 0;
+    wndclass.cbClsExtra    = 0L;
+    wndclass.cbWndExtra    = 0L;
     wndclass.hInstance     = hInstance;
     wndclass.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
     wndclass.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
@@ -453,12 +468,15 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     system_information.frame_budget      = (1000.0f / system_information.display_frequency);
 
     InitializeOpenGLForWindows(device_context);
+    InitializeImGui(hwnd); // Initialize ImGui
 
     // This should ideally be handled by the renderer
-    glGenVertexArrays(1, &g_vertex_array_object);
-    glBindVertexArray(g_vertex_array_object);
+    GetGlAPI(&gl_api, [](const char* func) -> void* { return (void*)GetAnyGLFuncAddress(func); });
+    InjectWrapperAPI(&gl_api);
 
-    InitializeImGui(hwnd); // Initialize ImGui
+    gl_api.glGenVertexArrays(1, &g_vertex_array_object);
+    gl_api.glBindVertexArray(g_vertex_array_object);
+
 
     gp_application->Initialize();
 
@@ -493,17 +511,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 #pragma warning(pop)
             clientWidth  = clientRect.right - clientRect.left;
             clientHeight = clientRect.bottom - clientRect.top;
-            glViewport(0, 0, clientWidth, clientHeight);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
+            gl_api.glViewport(0, 0, clientWidth, clientHeight);
+            gl_api.glEnable(GL_DEPTH_TEST);
+            gl_api.glEnable(GL_CULL_FACE);
 
-            glPointSize(5.0f);
-            glLineWidth(1.5f * gScaleFactor);
+            gl_api.glPointSize(5.0f);
+            gl_api.glLineWidth(1.5f * gScaleFactor);
 
-            glBindVertexArray(g_vertex_array_object);
+            gl_api.glBindVertexArray(g_vertex_array_object);
 
-            glClearColor(0.16f, 0.16f, 0.16f, 1.00f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            gl_api.glClearColor(0.16f, 0.16f, 0.16f, 1.00f);
+            gl_api.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             float aspect = (float)clientWidth / (float)clientHeight;
             gp_application->Render(aspect);
@@ -515,7 +533,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
             SwapBuffers(device_context);
             if(g_vsync != 0)
             {
-                glFinish();
+                gl_api.glFinish();
             }
         }
     } // End of game loop
@@ -566,8 +584,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
             HDC   hdc   = GetDC(hwnd);
             HGLRC hglrc = wglGetCurrentContext();
 
-            glBindVertexArray(0);
-            glDeleteVertexArrays(1, &g_vertex_array_object);
+            gl_api.glBindVertexArray(0);
+            gl_api.glDeleteVertexArrays(1, &g_vertex_array_object);
             g_vertex_array_object = 0;
 
             wglMakeCurrent(NULL, NULL);
