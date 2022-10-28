@@ -17,6 +17,7 @@ externals["ramanujan"]  = "$(SolutionDir)sputnik/externals/ramanujan"
 externals["imgui"]      = "$(SolutionDir)sputnik/externals/imgui"
 externals["spdlog"]     = "$(SolutionDir)sputnik/externals/spdlog"
 externals["imguizmo"]   = "$(SolutionDir)sputnik/externals/ImGuizmo"
+externals["glfw"]       = "$(SolutionDir)sputnik/externals/glfw"
 
 include_dir              = {}
 include_dir["glad"]      = "%{externals.glad}/include"
@@ -26,6 +27,7 @@ include_dir["ramanujan"] = "%{externals.ramanujan}/source"
 include_dir["imgui"]     = "%{externals.imgui}"
 include_dir["spdlog"]    = "%{externals.spdlog}/include"
 include_dir["imguizmo"]  = "%{externals.imguizmo}"
+include_dir["glfw"]      = "%{externals.glfw}/include"
 
 static_libs           = {}
 static_libs["opengl"] = "opengl32.lib"
@@ -55,6 +57,7 @@ runtime "Release"
 group "dependencies"
 include "sputnik/externals/ramanujan/ramanujan-project.lua"
 include "sputnik/externals/imgui"
+include "sputnik/externals/glfw.lua"
 group ""
 
 -- include the renderer project

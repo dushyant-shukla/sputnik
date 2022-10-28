@@ -1,0 +1,49 @@
+[
+{
+    "name": "glfw",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/glfw/glfw.git",
+        "revision": "3.3.4"
+    }
+},
+{
+    "name": "assimp",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/assimp/assimp.git",
+        "revision": "a9f82dbe0b8a658003f93c7b5108ee4521458a18"
+    }
+},
+{
+    "name": "glslang",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/KhronosGroup/glslang.git",
+        "revision": "6fe560f74f472726027e4059692c6eb1e7d972dc"
+    }
+},
+{
+    "name": "glTF-Sample-Models",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/KhronosGroup/glTF-Sample-Models.git"
+    }
+},
+{
+    "name": "gli",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/g-truc/gli.git",
+        "revision": "dd17acf9cc7fc6e6abe9f9ec69949eeeee1ccd82"
+    }
+},
+{
+    "name": "rapidjson",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/Tencent/rapidjson.git",
+        "revision": "ce81bc9edfe773667a7a4454ba81dac72ed4364c"
+    }
+}
+]

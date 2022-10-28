@@ -44,14 +44,16 @@ externalincludedirs
   "%{include_dir.ramanujan}",
   "%{include_dir.imgui}",
   "%{include_dir.spdlog}",
-  "%{include_dir.imguizmo}"
+  "%{include_dir.imguizmo}",
+  "%{include_dir.glfw}"
 }
 
 links
 {
   "%{static_libs.opengl}",
   "ramanujan",
-  "ImGui"
+  "ImGui",
+  "GLFW"
 }
 
 filter { "files:**.c" }
