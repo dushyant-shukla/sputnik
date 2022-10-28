@@ -56,6 +56,12 @@ links
   "GLFW"
 }
 
+filter "system:windows"
+defines
+{
+  "GLFW_INCLUDE_NONE"
+}
+
 filter { "files:**.c" }
 compileas "C++"
 flags { "NoPCH" }
