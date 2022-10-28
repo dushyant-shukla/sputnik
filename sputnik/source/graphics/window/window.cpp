@@ -1,7 +1,167 @@
 #include "pch.h"
 #include "window.h"
+#include "graphics/glcore/opengl_context.h"
+
+#include <GLFW/glfw3.h>
 
 namespace sputnik
 {
+
+static void GLFWErrorCallback(int error, const char* description)
+{
+    std::cout << "GLFW Error " << error << " : " << description;
+}
+
+Window::Window(const WindowSpecification& specification)
+{
+    if(!glfwInit())
+    {
+        std::cout << "Failed to intialize GLFW.";
+    }
+    glfwSetErrorCallback(GLFWErrorCallback);
+
+    m_window_handle = glfwCreateWindow((int)specification.m_width,
+                                       (int)specification.m_height,
+                                       specification.m_title.c_str(),
+                                       nullptr,
+                                       nullptr);
+
+    m_graphics_context = std::make_unique<sputnik::opengl::OpenglContext>(m_window_handle);
+
+    glfwSetWindowUserPointer(m_window_handle, &m_window_specification);
+    SetVsync(true);
+
+    // Set GLFW callbacks
+    glfwSetWindowSizeCallback(m_window_handle,
+                              [](GLFWwindow* window, int width, int height)
+                              {
+                                  WindowSpecification& window_specification =
+                                      *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                                  window_specification.m_width  = width;
+                                  window_specification.m_height = height;
+                              });
+
+    glfwSetWindowCloseCallback(m_window_handle,
+                               [](GLFWwindow* window) {
+                                   WindowSpecification& window_specification =
+                                       *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                               });
+
+    glfwSetKeyCallback(m_window_handle,
+                       [](GLFWwindow* window, int key, int scanCode, int action, int mods)
+                       {
+                           WindowSpecification& window_specification =
+                               *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                           switch(action)
+                           {
+                           case GLFW_PRESS:
+                           {
+                               break;
+                           }
+
+                           case GLFW_RELEASE:
+                           {
+                               break;
+                           }
+
+                           case GLFW_REPEAT:
+                           {
+                               break;
+                           }
+                           }
+                       });
+
+    glfwSetCharCallback(m_window_handle,
+                        [](GLFWwindow* window, unsigned int keyCode) {
+                            WindowSpecification& window_specification =
+                                *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                        });
+
+    glfwSetMouseButtonCallback(m_window_handle,
+                               [](GLFWwindow* window, int button, int action, int mods)
+                               {
+                                   WindowSpecification& window_specification =
+                                       *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                                   switch(action)
+                                   {
+                                   case GLFW_PRESS:
+                                   {
+                                       break;
+                                   }
+
+                                   case GLFW_RELEASE:
+                                   {
+                                       break;
+                                   }
+                                   }
+                               });
+
+    glfwSetScrollCallback(m_window_handle,
+                          [](GLFWwindow* window, double offsetX, double offsetY) {
+                              WindowSpecification& window_specification =
+                                  *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                          });
+
+    glfwSetCursorPosCallback(m_window_handle,
+                             [](GLFWwindow* window, double positionX, double positionY) {
+                                 WindowSpecification& window_specification =
+                                     *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                             });
+}
+
+Window::~Window()
+{
+    Shutdown();
+}
+
+Window& Window::InitializeWindow(const WindowSpecification& specification)
+{
+    static Window instance(specification);
+    return instance;
+}
+
+unsigned int Window::GetWidth() const
+{
+    return m_window_specification.m_width;
+}
+
+unsigned int Window::GetHeight() const
+{
+    return m_window_specification.m_height;
+}
+
+void Window::SetVsync(bool enable_vsync)
+{
+    if(enable_vsync)
+    {
+        glfwSwapInterval(1);
+    }
+    else
+    {
+        glfwSwapInterval(0);
+    }
+    m_window_specification.m_vsync_enabled = enable_vsync;
+}
+
+bool Window::IsVsyncEnabled()
+{
+    return m_window_specification.m_vsync_enabled;
+}
+
+GLFWwindow* Window::GetNativeWindow()
+{
+    return m_window_handle;
+}
+
+void Window::OnUpdate()
+{
+    glfwPollEvents();
+    m_graphics_context->SwapBuffers();
+}
+
+void Window::Shutdown()
+{
+    glfwDestroyWindow(m_window_handle);
+}
 
 } // namespace sputnik

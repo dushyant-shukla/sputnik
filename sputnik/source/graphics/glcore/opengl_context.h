@@ -11,14 +11,11 @@ class OpenglContext : public api::GraphicsContext
 {
 
 public:
-    NON_COPYABLE(OpenglContext);
-
+    OpenglContext(GLFWwindow* window_handle);
     virtual ~OpenglContext();
-    static OpenglContext& InitializeOpenglContext(GLFWwindow* window_handle);
     virtual void SwapBuffers() override;
 
 protected:
-    OpenglContext(GLFWwindow* window_handle);
 };
 
 } // namespace sputnik::opengl
