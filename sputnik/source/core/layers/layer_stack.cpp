@@ -12,6 +12,7 @@ LayerStack::~LayerStack() {}
 void LayerStack::PushLayer(const std::shared_ptr<Layer>& layer)
 {
     m_layers.emplace(m_layers.begin() + m_current_layer_insert_index, layer);
+    m_layers[m_current_layer_insert_index]->OnAttach();
     ++m_current_layer_insert_index;
 }
 

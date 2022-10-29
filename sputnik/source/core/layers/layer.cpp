@@ -13,4 +13,14 @@ const std::string& Layer::GetName() const
     return m_name;
 }
 
+void Layer::OnAttach() {}
+
+void Layer::OnDetach() {}
+
+void Layer::OnUpdate(const TimeStep& time_step) {}
+
+void Layer::OnEvent() {}
+
+void Layer::OnUpdateUI() {}
+
 } // namespace sputnik::core::layer

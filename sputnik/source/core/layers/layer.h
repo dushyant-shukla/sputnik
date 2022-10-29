@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/time_step.h"
+
 namespace sputnik::core::layer
 {
 
@@ -12,7 +14,7 @@ public:
 
     virtual void OnAttach();
     virtual void OnDetach();
-    virtual void OnUpdate();
+    virtual void OnUpdate(const TimeStep& time_step);
     virtual void OnEvent();
     virtual void OnUpdateUI();
 
