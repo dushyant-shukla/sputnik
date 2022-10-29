@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "window.h"
-#include "graphics/glcore/opengl_context.h"
+#include "graphics/glcore/gl_context.h"
+#include "main/application.h"
+#include "graphics/api/renderer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -26,10 +28,7 @@ Window::Window(const WindowSpecification& specification)
                                        nullptr,
                                        nullptr);
 
-    m_graphics_context = std::make_unique<sputnik::opengl::OpenglContext>(m_window_handle);
-
     glfwSetWindowUserPointer(m_window_handle, &m_window_specification);
-    SetVsync(true);
 
     // Set GLFW callbacks
     glfwSetWindowSizeCallback(m_window_handle,
@@ -39,12 +38,19 @@ Window::Window(const WindowSpecification& specification)
                                       *(WindowSpecification*)glfwGetWindowUserPointer(window);
                                   window_specification.m_width  = width;
                                   window_specification.m_height = height;
+
+                                  // Todo:: This should happen with events (this is only temporary)
+                                  api::Renderer::OnWindowResize(width, height);
                               });
 
     glfwSetWindowCloseCallback(m_window_handle,
-                               [](GLFWwindow* window) {
+                               [](GLFWwindow* window)
+                               {
                                    WindowSpecification& window_specification =
                                        *(WindowSpecification*)glfwGetWindowUserPointer(window);
+
+                                   // Todo:: Temporary (This must be triggered through an event)
+                                   main::Application::GetInstance()->Shutdown();
                                });
 
     glfwSetKeyCallback(m_window_handle,
@@ -114,11 +120,11 @@ Window::~Window()
     Shutdown();
 }
 
-Window& Window::InitializeWindow(const WindowSpecification& specification)
-{
-    static Window instance(specification);
-    return instance;
-}
+// Window& Window::InitializeWindow(const WindowSpecification& specification)
+//{
+//     static Window instance(specification);
+//     return instance;
+// }
 
 unsigned int Window::GetWidth() const
 {
@@ -156,7 +162,6 @@ GLFWwindow* Window::GetNativeWindow()
 void Window::OnUpdate()
 {
     glfwPollEvents();
-    m_graphics_context->SwapBuffers();
 }
 
 void Window::Shutdown()

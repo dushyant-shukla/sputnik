@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "mesh.h"
-#include "graphics/api/renderer.h"
+#include "graphics/glcore/renderer.h"
 
 namespace sputnik::api
 {

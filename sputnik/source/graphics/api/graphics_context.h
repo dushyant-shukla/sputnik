@@ -7,14 +7,7 @@ class GLFWwindow;
 namespace sputnik::api
 {
 
-enum class GraphicsSubsystem
-{
-    NONE,
-    OPENGL,
-    VULKAN,
-    DIRECTX
-};
-
+// Todo: This class is not needed
 class GraphicsContext
 {
 

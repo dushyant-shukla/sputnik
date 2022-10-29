@@ -1,48 +1,28 @@
 #pragma once
 
 #include "core/core.h"
-#include "graphics/glcore/index_buffer.h"
+#include "graphics_subsystem_type.h"
 
-#include <glad/glad.h>
-
-namespace sputnik::glcore
+namespace sputnik::api
 {
-
-enum class DrawMode
-{
-    INVALID = 0,
-    POINTS,
-    LINE_STRIP,
-    LINE_LOOP,
-    LINES,
-    TRIANGLES,
-    TRIANGLE_STRIP,
-    TRIANGLE_FAN
-};
 
 class Renderer
 {
 
 public:
-    // public interface
-
     NON_INSTATIABLE(Renderer);
 
-    static void Draw(IndexBuffer& index_buffer, DrawMode mode);
-    static void Draw(unsigned int vertex_count, DrawMode mode);
-    static void DrawInstanced(IndexBuffer& index_buffer, DrawMode mode, unsigned int instance_count);
-    static void DrawInstanced(unsigned int vertex_count, DrawMode mode, unsigned int instance_count);
-
-protected:
-    // protected methods
-
-private:
-    // private methods
-
-    static GLenum DrawModeToGLEnum(DrawMode mode);
+    static void                         Init(const GraphicsSubsystemType& subsystem_type);
+    static void                         Update();
+    static void                         Clear();
+    static void                         SetClearColor(float r, float g, float b, float a);
+    static void                         SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+    static void                         Shutdown();
+    static void                         OnWindowResize(uint32_t width, uint32_t height);
+    static const GraphicsSubsystemType& GetCurrentGraphicsSubsystemType();
 
 private:
-    // private data
+    static GraphicsSubsystemType s_graphics_subsystem;
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::api

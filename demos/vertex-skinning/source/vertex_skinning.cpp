@@ -1,7 +1,7 @@
 #include "vertex_skinning.h"
 
 #include <graphics/glcore/uniform.h>
-#include <graphics/api/renderer.h>
+#include <graphics/glcore/renderer.h>
 #include <graphics/glcore/gltf_loader.h>
 #include <matrix4.h>
 #include <vector3.h>
@@ -11,16 +11,15 @@
 namespace sputnik
 {
 
-sputnik::main::Application* sputnik::main::CreateApplication()
-{
-    return new demos::VertexSkinning();
-}
+//sputnik::main::Application* sputnik::main::CreateApplication()
+//{
+//    return new demos::VertexSkinning("Vertex Skinning");
+//}
 
 namespace demos
 {
 
-VertexSkinning::VertexSkinning()
-    : sputnik::main::Application::Application()
+VertexSkinningDemo::VertexSkinningDemo(const std::string& name) : core::layer::Layer(name)
     , m_show_current_pose(true)
     , m_show_rest_pose(false)
     , m_show_bind_pose(false)
@@ -40,10 +39,9 @@ VertexSkinning::VertexSkinning()
     m_skinnig_types_str += '\0';
     m_skinnig_types_str += '\0';
 }
+VertexSkinningDemo::~VertexSkinningDemo() {}
 
-VertexSkinning::~VertexSkinning() {}
-
-void VertexSkinning::Initialize()
+void VertexSkinningDemo::OnAttach()
 {
     m_static_shader =
         std::make_shared<sputnik::glcore::Shader>("../../data/shaders/simple.vert", "../../data/shaders/simple.frag");
@@ -53,19 +51,19 @@ void VertexSkinning::Initialize()
     cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
     m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Woman.png");
 
-     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/CesiumMan/CesiumMan.gltf");
-     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
+    // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/CesiumMan/CesiumMan.gltf");
+    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
 
-     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
-     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Fox/Texture.png");
+    // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
+    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Fox/Texture.png");
 
-     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
-     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
-     //    "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
+    // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
+    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+    //     "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
 
-     //cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
-     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
-     //   "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
+    // cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
+    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+    //    "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
 
     m_skeleton = sputnik::gltf::GltfLoader::LoadSkeleton(gltf);
     m_meshes   = sputnik::gltf::GltfLoader::LoadMeshes(gltf);
@@ -94,29 +92,34 @@ void VertexSkinning::Initialize()
     m_current_pose_visual->UpdateOpenGLBuffers();
 }
 
-void VertexSkinning::Update(float delta_time)
+void VertexSkinningDemo::OnDetach()
 {
-    if(ImGui::Begin("Vertex Skinning"))
-    {
-        if(ImGui::Combo("Animation Clip", &m_current_clip, m_clip_types_str.c_str()))
-        {
-        }
-        if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
-        {
-            m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);
-            // This is important when changing the animation model/current clip/skinning type, etc.
-            for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
-            {
-                m_meshes[i].UpdateOpenglBuffers();
-            }
-        }
-        ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
-        ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
-        ImGui::Checkbox("Show current pose", &m_show_current_pose);
-    }
-    ImGui::End();
+    m_clips.clear();
+}
 
-    m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + delta_time);
+void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
+{
+    //if(ImGui::Begin("Vertex Skinning"))
+    //{
+    //    if(ImGui::Combo("Animation Clip", &m_current_clip, m_clip_types_str.c_str()))
+    //    {
+    //    }
+    //    if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
+    //    {
+    //        m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);
+    //        // This is important when changing the animation model/current clip/skinning type, etc.
+    //        for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+    //        {
+    //            m_meshes[i].UpdateOpenglBuffers();
+    //        }
+    //    }
+    //    ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
+    //    ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
+    //    ImGui::Checkbox("Show current pose", &m_show_current_pose);
+    //}
+    //ImGui::End();
+
+    m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + time_step);
     m_current_pose_visual->FromPose(m_current_pose);
 
     if(m_skinning_type != sputnik::api::animation::SkinningType::NONE)
@@ -173,19 +176,17 @@ void VertexSkinning::Update(float delta_time)
     }
 
 #endif // 0
-}
 
-void VertexSkinning::Render(float aspect_ratio)
-{
-     //ramanujan::Matrix4 model      = ramanujan::ToMatrix4(ramanujan::AngleAxis(135.0f, {0.0f, 1.0f, 0.0f}));
+         // ramanujan::Matrix4 model      = ramanujan::ToMatrix4(ramanujan::AngleAxis(135.0f, {0.0f, 1.0f, 0.0f}));
     ramanujan::Matrix4 model;
-    ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
+    //ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
+    ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, 1600.0f/900.0f, 0.01f, 1000.0f);
     ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
     // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); //
     // woman
 
-     //ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
-     //0.0f}); // spiderman + nathan
+    // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
+    // 0.0f}); // spiderman + nathan
 
     ramanujan::Matrix4 mvp = projection * view * model;
 
@@ -249,10 +250,255 @@ void VertexSkinning::Render(float aspect_ratio)
     glEnable(GL_DEPTH_TEST);
 }
 
-void VertexSkinning::Shutdown()
+void VertexSkinningDemo::OnEvent()
 {
-    m_clips.clear();
 }
+
+void VertexSkinningDemo::OnUpdateUI()
+{
+
+}
+
+
+//VertexSkinning::VertexSkinning(const std::string& name)
+//    : sputnik::main::Application::Application(name)
+//    , m_show_current_pose(true)
+//    , m_show_rest_pose(false)
+//    , m_show_bind_pose(false)
+//    , m_current_clip(0)
+//    , m_playback_time(0.0f)
+//    , m_current_pose_visual(nullptr)
+//    , m_rest_pose_visual(nullptr)
+//    , m_bind_pose_visual(nullptr)
+//    , m_skinning_type(sputnik::api::animation::SkinningType::NONE)
+//    , m_skinning_type_index(0)
+//{
+//    // new
+//
+//    PushLayer(std::make_shared<VertexSkinningDemo>(name));
+//
+//    // old
+//    m_skinnig_types_str += "NONE";
+//    m_skinnig_types_str += '\0';
+//    m_skinnig_types_str += "CPU";
+//    m_skinnig_types_str += '\0';
+//    m_skinnig_types_str += "GPU";
+//    m_skinnig_types_str += '\0';
+//    m_skinnig_types_str += '\0';
+//}
+//
+//VertexSkinning::~VertexSkinning() {}
+//
+//void VertexSkinning::Initialize()
+//{
+//    m_static_shader =
+//        std::make_shared<sputnik::glcore::Shader>("../../data/shaders/simple.vert", "../../data/shaders/simple.frag");
+//    m_skinning_shader =
+//        std::make_shared<sputnik::glcore::Shader>("../../data/shaders/skinned.vert", "../../data/shaders/simple.frag");
+//
+//    cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
+//    m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Woman.png");
+//
+//     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/CesiumMan/CesiumMan.gltf");
+//     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
+//
+//     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
+//     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Fox/Texture.png");
+//
+//     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
+//     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+//     //    "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
+//
+//     //cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
+//     //m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+//     //   "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
+//
+//    m_skeleton = sputnik::gltf::GltfLoader::LoadSkeleton(gltf);
+//    m_meshes   = sputnik::gltf::GltfLoader::LoadMeshes(gltf);
+//    sputnik::gltf::GltfLoader::LoadAnimationClips(gltf, m_clips);
+//    sputnik::gltf::GltfLoader::FreeFile(gltf);
+//
+//    for(auto& clip : m_clips)
+//    {
+//        m_clip_types_str += clip.GetName();
+//        m_clip_types_str += '\0';
+//    }
+//    m_clip_types_str += '\0';
+//
+//    m_rest_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
+//    m_rest_pose_visual->FromPose(m_skeleton.GetRestPose());
+//    m_rest_pose_visual->UpdateOpenGLBuffers();
+//
+//    m_bind_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
+//    m_bind_pose_visual->FromPose(m_skeleton.GetBindPose());
+//    m_bind_pose_visual->UpdateOpenGLBuffers();
+//
+//    m_current_pose = m_skeleton.GetRestPose();
+//
+//    m_current_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
+//    m_current_pose_visual->FromPose(m_current_pose);
+//    m_current_pose_visual->UpdateOpenGLBuffers();
+//}
+//
+//void VertexSkinning::Update(float delta_time)
+//{
+//    if(ImGui::Begin("Vertex Skinning"))
+//    {
+//        if(ImGui::Combo("Animation Clip", &m_current_clip, m_clip_types_str.c_str()))
+//        {
+//        }
+//        if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
+//        {
+//            m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);
+//            // This is important when changing the animation model/current clip/skinning type, etc.
+//            for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+//            {
+//                m_meshes[i].UpdateOpenglBuffers();
+//            }
+//        }
+//        ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
+//        ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
+//        ImGui::Checkbox("Show current pose", &m_show_current_pose);
+//    }
+//    ImGui::End();
+//
+//    m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + delta_time);
+//    m_current_pose_visual->FromPose(m_current_pose);
+//
+//    if(m_skinning_type != sputnik::api::animation::SkinningType::NONE)
+//    {
+//        m_current_pose.GetMatrixPalette(m_pose_palette);
+//        const std::vector<ramanujan::Matrix4>& inverse_bind_pose = m_skeleton.GetInverseBindPose();
+//        for(size_t i = 0; i < m_pose_palette.size(); ++i)
+//        {
+//            m_pose_palette[i] = m_pose_palette[i] * inverse_bind_pose[i];
+//        }
+//
+//        if(m_skinning_type == sputnik::api::animation::SkinningType::CPU)
+//        {
+//            for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+//            {
+//                m_meshes[i].CpuSkin(m_pose_palette); // Todo: when do we update uv and indices for cpu skin?
+//            }
+//        }
+//    }
+//
+//#ifdef NON_OPTIMIZED
+//
+//    // This implementation is not optimized
+//    switch(m_skinning_type)
+//    {
+//    case sputnik::api::animation::SkinningType::NONE:
+//        break;
+//    case sputnik::api::animation::SkinningType::CPU:
+//    {
+//        for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+//        {
+//            m_meshes[i].CpuSkin(m_skeleton, m_current_pose); // Todo: when do we update uv and indices for cpu skin?
+//        }
+//        break;
+//    }
+//    case sputnik::api::animation::SkinningType::GPU:
+//    {
+//        m_current_pose.GetMatrixPalette(m_pose_palette);
+//        const std::vector<ramanujan::Matrix4>& inverse_bind_pose = m_skeleton.GetInverseBindPose();
+//        for(size_t i = 0; i < m_pose_palette.size(); ++i)
+//        {
+//            m_pose_palette[i] = m_pose_palette[i] * inverse_bind_pose[i];
+//        }
+//
+//        // This is important when changing the animation model or changing the animation clips.
+//        for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+//        {
+//            m_meshes[i].UpdateOpenglBuffers();
+//        }
+//        break;
+//    }
+//    default:
+//        break;
+//    }
+//
+//#endif // 0
+//}
+//
+//void VertexSkinning::Render(float aspect_ratio)
+//{
+//     //ramanujan::Matrix4 model      = ramanujan::ToMatrix4(ramanujan::AngleAxis(135.0f, {0.0f, 1.0f, 0.0f}));
+//    ramanujan::Matrix4 model;
+//    ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
+//    ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
+//    // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); //
+//    // woman
+//
+//     //ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
+//     //0.0f}); // spiderman + nathan
+//
+//    ramanujan::Matrix4 mvp = projection * view * model;
+//
+//    std::shared_ptr<sputnik::glcore::Shader> active_shader = m_static_shader;
+//    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU)
+//    {
+//        active_shader = m_skinning_shader;
+//    }
+//
+//    active_shader->Bind();
+//    sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("model"), model);
+//    sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("view"), view);
+//    sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("projection"), projection);
+//    sputnik::glcore::Uniform<ramanujan::Vector3>::Set(active_shader->GetUniform("light"), {0.0f, 10.0f, 10.0f});
+//
+//    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU)
+//    {
+//        sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("skin_transforms"), m_pose_palette);
+//    }
+//
+//    m_diffuse_texture->Set(active_shader->GetUniform("diffuse"), 0);
+//    for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+//    {
+//        int weights    = -1;
+//        int influences = -1;
+//        if(m_skinning_type == sputnik::api::animation::SkinningType::GPU)
+//        {
+//            weights    = active_shader->GetAttribute("weights");
+//            influences = active_shader->GetAttribute("joints");
+//        }
+//
+//        m_meshes[i].Bind(active_shader->GetAttribute("position"),
+//                         active_shader->GetAttribute("normal"),
+//                         active_shader->GetAttribute("uv"),
+//                         weights,
+//                         influences);
+//        m_meshes[i].Draw();
+//        m_meshes[i].Unbind(active_shader->GetAttribute("position"),
+//                           active_shader->GetAttribute("normal"),
+//                           active_shader->GetAttribute("uv"),
+//                           weights,
+//                           influences);
+//    }
+//    m_diffuse_texture->Unset(0);
+//    active_shader->Unbind();
+//
+//    glDisable(GL_DEPTH_TEST);
+//    if(m_show_rest_pose)
+//    {
+//        m_rest_pose_visual->Draw(sputnik::glcore::DebugDrawMode::Lines, {1.0f, 0.0f, 0.0f}, mvp);
+//    }
+//    if(m_show_bind_pose)
+//    {
+//        m_bind_pose_visual->Draw(sputnik::glcore::DebugDrawMode::Lines, {0.0f, 1.0f, 0.0f}, mvp);
+//    }
+//    if(m_show_current_pose)
+//    {
+//        m_current_pose_visual->UpdateOpenGLBuffers();
+//        m_current_pose_visual->Draw(sputnik::glcore::DebugDrawMode::Lines, {0.0f, 0.0f, 1.0f}, mvp);
+//    }
+//    glEnable(GL_DEPTH_TEST);
+//}
+//
+//void VertexSkinning::Shutdown()
+//{
+//    m_clips.clear();
+//}
 
 } // namespace demos
 

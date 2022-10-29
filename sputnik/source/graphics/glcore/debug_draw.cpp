@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "debug_draw.h"
 #include "graphics/glcore/uniform.h"
-#include "graphics/api/renderer.h"
+#include "graphics/glcore/renderer.h"
 
 sputnik::glcore::DebugDraw::DebugDraw()
 {

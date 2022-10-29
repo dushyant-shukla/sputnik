@@ -65,8 +65,8 @@ include "sputnik/sputnik-project.lua"
 
 -- include the demo projects
 group "demos"
-include "demos/sandbox/sandbox.lua"
-include "demos/curve-plotting/curve-plotting.lua"
-include "demos/animation-poses/animation-poses.lua"
+-- include "demos/sandbox/sandbox.lua"
+-- include "demos/curve-plotting/curve-plotting.lua"
+-- include "demos/animation-poses/animation-poses.lua"
 include "demos/vertex-skinning/vertex-skinning.lua"
 group ""

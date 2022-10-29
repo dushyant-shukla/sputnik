@@ -1,60 +1,48 @@
 #include "pch.h"
 #include "renderer.h"
+#include "render_command.h"
 
-namespace sputnik::glcore
+namespace sputnik::api
 {
-void Renderer::Draw(IndexBuffer& index_buffer, DrawMode mode)
+
+GraphicsSubsystemType Renderer::s_graphics_subsystem;
+
+void Renderer::Init(const GraphicsSubsystemType& subsystem_type)
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.GetId());
-    glDrawElements(DrawModeToGLEnum(mode), index_buffer.GetCount(), GL_UNSIGNED_INT, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    s_graphics_subsystem = subsystem_type;
+    RenderCommand::Init(subsystem_type);
 }
 
-void Renderer::Draw(unsigned int vertex_count, DrawMode mode)
+void Renderer::Update()
 {
-    glDrawArrays(DrawModeToGLEnum(mode), 0, vertex_count);
+    RenderCommand::Update();
 }
 
-void Renderer::DrawInstanced(IndexBuffer& index_buffer, DrawMode mode, unsigned int instance_count)
+void Renderer::Clear()
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.GetId());
-    glDrawElementsInstanced(DrawModeToGLEnum(mode), index_buffer.GetCount(), GL_UNSIGNED_INT, 0, instance_count);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    RenderCommand::Clear();
 }
 
-void Renderer::DrawInstanced(unsigned int vertex_count, DrawMode mode, unsigned int instance_count)
+void Renderer::SetClearColor(float r, float g, float b, float a)
 {
-    glDrawArraysInstanced(DrawModeToGLEnum(mode), 0, vertex_count, instance_count);
+    RenderCommand::SetClearColor(r, g, b, a);
 }
 
-GLenum Renderer::DrawModeToGLEnum(DrawMode mode)
+void Renderer::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-    switch(mode)
-    {
-    case DrawMode::POINTS:
-        return GL_POINTS;
-
-    case DrawMode::LINE_STRIP:
-        return GL_LINE_STRIP;
-
-    case DrawMode::LINE_LOOP:
-        return GL_LINE_LOOP;
-
-    case DrawMode::LINES:
-        return GL_LINES;
-
-    case DrawMode::TRIANGLES:
-        return GL_TRIANGLES;
-
-    case DrawMode::TRIANGLE_STRIP:
-        return GL_TRIANGLE_STRIP;
-
-    case DrawMode::TRIANGLE_FAN:
-        return GL_TRIANGLE_FAN;
-    }
-
-    // assert() // invalid draw mode
-    return static_cast<unsigned int>(DrawMode::INVALID);
+    RenderCommand::SetViewPort(x, y, width, height);
 }
 
-} // namespace sputnik::glcore
+void Renderer::Shutdown() {}
+
+void Renderer::OnWindowResize(uint32_t width, uint32_t height)
+{
+    RenderCommand::SetViewPort(0, 0, width, height);
+}
+
+const GraphicsSubsystemType& Renderer::GetCurrentGraphicsSubsystemType()
+{
+    return s_graphics_subsystem;
+}
+
+} // namespace sputnik::api
