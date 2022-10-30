@@ -22,14 +22,6 @@ public:
     virtual void PushLayer(const std::shared_ptr<core::layer::Layer>& layer);
     virtual void PushOverlay(const std::shared_ptr<core::layer::Layer>& layer);
 
-    // inline Application(){};
-    // inline virtual ~Application() {}
-    // inline virtual void Initialize() {}
-    // inline virtual void Update(float delta_time) {}
-    // inline virtual void Render(float aspect_ratio) {}
-    // inline virtual void RenderUI(float aspect_ratio) {}
-    // inline virtual void Shutdown() {}
-
 private:
     std::string             m_application_name;
     bool                    m_is_running;
