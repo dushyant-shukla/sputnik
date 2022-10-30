@@ -6,7 +6,7 @@
 
 struct GLFWwindow;
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 struct SystemInformation
@@ -16,7 +16,7 @@ struct SystemInformation
     std::string gl_version;
 };
 
-class GlUiLayer : public core::layer::Layer
+class GlUiLayer : public sputnik::core::Layer
 {
 
 public:
@@ -25,9 +25,9 @@ public:
 
     virtual void OnAttach();
     virtual void OnDetach();
-    virtual void OnUpdate(const core::TimeStep& time_step);
+    virtual void OnUpdate(const sputnik::core::TimeStep& time_step);
     virtual void OnEvent();
-    virtual void OnUpdateUI(const core::TimeStep& time_step);
+    virtual void OnUpdateUI(const sputnik::core::TimeStep& time_step);
 
     void Begin();
     void End();
@@ -37,4 +37,4 @@ private:
     SystemInformation m_system_information;
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

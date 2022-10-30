@@ -2,18 +2,17 @@
 
 #include "core/core.h"
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
-    
 void GLClearError();
 bool GLCheckError(const char* function, const char* file, int line);
 
 #ifdef SPUTNIK_DEBUG
 
-#define GL_CALL(x)  \
+#define GL_CALL(x)                   \
     sputnik::glcore::GLClearError(); \
-    x;              \
+    x;                               \
     SPUTNIK_ASSERT(sputnik::glcore::GLCheckError(#x, __FILE__, __LINE__))
 
 #else
@@ -25,9 +24,8 @@ bool GLCheckError(const char* function, const char* file, int line);
 // template<typename T>
 // T GlCall()
 
-
 //////////////////////////////////////// OPENGL DECORATORS ////////////////////////////////////////
 
 // Have wrappers for OpenGL calls, that can do error checks in debug mode.
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

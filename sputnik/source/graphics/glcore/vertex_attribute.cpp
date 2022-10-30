@@ -6,7 +6,7 @@
 #include <vector3.h>
 #include <vector4.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 template VertexAttribute<int>;
@@ -95,7 +95,8 @@ void VertexAttribute<T>::Set(std::vector<T>& input)
 template <typename T>
 void VertexAttribute<T>::Bind(unsigned int slot)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, m_id); // Todo: Understand this better + what is GL_VERTEX_ARRAY used for? Original code unbinds the array buffer (Why?)
+    glBindBuffer(GL_ARRAY_BUFFER, m_id); // Todo: Understand this better + what is GL_VERTEX_ARRAY used for? Original
+                                         // code unbinds the array buffer (Why?)
     glEnableVertexAttribArray(slot);
     SetVertexAttributePointer(slot);
 }
@@ -120,4 +121,4 @@ unsigned int VertexAttribute<T>::GetId()
     return m_id;
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "core/core.h"
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 class Shader
@@ -125,4 +125,4 @@ private:
     std::unordered_map<std::string, unsigned int> m_uniforms;   // maps uniform name -> index in the shader
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

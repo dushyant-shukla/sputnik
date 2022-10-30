@@ -3,11 +3,11 @@
 
 #include <GLFW/glfw3.h>
 
-namespace sputnik::api
+namespace sputnik::graphics::core
 {
 
 GraphicsContext::GraphicsContext(GLFWwindow* window_handle) : m_window_handle(window_handle) {}
 
 GraphicsContext::~GraphicsContext() {}
 
-} // namespace sputnik::api
+} // namespace sputnik::graphics::core

@@ -3,7 +3,7 @@
 #include "core/time_step.h"
 #include "core/layers/layer.h"
 #include "graphics/api/renderer.h"
-#include "graphics/api/graphics_subsystem_type.h"
+#include "graphics/core/graphics_subsystem_type.h"
 
 #include <GLFW/glfw3.h>
 
@@ -20,7 +20,7 @@ Application::Application(const std::string& application_name)
 {
     s_instance = this;
 
-    api::Renderer::Init(api::GraphicsSubsystemType::OPENGL);
+    graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
 }
 
 Application ::~Application() {}
@@ -33,18 +33,18 @@ void Application::Run()
         core::TimeStep time_step = time - m_last_frame_time;
         m_last_frame_time        = time;
 
-        api::Renderer::SetClearColor(0.16f, 0.16f, 0.16f, 1.00f);
-        api::Renderer::Clear();
+        graphics::api::Renderer::SetClearColor(0.16f, 0.16f, 0.16f, 1.00f);
+        graphics::api::Renderer::Clear();
 
         if(!m_is_minimized)
         {
-            for(const std::shared_ptr<core::layer::Layer>& layer : m_application_layer_stack)
+            for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
                 layer->OnUpdate(time_step);
             }
         }
 
-        api::Renderer::Update(time_step);
+        graphics::api::Renderer::Update(time_step);
     }
 }
 
@@ -54,7 +54,7 @@ void Application::Shutdown()
     m_is_running = false;
 }
 
-core::layer::LayerStack& Application::GetApplicationLayerStack()
+core::LayerStack& Application::GetApplicationLayerStack()
 {
     return m_application_layer_stack;
 }
@@ -64,12 +64,12 @@ Application* Application::GetInstance()
     return s_instance;
 }
 
-void Application::PushLayer(const std::shared_ptr<core::layer::Layer>& layer)
+void Application::PushLayer(const std::shared_ptr<core::Layer>& layer)
 {
     m_application_layer_stack.PushLayer(layer);
 }
 
-void Application::PushOverlay(const std::shared_ptr<core::layer::Layer>& layer)
+void Application::PushOverlay(const std::shared_ptr<core::Layer>& layer)
 {
     m_application_layer_stack.PushOverLay(layer);
 }

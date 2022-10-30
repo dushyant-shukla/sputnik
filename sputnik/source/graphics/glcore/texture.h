@@ -2,7 +2,7 @@
 
 #include "core/core.h"
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 class Texture
@@ -30,4 +30,4 @@ protected:
     unsigned int m_id;
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

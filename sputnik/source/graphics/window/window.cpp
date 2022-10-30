@@ -6,7 +6,7 @@
 
 #include <GLFW/glfw3.h>
 
-namespace sputnik
+namespace sputnik::graphics::window
 {
 
 static void GLFWErrorCallback(int error, const char* description)
@@ -61,7 +61,7 @@ Window::Window(const WindowSpecification& specification)
                        {
                            WindowSpecification& window_specification =
                                *(WindowSpecification*)glfwGetWindowUserPointer(window);
-                           //glfwMaximizeWindow(window);
+                           // glfwMaximizeWindow(window);
                            switch(action)
                            {
                            case GLFW_PRESS:
@@ -173,4 +173,4 @@ void Window::Shutdown()
     glfwDestroyWindow(m_window_handle);
 }
 
-} // namespace sputnik
+} // namespace sputnik::graphics::window

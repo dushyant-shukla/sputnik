@@ -2,7 +2,7 @@
 #include "track.h"
 #include "track_helpers.inl"
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 
 /**
@@ -35,13 +35,13 @@ T Track<T, SIZE>::Sample(float time, bool looping)
 {
     switch(m_interpolation)
     {
-    case sputnik::api::animation::InterpolationType::CONSTANT:
+    case InterpolationType::CONSTANT :
         return SampleConstant(time, looping);
 
-    case sputnik::api::animation::InterpolationType::LINEAR:
+    case InterpolationType::LINEAR:
         return SampleLinear(time, looping);
 
-    case sputnik::api::animation::InterpolationType::CUBIC:
+    case InterpolationType::CUBIC:
         return SampleCubic(time, looping);
 
     default:
@@ -314,4 +314,4 @@ T Track<T, SIZE>::SampleCubic(float time, bool looping)
     return Hermite(t, point_1, slope_1, point_2, slope_2);
 }
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

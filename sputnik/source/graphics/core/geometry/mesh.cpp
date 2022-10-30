@@ -2,27 +2,27 @@
 #include "mesh.h"
 #include "graphics/glcore/renderer.h"
 
-namespace sputnik::api
+namespace sputnik::graphics::core
 {
 
 Mesh::Mesh()
 {
-    m_position_attribute  = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_normal_attribute    = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_uv_attribute        = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector2>>();
-    m_weight_attribute    = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector4>>();
-    m_influence_attribute = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::IVector4>>();
-    m_index_buffer        = std::make_shared<sputnik::glcore::IndexBuffer>();
+    m_position_attribute  = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
+    m_normal_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
+    m_uv_attribute        = std::make_shared<glcore::VertexAttribute<ramanujan::Vector2>>();
+    m_weight_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector4>>();
+    m_influence_attribute = std::make_shared<glcore::VertexAttribute<ramanujan::IVector4>>();
+    m_index_buffer        = std::make_shared<glcore::IndexBuffer>();
 }
 
 Mesh::Mesh(const Mesh& other)
 {
-    m_position_attribute  = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_normal_attribute    = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_uv_attribute        = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector2>>();
-    m_weight_attribute    = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::Vector4>>();
-    m_influence_attribute = std::make_shared<sputnik::glcore::VertexAttribute<ramanujan::IVector4>>();
-    m_index_buffer        = std::make_shared<sputnik::glcore::IndexBuffer>();
+    m_position_attribute  = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
+    m_normal_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
+    m_uv_attribute        = std::make_shared<glcore::VertexAttribute<ramanujan::Vector2>>();
+    m_weight_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector4>>();
+    m_influence_attribute = std::make_shared<glcore::VertexAttribute<ramanujan::IVector4>>();
+    m_index_buffer        = std::make_shared<glcore::IndexBuffer>();
     *this                 = other;
 }
 
@@ -75,7 +75,7 @@ std::vector<unsigned int>& Mesh::GetIndices()
     return m_indices;
 }
 
-void Mesh::CpuSkin(const animation::Skeleton& skeleton, const animation::Pose& pose)
+void Mesh::CpuSkin(const Skeleton& skeleton, const Pose& pose)
 {
     size_t num_vertices = m_position.size();
     if(num_vertices == 0)
@@ -232,12 +232,11 @@ void Mesh::Draw()
 {
     if(m_indices.size() > 0)
     {
-        sputnik::glcore::Renderer::Draw(*m_index_buffer, sputnik::glcore::DrawMode::TRIANGLES);
+        glcore::Renderer::Draw(*m_index_buffer, glcore::DrawMode::TRIANGLES);
     }
     else
     {
-        sputnik::glcore::Renderer::Draw(static_cast<unsigned int>(m_position.size()),
-                                        sputnik::glcore::DrawMode::TRIANGLES);
+        glcore::Renderer::Draw(static_cast<unsigned int>(m_position.size()), glcore::DrawMode::TRIANGLES);
     }
 }
 
@@ -245,13 +244,13 @@ void Mesh::DrawInstanced(unsigned int num_instances)
 {
     if(m_indices.size() > 0)
     {
-        sputnik::glcore::Renderer::DrawInstanced(*m_index_buffer, sputnik::glcore::DrawMode::TRIANGLES, num_instances);
+        glcore::Renderer::DrawInstanced(*m_index_buffer, glcore::DrawMode::TRIANGLES, num_instances);
     }
     else
     {
-        sputnik::glcore::Renderer::DrawInstanced(static_cast<unsigned int>(m_position.size()),
-                                                 sputnik::glcore::DrawMode::TRIANGLES,
-                                                 num_instances);
+        glcore::Renderer::DrawInstanced(static_cast<unsigned int>(m_position.size()),
+                                        glcore::DrawMode::TRIANGLES,
+                                        num_instances);
     }
 }
 
@@ -279,4 +278,4 @@ void Mesh::Unbind(int position_slot, int normal_slot, int uv_slot, int weight_sl
     }
 }
 
-} // namespace sputnik::api
+} // namespace sputnik::graphics::core

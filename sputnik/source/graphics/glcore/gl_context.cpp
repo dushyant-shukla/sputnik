@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 GlContext::GlContext(GLFWwindow* window_handle) : m_window_handle(window_handle)
@@ -24,4 +24,4 @@ void GlContext::SwapBuffers()
     glfwSwapBuffers(m_window_handle);
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

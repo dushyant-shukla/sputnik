@@ -8,10 +8,10 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
-GlUiLayer::GlUiLayer(GLFWwindow* window) : core::layer::Layer("UiLayer"), m_window(window) {}
+GlUiLayer::GlUiLayer(GLFWwindow* window) : core::Layer("UiLayer"), m_window(window) {}
 
 GlUiLayer::~GlUiLayer() {}
 
@@ -183,7 +183,7 @@ void GlUiLayer::Begin()
 void GlUiLayer::End()
 {
     ImGuiIO&             io                   = ImGui::GetIO();
-    WindowSpecification& window_specification = *(WindowSpecification*)glfwGetWindowUserPointer(m_window);
+    window::WindowSpecification& window_specification = *(window::WindowSpecification*)glfwGetWindowUserPointer(m_window);
     io.DisplaySize = ImVec2((float)window_specification.m_width, (float)window_specification.m_height);
 
     ImGui::Render();
@@ -198,4 +198,4 @@ void GlUiLayer::End()
     }
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

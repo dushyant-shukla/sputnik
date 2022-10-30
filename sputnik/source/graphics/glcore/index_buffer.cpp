@@ -3,7 +3,7 @@
 
 #include <glad/glad.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 IndexBuffer::IndexBuffer() : m_count(0)
@@ -41,4 +41,4 @@ const unsigned int& IndexBuffer::GetId()
     return m_id;
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

@@ -8,12 +8,12 @@
 #include <glad/glad.h>
 #include <imgui.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 GlGraphicsSubsystem::GlGraphicsSubsystem()
 {
-    m_window   = std::make_unique<Window>();
+    m_window   = std::make_unique<window::Window>();
     m_context  = std::make_unique<GlContext>(m_window->GetNativeWindow());
     m_ui_layer = std::make_shared<GlUiLayer>(m_window->GetNativeWindow());
     glGenVertexArrays(1, &m_vao);
@@ -27,11 +27,12 @@ GlGraphicsSubsystem::~GlGraphicsSubsystem()
     glDeleteVertexArrays(1, &m_vao);
 }
 
-void GlGraphicsSubsystem::Update(const core::TimeStep& time_step)
+void GlGraphicsSubsystem::Update(const sputnik::core::TimeStep& time_step)
 {
     m_ui_layer->Begin();
-    core::layer::LayerStack& layer_stack = main::Application::GetInstance()->GetApplicationLayerStack();
-    for(const std::shared_ptr<core::layer::Layer>& layer : layer_stack) // Todo:: layer stack to have const iterator
+    sputnik::core::LayerStack& layer_stack = main::Application::GetInstance()->GetApplicationLayerStack();
+    for(const std::shared_ptr<sputnik::core::Layer>& layer :
+        layer_stack) // Todo:: layer stack to have const iterator
     {
         layer->OnUpdateUI(time_step);
     }
@@ -56,4 +57,4 @@ void GlGraphicsSubsystem::SetViewPort(uint32_t x, uint32_t y, uint32_t width, ui
     glViewport(x, y, width, height);
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

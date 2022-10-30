@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-namespace sputnik::core::layer
+namespace sputnik::core
 {
 
 class Layer;
@@ -27,4 +27,4 @@ private:
     size_t                              m_current_layer_insert_index;
 };
 
-} // namespace sputnik::core::layer
+} // namespace sputnik::core

@@ -9,7 +9,7 @@
 
 #include <glad/glad.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 template Uniform<int>;
@@ -56,4 +56,4 @@ void Uniform<ramanujan::Matrix4>::Set(unsigned int slot, ramanujan::Matrix4* val
     glUniformMatrix4fv(slot, (GLsizei)count, false, (float*)&values[0]);
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

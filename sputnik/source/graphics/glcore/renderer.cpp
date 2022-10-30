@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "renderer.h"
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 void Renderer::Draw(IndexBuffer& index_buffer, DrawMode mode)
 {
@@ -57,4 +57,4 @@ GLenum Renderer::DrawModeToGLEnum(DrawMode mode)
     return static_cast<unsigned int>(DrawMode::INVALID);
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

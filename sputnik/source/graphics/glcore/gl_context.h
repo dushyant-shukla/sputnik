@@ -2,7 +2,7 @@
 
 struct GLFWwindow;
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 class GlContext
@@ -17,4 +17,4 @@ private:
     GLFWwindow* m_window_handle;
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

@@ -5,7 +5,7 @@
 #include <transform.h>
 #include <matrix4.h>
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 
 /**
@@ -63,4 +63,4 @@ private:
     // private data
 };
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

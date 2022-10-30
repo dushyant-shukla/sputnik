@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "core/core.h"
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 /**
@@ -43,4 +43,4 @@ protected:
                           // y, z), and uv(s, t), m_count = 3 + 3 + 2 = 8
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

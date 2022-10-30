@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sputnik::api
+namespace sputnik::graphics::core
 {
 
 enum class GraphicsSubsystemType
@@ -11,4 +11,4 @@ enum class GraphicsSubsystemType
     DIRECTX
 };
 
-}
+} // namespace sputnik::graphics::core

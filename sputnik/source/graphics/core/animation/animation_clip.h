@@ -4,7 +4,7 @@
 #include "animation_track.h"
 #include "pose.h"
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 
 /**
@@ -68,4 +68,4 @@ private:
     float AdjustTimeToFitRange(float in_time);
 };
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

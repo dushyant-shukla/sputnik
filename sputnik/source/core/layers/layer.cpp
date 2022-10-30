@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "layer.h"
 
-namespace sputnik::core::layer
+namespace sputnik::core
 {
 
 Layer::Layer(const std::string& name) : m_name(name) {}
@@ -23,4 +23,4 @@ void Layer::OnEvent() {}
 
 void Layer::OnUpdateUI(const core::TimeStep& time_step) {}
 
-} // namespace sputnik::core::layer
+} // namespace sputnik::core

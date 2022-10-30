@@ -2,17 +2,16 @@
 
 #include "pch.h"
 #include "core/core.h"
-#include "graphics/api/animation/pose.h"
+#include "graphics/core/animation/pose.h"
 #include "graphics/glcore/vertex_attribute.h"
 #include "graphics/glcore/shader.h"
 
 #include <vector3.h>
 #include <matrix4.h>
 
-namespace sputnik
+namespace sputnik::graphics::glcore
 {
-namespace glcore
-{
+
 enum class DebugDrawMode
 {
     Lines,
@@ -36,7 +35,7 @@ public:
     ramanujan::Vector3& operator[](unsigned int index);
     void                Push(const ramanujan::Vector3& v);
 
-    void FromPose(const api::animation::Pose& pose);
+    void FromPose(const sputnik::graphics::core::Pose& pose);
 
     void UpdateOpenGLBuffers();
     void Draw(DebugDrawMode mode, const ramanujan::Vector3& color, const ramanujan::Matrix4& mvp);
@@ -46,5 +45,5 @@ protected:
     VertexAttribute<ramanujan::Vector3>* m_vertex_attributes;
     Shader*                              m_shader;
 };
-} // namespace glcore
-} // namespace sputnik
+
+} // namespace sputnik::graphics::glcore

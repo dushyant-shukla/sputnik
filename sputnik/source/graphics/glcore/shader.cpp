@@ -3,7 +3,7 @@
 
 #include <glad/glad.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 Shader::Shader()
@@ -236,4 +236,4 @@ void Shader::PopulateUniforms()
     glUseProgram(0);
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

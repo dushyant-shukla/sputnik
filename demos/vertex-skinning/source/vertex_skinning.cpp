@@ -15,7 +15,7 @@ namespace demos
 {
 
 VertexSkinningDemo::VertexSkinningDemo(const std::string& name)
-    : core::layer::Layer(name)
+    : core::Layer(name)
     , m_show_current_pose(false)
     , m_show_rest_pose(false)
     , m_show_bind_pose(false)
@@ -24,7 +24,7 @@ VertexSkinningDemo::VertexSkinningDemo(const std::string& name)
     , m_current_pose_visual(nullptr)
     , m_rest_pose_visual(nullptr)
     , m_bind_pose_visual(nullptr)
-    , m_skinning_type(sputnik::api::animation::SkinningType::BIND_POSE)
+    , m_skinning_type(sputnik::graphics::core::SkinningType::BIND_POSE)
     , m_skinning_type_index(0)
 {
     m_skinnig_types_str += "BIND POSE";
@@ -42,25 +42,25 @@ VertexSkinningDemo::~VertexSkinningDemo() {}
 void VertexSkinningDemo::OnAttach()
 {
     m_static_shader =
-        std::make_shared<sputnik::glcore::Shader>("../../data/shaders/simple.vert", "../../data/shaders/simple.frag");
+        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/simple.vert", "../../data/shaders/simple.frag");
     m_skinning_shader =
-        std::make_shared<sputnik::glcore::Shader>("../../data/shaders/skinned.vert", "../../data/shaders/simple.frag");
+        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/skinned.vert", "../../data/shaders/simple.frag");
 
     cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
-    m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Woman.png");
+    m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/Woman.png");
 
     // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/CesiumMan/CesiumMan.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
+    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
 
     // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>("../../data/assets/Fox/Texture.png");
+    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/Fox/Texture.png");
 
     // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
     //     "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
 
     // cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::glcore::Texture>(
+    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
     //    "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
 
     m_skeleton = sputnik::gltf::GltfLoader::LoadSkeleton(gltf);
@@ -75,18 +75,18 @@ void VertexSkinningDemo::OnAttach()
     }
     m_clip_types_str += '\0';
 
-    m_rest_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
+    m_rest_pose_visual = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
     m_rest_pose_visual->FromPose(m_skeleton.GetRestPose());
     m_rest_pose_visual->UpdateOpenGLBuffers();
 
-    m_bind_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
+    m_bind_pose_visual = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
     m_bind_pose_visual->FromPose(m_skeleton.GetBindPose());
     m_bind_pose_visual->UpdateOpenGLBuffers();
 
     m_rest_pose    = m_skeleton.GetRestPose();
     m_current_pose = m_skeleton.GetRestPose();
 
-    m_current_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
+    m_current_pose_visual = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
     m_current_pose_visual->FromPose(m_current_pose);
     m_current_pose_visual->UpdateOpenGLBuffers();
 
@@ -105,9 +105,9 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + time_step);
     m_current_pose_visual->FromPose(m_current_pose);
 
-    if(m_skinning_type != sputnik::api::animation::SkinningType::NONE)
+    if(m_skinning_type != sputnik::graphics::core::SkinningType::NONE)
     {
-        if(m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
+        if(m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)
         {
             m_rest_pose.GetMatrixPalette(m_pose_palette);
         }
@@ -121,7 +121,7 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
             m_pose_palette[i] = m_pose_palette[i] * inverse_bind_pose[i];
         }
 
-        if(m_skinning_type == sputnik::api::animation::SkinningType::CPU)
+        if(m_skinning_type == sputnik::graphics::core::SkinningType::CPU)
         {
             for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
             {
@@ -180,23 +180,23 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
 
     ramanujan::Matrix4 mvp = projection * view * model;
 
-    std::shared_ptr<sputnik::glcore::Shader> active_shader = m_static_shader;
-    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU ||
-       m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
+    std::shared_ptr<sputnik::graphics::glcore::Shader> active_shader = m_static_shader;
+    if(m_skinning_type == sputnik::graphics::core::SkinningType::GPU ||
+       m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)
     {
         active_shader = m_skinning_shader;
     }
 
     active_shader->Bind();
-    sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("model"), model);
-    sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("view"), view);
-    sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("projection"), projection);
-    sputnik::glcore::Uniform<ramanujan::Vector3>::Set(active_shader->GetUniform("light"), {0.0f, 10.0f, 10.0f});
+    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("model"), model);
+    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("view"), view);
+    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("projection"), projection);
+    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(active_shader->GetUniform("light"), {0.0f, 10.0f, 10.0f});
 
-    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU ||
-       m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
+    if(m_skinning_type == sputnik::graphics::core::SkinningType::GPU ||
+       m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)
     {
-        sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("skin_transforms"), m_pose_palette);
+        sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("skin_transforms"), m_pose_palette);
     }
 
     m_diffuse_texture->Set(active_shader->GetUniform("diffuse"), 0);
@@ -204,8 +204,8 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     {
         int weights    = -1;
         int influences = -1;
-        if(m_skinning_type == sputnik::api::animation::SkinningType::GPU ||
-           m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
+        if(m_skinning_type == sputnik::graphics::core::SkinningType::GPU ||
+           m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)
         {
             weights    = active_shader->GetAttribute("weights");
             influences = active_shader->GetAttribute("joints");
@@ -227,19 +227,19 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     active_shader->Unbind();
 
     glDisable(GL_DEPTH_TEST);
-    if(m_show_rest_pose && m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
+    if(m_show_rest_pose && m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)
     {
-        m_rest_pose_visual->Draw(sputnik::glcore::DebugDrawMode::Lines, {1.0f, 0.0f, 0.0f}, mvp);
+        m_rest_pose_visual->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, {1.0f, 0.0f, 0.0f}, mvp);
     }
-    if(m_show_bind_pose && m_skinning_type == sputnik::api::animation::SkinningType::NONE)
+    if(m_show_bind_pose && m_skinning_type == sputnik::graphics::core::SkinningType::NONE)
     {
-        m_bind_pose_visual->Draw(sputnik::glcore::DebugDrawMode::Lines, {0.0f, 1.0f, 0.0f}, mvp);
+        m_bind_pose_visual->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, {0.0f, 1.0f, 0.0f}, mvp);
     }
-    if(m_show_current_pose && (m_skinning_type == sputnik::api::animation::SkinningType::CPU ||
-                               m_skinning_type == sputnik::api::animation::SkinningType::GPU))
+    if(m_show_current_pose && (m_skinning_type == sputnik::graphics::core::SkinningType::CPU ||
+                               m_skinning_type == sputnik::graphics::core::SkinningType::GPU))
     {
         m_current_pose_visual->UpdateOpenGLBuffers();
-        m_current_pose_visual->Draw(sputnik::glcore::DebugDrawMode::Lines, {0.0f, 0.0f, 1.0f}, mvp);
+        m_current_pose_visual->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, {0.0f, 0.0f, 1.0f}, mvp);
     }
     glEnable(GL_DEPTH_TEST);
 }
@@ -255,7 +255,7 @@ void VertexSkinningDemo::OnUpdateUI(const core::TimeStep& time_step)
         }
         if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
         {
-            m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);
+            m_skinning_type = static_cast<sputnik::graphics::core::SkinningType>(m_skinning_type_index);
             // This is important when changing the animation model/current clip/skinning type, etc.
             for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
             {

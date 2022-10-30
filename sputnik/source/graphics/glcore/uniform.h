@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "core/core.h"
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 template <typename T>
@@ -18,4 +18,4 @@ public:
     static void Set(unsigned int slot, std::vector<T>& values);
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

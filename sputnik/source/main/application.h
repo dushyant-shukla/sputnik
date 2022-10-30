@@ -14,20 +14,20 @@ public:
     void Run();
     void Shutdown();
 
-    core::layer::LayerStack& GetApplicationLayerStack();
+    core::LayerStack& GetApplicationLayerStack();
 
     static Application* GetInstance();
 
 public:
-    virtual void PushLayer(const std::shared_ptr<core::layer::Layer>& layer);
-    virtual void PushOverlay(const std::shared_ptr<core::layer::Layer>& layer);
+    virtual void PushLayer(const std::shared_ptr<core::Layer>& layer);
+    virtual void PushOverlay(const std::shared_ptr<core::Layer>& layer);
 
 private:
     std::string             m_application_name;
     bool                    m_is_running;
     bool                    m_is_minimized;
     float                   m_last_frame_time;
-    core::layer::LayerStack m_application_layer_stack;
+    core::LayerStack m_application_layer_stack;
     static Application*     s_instance;
 };
 

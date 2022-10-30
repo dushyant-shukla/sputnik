@@ -3,7 +3,7 @@
 
 #include <glad/glad.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 void GLClearError()
@@ -23,4 +23,4 @@ bool GLCheckError(const char* function, const char* file, int line)
     return true;
 }
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

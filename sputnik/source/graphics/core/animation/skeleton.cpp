@@ -3,7 +3,7 @@
 
 #include <transform.h>
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 Skeleton::Skeleton() {}
 
@@ -57,4 +57,4 @@ void Skeleton::UpdateInverseBindPose()
     }
 }
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

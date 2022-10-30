@@ -5,7 +5,7 @@
 
 #include <glad/glad.h>
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 enum class DrawMode
@@ -45,4 +45,4 @@ private:
     // private data
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

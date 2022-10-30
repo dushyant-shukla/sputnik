@@ -5,7 +5,7 @@
 
 #include <matrix4.h>
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 
 /**
@@ -40,4 +40,4 @@ protected:
     std::vector<std::string>        m_joint_names;
 };
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

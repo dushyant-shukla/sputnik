@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "gltf_loader.h"
-#include "graphics/api/animation/track.h"
+#include "graphics/core/animation/track.h"
 
 #include <transform.h>
 
 namespace sputnik
 {
 
-using namespace api::animation;
+using namespace graphics::core;
 using namespace ramanujan;
 
 namespace gltf
@@ -140,11 +140,11 @@ void CreateTrackFromChannel(Track<T, N>& result, const cgltf_animation_channel& 
 }
 
 // Todo:: Validate if vertices are loaded in bind pose.
-void MeshFromAttribute(sputnik::api::Mesh& out_mesh,
-                       cgltf_attribute&    attribute,
-                       Skin*               skin,
-                       Node*               nodes,
-                       size_t              node_count)
+void MeshFromAttribute(sputnik::graphics::core::Mesh& out_mesh,
+                       cgltf_attribute&               attribute,
+                       Skin*                          skin,
+                       Node*                          nodes,
+                       size_t                         node_count)
 {
     cgltf_attribute_type attrib_type = attribute.type;
     cgltf_accessor&      accessor    = *attribute.data;
@@ -313,7 +313,7 @@ void GltfLoader::FreeFile(Data* data)
 }
 
 void GltfLoader::LoadAnimationClips(Data*                                                data,
-                                    std::vector<sputnik::api::animation::AnimationClip>& out_animation_clips)
+                                    std::vector<sputnik::graphics::core::AnimationClip>& out_animation_clips)
 {
     size_t num_clips = data->animations_count;
     size_t num_nodes = data->nodes_count;
@@ -373,10 +373,10 @@ std::vector<std::string> GltfLoader::LoadJointNanes(Data* data)
 /**
  * .
  */
-sputnik::api::animation::Pose GltfLoader::LoadRestPose(Data* data) // Todo: LoadJointNames can be done here
+sputnik::graphics::core::Pose GltfLoader::LoadRestPose(Data* data) // Todo: LoadJointNames can be done here
 {
     size_t                        joint_count = data->nodes_count;
-    sputnik::api::animation::Pose rest_pose(joint_count);
+    sputnik::graphics::core::Pose rest_pose(joint_count);
 
     for(size_t joint_index = 0; joint_index < joint_count; ++joint_index)
     {
@@ -390,10 +390,10 @@ sputnik::api::animation::Pose GltfLoader::LoadRestPose(Data* data) // Todo: Load
 }
 
 // Todo:: Double check the work
-sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
+sputnik::graphics::core::Pose GltfLoader::LoadBindPose(Data* data)
 {
     // Phase#1: Loading rest pose, and default values for world space bind pose for joints
-    sputnik::api::animation::Pose rest_pose            = LoadRestPose(data);
+    sputnik::graphics::core::Pose rest_pose            = LoadRestPose(data);
     size_t                        num_joints_rest_pose = rest_pose.GetNumJoints();
 
     // Convert each transform in the rest pose into a world space transform. This ensures that is a skin didn't provide
@@ -436,7 +436,7 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
     }
 
     // Phase#3: Convert the world bind pose to a regular bind pose
-    sputnik::api::animation::Pose bind_pose = rest_pose;
+    sputnik::graphics::core::Pose bind_pose = rest_pose;
     for(size_t i = 0; i < num_joints_rest_pose; ++i)
     {
         ramanujan::Transform current_transform = world_bind_pose[i];
@@ -452,16 +452,16 @@ sputnik::api::animation::Pose GltfLoader::LoadBindPose(Data* data)
     return bind_pose;
 } // End of LoadBindPose()
 
-sputnik::api::animation::Skeleton GltfLoader::LoadSkeleton(Data* data)
+sputnik::graphics::core::Skeleton GltfLoader::LoadSkeleton(Data* data)
 {
-    return sputnik::api::animation::Skeleton(LoadRestPose(data), LoadBindPose(data), LoadJointNanes(data));
+    return sputnik::graphics::core::Skeleton(LoadRestPose(data), LoadBindPose(data), LoadJointNanes(data));
 }
 
-std::vector<sputnik::api::Mesh> GltfLoader::LoadMeshes(Data* data)
+std::vector<sputnik::graphics::core::Mesh> GltfLoader::LoadMeshes(Data* data)
 {
-    std::vector<sputnik::api::Mesh> result;
-    Node*                           nodes      = data->nodes;
-    size_t                          node_count = data->nodes_count;
+    std::vector<sputnik::graphics::core::Mesh> result;
+    Node*                                      nodes      = data->nodes;
+    size_t                                     node_count = data->nodes_count;
 
     for(size_t i = 0; i < node_count; ++i)
     {
@@ -474,8 +474,8 @@ std::vector<sputnik::api::Mesh> GltfLoader::LoadMeshes(Data* data)
         size_t num_primitives = node->mesh->primitives_count;
         for(size_t j = 0; j < num_primitives; ++j)
         {
-            result.push_back(sputnik::api::Mesh());
-            sputnik::api::Mesh& mesh = result[result.size() - 1];
+            result.push_back(sputnik::graphics::core::Mesh());
+            sputnik::graphics::core::Mesh& mesh = result[result.size() - 1];
 
             cgltf_primitive* primitive = &node->mesh->primitives[j];
 

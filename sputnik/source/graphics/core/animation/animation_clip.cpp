@@ -3,7 +3,7 @@
 
 #include <transform.h>
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 AnimationClip::AnimationClip() : m_name("unnamed animation clip"), m_start_time(0.0f), m_end_time(0.0f), m_looping(true)
 {
@@ -174,4 +174,4 @@ float AnimationClip::AdjustTimeToFitRange(float in_time)
     return in_time;
 }
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

@@ -7,13 +7,8 @@
 
 struct GLFWwindow;
 
-namespace sputnik
+namespace sputnik::graphics::window
 {
-
-namespace api
-{
-class GraphicsContext;
-}
 
 class Window
 {
@@ -35,10 +30,9 @@ protected:
     virtual void Shutdown();
 
 private:
-
 protected:
-    WindowSpecification                   m_window_specification;
-    GLFWwindow*                           m_window_handle;
+    WindowSpecification m_window_specification;
+    GLFWwindow*         m_window_handle;
 };
 
-} // namespace sputnik
+} // namespace sputnik::graphics::window

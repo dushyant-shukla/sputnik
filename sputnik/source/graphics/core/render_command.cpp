@@ -4,19 +4,20 @@
 #include "graphics_subsystem_type.h"
 #include "graphics/glcore/gl_graphics_subsystem.h"
 
-namespace sputnik::api
+namespace sputnik::graphics::core
 {
 
-std::shared_ptr<GraphicsSubsystem> RenderCommand::s_graphics_subsystem;
+std::shared_ptr<sputnik::graphics::core::GraphicsSubsystem> RenderCommand::s_graphics_subsystem;
 
-void RenderCommand::Init(const GraphicsSubsystemType& subsystem_type)
+void RenderCommand::Init(const sputnik::graphics::core::GraphicsSubsystemType& subsystem_type)
 {
-    SPUTNIK_ASSERT(subsystem_type != GraphicsSubsystemType::NONE && subsystem_type != GraphicsSubsystemType::VULKAN &&
+    SPUTNIK_ASSERT(subsystem_type != GraphicsSubsystemType::NONE &&
+                   subsystem_type != GraphicsSubsystemType::VULKAN &&
                    subsystem_type != GraphicsSubsystemType::DIRECTX);
     s_graphics_subsystem = std::make_shared<glcore::GlGraphicsSubsystem>();
 }
 
-void RenderCommand::Update(const core::TimeStep& time_step)
+void RenderCommand::Update(const sputnik::core::TimeStep& time_step)
 {
     s_graphics_subsystem->Update(time_step);
 }
@@ -36,4 +37,4 @@ void RenderCommand::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t
     s_graphics_subsystem->SetViewPort(x, y, width, height);
 }
 
-} // namespace sputnik::api
+} // namespace sputnik::graphics::core

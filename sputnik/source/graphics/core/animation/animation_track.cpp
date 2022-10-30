@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "animation_track.h"
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 
 AnimationTrack::AnimationTrack() : m_joint_id(0) {}
@@ -123,4 +123,4 @@ ramanujan::Transform AnimationTrack::Sample(const ramanujan::Transform& transfor
     return result;
 }
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

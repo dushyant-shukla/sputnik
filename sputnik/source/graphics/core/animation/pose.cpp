@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "pose.h"
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 
 Pose::Pose() {}
@@ -169,4 +169,4 @@ bool Pose::operator!=(const Pose& other)
 {
     return !(*this == other);
 }
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

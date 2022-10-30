@@ -2,7 +2,7 @@
 #include "layer_stack.h"
 #include "layer.h"
 
-namespace sputnik::core::layer
+namespace sputnik::core
 {
 
 LayerStack::LayerStack() : m_current_layer_insert_index(0) {}
@@ -51,4 +51,4 @@ std::vector<std::shared_ptr<Layer>>::iterator LayerStack::end()
     return m_layers.end();
 }
 
-} // namespace sputnik::core::layer
+} // namespace sputnik::core

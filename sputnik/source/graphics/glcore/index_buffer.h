@@ -2,7 +2,7 @@
 
 #include "core/core.h"
 
-namespace sputnik::glcore
+namespace sputnik::graphics::glcore
 {
 
 class IndexBuffer
@@ -24,4 +24,4 @@ protected:
     unsigned int m_count;
 };
 
-} // namespace sputnik::glcore
+} // namespace sputnik::graphics::glcore

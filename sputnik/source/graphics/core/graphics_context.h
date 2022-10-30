@@ -4,7 +4,7 @@
 
 class GLFWwindow;
 
-namespace sputnik::api
+namespace sputnik::graphics::core
 {
 
 // Todo: This class is not needed
@@ -22,4 +22,4 @@ protected:
     GLFWwindow* m_window_handle;
 };
 
-} // namespace sputnik::api
+} // namespace sputnik::graphics::core

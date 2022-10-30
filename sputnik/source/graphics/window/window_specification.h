@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace sputnik
+namespace sputnik::graphics::window
 {
 struct WindowSpecification
 {
@@ -12,4 +12,4 @@ struct WindowSpecification
     bool         m_vsync_enabled = false;
 };
 
-} // namespace sputnik
+} // namespace sputnik::graphics::window

@@ -2,13 +2,13 @@
 
 #include <main/application.h>
 #include <graphics/glcore/shader.h>
-#include <graphics/api/animation/animation_clip.h>
-#include <graphics/api/animation/pose.h>
+#include <graphics/core/animation/animation_clip.h>
+#include <graphics/core/animation/pose.h>
 #include <graphics/glcore/debug_draw.h>
-#include <graphics/api/animation/skeleton.h>
+#include <graphics/core/animation/skeleton.h>
 #include <graphics/glcore/texture.h>
-#include <graphics/api/animation/skinning_type.h>
-#include <graphics/api/mesh.h>
+#include <graphics/core/animation/skinning_type.h>
+#include <graphics/core/geometry/mesh.h>
 #include <main/entry_point.h>
 #include <core/layers/layer.h>
 #include <core/time_step.h>
@@ -19,7 +19,7 @@
 namespace sputnik::demos
 {
 
-class VertexSkinningDemo : public core::layer::Layer
+class VertexSkinningDemo : public core::Layer
 {
 public:
     VertexSkinningDemo(const std::string& name);
@@ -32,28 +32,28 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    std::shared_ptr<sputnik::glcore::Texture> m_diffuse_texture;
+    std::shared_ptr<sputnik::graphics::glcore::Texture> m_diffuse_texture;
 
-    sputnik::api::animation::SkinningType    m_skinning_type;
-    std::shared_ptr<sputnik::glcore::Shader> m_static_shader;
-    std::shared_ptr<sputnik::glcore::Shader> m_skinning_shader;
+    sputnik::graphics::core::SkinningType    m_skinning_type;
+    std::shared_ptr<sputnik::graphics::glcore::Shader> m_static_shader;
+    std::shared_ptr<sputnik::graphics::glcore::Shader> m_skinning_shader;
 
-    std::shared_ptr<sputnik::glcore::DebugDraw> m_rest_pose_visual;
-    std::shared_ptr<sputnik::glcore::DebugDraw> m_bind_pose_visual;
-    std::shared_ptr<sputnik::glcore::DebugDraw> m_current_pose_visual;
+    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_rest_pose_visual;
+    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_bind_pose_visual;
+    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_current_pose_visual;
 
-    std::vector<sputnik::api::Mesh> m_meshes;
-    std::vector<ramanujan::Matrix4> m_pose_palette;
+    std::vector<sputnik::graphics::core::Mesh> m_meshes;
+    std::vector<ramanujan::Matrix4>            m_pose_palette;
 
-    sputnik::api::animation::Skeleton m_skeleton;
-    sputnik::api::animation::Pose     m_rest_pose;
-    sputnik::api::animation::Pose     m_current_pose;
+    sputnik::graphics::core::Skeleton m_skeleton;
+    sputnik::graphics::core::Pose     m_rest_pose;
+    sputnik::graphics::core::Pose     m_current_pose;
 
     bool m_show_rest_pose;
     bool m_show_current_pose;
     bool m_show_bind_pose;
 
-    std::vector<sputnik::api::animation::AnimationClip> m_clips;
+    std::vector<sputnik::graphics::core::AnimationClip> m_clips;
     int                                                 m_current_clip;
     float                                               m_playback_time;
     std::string                                         m_clip_types_str;

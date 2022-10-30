@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sputnik::api::animation
+namespace sputnik::graphics::core
 {
 
 enum class SkinningType
@@ -12,4 +12,4 @@ enum class SkinningType
     GPU
 };
 
-} // namespace sputnik::api::animation
+} // namespace sputnik::graphics::core

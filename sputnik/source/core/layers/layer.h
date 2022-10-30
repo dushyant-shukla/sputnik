@@ -2,7 +2,7 @@
 
 #include "core/time_step.h"
 
-namespace sputnik::core::layer
+namespace sputnik::core
 {
 
 class Layer
@@ -25,4 +25,4 @@ protected:
     std::string m_name;
 };
 
-} // namespace sputnik::core::layer
+} // namespace sputnik::core
