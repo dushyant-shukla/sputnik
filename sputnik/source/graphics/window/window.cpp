@@ -38,7 +38,7 @@ Window::Window(const WindowSpecification& specification)
                                       *(WindowSpecification*)glfwGetWindowUserPointer(window);
                                   window_specification.m_width  = width;
                                   window_specification.m_height = height;
-
+                                  glfwRequestWindowAttention(window);
                                   // Todo:: This should happen with events (this is only temporary)
                                   api::Renderer::OnWindowResize(width, height);
                               });
@@ -58,6 +58,7 @@ Window::Window(const WindowSpecification& specification)
                        {
                            WindowSpecification& window_specification =
                                *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                           //glfwMaximizeWindow(window);
                            switch(action)
                            {
                            case GLFW_PRESS:

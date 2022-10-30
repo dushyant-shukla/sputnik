@@ -16,7 +16,7 @@ public:
     virtual void OnDetach();
     virtual void OnUpdate(const TimeStep& time_step);
     virtual void OnEvent();
-    virtual void OnUpdateUI();
+    virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 protected:
     const std::string& GetName() const;

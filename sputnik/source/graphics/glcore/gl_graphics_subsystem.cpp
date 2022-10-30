@@ -2,22 +2,35 @@
 #include "gl_graphics_subsystem.h"
 #include "graphics/window/window.h"
 #include "graphics/glcore/gl_context.h"
+#include "gl_ui_layer.h"
+#include "main/application.h"
 
 #include <glad/glad.h>
+#include <imgui.h>
 
 namespace sputnik::glcore
 {
 
 GlGraphicsSubsystem::GlGraphicsSubsystem()
 {
-    m_window  = std::make_unique<Window>();
-    m_context = std::make_unique<GlContext>(m_window->GetNativeWindow());
+    m_window   = std::make_unique<Window>();
+    m_context  = std::make_unique<GlContext>(m_window->GetNativeWindow());
+    m_ui_layer = std::make_shared<GlUiLayer>(m_window->GetNativeWindow());
+    main::Application::GetInstance()->PushOverlay(m_ui_layer);
 }
 
 GlGraphicsSubsystem::~GlGraphicsSubsystem() {}
 
-void GlGraphicsSubsystem::Update()
+void GlGraphicsSubsystem::Update(const core::TimeStep& time_step)
 {
+    m_ui_layer->Begin();
+    core::layer::LayerStack& layer_stack = main::Application::GetInstance()->GetApplicationLayerStack();
+    for(const std::shared_ptr<core::layer::Layer>& layer : layer_stack) // Todo:: layer stack to have const iterator
+    {
+        layer->OnUpdateUI(time_step);
+    }
+    m_ui_layer->End();
+
     m_window->OnUpdate();
     m_context->SwapBuffers();
 }

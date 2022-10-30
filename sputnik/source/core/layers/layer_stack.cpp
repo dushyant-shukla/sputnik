@@ -19,6 +19,7 @@ void LayerStack::PushLayer(const std::shared_ptr<Layer>& layer)
 void LayerStack::PushOverLay(const std::shared_ptr<Layer>& layer)
 {
     m_layers.emplace_back(layer);
+    m_layers.back()->OnAttach();
 }
 
 void LayerStack::PopLayer(const std::shared_ptr<Layer>& layer)

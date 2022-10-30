@@ -21,6 +21,6 @@ void Layer::OnUpdate(const TimeStep& time_step) {}
 
 void Layer::OnEvent() {}
 
-void Layer::OnUpdateUI() {}
+void Layer::OnUpdateUI(const core::TimeStep& time_step) {}
 
 } // namespace sputnik::core::layer

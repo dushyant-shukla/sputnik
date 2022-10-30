@@ -38,13 +38,13 @@ void Application::Run()
 
         if(!m_is_minimized)
         {
-            for(std::shared_ptr<core::layer::Layer> layer : m_application_layer_stack)
+            for(const std::shared_ptr<core::layer::Layer>& layer : m_application_layer_stack)
             {
                 layer->OnUpdate(time_step);
             }
         }
 
-        api::Renderer::Update();
+        api::Renderer::Update(time_step);
     }
 }
 
@@ -52,6 +52,11 @@ void Application::Run()
 void Application::Shutdown()
 {
     m_is_running = false;
+}
+
+core::layer::LayerStack& Application::GetApplicationLayerStack()
+{
+    return m_application_layer_stack;
 }
 
 Application* Application::GetInstance()
@@ -67,8 +72,6 @@ void Application::PushLayer(const std::shared_ptr<core::layer::Layer>& layer)
 void Application::PushOverlay(const std::shared_ptr<core::layer::Layer>& layer)
 {
     m_application_layer_stack.PushOverLay(layer);
-
-    // Renderer push overlay
 }
 
 } // namespace sputnik::main

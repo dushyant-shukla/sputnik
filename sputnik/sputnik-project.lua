@@ -23,8 +23,8 @@ files
   "%{externals.stb_image}/stb_image.cpp",
   "%{externals.cgltf}/cgltf.h",
   "%{externals.cgltf}/cgltf.c",
-  "%{externals.imgui}/backends/imgui_impl_win32.h",
-  "%{externals.imgui}/backends/imgui_impl_win32.cpp",
+  "%{externals.imgui}/backends/imgui_impl_glfw.h",
+  "%{externals.imgui}/backends/imgui_impl_glfw.cpp",
   "%{externals.imgui}/backends/imgui_impl_opengl3.h",
   "%{externals.imgui}/backends/imgui_impl_opengl3.cpp",
   "%{externals.imguizmo}/ImGuizmo.h",
@@ -74,7 +74,7 @@ flags { "NoPCH" }
 filter "files:$(SolutionDir)sputnik/externals/stb_image/stb_image.cpp"
 flags { "NoPCH" }
 
-filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_win32.cpp"
+filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_glfw.cpp"
 flags { "NoPCH" }
 
 filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_opengl3.cpp"

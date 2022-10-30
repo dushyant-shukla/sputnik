@@ -13,9 +13,9 @@ void Renderer::Init(const GraphicsSubsystemType& subsystem_type)
     RenderCommand::Init(subsystem_type);
 }
 
-void Renderer::Update()
+void Renderer::Update(const core::TimeStep& time_step)
 {
-    RenderCommand::Update();
+    RenderCommand::Update(time_step);
 }
 
 void Renderer::Clear()

@@ -16,9 +16,9 @@ void RenderCommand::Init(const GraphicsSubsystemType& subsystem_type)
     s_graphics_subsystem = std::make_shared<glcore::GlGraphicsSubsystem>();
 }
 
-void RenderCommand::Update()
+void RenderCommand::Update(const core::TimeStep& time_step)
 {
-    s_graphics_subsystem->Update();
+    s_graphics_subsystem->Update(time_step);
 }
 
 void RenderCommand::Clear()

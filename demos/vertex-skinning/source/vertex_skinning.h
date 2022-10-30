@@ -29,7 +29,7 @@ public:
     virtual void OnDetach();
     virtual void OnUpdate(const core::TimeStep& time_step);
     virtual void OnEvent();
-    virtual void OnUpdateUI();
+    virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
     std::shared_ptr<sputnik::glcore::Texture> m_diffuse_texture;
@@ -73,10 +73,10 @@ public:
 
     ~VertexSkinning() {}
 
-    //virtual void Initialize() override;
-    //virtual void Update(float delta_time) override;
-    //virtual void Render(float aspect_ratio) override;
-    //virtual void Shutdown() override;
+    // virtual void Initialize() override;
+    // virtual void Update(float delta_time) override;
+    // virtual void Render(float aspect_ratio) override;
+    // virtual void Shutdown() override;
 
     // private:
     //     std::shared_ptr<sputnik::glcore::Texture> m_diffuse_texture;

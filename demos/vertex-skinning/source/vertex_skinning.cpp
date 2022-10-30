@@ -99,26 +99,6 @@ void VertexSkinningDemo::OnDetach()
 
 void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
 {
-    //if(ImGui::Begin("Vertex Skinning"))
-    //{
-    //    if(ImGui::Combo("Animation Clip", &m_current_clip, m_clip_types_str.c_str()))
-    //    {
-    //    }
-    //    if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
-    //    {
-    //        m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);
-    //        // This is important when changing the animation model/current clip/skinning type, etc.
-    //        for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
-    //        {
-    //            m_meshes[i].UpdateOpenglBuffers();
-    //        }
-    //    }
-    //    ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
-    //    ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
-    //    ImGui::Checkbox("Show current pose", &m_show_current_pose);
-    //}
-    //ImGui::End();
-
     m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + time_step);
     m_current_pose_visual->FromPose(m_current_pose);
 
@@ -254,9 +234,27 @@ void VertexSkinningDemo::OnEvent()
 {
 }
 
-void VertexSkinningDemo::OnUpdateUI()
+void VertexSkinningDemo::OnUpdateUI(const core::TimeStep& time_step)
 {
-
+    if(ImGui::Begin("Vertex Skinning"))
+    {
+        if(ImGui::Combo("Animation Clip", &m_current_clip, m_clip_types_str.c_str()))
+        {
+        }
+        if(ImGui::Combo("Skinning Type", &m_skinning_type_index, m_skinnig_types_str.c_str()))
+        {
+            m_skinning_type = static_cast<sputnik::api::animation::SkinningType>(m_skinning_type_index);
+            // This is important when changing the animation model/current clip/skinning type, etc.
+            for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+            {
+                m_meshes[i].UpdateOpenglBuffers();
+            }
+        }
+        ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
+        ImGui::Checkbox("Show bind pose", &m_show_bind_pose);
+        ImGui::Checkbox("Show current pose", &m_show_current_pose);
+    }
+    ImGui::End();
 }
 
 

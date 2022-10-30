@@ -14,6 +14,8 @@ public:
     void Run();
     void Shutdown();
 
+    core::layer::LayerStack& GetApplicationLayerStack();
+
     static Application* GetInstance();
 
 public:

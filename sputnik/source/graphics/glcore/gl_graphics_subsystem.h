@@ -19,7 +19,7 @@ public:
     GlGraphicsSubsystem();
     virtual ~GlGraphicsSubsystem();
 
-    virtual void Update();
+    virtual void Update(const core::TimeStep& time_step);
     virtual void Clear() const;
     virtual void SetClearColor(float r, float g, float b, float a);
     virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
