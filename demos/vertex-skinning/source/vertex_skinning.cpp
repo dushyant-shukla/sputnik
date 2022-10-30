@@ -24,7 +24,7 @@ VertexSkinningDemo::VertexSkinningDemo(const std::string& name)
     , m_current_pose_visual(nullptr)
     , m_rest_pose_visual(nullptr)
     , m_bind_pose_visual(nullptr)
-    , m_skinning_type(sputnik::api::animation::SkinningType::NONE)
+    , m_skinning_type(sputnik::api::animation::SkinningType::BIND_POSE)
     , m_skinning_type_index(0)
 {
     m_skinnig_types_str += "BIND POSE";
