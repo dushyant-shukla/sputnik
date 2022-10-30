@@ -16,10 +16,16 @@ GlGraphicsSubsystem::GlGraphicsSubsystem()
     m_window   = std::make_unique<Window>();
     m_context  = std::make_unique<GlContext>(m_window->GetNativeWindow());
     m_ui_layer = std::make_shared<GlUiLayer>(m_window->GetNativeWindow());
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
     main::Application::GetInstance()->PushOverlay(m_ui_layer);
 }
 
-GlGraphicsSubsystem::~GlGraphicsSubsystem() {}
+GlGraphicsSubsystem::~GlGraphicsSubsystem()
+{
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &m_vao);
+}
 
 void GlGraphicsSubsystem::Update(const core::TimeStep& time_step)
 {

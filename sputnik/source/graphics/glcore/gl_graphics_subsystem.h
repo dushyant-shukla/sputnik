@@ -27,6 +27,7 @@ public:
 private:
     std::unique_ptr<Window>    m_window;
     std::unique_ptr<GlContext> m_context;
+    uint32_t                   m_vao; // Todo: Temporary global vao
 };
 
 } // namespace sputnik::glcore

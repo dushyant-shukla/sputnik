@@ -3,6 +3,7 @@
 #include "graphics/window/window_specification.h"
 
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -126,6 +127,10 @@ void GlUiLayer::OnAttach()
 
     ImGui_ImplGlfw_InitForOpenGL(m_window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
+
+    m_system_information.vendor     = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    m_system_information.renderer   = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+    m_system_information.gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 }
 
 void GlUiLayer::OnDetach()
@@ -144,13 +149,17 @@ void GlUiLayer::OnUpdateUI(const core::TimeStep& time_step)
     GLFWmonitor*       monitor      = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode         = glfwGetVideoMode(monitor);
     const float        frame_budget = 1000.0f / mode->refreshRate;
-    //std::cout << "width: " << mode->width << std::endl;
-    //std::cout << "height: " << mode->height << std::endl;
-    //std::cout << "red: " << mode->redBits << std::endl;
-    //std::cout << "Blue: " << mode->blueBits << std::endl;
-    //std::cout << "green: " << mode->greenBits << std::endl;
+    // std::cout << "width: " << mode->width << std::endl;
+    // std::cout << "height: " << mode->height << std::endl;
+    // std::cout << "red: " << mode->redBits << std::endl;
+    // std::cout << "Blue: " << mode->blueBits << std::endl;
+    // std::cout << "green: " << mode->greenBits << std::endl;
     if(ImGui::Begin("System Information"))
     {
+        ImGui::Text("Vendor: %s", m_system_information.vendor.c_str());
+        ImGui::Text("Renderer: %s", m_system_information.renderer.c_str());
+        ImGui::Text("Version: %s", m_system_information.gl_version.c_str());
+
         std::string display_frequency = "Display Frequency: %d";
         ImGui::Text(display_frequency.c_str(), mode->refreshRate);
 

@@ -20,6 +20,9 @@ Window::Window(const WindowSpecification& specification)
     {
         std::cout << "Failed to intialize GLFW.";
     }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwSetErrorCallback(GLFWErrorCallback);
 
     m_window_handle = glfwCreateWindow((int)specification.m_width,

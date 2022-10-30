@@ -2,10 +2,19 @@
 
 #include "core/layers/layer.h"
 
+#include <string>
+
 struct GLFWwindow;
 
 namespace sputnik::glcore
 {
+
+struct SystemInformation
+{
+    std::string vendor;
+    std::string renderer;
+    std::string gl_version;
+};
 
 class GlUiLayer : public core::layer::Layer
 {
@@ -24,7 +33,8 @@ public:
     void End();
 
 private:
-    GLFWwindow* m_window;
+    GLFWwindow*       m_window;
+    SystemInformation m_system_information;
 };
 
 } // namespace sputnik::glcore
