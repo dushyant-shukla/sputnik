@@ -8,10 +8,7 @@
 #include <camera_transforms.h>
 #include <imgui.h>
 
-namespace sputnik
-{
-
-namespace demos
+namespace sputnik::demos
 {
 
 VertexSkinningDemo::VertexSkinningDemo(const std::string& name)
@@ -268,7 +265,5 @@ void VertexSkinningDemo::OnUpdateUI(const core::TimeStep& time_step)
     }
     ImGui::End();
 }
-
-} // namespace demos
 
 } // namespace sputnik
