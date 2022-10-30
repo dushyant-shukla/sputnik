@@ -19,16 +19,6 @@ files
 
   -- external source files
   "%{externals.glad}/src/glad.c",   -- "%{externals.glad}/src/**.c", -- (**.c) does not work for some reason
-  "%{externals.stb_image}/stb_image.h",
-  "%{externals.stb_image}/stb_image.cpp",
-  "%{externals.cgltf}/cgltf.h",
-  "%{externals.cgltf}/cgltf.c",
-  "%{externals.imgui}/backends/imgui_impl_glfw.h",
-  "%{externals.imgui}/backends/imgui_impl_glfw.cpp",
-  "%{externals.imgui}/backends/imgui_impl_opengl3.h",
-  "%{externals.imgui}/backends/imgui_impl_opengl3.cpp",
-  "%{externals.imguizmo}/ImGuizmo.h",
-  "%{externals.imguizmo}/ImGuizmo.cpp"
 }
 
 includedirs
@@ -45,7 +35,9 @@ externalincludedirs
   "%{include_dir.imgui}",
   "%{include_dir.spdlog}",
   "%{include_dir.imguizmo}",
-  "%{include_dir.glfw}"
+  "%{include_dir.glfw}",
+  "%{externals.imgui}/backends/imgui_impl_glfw.h",
+  "%{externals.imgui}/backends/imgui_impl_opengl3.h"
 }
 
 links
@@ -53,7 +45,10 @@ links
   "%{static_libs.opengl}",
   "ramanujan",
   "ImGui",
-  "GLFW"
+  "GLFW",
+  "cgltf",
+  "stb_image",
+  "ImGuizmo"
 }
 
 filter "system:windows"

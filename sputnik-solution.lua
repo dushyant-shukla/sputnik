@@ -58,6 +58,9 @@ group "dependencies"
 include "sputnik/externals/ramanujan/ramanujan-project.lua"
 include "sputnik/externals/imgui"
 include "sputnik/externals/glfw.lua"
+include "sputnik/externals/cgltf.lua"
+include "sputnik/externals/stb_image.lua"
+include "sputnik/externals/imguizmo.lua"
 group ""
 
 -- include the renderer project
