@@ -27,7 +27,9 @@ VertexSkinningDemo::VertexSkinningDemo(const std::string& name)
     , m_skinning_type(sputnik::api::animation::SkinningType::NONE)
     , m_skinning_type_index(0)
 {
-    m_skinnig_types_str += "NONE";
+    m_skinnig_types_str += "BIND POSE";
+    m_skinnig_types_str += '\0';
+    m_skinnig_types_str += "REST POSE";
     m_skinnig_types_str += '\0';
     m_skinnig_types_str += "CPU";
     m_skinnig_types_str += '\0';
@@ -81,6 +83,7 @@ void VertexSkinningDemo::OnAttach()
     m_bind_pose_visual->FromPose(m_skeleton.GetBindPose());
     m_bind_pose_visual->UpdateOpenGLBuffers();
 
+    m_rest_pose    = m_skeleton.GetRestPose();
     m_current_pose = m_skeleton.GetRestPose();
 
     m_current_pose_visual = std::make_shared<sputnik::glcore::DebugDraw>();
@@ -104,7 +107,14 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
 
     if(m_skinning_type != sputnik::api::animation::SkinningType::NONE)
     {
-        m_current_pose.GetMatrixPalette(m_pose_palette);
+        if(m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
+        {
+            m_rest_pose.GetMatrixPalette(m_pose_palette);
+        }
+        else
+        {
+            m_current_pose.GetMatrixPalette(m_pose_palette);
+        }
         const std::vector<ramanujan::Matrix4>& inverse_bind_pose = m_skeleton.GetInverseBindPose();
         for(size_t i = 0; i < m_pose_palette.size(); ++i)
         {
@@ -147,7 +157,7 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
         // This is important when changing the animation model or changing the animation clips.
         for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
         {
-            m_meshes[i].UpdateOpenglBuffers();
+            m_meshes[i].ResetOpenglBuffersToBindPose();
         }
         break;
     }
@@ -171,7 +181,8 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     ramanujan::Matrix4 mvp = projection * view * model;
 
     std::shared_ptr<sputnik::glcore::Shader> active_shader = m_static_shader;
-    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU)
+    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU ||
+       m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
     {
         active_shader = m_skinning_shader;
     }
@@ -182,7 +193,8 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("projection"), projection);
     sputnik::glcore::Uniform<ramanujan::Vector3>::Set(active_shader->GetUniform("light"), {0.0f, 10.0f, 10.0f});
 
-    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU)
+    if(m_skinning_type == sputnik::api::animation::SkinningType::GPU ||
+       m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
     {
         sputnik::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("skin_transforms"), m_pose_palette);
     }
@@ -192,7 +204,8 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     {
         int weights    = -1;
         int influences = -1;
-        if(m_skinning_type == sputnik::api::animation::SkinningType::GPU)
+        if(m_skinning_type == sputnik::api::animation::SkinningType::GPU ||
+           m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
         {
             weights    = active_shader->GetAttribute("weights");
             influences = active_shader->GetAttribute("joints");
@@ -214,7 +227,7 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     active_shader->Unbind();
 
     glDisable(GL_DEPTH_TEST);
-    if(m_show_rest_pose)
+    if(m_show_rest_pose && m_skinning_type == sputnik::api::animation::SkinningType::REST_POSE)
     {
         m_rest_pose_visual->Draw(sputnik::glcore::DebugDrawMode::Lines, {1.0f, 0.0f, 0.0f}, mvp);
     }
@@ -246,7 +259,7 @@ void VertexSkinningDemo::OnUpdateUI(const core::TimeStep& time_step)
             // This is important when changing the animation model/current clip/skinning type, etc.
             for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
             {
-                m_meshes[i].UpdateOpenglBuffers();
+                m_meshes[i].ResetOpenglBuffersToBindPose(); // update pose to bind pose.
             }
         }
         ImGui::Checkbox("Show rest pose", &m_show_rest_pose);

@@ -139,6 +139,7 @@ void CreateTrackFromChannel(Track<T, N>& result, const cgltf_animation_channel& 
     }
 }
 
+// Todo:: Validate if vertices are loaded in bind pose.
 void MeshFromAttribute(sputnik::api::Mesh& out_mesh,
                        cgltf_attribute&    attribute,
                        Skin*               skin,
@@ -498,7 +499,7 @@ std::vector<sputnik::api::Mesh> GltfLoader::LoadMeshes(Data* data)
                 }
             }
 
-            mesh.UpdateOpenglBuffers();
+            mesh.ResetOpenglBuffersToBindPose();
         }
     }
 

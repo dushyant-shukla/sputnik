@@ -41,7 +41,7 @@ Mesh& Mesh::operator=(const Mesh& other)
     m_weights    = other.m_weights;
     m_influences = other.m_influences;
     m_indices    = other.m_indices;
-    UpdateOpenglBuffers();
+    ResetOpenglBuffersToBindPose();
     return *this;
 }
 
@@ -104,7 +104,7 @@ void Mesh::CpuSkin(const animation::Skeleton& skeleton, const animation::Pose& p
         // ramanujan::Transform skin_0 = ramanujan::Combine(pose[joint.x], ramanujan::Inverse(bind_pose[joint.x]));
         ramanujan::Transform skin_0 = ramanujan::Combine(pose[joint.x], ramanujan::ToTransform(inv_bind_pose[joint.x]));
         ramanujan::Vector3   p_0    = ramanujan::TransformPoint(skin_0, m_position[vertex_index]);
-        ramanujan::Vector3   n_0    = ramanujan::TransformPoint(skin_0, m_normal[vertex_index]);
+        ramanujan::Vector3   n_0    = ramanujan::TransformVector(skin_0, m_normal[vertex_index]);
 
         // Skin transform#2
         // ramanujan::Transform skin_1 = ramanujan::Combine(pose[joint.y], ramanujan::Inverse(bind_pose[joint.y]));
@@ -176,7 +176,7 @@ void Mesh::CpuSkin(const std::vector<ramanujan::Matrix4>& skin_transform)
     m_normal_attribute->Set(m_skinned_normal);
 }
 
-void Mesh::UpdateOpenglBuffers()
+void Mesh::ResetOpenglBuffersToBindPose()
 {
     if(m_position.size() > 0)
     {

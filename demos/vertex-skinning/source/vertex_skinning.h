@@ -46,6 +46,7 @@ private:
     std::vector<ramanujan::Matrix4> m_pose_palette;
 
     sputnik::api::animation::Skeleton m_skeleton;
+    sputnik::api::animation::Pose     m_rest_pose;
     sputnik::api::animation::Pose     m_current_pose;
 
     bool m_show_rest_pose;
