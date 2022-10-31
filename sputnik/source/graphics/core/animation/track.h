@@ -74,7 +74,7 @@ protected:
     /**
      * This method retrives the frame index for a given time. This is the last frame right before the request time.
      */
-    int GetKeyFrameIndex(float time, bool looping);
+    virtual int GetKeyFrameIndex(float time, bool looping);
 
     /**
      * This function takes in a time value that is outside the range of the track, and adjusts it to be a valid time on
