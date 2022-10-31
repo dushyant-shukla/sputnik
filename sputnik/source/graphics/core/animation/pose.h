@@ -48,7 +48,7 @@ protected:
     /**
      * This stores transformations for every joint in the transform hierarchy.
      */
-    std::vector<ramanujan::Transform> m_joints;
+    std::vector<ramanujan::Transform> m_joint_transforms;
 
     /*
      * This stores index of the parent transform for each joint. Not all joints have parents. If a joint does not have a
