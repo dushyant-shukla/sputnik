@@ -38,16 +38,17 @@ VertexSkinningDemo::~VertexSkinningDemo() {}
 
 void VertexSkinningDemo::OnAttach()
 {
-    m_static_shader =
-        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/simple.vert", "../../data/shaders/simple.frag");
-    m_skinning_shader =
-        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/skinned.vert", "../../data/shaders/simple.frag");
+    m_static_shader   = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/simple.vert",
+                                                                          "../../data/shaders/simple.frag");
+    m_skinning_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/skinned.vert",
+                                                                            "../../data/shaders/simple.frag");
 
     cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
     m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/Woman.png");
 
     // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/CesiumMan/CesiumMan.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
+    // m_diffuse_texture =
+    // std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
 
     // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
     // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/Fox/Texture.png");
@@ -65,12 +66,21 @@ void VertexSkinningDemo::OnAttach()
     sputnik::gltf::GltfLoader::LoadAnimationClips(gltf, m_clips);
     sputnik::gltf::GltfLoader::FreeFile(gltf);
 
-    for(auto& clip : m_clips)
+    m_fast_clips.resize(m_clips.size());
+    for(size_t i = 0, size = m_clips.size(); i < size; ++i)
     {
-        m_clip_types_str += clip.GetName();
+        m_fast_clips[i] = sputnik::graphics::core::OptimizeClip(m_clips[i]);
+        m_clip_types_str += m_clips[i].GetName();
         m_clip_types_str += '\0';
     }
+
+    // for(auto& clip : m_clips)
+    //{
+    //     m_clip_types_str += clip.GetName();
+    //     m_clip_types_str += '\0';
+    // }
     m_clip_types_str += '\0';
+    // m_clips.clear();
 
     m_rest_pose_visual = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
     m_rest_pose_visual->FromPose(m_skeleton.GetRestPose());
@@ -95,11 +105,13 @@ void VertexSkinningDemo::OnAttach()
 void VertexSkinningDemo::OnDetach()
 {
     m_clips.clear();
+    m_fast_clips.clear();
 }
 
 void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
 {
-    m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + time_step);
+    m_playback_time = m_fast_clips[m_current_clip].Sample(m_current_pose, m_playback_time + time_step);
+    // m_playback_time = m_clips[m_current_clip].Sample(m_current_pose, m_playback_time + time_step);
     m_current_pose_visual->FromPose(m_current_pose);
 
     if(m_skinning_type != sputnik::graphics::core::SkinningType::NONE)
@@ -188,12 +200,14 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("model"), model);
     sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("view"), view);
     sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("projection"), projection);
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(active_shader->GetUniform("light"), {0.0f, 10.0f, 10.0f});
+    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(active_shader->GetUniform("light"),
+                                                                {0.0f, 10.0f, 10.0f});
 
     if(m_skinning_type == sputnik::graphics::core::SkinningType::GPU ||
        m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)
     {
-        sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("skin_transforms"), m_pose_palette);
+        sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("skin_transforms"),
+                                                                    m_pose_palette);
     }
 
     m_diffuse_texture->Set(active_shader->GetUniform("diffuse"), 0);
@@ -266,4 +280,4 @@ void VertexSkinningDemo::OnUpdateUI(const core::TimeStep& time_step)
     ImGui::End();
 }
 
-} // namespace sputnik
+} // namespace sputnik::demos

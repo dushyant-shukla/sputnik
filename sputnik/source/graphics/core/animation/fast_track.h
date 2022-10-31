@@ -16,8 +16,6 @@ public:
      * interval. This method is intended to be called at the load time.
      */
     void UpdateIndexLookupTable();
-    
-    FastTrack OptimizeTrack(const Track<T, SIZE>& input);
 
 protected:
     /**
@@ -41,5 +39,8 @@ protected:
 typedef FastTrack<float, 1>                 FastScalarTrack;
 typedef FastTrack<ramanujan::Vector3, 3>    FastVectorTrack;
 typedef FastTrack<ramanujan::Quaternion, 4> FastQuaternionTrack;
+
+template <typename T, unsigned int SIZE>
+FastTrack<T, SIZE> OptimizeTrack(Track<T, SIZE>& input);
 
 } // namespace sputnik::graphics::core

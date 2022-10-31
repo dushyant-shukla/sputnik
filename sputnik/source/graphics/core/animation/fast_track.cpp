@@ -6,7 +6,7 @@ namespace sputnik::graphics::core
 
 /**
  * The Track class is templated. However, it is not meant to be used outside the animation system. Therefore, adding the
- * template definitions here. This makes the compiler generate code for the templates.
+ * template definitions here. This makes the compiler generate code for template specializations.
  */
 template FastTrack<float, 1>;
 template FastTrack<ramanujan::Vector3, 3>;
@@ -25,7 +25,7 @@ void FastTrack<T, SIZE>::UpdateIndexLookupTable()
 
     // The number of frames to be sampled depends on the context as different games have different requirements. Here we
     // are setting a limit of 60 samples per second, i.e., we have 60 frames for every second of animation.
-    unsigned int num_samples = static_cast<unsigned int>(duration * 60.0f);
+    unsigned int num_samples = 60 + static_cast<unsigned int>(duration * 60.0f);
     m_sampled_frames.resize(num_samples);
 
     // For each sample, we need to find the time of the sample along the track.
@@ -53,37 +53,11 @@ void FastTrack<T, SIZE>::UpdateIndexLookupTable()
                 {
                     frame_index = num_frames - 2;
                 }
+                break;
             }
-            break;
         }
         m_sampled_frames[i] = frame_index;
     }
-}
-
-template <>
-FastTrack<float, 1> FastTrack<float, 1>::OptimizeTrack(const Track<float, 1>& input);
-
-template <>
-FastTrack<ramanujan::Vector3, 3>
-FastTrack<ramanujan::Vector3, 3>::OptimizeTrack(const Track<ramanujan::Vector3, 3>& input);
-
-template <>
-FastTrack<ramanujan::Quaternion, 4>
-FastTrack<ramanujan::Quaternion, 4>::OptimizeTrack(const Track<ramanujan::Quaternion, 4>& input);
-
-template <typename T, unsigned int SIZE>
-FastTrack<T, SIZE> OptimizeTrack(const Track<T, SIZE>& input)
-{
-    FastTrack<T, SIZE> result;
-    result.SetInterpolation(input.GetInterpolation());
-    unsigned int size = input.GetSize();
-    result.Resize(size);
-    for(unsigned int i = 0; i < size; ++i)
-    {
-        result[i] = input[i];
-    }
-    result.UpdateIndexLookupTable();
-    return result;
 }
 
 template <typename T, unsigned int SIZE>
@@ -104,11 +78,11 @@ int FastTrack<T, SIZE>::GetKeyFrameIndex(float time, bool looping)
 
     if(looping)
     {
-        if(duration < 0.0f)
+         if(duration < 0.0f)
         {
-            std::cout << "Warning! Track has a negative duration!";
-            duration = fabsf(duration);
-        }
+             std::cout << "Warning! Track has a negative duration!";
+             duration = fabsf(duration);
+         }
 
         // Since the track is looping, time needs to be adjusted to a valid range. Therefore, make time relative to the
         // duration.
@@ -141,7 +115,7 @@ int FastTrack<T, SIZE>::GetKeyFrameIndex(float time, bool looping)
 
     // At this point, the time value is in a valid range.
     float        t           = time / duration; // normalized sampling time
-    unsigned int num_samples = static_cast<unsigned int>(duration * 60.0f);
+    unsigned int num_samples = 60 + static_cast<unsigned int>(duration * 60.0f);
     unsigned int index =
         static_cast<unsigned int>(t * (float)num_samples); // Required frame index is given by multiplying the
                                                            // normalized sampling time by the number of sampled.
@@ -152,6 +126,25 @@ int FastTrack<T, SIZE>::GetKeyFrameIndex(float time, bool looping)
         return -1;
     }
     return (int)m_sampled_frames[index];
+}
+
+template FastScalarTrack     OptimizeTrack(ScalarTrack& input);
+template FastVectorTrack     OptimizeTrack(VectorTrack& input);
+template FastQuaternionTrack OptimizeTrack(QuaternionTrack& input);
+
+template <typename T, unsigned int SIZE>
+FastTrack<T, SIZE> OptimizeTrack(Track<T, SIZE>& input)
+{
+    FastTrack<T, SIZE> result;
+    result.SetInterpolation(input.GetInterpolation());
+    unsigned int size = input.GetSize();
+    result.Resize(size);
+    for(unsigned int i = 0; i < size; ++i)
+    {
+        result[i] = input[i];
+    }
+    result.UpdateIndexLookupTable();
+    return result;
 }
 
 } // namespace sputnik::graphics::core

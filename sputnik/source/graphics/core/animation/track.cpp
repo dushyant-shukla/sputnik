@@ -35,7 +35,7 @@ T Track<T, SIZE>::Sample(float time, bool looping)
 {
     switch(m_interpolation)
     {
-    case InterpolationType::CONSTANT :
+    case InterpolationType::CONSTANT:
         return SampleConstant(time, looping);
 
     case InterpolationType::LINEAR:

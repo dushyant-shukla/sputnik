@@ -16,12 +16,13 @@ namespace sputnik::graphics::core
  * will animated the same tracks. Therefore, it becomes necessary to reset the transform hierarchy to the bind pose when
  * switching animation clips.
  */
-class AnimationClip
+template <typename ANIMATION_TRACK_TYPE>
+class TAnimationClip
 {
 
 public:
-    AnimationClip();
-    ~AnimationClip() = default;
+    TAnimationClip();
+    ~TAnimationClip() = default;
 
     unsigned int GetJointIdAtTrackIndex(unsigned int track_index);
     void         SetJointIdAtTrackIndex(unsigned int joitn_id, unsigned int track_index);
@@ -37,7 +38,7 @@ public:
      * The [] operator returns a transform track for the specified joint. If no track exists for a given joint, one is
      * created and returned.
      */
-    AnimationTrack& operator[](unsigned int joint_id);
+    ANIMATION_TRACK_TYPE& operator[](unsigned int joint_id);
 
     /**
      * This method calculates the duration of an animation clip by determining the start and end times of an animation
@@ -57,8 +58,8 @@ protected:
     // protected methods
 
 protected:
-    std::vector<AnimationTrack> m_tracks; // An animation clip is a collection of animation tracks, where each track
-                                          // describes the motion of one joint over time.
+    std::vector<ANIMATION_TRACK_TYPE> m_tracks; // An animation clip is a collection of animation tracks, where each
+                                                // track describes the motion of one joint over time.
     std::string m_name;
     float       m_start_time;
     float       m_end_time;
@@ -67,5 +68,10 @@ protected:
 private:
     float AdjustTimeToFitRange(float in_time);
 };
+
+typedef TAnimationClip<AnimationTrack>     AnimationClip;
+typedef TAnimationClip<FastAnimationTrack> FastAnimationClip;
+
+FastAnimationClip OptimizeClip(AnimationClip& input);
 
 } // namespace sputnik::graphics::core

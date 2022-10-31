@@ -34,7 +34,7 @@ public:
 private:
     std::shared_ptr<sputnik::graphics::glcore::Texture> m_diffuse_texture;
 
-    sputnik::graphics::core::SkinningType    m_skinning_type;
+    sputnik::graphics::core::SkinningType              m_skinning_type;
     std::shared_ptr<sputnik::graphics::glcore::Shader> m_static_shader;
     std::shared_ptr<sputnik::graphics::glcore::Shader> m_skinning_shader;
 
@@ -53,10 +53,11 @@ private:
     bool m_show_current_pose;
     bool m_show_bind_pose;
 
-    std::vector<sputnik::graphics::core::AnimationClip> m_clips;
-    int                                                 m_current_clip;
-    float                                               m_playback_time;
-    std::string                                         m_clip_types_str;
+    std::vector<sputnik::graphics::core::AnimationClip>     m_clips;
+    std::vector<sputnik::graphics::core::FastAnimationClip> m_fast_clips;
+    int                                                     m_current_clip;
+    float                                                   m_playback_time;
+    std::string                                             m_clip_types_str;
 
     // GUI stuff
     int         m_skinning_type_index;
