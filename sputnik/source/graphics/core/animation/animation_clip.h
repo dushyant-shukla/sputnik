@@ -25,7 +25,7 @@ public:
     ~TAnimationClip() = default;
 
     unsigned int GetJointIdAtTrackIndex(unsigned int track_index);
-    void         SetJointIdAtTrackIndex(unsigned int joitn_id, unsigned int track_index);
+    void         SetJointIdAtTrackIndex(unsigned int track_index, unsigned int joint_id);
     unsigned int GetNumJoints();
 
     /**

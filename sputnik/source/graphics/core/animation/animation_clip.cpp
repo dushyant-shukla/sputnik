@@ -26,7 +26,7 @@ unsigned int TAnimationClip<ANIMATION_TRACK_TYPE>::GetJointIdAtTrackIndex(unsign
 }
 
 template <typename ANIMATION_TRACK_TYPE>
-void TAnimationClip<ANIMATION_TRACK_TYPE>::SetJointIdAtTrackIndex(unsigned int joint_id, unsigned int track_index)
+void TAnimationClip<ANIMATION_TRACK_TYPE>::SetJointIdAtTrackIndex(unsigned int track_index, unsigned int joint_id)
 {
     m_tracks[track_index].SetJointId(joint_id);
 }

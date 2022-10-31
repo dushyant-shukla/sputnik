@@ -7,6 +7,7 @@
 #include <vector3.h>
 #include <camera_transforms.h>
 #include <imgui.h>
+#include <graphics/core/animation/rearrange_bones.h>
 
 namespace sputnik::demos
 {
@@ -66,6 +67,16 @@ void VertexSkinningDemo::OnAttach()
     sputnik::gltf::GltfLoader::LoadAnimationClips(gltf, m_clips);
     sputnik::gltf::GltfLoader::FreeFile(gltf);
 
+    sputnik::graphics::core::BoneMap bones = sputnik::graphics::core::RearrangeSkeleton(m_skeleton);
+    for(unsigned int i = 0, size = static_cast<unsigned int>(m_meshes.size()); i < size; ++i)
+    {
+        sputnik::graphics::core::RearrangeMesh(m_meshes[i], bones);
+    }
+    for(unsigned int i = 0, size = static_cast<unsigned int>(m_clips.size()); i < size; ++i)
+    {
+        sputnik::graphics::core::RearrangeClip(m_clips[i], bones);
+    }
+
     m_fast_clips.resize(m_clips.size());
     for(size_t i = 0, size = m_clips.size(); i < size; ++i)
     {
@@ -73,14 +84,7 @@ void VertexSkinningDemo::OnAttach()
         m_clip_types_str += m_clips[i].GetName();
         m_clip_types_str += '\0';
     }
-
-    // for(auto& clip : m_clips)
-    //{
-    //     m_clip_types_str += clip.GetName();
-    //     m_clip_types_str += '\0';
-    // }
     m_clip_types_str += '\0';
-    // m_clips.clear();
 
     m_rest_pose_visual = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
     m_rest_pose_visual->FromPose(m_skeleton.GetRestPose());
