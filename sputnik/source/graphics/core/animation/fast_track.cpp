@@ -23,6 +23,7 @@ void FastTrack<T, SIZE>::UpdateIndexLookupTable()
 
     float duration = this->GetEndTime() - this->GetStartTime();
 
+    // Todo:: I do not fully understand this. (Also, this is incorrect in the book where we do not add 60)
     // The number of frames to be sampled depends on the context as different games have different requirements. Here we
     // are setting a limit of 60 samples per second, i.e., we have 60 frames for every second of animation.
     unsigned int num_samples = 60 + static_cast<unsigned int>(duration * 60.0f);
