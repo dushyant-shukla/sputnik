@@ -14,6 +14,7 @@ struct SystemInformation
     std::string vendor;
     std::string renderer;
     std::string gl_version;
+    std::string shading_language_version;
 };
 
 class GlUiLayer : public sputnik::core::Layer

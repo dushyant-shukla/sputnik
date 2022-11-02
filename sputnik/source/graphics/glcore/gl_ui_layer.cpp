@@ -131,6 +131,8 @@ void GlUiLayer::OnAttach()
     m_system_information.vendor     = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
     m_system_information.renderer   = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
     m_system_information.gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    m_system_information.shading_language_version =
+        reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
 void GlUiLayer::OnDetach()
@@ -159,6 +161,7 @@ void GlUiLayer::OnUpdateUI(const core::TimeStep& time_step)
         ImGui::Text("Vendor: %s", m_system_information.vendor.c_str());
         ImGui::Text("Renderer: %s", m_system_information.renderer.c_str());
         ImGui::Text("Version: %s", m_system_information.gl_version.c_str());
+        ImGui::Text("Shanding Language Version: %s", m_system_information.shading_language_version.c_str());
 
         std::string display_frequency = "Display Frequency: %d";
         ImGui::Text(display_frequency.c_str(), mode->refreshRate);
@@ -182,8 +185,9 @@ void GlUiLayer::Begin()
 
 void GlUiLayer::End()
 {
-    ImGuiIO&             io                   = ImGui::GetIO();
-    window::WindowSpecification& window_specification = *(window::WindowSpecification*)glfwGetWindowUserPointer(m_window);
+    ImGuiIO&                     io = ImGui::GetIO();
+    window::WindowSpecification& window_specification =
+        *(window::WindowSpecification*)glfwGetWindowUserPointer(m_window);
     io.DisplaySize = ImVec2((float)window_specification.m_width, (float)window_specification.m_height);
 
     ImGui::Render();
