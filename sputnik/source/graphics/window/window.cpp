@@ -3,7 +3,7 @@
 #include "graphics/glcore/gl_context.h"
 #include "main/application.h"
 #include "graphics/api/renderer.h"
-#include "graphics/api/editor_camera.h"
+#include "graphics/api/experimental/editor_camera_sacha.h"
 
 #include <GLFW/glfw3.h>
 
@@ -45,7 +45,7 @@ Window::Window(const WindowSpecification& specification)
                                   glfwRequestWindowAttention(window);
                                   // Todo:: This should happen with events (this is only temporary)
                                   api::Renderer::OnWindowResize(width, height);
-                                  api::EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+                                  api::EditorCameraSacha::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
                               });
 
     glfwSetWindowCloseCallback(m_window_handle,
@@ -118,7 +118,7 @@ Window::Window(const WindowSpecification& specification)
                           [](GLFWwindow* window, double offsetX, double offsetY) {
                               WindowSpecification& window_specification =
                                   *(WindowSpecification*)glfwGetWindowUserPointer(window);
-                              api::EditorCamera::GetInstance()->OnMouseScroll(static_cast<float>(offsetY));
+                              api::EditorCameraSacha::GetInstance()->OnMouseScroll(static_cast<float>(offsetY));
                           });
 
     glfwSetCursorPosCallback(
@@ -130,7 +130,7 @@ Window::Window(const WindowSpecification& specification)
             //editor_camera.UpdateMousePosition(static_cast<int32_t>(positionX), static_cast<int32_t>(positionY));
         });
 
-    graphics::api::EditorCamera::Initialize(m_window_handle);
+    graphics::api::EditorCameraSacha::Initialize(m_window_handle);
 }
 
 Window::~Window()
@@ -179,7 +179,7 @@ GLFWwindow* Window::GetNativeWindow()
 
 void Window::OnUpdate(const sputnik::core::TimeStep& time_step)
 {
-    graphics::api::EditorCamera::GetInstance()->Update(time_step);
+    graphics::api::EditorCameraSacha::GetInstance()->Update(time_step);
     glfwPollEvents();
 }
 

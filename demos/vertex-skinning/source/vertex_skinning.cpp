@@ -8,7 +8,7 @@
 #include <camera_transforms.h>
 #include <imgui.h>
 #include <graphics/core/animation/rearrange_bones.h>
-#include <graphics/api/editor_camera.h>
+#include <graphics/api/experimental/editor_camera_sacha.h>
 
 namespace sputnik::demos
 {
@@ -55,13 +55,13 @@ void VertexSkinningDemo::OnAttach()
     // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
     // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/Fox/Texture.png");
 
-    // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
-    //     "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
+     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
+     //m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
+     //    "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
 
-    // cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
-    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
-    //    "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
+     //cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
+     //m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
+     //   "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
 
     m_skeleton = sputnik::gltf::GltfLoader::LoadSkeleton(gltf);
     m_meshes   = sputnik::gltf::GltfLoader::LoadMeshes(gltf);
@@ -192,7 +192,7 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
     // 0.0f}); // spiderman + nathan
 
-    const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
+    const auto& editor_camera = sputnik::graphics::api::EditorCameraSacha::GetInstance();
     projection                = editor_camera->GetCameraPerspective();
     view                      = editor_camera->GetCameraView();
 
