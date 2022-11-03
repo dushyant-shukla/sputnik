@@ -139,9 +139,7 @@ void EditorCamera::OnMouseScroll(float y_offset)
 
 ramanujan::Quaternion EditorCamera::GetOrientation() const
 {
-    glm::quat             q = glm::quat(glm::vec3(-m_pitch, -m_yaw, 0.0f));
-    ramanujan::Quaternion orientation(q.x, q.y, q.z, q.w);
-    return orientation;
+    return ramanujan::FromEulerAnglesRadians(-m_pitch, -m_yaw, 0.0f);
 }
 
 void EditorCamera::UpdateProjection()
