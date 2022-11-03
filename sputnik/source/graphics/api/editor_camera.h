@@ -7,6 +7,7 @@
 #include <vector2.h>
 #include <matrix4.h>
 #include <quaternion.h>
+#include <transform.h>
 #include <glm/glm.hpp>
 #include <core/time_step.h>
 
@@ -68,19 +69,19 @@ private:
     float m_viewport_width{1600.0f};
     float m_viewport_height{900.0f};
 
-    ramanujan::Matrix4 m_view;
-    //ramanujan::Vector3 m_position{0.0f, 0.0f, 0.0f};
+    // ramanujan::Vector3 m_position{0.0f, 0.0f, 0.0f};
     ramanujan::Vector3 m_position{0.0f, 5.0f, 7.0f};
     ramanujan::Vector3 m_focal_point{0.0f, 0.0f, 0.0f};
 
     // ramanujan::Vector3 m_rotation{};
-    ramanujan::Matrix4 m_projection;
+    ramanujan::Matrix4   m_view;
+    ramanujan::Matrix4   m_projection;
 
     // glm::mat4           m_view;
-    ramanujan::Vector2 m_initial_mouse_position{0.0f, 0.0f};
-    float              m_rotation_speed{0.8f};
+    ramanujan::Vector2 m_previous_mouse_position{0.0f, 0.0f};
+    float              m_rotation_speed{3.5f};
 
-    static EditorCamera* m_instance;
+    static EditorCamera* s_instance;
     GLFWwindow*          m_window;
 };
 

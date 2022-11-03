@@ -13,26 +13,28 @@
 namespace sputnik::graphics::api
 {
 
-EditorCamera* EditorCamera::m_instance = nullptr;
+EditorCamera* EditorCamera::s_instance = nullptr;
 
-EditorCamera::EditorCamera(GLFWwindow* window) : m_window(window) {}
+EditorCamera::EditorCamera(GLFWwindow* window) : m_window(window)
+{
+}
 
 EditorCamera::~EditorCamera() {}
 
 EditorCamera* EditorCamera::Initialize(GLFWwindow* window)
 {
-    if(m_instance == nullptr)
+    if(s_instance == nullptr)
     {
-        m_instance = new EditorCamera(window);
-        m_instance->UpdateView();
-        m_instance->UpdateProjection();
+        s_instance = new EditorCamera(window);
+        s_instance->UpdateView();
+        s_instance->UpdateProjection();
     }
-    return m_instance;
+    return s_instance;
 }
 
 EditorCamera* EditorCamera::GetInstance()
 {
-    return m_instance;
+    return s_instance;
 }
 
 void EditorCamera::Update(sputnik::core::TimeStep time_step)
@@ -42,9 +44,9 @@ void EditorCamera::Update(sputnik::core::TimeStep time_step)
         double mouse_pos_x, mouse_pos_y;
         glfwGetCursorPos(m_window, &mouse_pos_x, &mouse_pos_y);
         const ramanujan::Vector2 mouse(static_cast<float>(mouse_pos_x), static_cast<float>(mouse_pos_y));
-        const ramanujan::Vector2 delta = ramanujan::Vector2((mouse.x - m_initial_mouse_position.x) * 0.003f,
-                                                            (mouse.y - m_initial_mouse_position.y) * 0.003f);
-        m_initial_mouse_position       = mouse;
+        const ramanujan::Vector2 delta = ramanujan::Vector2((mouse.x - m_previous_mouse_position.x) * 0.003f,
+                                                            (mouse.y - m_previous_mouse_position.y) * 0.003f);
+        m_previous_mouse_position      = mouse;
 
         if(GLFW_PRESS == glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_MIDDLE))
         {
@@ -153,19 +155,17 @@ void EditorCamera::UpdateView()
     // m_yaw = m_pitch = 0.0f; // lock camera's rotation
     m_position                        = CalculatePosition();
     ramanujan::Quaternion orientation = GetOrientation();
-
-    ramanujan::Transform transform;
+    ramanujan::Transform  transform;
     transform.position = m_position;
-
-    m_view = ramanujan::ToMatrix4(transform) * ramanujan::ToMatrix4(orientation);
-    m_view = ramanujan::Inverse(m_view);
+    m_view             = ramanujan::ToMatrix4(transform) * ramanujan::ToMatrix4(orientation);
+    m_view             = ramanujan::Inverse(m_view);
 }
 
 void EditorCamera::MousePan(const ramanujan::Vector2& delta)
 {
     auto [xSpeed, ySpeed] = PanSpeed();
-    m_focal_point = m_focal_point + (-1 * GetRightDirection() * delta.x * xSpeed * m_distance);
-    m_focal_point = m_focal_point + (GetUpDirection() * delta.y * ySpeed * m_distance);
+    m_focal_point         = m_focal_point + (-1 * GetRightDirection() * delta.x * xSpeed * m_distance);
+    m_focal_point         = m_focal_point + (GetUpDirection() * delta.y * ySpeed * m_distance);
 }
 
 void EditorCamera::MouseRotate(const ramanujan::Vector2& delta)
@@ -181,7 +181,7 @@ void EditorCamera::MouseZoom(float delta)
     if(m_distance < 1.0f)
     {
         m_focal_point = m_focal_point + GetForwardDirection();
-        m_distance = 1.0f;
+        m_distance    = 1.0f;
     }
 }
 
@@ -208,11 +208,8 @@ float EditorCamera::RotationSpeed() const
 
 float EditorCamera::ZoomSpeed() const
 {
-    float distance = m_distance * 0.2f;
-    distance       = std::max(distance, 0.0f);
-    float speed    = distance * distance;
-    speed          = std::min(speed, 100.0f);
-    return speed;
+    float distance = std::max(m_distance * 0.2f, 0.0f);
+    return std::min(distance * distance, 100.0f);
 }
 
 } // namespace sputnik::graphics::api
