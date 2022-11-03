@@ -4,6 +4,7 @@
 #include "graphics/glcore/gl_context.h"
 #include "gl_ui_layer.h"
 #include "main/application.h"
+#include "editor/editor_camera.h"
 
 #include <glad/glad.h>
 #include <imgui.h>
@@ -31,8 +32,8 @@ void GlGraphicsSubsystem::Update(const sputnik::core::TimeStep& time_step)
 {
     m_ui_layer->Begin();
     sputnik::core::LayerStack& layer_stack = main::Application::GetInstance()->GetApplicationLayerStack();
-    for(const std::shared_ptr<sputnik::core::Layer>& layer :
-        layer_stack) // Todo:: layer stack to have const iterator
+    // Todo:: layer stack to have const iterator
+    for(const std::shared_ptr<sputnik::core::Layer>& layer : layer_stack)
     {
         layer->OnUpdateUI(time_step);
     }
@@ -40,6 +41,9 @@ void GlGraphicsSubsystem::Update(const sputnik::core::TimeStep& time_step)
 
     m_window->OnUpdate(time_step);
     m_context->SwapBuffers();
+
+    // TODO: This should be handled by EditorLayer::OnUpdate()
+    graphics::api::EditorCamera::GetInstance()->Update(time_step);
 }
 
 void GlGraphicsSubsystem::Clear() const

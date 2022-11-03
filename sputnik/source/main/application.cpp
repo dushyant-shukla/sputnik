@@ -18,8 +18,8 @@ Application::Application(const std::string& application_name)
     , m_is_minimized(false)
     , m_last_frame_time(0.0f)
 {
+    m_input_manager = core::InputManager::GetInstance();
     s_instance = this;
-
     graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
 }
 
@@ -45,6 +45,7 @@ void Application::Run()
         }
 
         graphics::api::Renderer::Update(time_step);
+        m_input_manager->LateUpdate(time_step);
     }
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/layers/layer_stack.h"
+#include "core/input/input_manager.h"
 
 namespace sputnik::main
 {
@@ -23,12 +24,13 @@ public:
     virtual void PushOverlay(const std::shared_ptr<core::Layer>& layer);
 
 private:
-    std::string             m_application_name;
-    bool                    m_is_running;
-    bool                    m_is_minimized;
-    float                   m_last_frame_time;
-    core::LayerStack m_application_layer_stack;
-    static Application*     s_instance;
+    std::string         m_application_name;
+    bool                m_is_running;
+    bool                m_is_minimized;
+    float               m_last_frame_time;
+    core::LayerStack    m_application_layer_stack;
+    core::InputManager* m_input_manager;
+    static Application* s_instance;
 };
 
 Application* CreateApplication(); // Must be defined by classes inheriting from this class

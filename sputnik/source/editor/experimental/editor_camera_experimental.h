@@ -16,17 +16,19 @@ struct GLFWwindow;
 namespace sputnik::graphics::api
 {
 
-class EditorCameraSacha
+class EditorCameraExperimental
 {
 
 public:
-    NON_COPYABLE(EditorCameraSacha);
+    NON_COPYABLE(EditorCameraExperimental);
 
-    ~EditorCameraSacha();
+    ~EditorCameraExperimental();
 
-    static EditorCameraSacha* Initialize(GLFWwindow* window);
-    static EditorCameraSacha* GetInstance();
+    static EditorCameraExperimental*      Initialize(GLFWwindow* window);
+    static EditorCameraExperimental*      GetInstance();
     void                      Update(sputnik::core::TimeStep time_step);
+    float                     GetDistance();
+    void                      SetDistance(float distance);
     void                      SetViewportSize(float width, float height);
     void                      SetPosition(const ramanujan::Vector3& position);
     void                      SetPerspective(float fov, float aspect, float znear, float zfar);
@@ -42,13 +44,13 @@ public:
     ramanujan::Quaternion     GetOrientation() const;
 
 private:
-    EditorCameraSacha(GLFWwindow* window);
+    EditorCameraExperimental(GLFWwindow* window);
 
     void                    UpdateProjection();
     void                    UpdateView();
     void                    MousePan(const ramanujan::Vector2& delta);
     void                    MouseRotate(const ramanujan::Vector2& delta);
-    //void                    MouseZoom(float delta);
+    void                    MouseZoom(float delta);
     ramanujan::Vector3      CalculatePosition() const;
     std::pair<float, float> PanSpeed() const;
     float                   RotationSpeed() const;
@@ -60,24 +62,27 @@ private:
     float m_near_clip{0.1f};
     float m_far_clip{1000.0f};
 
+    float m_distance{10.0f};
+    float m_pitch{0.0f};
+    float m_yaw{0.0f};
+
     float m_viewport_width{1600.0f};
     float m_viewport_height{900.0f};
 
-    ramanujan::Matrix4 m_view;
-    ramanujan::Matrix4 m_projection;
+    // ramanujan::Vector3 m_position{0.0f, 0.0f, 0.0f};
+    ramanujan::Vector3 m_position{0.0f, 5.0f, 7.0f};
+    ramanujan::Vector3 m_focal_point{0.0f, 0.0f, 0.0f};
 
+    // ramanujan::Vector3 m_rotation{};
+    ramanujan::Matrix4   m_view;
+    ramanujan::Matrix4   m_projection;
+
+    // glm::mat4           m_view;
     ramanujan::Vector2 m_previous_mouse_position{0.0f, 0.0f};
-    float              m_rotation_speed{0.005f};
+    float              m_rotation_speed{3.5f};
 
-    static EditorCameraSacha* s_instance;
-    GLFWwindow*               m_window;
-
-    /////// experimentation ///////
-
-    ramanujan::Vector3    ex_position{0.0f, 5.0f, 7.0f};
-    float                 ex_pitch{0.0f};
-    float                 ex_yaw{0.0f};
-    ramanujan::Quaternion ee_orientation;
+    static EditorCameraExperimental* s_instance;
+    GLFWwindow*          m_window;
 };
 
 } // namespace sputnik::graphics::api
