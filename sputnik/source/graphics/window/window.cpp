@@ -45,7 +45,7 @@ Window::Window(const WindowSpecification& specification)
                                   glfwRequestWindowAttention(window);
                                   // Todo:: This should happen with events (this is only temporary)
                                   api::Renderer::OnWindowResize(width, height);
-                                  api::EditorCamera::GetInstance()->SetViewportSize(width, height);
+                                  api::EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
                               });
 
     glfwSetWindowCloseCallback(m_window_handle,
@@ -118,7 +118,7 @@ Window::Window(const WindowSpecification& specification)
                           [](GLFWwindow* window, double offsetX, double offsetY) {
                               WindowSpecification& window_specification =
                                   *(WindowSpecification*)glfwGetWindowUserPointer(window);
-                              api::EditorCamera::GetInstance()->OnMouseScroll(offsetY);
+                              api::EditorCamera::GetInstance()->OnMouseScroll(static_cast<float>(offsetY));
                           });
 
     glfwSetCursorPosCallback(
