@@ -3,6 +3,7 @@
 #include "graphics/glcore/gl_context.h"
 #include "main/application.h"
 #include "graphics/api/renderer.h"
+#include "graphics/api/editor_camera.h"
 
 #include <GLFW/glfw3.h>
 
@@ -44,6 +45,7 @@ Window::Window(const WindowSpecification& specification)
                                   glfwRequestWindowAttention(window);
                                   // Todo:: This should happen with events (this is only temporary)
                                   api::Renderer::OnWindowResize(width, height);
+                                  api::EditorCamera::GetInstance()->SetViewportSize(width, height);
                               });
 
     glfwSetWindowCloseCallback(m_window_handle,
@@ -96,6 +98,12 @@ Window::Window(const WindowSpecification& specification)
                                    {
                                    case GLFW_PRESS:
                                    {
+                                       if(button == GLFW_MOUSE_BUTTON_LEFT)
+                                       {
+                                           //graphics::api::EditorCamera& editor_camera =
+                                           //    graphics::api::EditorCamera::GetInstance();
+                                           //editor_camera.Update();
+                                       }
                                        break;
                                    }
 
@@ -110,13 +118,19 @@ Window::Window(const WindowSpecification& specification)
                           [](GLFWwindow* window, double offsetX, double offsetY) {
                               WindowSpecification& window_specification =
                                   *(WindowSpecification*)glfwGetWindowUserPointer(window);
+                              api::EditorCamera::GetInstance()->OnMouseScroll(offsetY);
                           });
 
-    glfwSetCursorPosCallback(m_window_handle,
-                             [](GLFWwindow* window, double positionX, double positionY) {
-                                 WindowSpecification& window_specification =
-                                     *(WindowSpecification*)glfwGetWindowUserPointer(window);
-                             });
+    glfwSetCursorPosCallback(
+        m_window_handle,
+        [](GLFWwindow* window, double positionX, double positionY)
+        {
+            WindowSpecification&         window_specification = *(WindowSpecification*)glfwGetWindowUserPointer(window);
+            //graphics::api::EditorCamera& editor_camera        = graphics::api::EditorCamera::GetInstance();
+            //editor_camera.UpdateMousePosition(static_cast<int32_t>(positionX), static_cast<int32_t>(positionY));
+        });
+
+    graphics::api::EditorCamera::Initialize(m_window_handle);
 }
 
 Window::~Window()
@@ -163,8 +177,9 @@ GLFWwindow* Window::GetNativeWindow()
     return m_window_handle;
 }
 
-void Window::OnUpdate()
+void Window::OnUpdate(const sputnik::core::TimeStep& time_step)
 {
+    graphics::api::EditorCamera::GetInstance()->Update(time_step);
     glfwPollEvents();
 }
 

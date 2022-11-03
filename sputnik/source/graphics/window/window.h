@@ -2,6 +2,7 @@
 
 #include "core/core.h"
 #include "window_specification.h"
+#include "core/time_step.h"
 
 #include <memory>
 
@@ -24,7 +25,7 @@ public:
     virtual void         SetVsync(bool enable_vsync);
     virtual bool         IsVsyncEnabled();
     virtual GLFWwindow*  GetNativeWindow();
-    virtual void         OnUpdate();
+    virtual void         OnUpdate(const sputnik::core::TimeStep& time_step);
 
 protected:
     virtual void Shutdown();

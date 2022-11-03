@@ -38,7 +38,7 @@ void GlGraphicsSubsystem::Update(const sputnik::core::TimeStep& time_step)
     }
     m_ui_layer->End();
 
-    m_window->OnUpdate();
+    m_window->OnUpdate(time_step);
     m_context->SwapBuffers();
 }
 

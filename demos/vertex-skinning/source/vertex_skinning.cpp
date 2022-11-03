@@ -8,6 +8,7 @@
 #include <camera_transforms.h>
 #include <imgui.h>
 #include <graphics/core/animation/rearrange_bones.h>
+#include <graphics/api/editor_camera.h>
 
 namespace sputnik::demos
 {
@@ -190,6 +191,10 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
 
     // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
     // 0.0f}); // spiderman + nathan
+
+    const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
+    projection                = editor_camera->GetCameraPerspective();
+    view                      = editor_camera->GetCameraView();
 
     ramanujan::Matrix4 mvp = projection * view * model;
 
