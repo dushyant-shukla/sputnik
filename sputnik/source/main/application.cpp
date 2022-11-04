@@ -19,8 +19,10 @@ Application::Application(const std::string& application_name)
     , m_last_frame_time(0.0f)
 {
     m_input_manager = core::InputManager::GetInstance();
-    s_instance = this;
+    s_instance      = this;
     graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
+
+    sputnik::core::Logger::Init();
 }
 
 Application ::~Application() {}

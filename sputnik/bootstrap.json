@@ -45,5 +45,13 @@
         "url": "https://github.com/Tencent/rapidjson.git",
         "revision": "ce81bc9edfe773667a7a4454ba81dac72ed4364c"
     }
+},
+{
+    "name": "spdlog",
+    "source": {
+        "type": "git",
+        "url": "https://github.com/gabime/spdlog.git",
+        "revision": "v1.11.0"
+    }
 }
 ]
