@@ -9,7 +9,6 @@
 #include <matrix4.h>
 #include <quaternion.h>
 #include <transform.h>
-#include <glm/glm.hpp>
 #include <core/time_step.h>
 
 struct GLFWwindow;
