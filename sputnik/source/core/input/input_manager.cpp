@@ -1,5 +1,4 @@
 #include "pch.h"
-#include <glm/glm.hpp>
 
 #include "input_manager.h"
 #include "core/core.h"
