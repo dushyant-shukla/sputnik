@@ -176,7 +176,7 @@ void Mesh::CpuSkin(const std::vector<ramanujan::Matrix4>& skin_transform)
     m_normal_attribute->Set(m_skinned_normal);
 }
 
-void Mesh::ResetOpenglBuffersToBindPose()
+void Mesh::ResetOpenglBuffersToBindPose() // Todo:: Think of a better name
 {
     if(m_position.size() > 0)
     {

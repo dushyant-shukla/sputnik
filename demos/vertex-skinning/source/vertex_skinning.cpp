@@ -279,7 +279,7 @@ void VertexSkinningDemo::OnUpdateUI(const core::TimeStep& time_step)
             // This is important when changing the animation model/current clip/skinning type, etc.
             for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
             {
-                m_meshes[i].ResetOpenglBuffersToBindPose(); // update pose to bind pose.
+                m_meshes[i].ResetOpenglBuffersToBindPose(); // update pose to bind pose. // Todo: Check that this is only needed when switching to and from cpu skinning type.
             }
         }
         ImGui::Checkbox("Show rest pose", &m_show_rest_pose);
