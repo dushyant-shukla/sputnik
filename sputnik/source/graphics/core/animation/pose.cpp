@@ -207,4 +207,48 @@ bool Pose::operator!=(const Pose& other)
 {
     return !(*this == other);
 }
+
+bool IsInHierarchy(const Pose& pose, const unsigned int parent_node, const unsigned int search_node)
+{
+    if(search_node == parent_node)
+    {
+        return true;
+    }
+
+    int current_parent_node = pose.GetParent(search_node);
+
+    while(current_parent_node >= 0)
+    {
+        if(current_parent_node == static_cast<int>(parent_node))
+        {
+            return true;
+        }
+        current_parent_node = pose.GetParent(current_parent_node);
+    }
+
+    return false;
+}
+
+/*
+ * Blending is done in local space of the two poses, i.e, linearly interpolating between the local transforms of the
+ * joints in the input poses that are being blended. Position and scale interpolation uses the vector lerp function,
+ * whereas rotation uses the quaternion nlerp function.
+ */
+void Blend(Pose& pose_out, const Pose& pose_a, const Pose& pose_b, const float t, const int root_node)
+{
+    unsigned int num_joints = static_cast<unsigned int>(pose_out.GetNumJoints());
+    for(unsigned int i = 0; i < num_joints; ++i)
+    {
+        if(root_node >= 0)
+        {
+            if(!IsInHierarchy(pose_out, root_node, i))
+            {
+                continue;
+            }
+        }
+
+        pose_out.SetLocalTransform(i, ramanujan::Mix(pose_a.GetLocalTransform(i), pose_b.GetLocalTransform(i), t));
+    }
+}
+
 } // namespace sputnik::graphics::core
