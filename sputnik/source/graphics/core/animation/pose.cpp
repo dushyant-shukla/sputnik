@@ -229,13 +229,13 @@ bool IsInHierarchy(const Pose& pose, const unsigned int parent_node, const unsig
     return false;
 }
 
-/*
- * Blending is done in local space of the two poses, i.e, linearly interpolating between the local transforms of the
- * joints in the input poses that are being blended. Position and scale interpolation uses the vector lerp function,
- * whereas rotation uses the quaternion nlerp function.
- */
 void Blend(Pose& pose_out, const Pose& pose_a, const Pose& pose_b, const float t, const int root_node)
 {
+    /*
+     * Blending is done in local space of the two poses, i.e, linearly interpolating between the local transforms of the
+     * joints in the input poses that are being blended. Position and scale interpolation uses the vector lerp function,
+     * whereas rotation uses the quaternion nlerp function.
+     */
     unsigned int num_joints = static_cast<unsigned int>(pose_out.GetNumJoints());
     for(unsigned int i = 0; i < num_joints; ++i)
     {
