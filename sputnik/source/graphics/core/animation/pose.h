@@ -77,12 +77,6 @@ protected:
      * parent, its parent value is negative.
      */
     std::vector<int> m_parents;
-
-private:
-    // private methods
-
-private:
-    // private data
 };
 
 } // namespace sputnik::graphics::core
