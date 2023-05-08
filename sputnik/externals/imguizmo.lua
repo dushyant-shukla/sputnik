@@ -24,7 +24,8 @@ project "ImGuizmo"
 
 	includedirs
 	{
-		"ImGuizmo/example"
+		-- "ImGuizmo/example"
+		"$(SolutionDir)sputnik/externals/imgui"
 	}
 
 	warnings "Off"

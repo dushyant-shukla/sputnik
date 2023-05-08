@@ -4,7 +4,7 @@ namespace sputnik::graphics::core
 {
 
 /**
- * The structure is used for storing keyframes in an animation track. An animation track is a collection of the
+ * The structure is used for storing keyframes in an animation track. An animation track is a collection of
  * keyframes.
  */
 template <unsigned int SIZE>
