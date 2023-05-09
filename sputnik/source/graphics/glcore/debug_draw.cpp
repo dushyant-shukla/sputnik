@@ -7,36 +7,66 @@ sputnik::graphics::glcore::DebugDraw::DebugDraw()
 {
     m_vertex_attributes = new VertexAttribute<ramanujan::Vector3>();
 
-    m_shader = new Shader("#version 460 core\n"
-                          "uniform mat4 mvp;\n"
-                          "in vec3 position;\n"
-                          "void main() {\n"
-                          "	gl_Position = mvp * vec4(position, 1.0);\n"
-                          "}",
-                          "#version 330 core\n"
-                          "uniform vec3 color;\n"
-                          "out vec4 FragColor;\n"
-                          "void main() {\n"
-                          "	FragColor = vec4(color, 1);\n"
-                          "}");
+    std::string vertex_shader_source = R"(
+        #version 460 core
+
+        uniform mat4 mvp;
+        in vec3 position;
+        out vec4 position_color;
+        void main()
+        {
+            position_color = vec4(abs(position.x), abs(position.y), abs(position.z), 1.0);
+            //position_color = vec4(position, 1.0);
+            gl_Position = mvp * vec4(position, 1.0);
+        }
+    )";
+
+    std::string fragment_shader_source = R"(
+        #version 460 core
+
+        in vec4 position_color;
+        uniform vec3 color;
+        out vec4 FragColor;
+        void main()
+        {
+            FragColor = vec4(color, 1);
+            FragColor = position_color;
+        }
+    )";
+
+    m_shader = new Shader(vertex_shader_source, fragment_shader_source);
 }
 
 sputnik::graphics::glcore::DebugDraw::DebugDraw(unsigned int size)
 {
     m_vertex_attributes = new VertexAttribute<ramanujan::Vector3>();
 
-    m_shader = new Shader("#version 460 core\n"
-                          "uniform mat4 mvp;\n"
-                          "in vec3 position;\n"
-                          "void main() {\n"
-                          "	gl_Position = mvp * vec4(position, 1.0);\n"
-                          "}",
-                          "#version 330 core\n"
-                          "uniform vec3 color;\n"
-                          "out vec4 FragColor;\n"
-                          "void main() {\n"
-                          "	FragColor = vec4(color, 1);\n"
-                          "}");
+    std::string vertex_shader_source = R"(
+        #version 460 core
+
+        uniform mat4 mvp;
+        in vec3 position;
+        out vec4 position_color;
+        void main()
+        {
+            position_color = vec4(position, 1.0);
+            gl_Position = mvp * vec4(position, 1.0);
+        }
+    )";
+
+    std::string fragment_shader_source = R"(
+        #version 460 core
+
+        in vec4 position_color;
+        uniform vec3 color;
+        out vec4 FragColor;
+        void main()
+        {
+            FragColor = vec4(color, 1);
+            //FragColor = position_color;
+        }
+    )";
+    m_shader                           = new Shader(vertex_shader_source, fragment_shader_source);
 
     Resize(size);
 }
@@ -94,14 +124,42 @@ void sputnik::graphics::glcore::DebugDraw::FromPose(const sputnik::graphics::cor
     }
 }
 
+void sputnik::graphics::glcore::DebugDraw::LinesFromIKSolver(CCDSolver& solver)
+{
+    if(solver.Size() < 2)
+    {
+        return;
+    }
+    unsigned int requiredVerts = (solver.Size() - 1) * 2;
+    m_points.resize(requiredVerts);
+
+    unsigned int index = 0;
+    for(unsigned int i = 0, size = solver.Size(); i < size - 1; ++i)
+    {
+        m_points[index++] = solver.GetGlobalTransform(i).position;
+        m_points[index++] = solver.GetGlobalTransform(i + 1).position;
+    }
+}
+
+void sputnik::graphics::glcore::DebugDraw::PointsFromIKSolver(CCDSolver& solver)
+{
+    unsigned int requiredVerts = solver.Size();
+    m_points.resize(requiredVerts);
+
+    for(unsigned int i = 0, size = solver.Size(); i < size; ++i)
+    {
+        m_points[i] = solver.GetGlobalTransform(i).position;
+    }
+}
+
 void sputnik::graphics::glcore::DebugDraw::UpdateOpenGLBuffers()
 {
     m_vertex_attributes->Set(m_points);
 }
 
 void sputnik::graphics::glcore::DebugDraw::Draw(DebugDrawMode             mode,
-                                      const ramanujan::Vector3& color,
-                                      const ramanujan::Matrix4& mvp)
+                                                const ramanujan::Vector3& color,
+                                                const ramanujan::Matrix4& mvp)
 {
     m_shader->Bind();
     sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_shader->GetUniform("mvp"), mvp);
