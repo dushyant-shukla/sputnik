@@ -42,7 +42,17 @@ void Application::Run()
         {
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
+                layer->OnPreUpdate(time_step);
+            }
+
+            for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+            {
                 layer->OnUpdate(time_step);
+            }
+
+            for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+            {
+                layer->OnPostUpdate(time_step);
             }
         }
 

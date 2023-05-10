@@ -11,7 +11,7 @@ class IndexBuffer
 public:
     IndexBuffer();
     ~IndexBuffer();
-    NON_COPYABLE(IndexBuffer);
+    NON_COPYABLE(IndexBuffer)
 
     void Set(unsigned int* input_array, unsigned int length);
     void Set(std::vector<unsigned int>& input);

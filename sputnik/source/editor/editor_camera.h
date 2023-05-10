@@ -20,7 +20,7 @@ class EditorCamera
 {
 
 public:
-    NON_COPYABLE(EditorCamera);
+    NON_COPYABLE(EditorCamera)
 
     ~EditorCamera();
 

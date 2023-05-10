@@ -17,10 +17,18 @@ void Layer::OnAttach() {}
 
 void Layer::OnDetach() {}
 
+void Layer::OnPreUpdate(const TimeStep& time_step) {}
+
 void Layer::OnUpdate(const TimeStep& time_step) {}
+
+void Layer::OnPostUpdate(const TimeStep& time_step) {}
 
 void Layer::OnEvent() {}
 
+void Layer::OnPreUpdateUI(const TimeStep& time_step) {}
+
 void Layer::OnUpdateUI(const core::TimeStep& time_step) {}
+
+void Layer::OnPostUpdateUI(const TimeStep& time_step) {}
 
 } // namespace sputnik::core

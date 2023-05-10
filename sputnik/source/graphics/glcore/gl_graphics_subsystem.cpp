@@ -14,9 +14,11 @@ namespace sputnik::graphics::glcore
 
 GlGraphicsSubsystem::GlGraphicsSubsystem()
 {
-    m_window   = std::make_unique<window::Window>();
-    m_context  = std::make_unique<GlContext>(m_window->GetNativeWindow());
-    m_ui_layer = std::make_shared<GlUiLayer>(m_window->GetNativeWindow());
+    m_window                = std::make_unique<window::Window>();
+    m_context               = std::make_unique<GlContext>(m_window->GetNativeWindow());
+    m_ui_layer              = std::make_shared<GlUiLayer>(m_window->GetNativeWindow());
+
+    // TODO:: GLobal VAO - only temporary
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
     main::Application::GetInstance()->PushOverlay(m_ui_layer);
@@ -24,6 +26,7 @@ GlGraphicsSubsystem::GlGraphicsSubsystem()
 
 GlGraphicsSubsystem::~GlGraphicsSubsystem()
 {
+    // TODO:: GLobal VAO - only temporary
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &m_vao);
 }
@@ -33,9 +36,20 @@ void GlGraphicsSubsystem::Update(const sputnik::core::TimeStep& time_step)
     m_ui_layer->Begin();
     sputnik::core::LayerStack& layer_stack = main::Application::GetInstance()->GetApplicationLayerStack();
     // Todo:: layer stack to have const iterator
+
+    for(const std::shared_ptr<sputnik::core::Layer>& layer : layer_stack)
+    {
+        layer->OnPreUpdateUI(time_step);
+    }
+
     for(const std::shared_ptr<sputnik::core::Layer>& layer : layer_stack)
     {
         layer->OnUpdateUI(time_step);
+    }
+
+    for(const std::shared_ptr<sputnik::core::Layer>& layer : layer_stack)
+    {
+        layer->OnPostUpdateUI(time_step);
     }
     m_ui_layer->End();
 

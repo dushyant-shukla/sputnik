@@ -34,6 +34,11 @@ public:
     void End();
 
 private:
+
+    void BeginDockspace();
+    void EndDockspace();
+
+private:
     GLFWwindow*       m_window;
     SystemInformation m_system_information;
 };
