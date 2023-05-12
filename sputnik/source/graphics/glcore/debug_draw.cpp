@@ -30,7 +30,7 @@ sputnik::graphics::glcore::DebugDraw::DebugDraw()
         void main()
         {
             FragColor = vec4(color, 1);
-            FragColor = position_color;
+            //FragColor = position_color;
         }
     )";
 

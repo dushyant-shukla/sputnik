@@ -3,7 +3,7 @@
 #include "core/layers/layer.h"
 #include "graphics/glcore/gl_frame_buffer.h"
 
-#include <vector2.h>
+#include <memory>
 
 namespace sputnik::graphics
 {
@@ -31,12 +31,16 @@ public:
     virtual void OnEvent();
 
 private:
+
+    bool ShouldResizeFrameBuffer();
+
+private:
     // private data
     unsigned int                         m_window_width{0};
     unsigned int                         m_window_height{0};
-    ramanujan::Vector2                   m_viewport_size{0.0f};
+    std::pair<float, float>              m_viewport_size{0.0f, 0.0f};
+    std::pair<float, float>              m_viewport_bounds[2];
     std::shared_ptr<glcore::FrameBuffer> m_framebuffer;
-    glcore::FrameBufferSpecification     m_framebuffer_spec;
 };
 
 } // namespace sputnik::graphics

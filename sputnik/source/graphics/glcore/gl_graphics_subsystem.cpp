@@ -4,7 +4,7 @@
 #include "graphics/glcore/gl_context.h"
 #include "gl_ui_layer.h"
 #include "main/application.h"
-#include "editor/editor_camera.h"
+#include "editor/editor_viewport_canvas.h"
 
 #include <glad/glad.h>
 #include <imgui.h>
@@ -22,6 +22,7 @@ GlGraphicsSubsystem::GlGraphicsSubsystem()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
     main::Application::GetInstance()->PushOverlay(m_ui_layer);
+    main::Application::GetInstance()->PushOverlay(std::make_shared<sputnik::graphics::EditorViewPortCanvas>(m_window->GetWidth(), m_window->GetHeight()));
 }
 
 GlGraphicsSubsystem::~GlGraphicsSubsystem()
@@ -55,9 +56,6 @@ void GlGraphicsSubsystem::Update(const sputnik::core::TimeStep& time_step)
 
     m_window->OnUpdate(time_step);
     m_context->SwapBuffers();
-
-    // TODO: This should be handled by EditorLayer::OnUpdate()
-    graphics::api::EditorCamera::GetInstance()->Update(time_step);
 }
 
 void GlGraphicsSubsystem::Clear() const

@@ -35,6 +35,8 @@ public:
 
 private:
 
+    void RenderMenuBar();
+
     void BeginDockspace();
     void EndDockspace();
 

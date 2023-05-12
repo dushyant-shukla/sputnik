@@ -40,7 +40,6 @@ private:
     CCDSolver                                             m_solver;
     std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_ccd_lines;
     std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_ccd_points;
-    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_target_visual[3]; // debug visual for x,y,z axes
 
     float m_camera_pitch;
     float m_camera_yaw;

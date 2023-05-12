@@ -45,10 +45,6 @@ void IkCcdDemo::OnAttach()
     m_ccd_lines  = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
     m_ccd_points = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
 
-    m_target_visual[0] = std::make_shared<sputnik::graphics::glcore::DebugDraw>(2);
-    m_target_visual[1] = std::make_shared<sputnik::graphics::glcore::DebugDraw>(2);
-    m_target_visual[2] = std::make_shared<sputnik::graphics::glcore::DebugDraw>(2);
-
     glPointSize(15.0f);
     glLineWidth(5.0f);
 }
@@ -60,6 +56,10 @@ void IkCcdDemo::OnUpdate(const core::TimeStep& time_step)
 {
     m_solver.Solve(m_target);
 
+    //m_projection = graphics::api::EditorCamera::GetInstance()->GetCameraPerspective();
+    //m_view       = graphics::api::EditorCamera::GetInstance()->GetCameraView();
+    //m_mvp        = m_projection * m_view;
+
     glDisable(GL_DEPTH_TEST);
 
     m_ccd_lines->LinesFromIKSolver(m_solver);
@@ -69,19 +69,6 @@ void IkCcdDemo::OnUpdate(const core::TimeStep& time_step)
     m_ccd_lines->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, {1.0f, 0.0f, 1.0f}, m_mvp);
     m_ccd_points->Draw(sputnik::graphics::glcore::DebugDrawMode::Points, {1.0f, 1.0f, 0.0f}, m_mvp);
 
-    (*m_target_visual[0])[0] = m_target.position + Vector3(constants::GIZMO_SIZE, 0, 0);
-    (*m_target_visual[1])[0] = m_target.position + Vector3(0, constants::GIZMO_SIZE, 0);
-    (*m_target_visual[2])[0] = m_target.position + Vector3(0, 0, constants::GIZMO_SIZE);
-    (*m_target_visual[0])[1] = m_target.position - Vector3(constants::GIZMO_SIZE, 0, 0);
-    (*m_target_visual[1])[1] = m_target.position - Vector3(0, constants::GIZMO_SIZE, 0);
-    (*m_target_visual[2])[1] = m_target.position - Vector3(0, 0, constants::GIZMO_SIZE);
-    m_target_visual[0]->UpdateOpenGLBuffers();
-    m_target_visual[1]->UpdateOpenGLBuffers();
-    m_target_visual[2]->UpdateOpenGLBuffers();
-    m_target_visual[0]->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, Vector3(1, 0, 0), m_mvp);
-    m_target_visual[1]->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, Vector3(0, 1, 0), m_mvp);
-    m_target_visual[2]->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, Vector3(0, 0, 1), m_mvp);
-
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -89,19 +76,20 @@ void IkCcdDemo::OnEvent() {}
 
 void IkCcdDemo::OnUpdateUI(const core::TimeStep& time_step)
 {
-    //ImGuizmo::SetOrthographic(false);
-    //ImGuizmo::SetDrawlist();
-
-    //ImGuiIO& io = ImGui::GetIO();
-    //ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
-    //ImGuizmo::Manipulate(&(m_view.v[0]),
-    //                     &(m_projection.v[0]),
-    //                     ImGuizmo::OPERATION::TRANSLATE,
-    //                     ImGuizmo::MODE::LOCAL,
-    //                     &(ToMatrix4(m_target).v[0]),
-    //                     nullptr,
-    //                     nullptr);
+    //ramanujan::Matrix4 projection       = graphics::api::EditorCamera::GetInstance()->GetCameraPerspective();
+    //ramanujan::Matrix4 view           = graphics::api::EditorCamera::GetInstance()->GetCameraView();
+    ramanujan::Matrix4 target_transform = ToMatrix4(m_target);
+    ImGuizmo::Manipulate(&(m_view.v[0]),
+                         &(m_projection.v[0]),
+                         ImGuizmo::OPERATION::TRANSLATE,
+                         ImGuizmo::MODE::LOCAL,
+                         &(target_transform.v[0]),
+                         nullptr,
+                         nullptr);
+    if(ImGuizmo::IsUsing())
+    {
+        m_target = ToTransform(target_transform);
+    }
 
     if(ImGui::Begin("Inverse Kinematics(CCD)"))
     {
