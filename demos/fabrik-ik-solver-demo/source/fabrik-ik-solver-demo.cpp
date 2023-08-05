@@ -1,4 +1,4 @@
-#include "ik_ccd_solver.h"
+#include "fabrik-ik-solver-demo.h"
 
 #include <graphics/glcore/uniform.h>
 #include <graphics/glcore/renderer.h>
@@ -14,9 +14,9 @@
 namespace sputnik::demos
 {
 
-IkCcdDemo::IkCcdDemo(const std::string& name)
+FabrikIKDemo::FabrikIKDemo(const std::string& name)
     : core::Layer(name)
-    , m_camera_distance(15.0f)
+    , m_camera_distance(7.0f)
     , m_camera_yaw(60.0f)
     , m_camera_pitch(45.0f)
     , m_projection(Perspective(60.0f, 1600.0f / 900.0f, 0.01f, 1000.0f))
@@ -29,16 +29,18 @@ IkCcdDemo::IkCcdDemo(const std::string& name)
     m_mvp  = m_projection * m_view;
 }
 
-IkCcdDemo::~IkCcdDemo() {}
+FabrikIKDemo::~FabrikIKDemo() {}
 
-void IkCcdDemo::OnAttach()
+void FabrikIKDemo::OnAttach()
 {
-    m_solver.Resize(5);
+    m_solver.Resize(6);
     m_solver[0].rotation = AngleAxis(90.0f * constants::DEG_TO_RAD, {1.0f, 0.0f, 0.0f});
     m_solver[1].position = {0.0f, 0.0f, 1.0f};
     m_solver[2].position = {0.0f, 0.0f, 1.5f};
-    m_solver[3].position = {1.0f, 0.0f, 0.0f};
-    m_solver[4].position = {2.0f, 0.0f, 0.0f};
+    m_solver[3].position = {0.0f, 0.0f, 0.5f};
+    m_solver[3].rotation = AngleAxis(90.0f * constants::DEG_TO_RAD, {0.0f, 1.0f, 0.0f});
+    m_solver[4].position = {0.0f, 0.0f, 0.5f};
+    m_solver[5].position = {0.0f, 0.0f, 0.5f};
 
     m_target.position = {1.0f, -2.0f, 0.0f};
 
@@ -50,15 +52,11 @@ void IkCcdDemo::OnAttach()
 }
 
 // Todo: On Detach must be called at system cleanup before shutdown
-void IkCcdDemo::OnDetach() {}
+void FabrikIKDemo::OnDetach() {}
 
-void IkCcdDemo::OnUpdate(const core::TimeStep& time_step)
+void FabrikIKDemo::OnUpdate(const core::TimeStep& time_step)
 {
     m_solver.Solve(m_target);
-
-    //m_projection = graphics::api::EditorCamera::GetInstance()->GetCameraPerspective();
-    //m_view       = graphics::api::EditorCamera::GetInstance()->GetCameraView();
-    //m_mvp        = m_projection * m_view;
 
     glDisable(GL_DEPTH_TEST);
 
@@ -72,12 +70,10 @@ void IkCcdDemo::OnUpdate(const core::TimeStep& time_step)
     glEnable(GL_DEPTH_TEST);
 }
 
-void IkCcdDemo::OnEvent() {}
+void FabrikIKDemo::OnEvent() {}
 
-void IkCcdDemo::OnUpdateUI(const core::TimeStep& time_step)
+void FabrikIKDemo::OnUpdateUI(const core::TimeStep& time_step)
 {
-    //ramanujan::Matrix4 projection       = graphics::api::EditorCamera::GetInstance()->GetCameraPerspective();
-    //ramanujan::Matrix4 view           = graphics::api::EditorCamera::GetInstance()->GetCameraView();
     ImGuizmo::SetGizmoSizeClipSpace(0.075f);
     ramanujan::Matrix4 target_transform = ToMatrix4(m_target);
     ImGuizmo::Manipulate(&(m_view.v[0]),

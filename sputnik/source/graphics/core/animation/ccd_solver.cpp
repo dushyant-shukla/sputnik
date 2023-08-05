@@ -65,7 +65,7 @@ bool CCDSolver::Solve(const Transform& target)
     }
 
     unsigned int last         = size - 1;
-    double        threshold_sq = m_threshold * m_threshold;
+    double       threshold_sq = m_threshold * m_threshold;
 
     for(unsigned int i = 0; i < m_num_steps; ++i)
     {
@@ -105,8 +105,13 @@ bool CCDSolver::Solve(const Transform& target)
             // update the joint orientation in world space
             Quaternion updated_world_orientation = joint_world_transform.rotation * end_effector_to_target_rotation;
 
-            // rotate the world space orientation of the joint by the inverse of the joint's previous world rotation to
-            // move the quaternion back into the joint space (local space)
+            // Rotate the world space orientation of the joint by the inverse of the joint's previous world rotation to
+            // move the quaternion back into the joint space (local space).
+            // Think of this calculation as following:
+            // 1# updated rotation in world space = updated_rotation_delta_in_local_space *
+            // updated_rotation_delta_in_world_space
+            // 2# inverse of the joint's previous world space orientation cancels
+            // out the updated rotation in world space, leaving only the local rotation delta
             Quaternion local_rotate          = updated_world_orientation * Inverse(joint_world_transform.rotation);
             m_ik_chain[joint_index].rotation = local_rotate * m_ik_chain[joint_index].rotation;
 

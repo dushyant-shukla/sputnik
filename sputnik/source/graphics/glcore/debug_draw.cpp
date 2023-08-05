@@ -152,6 +152,34 @@ void sputnik::graphics::glcore::DebugDraw::PointsFromIKSolver(CCDSolver& solver)
     }
 }
 
+void sputnik::graphics::glcore::DebugDraw::LinesFromIKSolver(FabrikSolver& solver)
+{
+    if(solver.Size() < 2)
+    {
+        return;
+    }
+    unsigned int requiredVerts = (solver.Size() - 1) * 2;
+    m_points.resize(requiredVerts);
+
+    unsigned int index = 0;
+    for(unsigned int i = 0, size = solver.Size(); i < size - 1; ++i)
+    {
+        m_points[index++] = solver.GetGlobalTransform(i).position;
+        m_points[index++] = solver.GetGlobalTransform(i + 1).position;
+    }
+}
+
+void sputnik::graphics::glcore::DebugDraw::PointsFromIKSolver(FabrikSolver& solver)
+{
+    unsigned int requiredVerts = solver.Size();
+    m_points.resize(requiredVerts);
+
+    for(unsigned int i = 0, size = solver.Size(); i < size; ++i)
+    {
+        m_points[i] = solver.GetGlobalTransform(i).position;
+    }
+}
+
 void sputnik::graphics::glcore::DebugDraw::UpdateOpenGLBuffers()
 {
     m_vertex_attributes->Set(m_points);

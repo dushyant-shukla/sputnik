@@ -6,6 +6,7 @@
 #include "graphics/glcore/vertex_attribute.h"
 #include "graphics/glcore/shader.h"
 #include "graphics/core/animation/ccd_solver.h"
+#include "graphics/core/animation/fabrik_solver.h"
 
 #include <vector3.h>
 #include <matrix4.h>
@@ -42,6 +43,8 @@ public:
     void FromPose(const Pose& pose);
     void LinesFromIKSolver(CCDSolver& solver);
     void PointsFromIKSolver(CCDSolver& solver);
+    void LinesFromIKSolver(FabrikSolver& solver);
+    void PointsFromIKSolver(FabrikSolver& solver);
 
     void UpdateOpenGLBuffers();
     void Draw(DebugDrawMode mode, const Vector3& color, const Matrix4& mvp);
