@@ -22,9 +22,9 @@ FabrikIKDemo::FabrikIKDemo(const std::string& name)
     , m_projection(Perspective(60.0f, 1600.0f / 900.0f, 0.01f, 1000.0f))
 {
     m_camera_position = Vector3(
-        m_camera_distance * cosf(m_camera_yaw * constants::DEG_TO_RAD) * sinf(m_camera_pitch * constants::DEG_TO_RAD),
-        m_camera_distance * cosf(m_camera_pitch * constants::DEG_TO_RAD),
-        m_camera_distance * sinf(m_camera_yaw * constants::DEG_TO_RAD) * sinf(m_camera_pitch * constants::DEG_TO_RAD));
+        m_camera_distance * cosf(m_camera_yaw * Constants::DEG_TO_RAD) * sinf(m_camera_pitch * Constants::DEG_TO_RAD),
+        m_camera_distance * cosf(m_camera_pitch * Constants::DEG_TO_RAD),
+        m_camera_distance * sinf(m_camera_yaw * Constants::DEG_TO_RAD) * sinf(m_camera_pitch * Constants::DEG_TO_RAD));
     m_view = LookAt(m_camera_position, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
     m_mvp  = m_projection * m_view;
 }
@@ -34,11 +34,11 @@ FabrikIKDemo::~FabrikIKDemo() {}
 void FabrikIKDemo::OnAttach()
 {
     m_solver.Resize(6);
-    m_solver[0].rotation = AngleAxis(90.0f * constants::DEG_TO_RAD, {1.0f, 0.0f, 0.0f});
+    m_solver[0].rotation = AngleAxis(90.0f * Constants::DEG_TO_RAD, {1.0f, 0.0f, 0.0f});
     m_solver[1].position = {0.0f, 0.0f, 1.0f};
     m_solver[2].position = {0.0f, 0.0f, 1.5f};
     m_solver[3].position = {0.0f, 0.0f, 0.5f};
-    m_solver[3].rotation = AngleAxis(90.0f * constants::DEG_TO_RAD, {0.0f, 1.0f, 0.0f});
+    m_solver[3].rotation = AngleAxis(90.0f * Constants::DEG_TO_RAD, {0.0f, 1.0f, 0.0f});
     m_solver[4].position = {0.0f, 0.0f, 0.5f};
     m_solver[5].position = {0.0f, 0.0f, 0.5f};
 

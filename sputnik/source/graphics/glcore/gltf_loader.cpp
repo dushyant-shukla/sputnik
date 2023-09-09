@@ -196,7 +196,7 @@ void MeshFromAttribute(sputnik::graphics::core::Mesh& out_mesh,
         case cgltf_attribute_type_normal:
         {
             ramanujan::Vector3 normal = ramanujan::Vector3(values[index + 0], values[index + 1], values[index + 2]);
-            if(ramanujan::LengthSq(normal) < ramanujan::constants::EPSILON)
+            if(ramanujan::LengthSq(normal) < ramanujan::Constants::EPSILON)
             {
                 normal = ramanujan::Vector3(0.0f, 0.0f, 1.0f);
             }
