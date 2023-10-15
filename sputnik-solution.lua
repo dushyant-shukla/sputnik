@@ -67,11 +67,17 @@ group ""
 include "engine/engine-project.lua"
 
 -- include the demo projects
-group "demos"
 -- include "demos/sandbox/sandbox.lua"
 -- include "demos/curve-plotting/curve-plotting.lua"
 -- include "demos/animation-poses/animation-poses.lua"
+
+group "animation-demos"
 include "demos/vertex-skinning/vertex-skinning.lua"
 include "demos/ik-ccd-solver/ik-ccd-solver.lua"
 include "demos/fabrik-ik-solver-demo/fabrik-ik-solver-demo.lua"
 group ""
+
+group "physics-demos"
+include "demos/physics/particles/basic/basic-particles.lua"
+group ""
+
