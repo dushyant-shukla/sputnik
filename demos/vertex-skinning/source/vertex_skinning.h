@@ -33,6 +33,7 @@ public:
 
 private:
     std::shared_ptr<sputnik::graphics::glcore::Texture> m_diffuse_texture;
+    std::shared_ptr<sputnik::graphics::glcore::Texture> m_static_mesh_texture;
 
     sputnik::graphics::core::SkinningType              m_skinning_type;
     std::shared_ptr<sputnik::graphics::glcore::Shader> m_static_shader;
@@ -48,6 +49,8 @@ private:
     sputnik::graphics::core::Skeleton m_skeleton;
     sputnik::graphics::core::Pose     m_rest_pose;
     sputnik::graphics::core::Pose     m_current_pose;
+
+    std::vector<sputnik::graphics::core::Mesh> m_static_meshes;
 
     bool m_show_rest_pose;
     bool m_show_current_pose;
@@ -74,41 +77,6 @@ public:
     }
 
     ~VertexSkinning() {}
-
-    // virtual void Initialize() override;
-    // virtual void Update(float delta_time) override;
-    // virtual void Render(float aspect_ratio) override;
-    // virtual void Shutdown() override;
-
-    // private:
-    //     std::shared_ptr<sputnik::glcore::Texture> m_diffuse_texture;
-    //
-    //     sputnik::api::animation::SkinningType    m_skinning_type;
-    //     std::shared_ptr<sputnik::glcore::Shader> m_static_shader;
-    //     std::shared_ptr<sputnik::glcore::Shader> m_skinning_shader;
-    //
-    //     std::shared_ptr<sputnik::glcore::DebugDraw> m_rest_pose_visual;
-    //     std::shared_ptr<sputnik::glcore::DebugDraw> m_bind_pose_visual;
-    //     std::shared_ptr<sputnik::glcore::DebugDraw> m_current_pose_visual;
-    //
-    //     std::vector<sputnik::api::Mesh> m_meshes;
-    //     std::vector<ramanujan::Matrix4> m_pose_palette;
-    //
-    //     sputnik::api::animation::Skeleton m_skeleton;
-    //     sputnik::api::animation::Pose     m_current_pose;
-    //
-    //     bool m_show_rest_pose;
-    //     bool m_show_current_pose;
-    //     bool m_show_bind_pose;
-    //
-    //     std::vector<sputnik::api::animation::AnimationClip> m_clips;
-    //     int                                                 m_current_clip;
-    //     float                                               m_playback_time;
-    //     std::string                                         m_clip_types_str;
-    //
-    //     // GUI stuff
-    //     int         m_skinning_type_index;
-    //     std::string m_skinnig_types_str;
 };
 
 } // namespace sputnik::demos

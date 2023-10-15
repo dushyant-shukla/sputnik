@@ -142,9 +142,9 @@ void CreateTrackFromChannel(Track<T, N>& result, const cgltf_animation_channel& 
 // Todo:: Validate if vertices are loaded in bind pose.
 void MeshFromAttribute(sputnik::graphics::core::Mesh& out_mesh,
                        cgltf_attribute&               attribute,
-                       Skin*                          skin,
-                       Node*                          nodes,
-                       size_t                         node_count)
+                       Skin*                          skin = nullptr,
+                       Node*                          nodes = nullptr,
+                       size_t                         node_count = 0)
 {
     cgltf_attribute_type attrib_type = attribute.type;
     cgltf_accessor&      accessor    = *attribute.data;
@@ -466,7 +466,8 @@ std::vector<sputnik::graphics::core::Mesh> GltfLoader::LoadMeshes(Data* data)
     for(size_t i = 0; i < node_count; ++i)
     {
         Node* node = &nodes[i];
-        if(node->mesh == 0 || node->skin == 0)
+        //if(node->mesh == 0 || node->skin == 0)
+        if(node->mesh == 0)
         {
             continue;
         }
@@ -494,6 +495,111 @@ std::vector<sputnik::graphics::core::Mesh> GltfLoader::LoadMeshes(Data* data)
                 indices.resize(ic);
 
                 for(size_t k = 0; k < ic; ++k)
+                {
+                    indices[k] = (unsigned int)cgltf_accessor_read_index(primitive->indices, k);
+                }
+            }
+
+            mesh.ResetOpenglBuffersToBindPose();
+        }
+    }
+
+    return result;
+}
+
+void StaticMeshFromAttribute(Mesh& outMesh, cgltf_attribute& attribute)
+{
+    cgltf_attribute_type attribType = attribute.type;
+    cgltf_accessor&      accessor   = *attribute.data;
+
+    unsigned int componentCount = 0;
+    if(accessor.type == cgltf_type_vec2)
+    {
+        componentCount = 2;
+    }
+    else if(accessor.type == cgltf_type_vec3)
+    {
+        componentCount = 3;
+    }
+    else if(accessor.type == cgltf_type_vec4)
+    {
+        componentCount = 4;
+    }
+    else
+    {
+        std::cout << "Unknown data type\n";
+        return;
+    }
+
+    std::vector<float> values;
+    helper::GetScalarValues(values, componentCount, accessor);
+    unsigned int acessorCount = (unsigned int)accessor.count;
+
+    std::vector<ramanujan::Vector3>& positions = outMesh.GetPosition();
+    std::vector<ramanujan::Vector3>& normals   = outMesh.GetNormal();
+    std::vector<ramanujan::Vector2>& texCoords = outMesh.GetTexCoord();
+
+    for(unsigned int i = 0; i < acessorCount; ++i)
+    {
+        int index = i * componentCount;
+        switch(attribType)
+        {
+        case cgltf_attribute_type_position:
+            positions.push_back(ramanujan::Vector3(values[index + 0], values[index + 1], values[index + 2]));
+            break;
+        case cgltf_attribute_type_normal:
+        {
+            ramanujan::Vector3 normal = ramanujan::Vector3(values[index + 0], values[index + 1], values[index + 2]);
+            if(ramanujan::LengthSq(normal) < 0.000001f)
+            {
+                normal = ramanujan::Vector3(0, 1, 0);
+            }
+            normals.push_back(ramanujan::Normalized(normal));
+        }
+        break;
+        case cgltf_attribute_type_texcoord:
+            texCoords.push_back(ramanujan::Vector2(values[index + 0], values[index + 1]));
+            break;
+        }
+    }
+}
+
+std::vector<sputnik::graphics::core::Mesh> GltfLoader::LoadStaticMeshes(cgltf_data* data)
+{
+    std::vector<sputnik::graphics::core::Mesh> result;
+    cgltf_node*       nodes     = data->nodes;
+    unsigned int      nodeCount = (unsigned int)data->nodes_count;
+
+    for(unsigned int i = 0; i < nodeCount; ++i)
+    {
+        cgltf_node* node = &nodes[i];
+        if(node->mesh == 0)
+        {
+            continue;
+        }
+
+        unsigned int numPrims = (unsigned int)node->mesh->primitives_count;
+        for(unsigned int j = 0; j < numPrims; ++j)
+        {
+            result.push_back(sputnik::graphics::core::Mesh());
+            sputnik::graphics::core::Mesh& mesh = result[result.size() - 1];
+
+            cgltf_primitive* primitive = &node->mesh->primitives[j];
+
+            unsigned int numAttributes = (unsigned int)primitive->attributes_count;
+            for(unsigned int k = 0; k < numAttributes; ++k)
+            {
+                cgltf_attribute* attribute = &primitive->attributes[k];
+                StaticMeshFromAttribute(mesh, *attribute);
+            }
+
+            if(primitive->indices != 0)
+            {
+                unsigned int               indexCount = (unsigned int)primitive->indices->count;
+                std::vector<unsigned int>& indices    = mesh.GetIndices();
+                indices.resize(indexCount);
+
+                for(unsigned int k = 0; k < indexCount; ++k)
                 {
                     indices[k] = (unsigned int)cgltf_accessor_read_index(primitive->indices, k);
                 }

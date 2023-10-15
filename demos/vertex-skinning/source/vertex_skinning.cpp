@@ -45,23 +45,26 @@ void VertexSkinningDemo::OnAttach()
     m_skinning_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/skinned.vert",
                                                                             "../../data/shaders/simple.frag");
 
+    // m_static_shader =
+    //     std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/zero-lighting/simple.vert",
+    //                                                         "../../data/shaders/zero-lighting/simple.frag");
+    // m_skinning_shader =
+    //     std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/zero-lighting/skinned.vert",
+    //                                                         "../../data/shaders/zero-lighting/simple.frag");
+
     cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Woman.gltf");
     m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/Woman.png");
-
-    // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/CesiumMan/CesiumMan.gltf");
-    // m_diffuse_texture =
-    // std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/CesiumMan/CesiumMan_img0.jpg");
 
     // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/Fox/Fox.gltf");
     // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/Fox/Texture.png");
 
-     //cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
-     //m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
-     //    "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
+    // cgltf_data* gltf  = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/nathan/scene.gltf");
+    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
+    //     "../../data/assets/nathan/textures/rp_nathan_animated_003_mat_baseColor.jpeg");
 
-     //cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
-     //m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
-     //   "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
+    // cgltf_data* gltf = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/spiderman/scene.gltf");
+    // m_diffuse_texture = std::make_shared<sputnik::graphics::glcore::Texture>(
+    //    "../../data/assets/spiderman/textures/RootNode_baseColor.jpeg");
 
     m_skeleton = sputnik::gltf::GltfLoader::LoadSkeleton(gltf);
     m_meshes   = sputnik::gltf::GltfLoader::LoadMeshes(gltf);
@@ -101,6 +104,16 @@ void VertexSkinningDemo::OnAttach()
     m_current_pose_visual = std::make_shared<sputnik::graphics::glcore::DebugDraw>();
     m_current_pose_visual->FromPose(m_current_pose);
     m_current_pose_visual->UpdateOpenGLBuffers();
+
+    // sputnik::gltf::GltfLoader::FreeFile(gltf);
+
+    cgltf_data* gltf_static_mesh = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/sphere.gltf");
+    m_static_mesh_texture        = std::make_shared<sputnik::graphics::glcore::Texture>("../../data/assets/dq.png");
+    // cgltf_data* gltf_static_mesh = sputnik::gltf::GltfLoader::LoadFile("../../data/assets/IKCourse.gltf");
+    m_static_meshes = sputnik::gltf::GltfLoader::LoadMeshes(gltf_static_mesh);
+
+    // const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
+    // editor_camera->SetPosition({0.0f});
 
     glPointSize(5.0f);
     glLineWidth(1.5f);
@@ -181,16 +194,15 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
 
 #endif // 0
 
-    // ramanujan::Matrix4 model      = ramanujan::ToMatrix4(ramanujan::AngleAxis(135.0f, {0.0f, 1.0f, 0.0f}));
+    // ramanujan::Matrix4 model = ramanujan::ToMatrix4(ramanujan::AngleAxis(135.0f, {0.0f, 1.0f, 0.0f}));
     ramanujan::Matrix4 model;
-    // ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, aspect_ratio, 0.01f, 1000.0f);
-    ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
-    ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
-    // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); //
-    // woman
 
-    // ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f,
-    // 0.0f}); // spiderman + nathan
+    ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
+
+    ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
+
+    // ramanujan::Matrix4 view =
+    //     ramanujan::LookAt({0.0f, 20.0f, -350.0f}, {0.0f, 20.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // spiderman + nathan
 
     const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
     projection                = editor_camera->GetCameraPerspective();
@@ -243,8 +255,40 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
                            weights,
                            influences);
     }
+
     m_diffuse_texture->Unset(0);
     active_shader->Unbind();
+
+    // render static meshes
+    {
+        //m_static_shader->Bind();
+        //ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {1.0f});
+        //model = ramanujan::ToMatrix4(transform);
+        //sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("model"), model);
+        //sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("view"), view);
+        //sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("projection"),
+        //                                                            projection);
+        //sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(m_static_shader->GetUniform("light"),
+        //                                                            {0.0f, 5.0f, -10.0f});
+        //m_static_mesh_texture->Set(active_shader->GetUniform("diffuse"), 0);
+        //for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+        //{
+        //    m_static_meshes[i].Bind(m_static_shader->GetAttribute("position"),
+        //                            m_static_shader->GetAttribute("normal"),
+        //                            m_static_shader->GetAttribute("uv"),
+        //                            -1,
+        //                            -1);
+        //    m_static_meshes[i].Draw();
+        //    m_static_meshes[i].Unbind(m_static_shader->GetAttribute("position"),
+        //                              m_static_shader->GetAttribute("normal"),
+        //                              m_static_shader->GetAttribute("uv"),
+        //                              -1,
+        //                              -1);
+        //}
+        //m_static_mesh_texture->Unset(0);
+        //m_static_shader->Unbind();
+    }
+    // end render static meshes
 
     glDisable(GL_DEPTH_TEST);
     if(m_show_rest_pose && m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)

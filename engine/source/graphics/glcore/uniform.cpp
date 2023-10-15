@@ -26,7 +26,10 @@ template Uniform<ramanujan::Matrix4>;
     template <>                                                                      \
     void Uniform<t_type>::Set(unsigned int slot, t_type* values, unsigned int count) \
     {                                                                                \
-        gl_function(slot, (GLsizei)count, (d_type*)&values[0]);                      \
+        if(slot >= 0)                                                                \
+        {                                                                            \
+            gl_function(slot, (GLsizei)count, (d_type*)&values[0]);                  \
+        }                                                                            \
     }
 
 UNIFORM_IMPL(glUniform1iv, int, int)
@@ -41,19 +44,28 @@ UNIFORM_IMPL(glUniform4fv, ramanujan::Quaternion, float)
 template <typename T>
 void Uniform<T>::Set(unsigned int slot, const T& value)
 {
-    Set(slot, (T*)&value, 1);
+    if(slot >= 0)
+    {
+        Set(slot, (T*)&value, 1);
+    }
 }
 
 template <typename T>
 void Uniform<T>::Set(unsigned int slot, std::vector<T>& values)
 {
-    Set(slot, &values[0], (unsigned int)values.size());
+    if(slot >= 0)
+    {
+        Set(slot, &values[0], (unsigned int)values.size());
+    }
 }
 
 template <>
 void Uniform<ramanujan::Matrix4>::Set(unsigned int slot, ramanujan::Matrix4* values, unsigned int count)
 {
-    glUniformMatrix4fv(slot, (GLsizei)count, false, (float*)&values[0]);
+    if(slot >= 0)
+    {
+        glUniformMatrix4fv(slot, (GLsizei)count, false, (float*)&values[0]);
+    }
 }
 
 } // namespace sputnik::graphics::glcore

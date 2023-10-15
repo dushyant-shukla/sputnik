@@ -43,6 +43,7 @@ unsigned int Shader::GetAttribute(const std::string name)
     if(itr == m_attributes.end())
     {
         std::cout << "Bad attribute index: " << name << "\n";
+        return -1;
     }
     return itr->second;
 }
@@ -53,6 +54,7 @@ unsigned int Shader::GetUniform(const std::string name)
     if(itr == m_uniforms.end())
     {
         std::cout << "Bad uniform index: " << name << "\n";
+        return -1;
     }
     return itr->second;
 }

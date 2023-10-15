@@ -19,10 +19,10 @@ class GltfLoader
 {
 
 public:
-    NON_INSTATIABLE(GltfLoader);
+    NON_INSTATIABLE(GltfLoader)
 
     static Data*                                      LoadFile(const char* path);
-    static void                                       FreeFile(cgltf_data* data);
+    static void                                       FreeFile(Data* data);
     static std::vector<std::string>                   LoadJointNanes(Data* data);
     static sputnik::graphics::core::Pose              LoadRestPose(Data* data);
     static void                                       LoadAnimationClips(Data*                                                data,
@@ -30,6 +30,7 @@ public:
     static sputnik::graphics::core::Pose              LoadBindPose(Data* data);
     static sputnik::graphics::core::Skeleton          LoadSkeleton(Data* data);
     static std::vector<sputnik::graphics::core::Mesh> LoadMeshes(Data* data);
+    static std::vector<sputnik::graphics::core::Mesh> LoadStaticMeshes(cgltf_data* data);
 };
 
 } // namespace sputnik::gltf
