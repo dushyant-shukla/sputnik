@@ -34,7 +34,7 @@ if executeCommandSilent("git --version") != 0:
 #	exit(255)
 
 # run Tools/Bootstrap
-runPythonScript( os.path.join("sputnik", "bootstrap.py"), "-b sputnik" )
+runPythonScript( os.path.join("engine", "bootstrap.py"), "-b engine" )
 
 print( "" )
 print( "Bootstrapping done." )

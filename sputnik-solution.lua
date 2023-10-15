@@ -10,14 +10,14 @@ configurations
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 externals               = {}
-externals["glad"]       = "$(SolutionDir)sputnik/externals/glad"
-externals["stb_image"]  = "$(SolutionDir)sputnik/externals/stb_image"
-externals["cgltf"]      = "$(SolutionDir)sputnik/externals/cgltf"
-externals["ramanujan"]  = "$(SolutionDir)sputnik/externals/ramanujan"
-externals["imgui"]      = "$(SolutionDir)sputnik/externals/imgui"
-externals["spdlog"]     = "$(SolutionDir)sputnik/externals/spdlog"
-externals["imguizmo"]   = "$(SolutionDir)sputnik/externals/ImGuizmo"
-externals["glfw"]       = "$(SolutionDir)sputnik/externals/glfw"
+externals["glad"]       = "$(SolutionDir)engine/externals/glad"
+externals["stb_image"]  = "$(SolutionDir)engine/externals/stb_image"
+externals["cgltf"]      = "$(SolutionDir)engine/externals/cgltf"
+externals["ramanujan"]  = "$(SolutionDir)engine/externals/ramanujan"
+externals["imgui"]      = "$(SolutionDir)engine/externals/imgui"
+externals["spdlog"]     = "$(SolutionDir)engine/externals/spdlog"
+externals["imguizmo"]   = "$(SolutionDir)engine/externals/imguizmo"
+externals["glfw"]       = "$(SolutionDir)engine/externals/glfw"
 
 include_dir              = {}
 include_dir["glad"]      = "%{externals.glad}/include"
@@ -55,16 +55,16 @@ runtime "Release"
 
 -- include the dependencies
 group "dependencies"
-include "sputnik/externals/ramanujan/ramanujan-project.lua"
-include "sputnik/externals/imgui"
-include "sputnik/externals/glfw.lua"
-include "sputnik/externals/cgltf.lua"
-include "sputnik/externals/stb_image.lua"
-include "sputnik/externals/imguizmo.lua"
+include "engine/externals/ramanujan/ramanujan-project.lua"
+include "engine/externals/imgui"
+include "engine/externals/glfw.lua"
+include "engine/externals/cgltf.lua"
+include "engine/externals/stb_image.lua"
+include "engine/externals/imguizmo.lua"
 group ""
 
 -- include the renderer project
-include "sputnik/sputnik-project.lua"
+include "engine/engine-project.lua"
 
 -- include the demo projects
 group "demos"

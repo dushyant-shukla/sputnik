@@ -27,7 +27,7 @@ files
 
 externalincludedirs
 {
-  "$(SolutionDir)sputnik/source",
+  "$(SolutionDir)engine/source",
   "%{include_dir.ramanujan}",
 
   -- these imcludes should not be required here as we write a better abstraction over lower level libraries

@@ -1,12 +1,12 @@
-[submodule "sputnik/externals/ramanujan"]
-	path = sputnik/externals/ramanujan
+[submodule "engine/externals/ramanujan"]
+	path = engine/externals/ramanujan
 	url = git@github.com:dushyant-shukla/ramanujan.git
-[submodule "sputnik/externals/imgui"]
-	path = sputnik/externals/imgui
+[submodule "engine/externals/imgui"]
+	path = engine/externals/imgui
 	url = git@github.com:dushyant-shukla/imgui.git
-[submodule "sputnik/externals/spdlog"]
-	path = sputnik/externals/spdlog
+[submodule "engine/externals/spdlog"]
+	path = engine/externals/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "sputnik/externals/ImGuizmo"]
-	path = sputnik/externals/ImGuizmo
+[submodule "engine/externals/imguizmo"]
+	path = engine/externals/imguizmo
 	url = https://github.com/dushyant-shukla/ImGuizmo.git

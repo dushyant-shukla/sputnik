@@ -66,16 +66,16 @@ flags { "NoPCH" }
 -- filter "files:**.c"
 -- flags { "NoPCH" }
 
-filter "files:$(SolutionDir)sputnik/externals/stb_image/stb_image.cpp"
+filter "files:$(SolutionDir)engine/externals/stb_image/stb_image.cpp"
 flags { "NoPCH" }
 
-filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_glfw.cpp"
+filter "files:$(SolutionDir)engine/externals/imgui/backends/imgui_impl_glfw.cpp"
 flags { "NoPCH" }
 
-filter "files:$(SolutionDir)sputnik/externals/imgui/backends/imgui_impl_opengl3.cpp"
+filter "files:$(SolutionDir)engine/externals/imgui/backends/imgui_impl_opengl3.cpp"
 flags { "NoPCH" }
 
-filter "files:$(SolutionDir)sputnik/externals/ImGuizmo/ImGuizmo.cpp"
+filter "files:$(SolutionDir)engine/externals/imguizmo/ImGuizmo.cpp"
 flags { "NoPCH" }
 
 -- Do not expect pch for this file
