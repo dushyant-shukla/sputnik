@@ -22,9 +22,30 @@ BasicParticlesDemoLayer::~BasicParticlesDemoLayer() {}
 void BasicParticlesDemoLayer::OnAttach()
 {
     ramanujan::experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
+    std::cout << "Before updating: " << test_position << std::endl;
+
     test_position.x = 50.0f;
     test_position.y = 40.0f;
     test_position.z = 80.0f;
+    std::cout << "After updating: " << test_position << std::endl;
+
+    test_position.z = 160.0f;
+    std::cout << "After updating: " << test_position << std::endl;
+
+    ramanujan::experimental::vec3 test_position_1{25.0f};
+    std::cout << "Before updating: " << test_position_1 << std::endl;
+
+    test_position_1.y = 70.0f;
+    std::cout << "After updating: " << test_position_1 << std::endl;
+
+    test_position_1.z = 320.0f;
+    std::cout << "After updating: " << test_position_1 << std::endl;
+
+    ramanujan::experimental::color4 test_color{50.0f};
+    std::cout << "Before updating: " << test_color << std::endl;
+
+    test_color.r = 100.0f;
+    std::cout << "After updating: " << test_color << std::endl;
 
     m_static_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../../../data/shaders/simple.vert",
                                                                           "../../../../data/shaders/simple.frag");
@@ -33,8 +54,8 @@ void BasicParticlesDemoLayer::OnAttach()
     m_static_mesh_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../../../data/assets/dq.png");
     m_static_meshes       = sputnik::gltf::GltfLoader::LoadMeshes(gltf_static_mesh);
 
-     const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
-     editor_camera->SetPosition({0.0f, 0.0f, 10.0f});
+    const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
+    editor_camera->SetPosition({0.0f, 0.0f, 10.0f});
 
     glPointSize(5.0f);
     glLineWidth(1.5f);
