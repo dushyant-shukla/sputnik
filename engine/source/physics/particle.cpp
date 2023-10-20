@@ -3,7 +3,7 @@
 
 #include <assert.h>
 
-namespace sputnink::physics
+namespace sputnik::physics
 {
 
 void Particle::integrate(real duration) noexcept
@@ -88,7 +88,7 @@ void Particle::setPosition(const real& x, const real& y, const real& z) noexcept
 
 const vec3& Particle::getPosition() const noexcept
 {
-    return m_velocity;
+    return m_position;
 }
 
 void Particle::getPosition(vec3& position) const noexcept

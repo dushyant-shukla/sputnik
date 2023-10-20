@@ -2,7 +2,7 @@
 
 #include <vector.hpp>
 
-namespace sputnink::physics
+namespace sputnik::physics
 {
 
 using namespace ramanujan;

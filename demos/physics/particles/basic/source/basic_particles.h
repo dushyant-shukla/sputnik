@@ -13,6 +13,8 @@
 #include <core/layers/layer.h>
 #include <core/time_step.h>
 
+#include <physics/particle.h>
+
 #include <memory>
 #include <vector>
 
@@ -37,6 +39,9 @@ private:
     std::shared_ptr<sputnik::graphics::glcore::Shader> m_static_shader;
 
     std::vector<sputnik::graphics::core::Mesh> m_static_meshes;
+
+    sputnik::physics::Particle m_particle;
+    std::vector<sputnik::physics::Particle> m_particles;
 };
 
 class BasicParticlesDemo : public sputnik::main::Application
