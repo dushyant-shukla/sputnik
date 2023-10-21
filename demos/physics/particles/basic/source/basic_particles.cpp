@@ -15,6 +15,7 @@
 namespace sputnik::demos
 {
 
+using namespace ramanujan;
 using namespace ramanujan::experimental;
 
 BasicParticlesDemoLayer::BasicParticlesDemoLayer(const std::string& name) : core::Layer(name) {}
@@ -23,89 +24,97 @@ BasicParticlesDemoLayer::~BasicParticlesDemoLayer() {}
 
 void BasicParticlesDemoLayer::OnAttach()
 {
-     ramanujan::experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
+    ramanujan::experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
+    auto norm_res = test_position.normalized();
 
-     ramanujan::experimental::vec3 test_position_3{4.0f, 5.0f, 6.0f};
+    ramanujan::experimental::vec3 test_position_3{4.0f, 5.0f, 6.0f};
 
-     test_position += test_position_3;
-     test_position -= test_position_3;
-     test_position *= test_position_3;
-     test_position /= test_position_3;
+    test_position += test_position_3;
+    test_position -= test_position_3;
+    test_position *= test_position_3;
+    test_position /= test_position_3;
 
-     test_position += 2.0f;
-     test_position -= 2.0f;
-     test_position *= 2.0f;
-     test_position /= 2.0f;
+    test_position += 2.0f;
+    test_position -= 2.0f;
+    test_position *= 2.0f;
+    test_position /= 2.0f;
 
-     ramanujan::experimental::vec3 add_result = test_position + test_position_3;
-     ramanujan::experimental::vec3 sub_result = test_position - test_position_3;
-     ramanujan::experimental::vec3 mul_result = test_position * test_position_3;
-     ramanujan::experimental::vec3 div_result = test_position / test_position_3;
+    ramanujan::experimental::vec3 add_result = test_position + test_position_3;
+    ramanujan::experimental::vec3 sub_result = test_position - test_position_3;
+    ramanujan::experimental::vec3 mul_result = test_position * test_position_3;
+    ramanujan::experimental::vec3 div_result = test_position / test_position_3;
 
-     ramanujan::experimental::vec3 add_result_1 = test_position + 3.0f;
-     ramanujan::experimental::vec3 sub_result_1 = test_position - 3.0f;
-     ramanujan::experimental::vec3 mul_result_1 = test_position * 3.0f;
-     ramanujan::experimental::vec3 div_result_1 = test_position / 3.0f;
+    ramanujan::experimental::vec3 add_result_1 = test_position + 3.0f;
+    ramanujan::experimental::vec3 sub_result_1 = test_position - 3.0f;
+    ramanujan::experimental::vec3 mul_result_1 = test_position * 3.0f;
+    ramanujan::experimental::vec3 div_result_1 = test_position / 3.0f;
 
-     //ramanujan::experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
-     //ramanujan::experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
+    auto slerp_res = slerp(add_result, add_result_1, real(0.4));
+    auto lerp_res = lerp(add_result, add_result_1, real(0.4));
+    auto nlerp_res = nlerp(add_result, add_result_1, real(0.4));
+    auto bool_0    = add_result.isOrthogonal(add_result_1);
+    auto bool_1    = add_result.isParallel(add_result_1);
+    auto bool_2    = add_result.isZero();
 
-     //ramanujan::experimental::vec3 test_position_4 = test_position.cross(test_position_3);
+    // ramanujan::experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
+    // ramanujan::experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
 
-     //std::cout << "Before updating: " << test_position << std::endl;
+    // ramanujan::experimental::vec3 test_position_4 = test_position.cross(test_position_3);
 
-     //test_position.x = 50.0f;
-     //test_position.y = 40.0f;
-     //test_position.z = 80.0f;
-     //std::cout << "After updating: " << test_position << std::endl;
+    // std::cout << "Before updating: " << test_position << std::endl;
 
-     //test_position.z = 160.0f;
-     //std::cout << "After updating: " << test_position << std::endl;
+    // test_position.x = 50.0f;
+    // test_position.y = 40.0f;
+    // test_position.z = 80.0f;
+    // std::cout << "After updating: " << test_position << std::endl;
 
-     //ramanujan::experimental::vec3 test_position_1{25.0f};
-     //std::cout << "Before updating: " << test_position_1 << std::endl;
+    // test_position.z = 160.0f;
+    // std::cout << "After updating: " << test_position << std::endl;
 
-     //test_position_1.y = 70.0f;
-     //std::cout << "After updating: " << test_position_1 << std::endl;
+    // ramanujan::experimental::vec3 test_position_1{25.0f};
+    // std::cout << "Before updating: " << test_position_1 << std::endl;
 
-     //test_position_1.z = 320.0f;
-     //std::cout << "After updating: " << test_position_1 << std::endl;
+    // test_position_1.y = 70.0f;
+    // std::cout << "After updating: " << test_position_1 << std::endl;
 
-     //test_position.normalize();
+    // test_position_1.z = 320.0f;
+    // std::cout << "After updating: " << test_position_1 << std::endl;
 
-     //test_position_3 = test_position_1.normalized();
+    // test_position.normalize();
 
-     //bool b1 = test_position == test_position_1;
-     //bool b2 = test_position <= test_position_1;
-     //bool b3 = test_position < test_position_1;
-     //bool b4 = test_position > test_position_1;
-     //bool b5 = test_position >= test_position_1;
-     //bool b6 = test_position != test_position_1;
+    // test_position_3 = test_position_1.normalized();
 
-     //bool is_zero       = test_position.isZero();
-     //bool is_parallel   = test_position.isParallel(test_position_1);
-     //bool is_orthogonal = test_position.isOrthogonal(test_position_1);
+    // bool b1 = test_position == test_position_1;
+    // bool b2 = test_position <= test_position_1;
+    // bool b3 = test_position < test_position_1;
+    // bool b4 = test_position > test_position_1;
+    // bool b5 = test_position >= test_position_1;
+    // bool b6 = test_position != test_position_1;
 
-     //bool is_orthonormalized = orthonormalize(add_result, mul_result, div_result);
+    // bool is_zero       = test_position.isZero();
+    // bool is_parallel   = test_position.isParallel(test_position_1);
+    // bool is_orthogonal = test_position.isOrthogonal(test_position_1);
 
-     //float angl = angle(add_result, mul_result);
+    // bool is_orthonormalized = orthonormalize(add_result, mul_result, div_result);
 
-     //auto project        = projection(add_result, mul_result);
-     //auto reject         = rejection(add_result, mul_result);
-     //auto reflect        = reflection(add_result, mul_result);
-     //auto is_orthonormal = orthonormalize(add_result, sub_result, mul_result);
+    // float angl = angle(add_result, mul_result);
 
-     //auto xy = project.xy();
+    // auto project        = projection(add_result, mul_result);
+    // auto reject         = rejection(add_result, mul_result);
+    // auto reflect        = reflection(add_result, mul_result);
+    // auto is_orthonormal = orthonormalize(add_result, sub_result, mul_result);
 
-     ////ramanujan::experimental::color4 test_color{50.0f};
-     ////std::cout << "Before updating: " << test_color << std::endl;
+    // auto xy = project.xy();
 
-     ////test_color.r = 100.0f;
-     ////std::cout << "After updating: " << test_color << std::endl;
+    ////ramanujan::experimental::color4 test_color{50.0f};
+    ////std::cout << "Before updating: " << test_color << std::endl;
 
-     //ramanujan::experimental::vec2 test_uv_1{0.0f, 5.0f};
-     //ramanujan::experimental::vec2 test_uv_2{0.0f, 1.0f};
-     //test_uv_1 = test_uv_2;
+    ////test_color.r = 100.0f;
+    ////std::cout << "After updating: " << test_color << std::endl;
+
+    // ramanujan::experimental::vec2 test_uv_1{0.0f, 5.0f};
+    // ramanujan::experimental::vec2 test_uv_2{0.0f, 1.0f};
+    // test_uv_1 = test_uv_2;
 
     m_static_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../../../data/shaders/simple.vert",
                                                                           "../../../../data/shaders/simple.frag");
@@ -148,7 +157,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
     ramanujan::Matrix4 mvp    = projection * view * model;
 
     // render static meshes (works)
-    //m_particle.integrate(time_step.GetSeconds());
+    // m_particle.integrate(time_step.GetSeconds());
     //{
     //    m_static_shader->Bind();
     //    // ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {0.25f});
@@ -182,9 +191,9 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
     //    m_static_shader->Unbind();
     //}
 
-     for(unsigned int i = 0; i < m_particles.size(); ++i)
+    for(unsigned int i = 0; i < m_particles.size(); ++i)
     {
-         m_particles[i].integrate(time_step.GetSeconds());
+        m_particles[i].integrate(time_step.GetSeconds());
 
         // render static meshes
         {
@@ -193,7 +202,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
             const auto& pos = m_particles[i].getPosition();
             std::cout << "hehe: " << pos << std::endl;
             ramanujan::Transform transform({pos[0], pos[1], pos[2]}, {}, {0.15f});
-             //ramanujan::Transform transform({pos.x, pos.y, pos.z}, {}, {0.15f});
+            // ramanujan::Transform transform({pos.x, pos.y, pos.z}, {}, {0.15f});
             model = ramanujan::ToMatrix4(transform);
             sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("model"), model);
             sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("view"), view);
