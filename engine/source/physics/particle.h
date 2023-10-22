@@ -110,16 +110,17 @@ public:
     void getAcceleration(vec3& acceleration) const noexcept;
 
     /*!
-     * @brief . 
-     */
-    void clearAccumulator() noexcept;
-
-    /*!
      * @brief .
-     * 
+     *
      * @param force
      */
     void addForce(const vec3& force) noexcept;
+
+protected:
+    /*!
+     * @brief .
+     */
+    void clearAccumulator() noexcept;
 
 protected:
     /*
@@ -157,4 +158,4 @@ protected:
      */
     real m_inv_mass;
 };
-} // namespace sputnink::physics
+} // namespace sputnik::physics

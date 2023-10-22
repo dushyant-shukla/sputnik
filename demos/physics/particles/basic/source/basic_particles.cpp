@@ -11,6 +11,7 @@
 #include <editor/editor_camera.h>
 
 #include <vector.hpp>
+#include <matrix.hpp>
 
 namespace sputnik::demos
 {
@@ -25,7 +26,7 @@ BasicParticlesDemoLayer::~BasicParticlesDemoLayer() {}
 void BasicParticlesDemoLayer::OnAttach()
 {
     ramanujan::experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
-    auto norm_res = test_position.normalized();
+    auto                          norm_res = test_position.normalized();
 
     ramanujan::experimental::vec3 test_position_3{4.0f, 5.0f, 6.0f};
 
@@ -50,11 +51,30 @@ void BasicParticlesDemoLayer::OnAttach()
     ramanujan::experimental::vec3 div_result_1 = test_position / 3.0f;
 
     auto slerp_res = slerp(add_result, add_result_1, real(0.4));
-    auto lerp_res = lerp(add_result, add_result_1, real(0.4));
+    auto lerp_res  = lerp(add_result, add_result_1, real(0.4));
     auto nlerp_res = nlerp(add_result, add_result_1, real(0.4));
     auto bool_0    = add_result.isOrthogonal(add_result_1);
     auto bool_1    = add_result.isParallel(add_result_1);
     auto bool_2    = add_result.isZero();
+
+    mat4 sample_matrix_4{real(0),
+                         real(1),
+                         real(2),
+                         real(3),
+                         real(4),
+                         real(5),
+                         real(6),
+                         real(7),
+                         real(8),
+                         real(9),
+                         real(10),
+                         real(11),
+                         real(12),
+                         real(13),
+                         real(14),
+                         real(15)};
+
+    std::cout << sample_matrix_4 << std::endl;
 
     // ramanujan::experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
     // ramanujan::experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
@@ -200,7 +220,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
             m_static_shader->Bind();
             // ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {0.25f});
             const auto& pos = m_particles[i].getPosition();
-            std::cout << "hehe: " << pos << std::endl;
+            // std::cout << pos << std::endl;
             ramanujan::Transform transform({pos[0], pos[1], pos[2]}, {}, {0.15f});
             // ramanujan::Transform transform({pos.x, pos.y, pos.z}, {}, {0.15f});
             model = ramanujan::ToMatrix4(transform);
