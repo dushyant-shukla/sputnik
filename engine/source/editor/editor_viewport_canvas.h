@@ -31,7 +31,6 @@ public:
     virtual void OnEvent();
 
 private:
-
     bool ShouldResizeFrameBuffer();
 
 private:
@@ -41,6 +40,11 @@ private:
     std::pair<float, float>              m_viewport_size{0.0f, 0.0f};
     std::pair<float, float>              m_viewport_bounds[2];
     std::shared_ptr<glcore::FrameBuffer> m_framebuffer;
+
+    // utility data (temporary)
+    bool m_viewport_focused{false};
+    bool m_viewport_hovered{false};
+    bool m_block_camera_update{false};
 };
 
 } // namespace sputnik::graphics

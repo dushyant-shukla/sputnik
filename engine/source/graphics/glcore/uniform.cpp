@@ -6,12 +6,15 @@
 #include <vector4.h>
 #include <matrix4.h>
 #include <quaternion.h>
+#include <matrix.hpp>
+#include <vector.hpp>
 
 #include <glad/glad.h>
 
 namespace sputnik::graphics::glcore
 {
 
+// Todo:: What does this do?
 template Uniform<int>;
 template Uniform<ramanujan::IVector2>;
 template Uniform<ramanujan::IVector4>;
@@ -21,6 +24,8 @@ template Uniform<ramanujan::Vector3>;
 template Uniform<ramanujan::Vector4>;
 template Uniform<ramanujan::Quaternion>;
 template Uniform<ramanujan::Matrix4>;
+template Uniform<ramanujan::experimental::mat4>;
+template Uniform<ramanujan::experimental::vec3>;
 
 #define UNIFORM_IMPL(gl_function, t_type, d_type)                                    \
     template <>                                                                      \
@@ -38,6 +43,7 @@ UNIFORM_IMPL(glUniform2iv, ramanujan::IVector2, int)
 UNIFORM_IMPL(glUniform1fv, float, float)
 UNIFORM_IMPL(glUniform2fv, ramanujan::Vector2, float)
 UNIFORM_IMPL(glUniform3fv, ramanujan::Vector3, float)
+UNIFORM_IMPL(glUniform3fv, ramanujan::experimental::vec3, float)
 UNIFORM_IMPL(glUniform4fv, ramanujan::Vector4, float)
 UNIFORM_IMPL(glUniform4fv, ramanujan::Quaternion, float)
 
@@ -61,6 +67,17 @@ void Uniform<T>::Set(unsigned int slot, std::vector<T>& values)
 
 template <>
 void Uniform<ramanujan::Matrix4>::Set(unsigned int slot, ramanujan::Matrix4* values, unsigned int count)
+{
+    if(slot >= 0)
+    {
+        glUniformMatrix4fv(slot, (GLsizei)count, false, (float*)&values[0]);
+    }
+}
+
+template <>
+void Uniform<ramanujan::experimental::mat4>::Set(unsigned int                   slot,
+                                                 ramanujan::experimental::mat4* values,
+                                                 unsigned int                   count)
 {
     if(slot >= 0)
     {

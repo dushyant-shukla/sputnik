@@ -4,6 +4,7 @@
 #include "main/application.h"
 #include "graphics/api/renderer.h"
 #include "editor/editor_camera.h"
+#include "graphics/api/camera.h"
 #include "core/input/input_manager.h"
 
 #include <GLFW/glfw3.h>
@@ -32,23 +33,28 @@ Window::Window(const WindowSpecification& specification)
                                        specification.m_title.c_str(),
                                        nullptr,
                                        nullptr);
+    glfwMaximizeWindow(m_window_handle);
+
+    // GLFWmonitor*       monitor = glfwGetWindowMonitor(m_window_handle);
+    // const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
+    // glfwSetWindowMonitor(m_window_handle, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 
     glfwSetWindowUserPointer(m_window_handle, &m_window_specification);
 
     // Set GLFW callbacks
-    glfwSetWindowSizeCallback(m_window_handle,
-                              [](GLFWwindow* window, int width, int height)
-                              {
-                                  WindowSpecification& window_specification =
-                                      *(WindowSpecification*)glfwGetWindowUserPointer(window);
-                                  window_specification.m_width  = width;
-                                  window_specification.m_height = height;
-                                  glfwRequestWindowAttention(window);
-                                  // Todo:: This should happen with events (this is only temporary)
-                                  api::Renderer::OnWindowResize(width, height);
-                                  api::EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width),
-                                                                                         static_cast<float>(height));
-                              });
+    glfwSetWindowSizeCallback(
+        m_window_handle,
+        [](GLFWwindow* window, int width, int height)
+        {
+            WindowSpecification& window_specification = *(WindowSpecification*)glfwGetWindowUserPointer(window);
+            window_specification.m_width              = width;
+            window_specification.m_height             = height;
+            glfwRequestWindowAttention(window);
+            // Todo:: This should happen with events (this is only temporary)
+            api::Renderer::OnWindowResize(width, height);
+            api::EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+            api::Camera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+        });
 
     glfwSetWindowCloseCallback(m_window_handle,
                                [](GLFWwindow* window)

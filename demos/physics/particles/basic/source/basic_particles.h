@@ -2,24 +2,25 @@
 
 #include <main/application.h>
 #include <graphics/glcore/shader.h>
-#include <graphics/core/animation/animation_clip.h>
-#include <graphics/core/animation/pose.h>
 #include <graphics/glcore/debug_draw.h>
-#include <graphics/core/animation/skeleton.h>
 #include <graphics/glcore/texture.h>
-#include <graphics/core/animation/skinning_type.h>
-#include <graphics/core/geometry/mesh.h>
 #include <main/entry_point.h>
 #include <core/layers/layer.h>
 #include <core/time_step.h>
+#include <graphics/api/PreethamSkyModel.h>
+#include <graphics/api/model.h>
 
 #include <physics/particle.h>
+
+#include <vector.hpp>
 
 #include <memory>
 #include <vector>
 
 namespace sputnik::demos
 {
+
+using namespace sputnik::graphics::api;
 
 class BasicParticlesDemoLayer : public core::Layer
 {
@@ -34,14 +35,47 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
+    struct Material
+    {
+        vec3  ambient{1.0f, 0.5f, 0.31f};
+        vec3  diffuse{1.0f, 0.5f, 0.31f};
+        vec3  specular{0.5f, 0.5f, 0.5f};
+        float shininess{32.0f};
+    };
+
+    struct Light
+    {
+        vec3  position{0.0f, 7.0f, 0.0f};
+        vec3  ambient{0.2f, 0.2f, 0.2f};
+        vec3  diffuse{0.5f, 0.5f, 0.5f};
+        vec3  specular{1.0f, 1.0f, 1.0f};
+        float constant{1.0f};
+        float linear{0.09f};
+        float quadratic{0.032f};
+    };
+
     std::shared_ptr<sputnik::graphics::glcore::Texture> m_static_mesh_texture;
 
     std::shared_ptr<sputnik::graphics::glcore::Shader> m_static_shader;
+    std::shared_ptr<sputnik::graphics::glcore::Shader> m_sky_shader;
+    std::shared_ptr<sputnik::graphics::glcore::Shader> m_simple_lighting_shader;
 
-    std::vector<sputnik::graphics::core::Mesh> m_static_meshes;
+    std::shared_ptr<Model> m_box;
+    std::shared_ptr<Model> m_sphere;
 
-    sputnik::physics::Particle m_particle;
+    Material m_platform_material;
+    Material m_particle_material;
+
     std::vector<sputnik::physics::Particle> m_particles;
+
+    Light m_light;
+
+    float            m_exposure  = 1.0f;
+    float            m_sun_angle = 0.0f;
+    vec3             mDirection  = vec3(0.0f, 0.0f, 1.0f);
+    PreethamSkyModel mPreethamSkyModel;
+
+    uint32_t m_vao;
 };
 
 class BasicParticlesDemo : public sputnik::main::Application
@@ -62,3 +96,8 @@ sputnik::main::Application* sputnik::main::CreateApplication()
 {
     return new sputnik::demos::BasicParticlesDemo("Basic Particles");
 }
+
+// m_platform_material.ambient    = {0.2f, 0.2f, 0.2f};
+// m_platform_material.diffuse    = {0.8f, 0.8f, 0.8f};
+// m_platform_material.specular   = {1.0f, 1.0f, 1.0f};
+// m_platform_material.shininess  = 0.25f;

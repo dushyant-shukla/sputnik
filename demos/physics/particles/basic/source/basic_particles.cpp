@@ -2,13 +2,14 @@
 
 #include <graphics/glcore/uniform.h>
 #include <graphics/glcore/renderer.h>
-#include <graphics/glcore/gltf_loader.h>
 #include <matrix4.h>
 #include <vector3.h>
 #include <camera_transforms.h>
 #include <imgui.h>
-#include <graphics/core/animation/rearrange_bones.h>
 #include <editor/editor_camera.h>
+#include <graphics/api/camera.h>
+
+#include <glad/glad.h>
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -17,18 +18,26 @@ namespace sputnik::demos
 {
 
 using namespace ramanujan;
-using namespace ramanujan::experimental;
+using namespace experimental;
+using namespace sputnik::graphics::glcore;
 
-BasicParticlesDemoLayer::BasicParticlesDemoLayer(const std::string& name) : core::Layer(name) {}
+BasicParticlesDemoLayer::BasicParticlesDemoLayer(const std::string& name) : core::Layer(name)
+{
+    // glGenVertexArrays(1, &m_vao);
+    // glBindVertexArray(m_vao);
+}
 
-BasicParticlesDemoLayer::~BasicParticlesDemoLayer() {}
+BasicParticlesDemoLayer::~BasicParticlesDemoLayer()
+{
+    // glBindVertexArray(0);
+}
 
 void BasicParticlesDemoLayer::OnAttach()
 {
-    ramanujan::experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
-    auto                          norm_res = test_position.normalized();
+    experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
+    auto               norm_res = test_position.normalized();
 
-    ramanujan::experimental::vec3 test_position_3{4.0f, 5.0f, 6.0f};
+    experimental::vec3 test_position_3{4.0f, 5.0f, 6.0f};
 
     test_position += test_position_3;
     test_position -= test_position_3;
@@ -40,15 +49,15 @@ void BasicParticlesDemoLayer::OnAttach()
     test_position *= 2.0f;
     test_position /= 2.0f;
 
-    ramanujan::experimental::vec3 add_result = test_position + test_position_3;
-    ramanujan::experimental::vec3 sub_result = test_position - test_position_3;
-    ramanujan::experimental::vec3 mul_result = test_position * test_position_3;
-    ramanujan::experimental::vec3 div_result = test_position / test_position_3;
+    experimental::vec3 add_result = test_position + test_position_3;
+    experimental::vec3 sub_result = test_position - test_position_3;
+    experimental::vec3 mul_result = test_position * test_position_3;
+    experimental::vec3 div_result = test_position / test_position_3;
 
-    ramanujan::experimental::vec3 add_result_1 = test_position + 3.0f;
-    ramanujan::experimental::vec3 sub_result_1 = test_position - 3.0f;
-    ramanujan::experimental::vec3 mul_result_1 = test_position * 3.0f;
-    ramanujan::experimental::vec3 div_result_1 = test_position / 3.0f;
+    experimental::vec3 add_result_1 = test_position + 3.0f;
+    experimental::vec3 sub_result_1 = test_position - 3.0f;
+    experimental::vec3 mul_result_1 = test_position * 3.0f;
+    experimental::vec3 div_result_1 = test_position / 3.0f;
 
     auto slerp_res = slerp(add_result, add_result_1, real(0.4));
     auto lerp_res  = lerp(add_result, add_result_1, real(0.4));
@@ -74,12 +83,12 @@ void BasicParticlesDemoLayer::OnAttach()
                          real(14),
                          real(15)};
 
-    std::cout << sample_matrix_4 << std::endl;
+    // std::cout << sample_matrix_4 << std::endl;
 
-    // ramanujan::experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
-    // ramanujan::experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
+    // experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
+    // experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
 
-    // ramanujan::experimental::vec3 test_position_4 = test_position.cross(test_position_3);
+    // experimental::vec3 test_position_4 = test_position.cross(test_position_3);
 
     // std::cout << "Before updating: " << test_position << std::endl;
 
@@ -91,7 +100,7 @@ void BasicParticlesDemoLayer::OnAttach()
     // test_position.z = 160.0f;
     // std::cout << "After updating: " << test_position << std::endl;
 
-    // ramanujan::experimental::vec3 test_position_1{25.0f};
+    // experimental::vec3 test_position_1{25.0f};
     // std::cout << "Before updating: " << test_position_1 << std::endl;
 
     // test_position_1.y = 70.0f;
@@ -126,165 +135,214 @@ void BasicParticlesDemoLayer::OnAttach()
 
     // auto xy = project.xy();
 
-    ////ramanujan::experimental::color4 test_color{50.0f};
+    ////experimental::color4 test_color{50.0f};
     ////std::cout << "Before updating: " << test_color << std::endl;
 
     ////test_color.r = 100.0f;
     ////std::cout << "After updating: " << test_color << std::endl;
 
-    // ramanujan::experimental::vec2 test_uv_1{0.0f, 5.0f};
-    // ramanujan::experimental::vec2 test_uv_2{0.0f, 1.0f};
+    // experimental::vec2 test_uv_1{0.0f, 5.0f};
+    // experimental::vec2 test_uv_2{0.0f, 1.0f};
     // test_uv_1 = test_uv_2;
 
-    m_static_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../../../data/shaders/simple.vert",
-                                                                          "../../../../data/shaders/simple.frag");
+    m_static_shader =
+        std::make_shared<Shader>("../../../../data/shaders/simple.vert", "../../../../data/shaders/simple.frag");
+    m_sky_shader = std::make_shared<Shader>("../../../../data/shaders/sky-rendering/sky.vert",
+                                            "../../../../data/shaders/sky-rendering/sky.frag");
+    m_simple_lighting_shader =
+        std::make_shared<Shader>("../../../../data/shaders/simple-lighting/simple-lighting.vert",
+                                 "../../../../data/shaders/simple-lighting/simple-lighting.frag");
 
-    cgltf_data* gltf_static_mesh = sputnik::gltf::GltfLoader::LoadFile("../../../../data/assets/sphere.gltf");
-    m_static_mesh_texture = std::make_shared<sputnik::graphics::glcore::Texture>("../../../../data/assets/dq.png");
-    m_static_meshes       = sputnik::gltf::GltfLoader::LoadMeshes(gltf_static_mesh);
+    m_static_mesh_texture = std::make_shared<Texture>("../../../../data/assets/dq.png");
+
+    m_box = Model::LoadModel("../../../../data/assets/box/Box.gltf");
+    m_platform_material.ambient   = {0.05f, 0.0f, 0.0f};
+    m_platform_material.diffuse   = {0.5f, 0.4f, 0.4f};
+    m_platform_material.specular  = {0.7f, 0.4f, 0.4f};
+    m_platform_material.shininess = 0.078125f;
 
     const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
     editor_camera->SetPosition({0.0f, 0.0f, 10.0f});
 
-    // sputnik::physics::Particle particle;
-    m_particle.setPosition(0.0f, 4.0f, 0.0f);
-    m_particle.setMass(2.0f); // 2.0Kg
-    m_particle.setAcceleration({0.0f, -1.0f, 0.0f});
-    m_particle.setDamping(0.09f);
-    m_particles.emplace_back(m_particle);
+    const auto& camera = sputnik::graphics::api::Camera::GetInstance();
+    camera->SetPosition({0.0f, 0.0f, 10.0f});
+
+    // setting up particles
+    {
+        m_sphere = Model::LoadModel("../../../../data/assets/sphere.gltf");
+        sputnik::physics::Particle particle;
+        particle.setPosition(0.0f, 4.0f, 0.0f);
+        particle.setMass(2.0f); // 2.0Kg
+        particle.setAcceleration({0.0f, -1.0f, 0.0f});
+        particle.setDamping(0.09f);
+        m_particles.emplace_back(particle);
+
+        m_particle_material.ambient   = {0.24725f, 0.1995f, 0.0745f};
+        m_particle_material.diffuse   = {0.75164f, 0.60648f, 0.22648f};
+        m_particle_material.specular  = {0.628281f, 0.555802f, 0.366065f};
+        m_particle_material.shininess = 0.4f;
+    }
 
     glPointSize(5.0f);
     glLineWidth(1.5f);
 }
 
 // Todo: OnDetach() must be called at system cleanup before shutdown
-void BasicParticlesDemoLayer::OnDetach() {}
+void BasicParticlesDemoLayer::OnDetach()
+{
+    // glBindVertexArray(0);
+}
 
 void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
-    if(time_step.GetSeconds() <= ramanujan::Constants::EPSILON)
+    if(time_step.GetSeconds() <= Constants::EPSILON)
     {
         return;
     }
 
-    ramanujan::Matrix4 model;
-    ramanujan::Matrix4 projection = ramanujan::Perspective(60.0f, 1600.0f / 900.0f, 0.01f, 1000.0f);
-    ramanujan::Matrix4 view = ramanujan::LookAt({0.0f, 5.0f, 7.0f}, {0.0f, 3.0f, 0.0f}, {0.0f, 1.0f, 0.0f}); // woman
+    Matrix4 model_matrix;
+    Matrix4 normal_matrix;
 
     const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
-    projection                = editor_camera->GetCameraPerspective();
-    view                      = editor_camera->GetCameraView();
-    ramanujan::Matrix4 mvp    = projection * view * model;
+    Matrix4     projection    = editor_camera->GetCameraPerspective();
+    Matrix4     view          = editor_camera->GetCameraView();
 
-    // render static meshes (works)
-    // m_particle.integrate(time_step.GetSeconds());
-    //{
-    //    m_static_shader->Bind();
-    //    // ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {0.25f});
-    //    const auto& pos = m_particle.getPosition();
-    //    std::cout << pos << std::endl;
-    //    ramanujan::Transform transform({pos.x, pos.y, pos.z}, {}, {0.15f});
-    //    // ramanujan::Transform transform({pos[0], pos[1], pos[2]}, {}, {0.15f});
-    //    model = ramanujan::ToMatrix4(transform);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("model"), model);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("view"), view);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("projection"),
-    //                                                                projection);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(m_static_shader->GetUniform("light"),
-    //                                                                {0.0f, 5.0f, 10.0f});
-    //    m_static_mesh_texture->Set(m_static_shader->GetUniform("diffuse"), 0);
-    //    for(unsigned int i = 0, size = (unsigned int)m_static_meshes.size(); i < size; ++i)
-    //    {
-    //        m_static_meshes[i].Bind(m_static_shader->GetAttribute("position"),
-    //                                m_static_shader->GetAttribute("normal"),
-    //                                m_static_shader->GetAttribute("uv"),
-    //                                -1,
-    //                                -1);
-    //        m_static_meshes[i].Draw();
-    //        m_static_meshes[i].Unbind(m_static_shader->GetAttribute("position"),
-    //                                  m_static_shader->GetAttribute("normal"),
-    //                                  m_static_shader->GetAttribute("uv"),
-    //                                  -1,
-    //                                  -1);
-    //    }
-    //    m_static_mesh_texture->Unset(0);
-    //    m_static_shader->Unbind();
-    //}
-
-    for(unsigned int i = 0; i < m_particles.size(); ++i)
+    const auto& camera          = sputnik::graphics::api::Camera::GetInstance();
+    const auto& p               = camera->GetCameraPerspective();
+    const auto& v               = camera->GetCameraView();
+    const auto& camera_position = camera->GetCameraPosition();
+    for(unsigned int i = 0; i < 16; ++i)
     {
-        m_particles[i].integrate(time_step.GetSeconds());
-
-        // render static meshes
-        {
-            m_static_shader->Bind();
-            // ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {0.25f});
-            const auto& pos = m_particles[i].getPosition();
-            // std::cout << pos << std::endl;
-            ramanujan::Transform transform({pos[0], pos[1], pos[2]}, {}, {0.15f});
-            // ramanujan::Transform transform({pos.x, pos.y, pos.z}, {}, {0.15f});
-            model = ramanujan::ToMatrix4(transform);
-            sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("model"), model);
-            sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("view"), view);
-            sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("projection"),
-                                                                        projection);
-            sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(m_static_shader->GetUniform("light"),
-                                                                        {0.0f, 5.0f, 10.0f});
-            m_static_mesh_texture->Set(m_static_shader->GetUniform("diffuse"), 0);
-            for(unsigned int i = 0, size = (unsigned int)m_static_meshes.size(); i < size; ++i)
-            {
-                m_static_meshes[i].Bind(m_static_shader->GetAttribute("position"),
-                                        m_static_shader->GetAttribute("normal"),
-                                        m_static_shader->GetAttribute("uv"),
-                                        -1,
-                                        -1);
-                m_static_meshes[i].Draw();
-                m_static_meshes[i].Unbind(m_static_shader->GetAttribute("position"),
-                                          m_static_shader->GetAttribute("normal"),
-                                          m_static_shader->GetAttribute("uv"),
-                                          -1,
-                                          -1);
-            }
-            m_static_mesh_texture->Unset(0);
-            m_static_shader->Unbind();
-        }
+        projection.v[i] = p.m[i];
+        view.v[i]       = v.m[i];
     }
 
-    // render static meshes
-    //{
-    //    m_static_shader->Bind();
-    //    ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {0.25f});
-    //    model = ramanujan::ToMatrix4(transform);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("model"), model);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("view"), view);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("projection"),
-    //                                                                projection);
-    //    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(m_static_shader->GetUniform("light"),
-    //                                                                {0.0f, 5.0f, 10.0f});
-    //    m_static_mesh_texture->Set(m_static_shader->GetUniform("diffuse"), 0);
-    //    for(unsigned int i = 0, size = (unsigned int)m_static_meshes.size(); i < size; ++i)
-    //    {
-    //        m_static_meshes[i].Bind(m_static_shader->GetAttribute("position"),
-    //                                m_static_shader->GetAttribute("normal"),
-    //                                m_static_shader->GetAttribute("uv"),
-    //                                -1,
-    //                                -1);
-    //        m_static_meshes[i].Draw();
-    //        m_static_meshes[i].Unbind(m_static_shader->GetAttribute("position"),
-    //                                  m_static_shader->GetAttribute("normal"),
-    //                                  m_static_shader->GetAttribute("uv"),
-    //                                  -1,
-    //                                  -1);
-    //    }
-    //    m_static_mesh_texture->Unset(0);
-    //    m_static_shader->Unbind();
-    //}
+    // render light source
+    {
+        m_static_shader->Bind();
+        Uniform<Matrix4>::Set(m_static_shader->GetUniform("view"), view);
+        Uniform<Matrix4>::Set(m_static_shader->GetUniform("projection"), projection);
+        Uniform<vec3>::Set(m_static_shader->GetUniform("light"), m_light.position);
 
-    // end render static meshes
+        m_static_mesh_texture->Set(m_static_shader->GetUniform("diffuse"), 0);
+
+        Transform transform({m_light.position.x, m_light.position.y, m_light.position.z}, {}, {0.20f, 0.20f, 0.20f});
+        model_matrix = ToMatrix4(transform);
+        Uniform<Matrix4>::Set(m_static_shader->GetUniform("model"), model_matrix);
+
+        m_sphere->Draw(m_static_shader, true, false, false);
+
+        m_static_mesh_texture->Unset(0);
+        m_static_shader->Unbind();
+    }
+
+    // phong lighting
+    {
+        m_simple_lighting_shader->Bind();
+
+        Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("view"), view);
+        Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("projection"), projection);
+
+        // light
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.position"), m_light.position);
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.ambient"), m_light.ambient);
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.diffuse"), m_light.diffuse);
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.specular"), m_light.specular);
+
+        // camera
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("eye_position"), camera_position);
+
+        // render the platform
+        {
+
+            Transform transform({0.0f, -10.0f, 0.0f}, {}, {25.0f, 1.0f, 25.0f});
+            model_matrix  = ToMatrix4(transform);
+            normal_matrix = Transposed(Inverse(model_matrix));
+            Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
+            Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+            // material
+            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), m_platform_material.ambient);
+            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), m_platform_material.diffuse);
+            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), m_platform_material.specular);
+            Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"),
+                                m_platform_material.shininess);
+
+            m_box->Draw(m_simple_lighting_shader, false, false, false);
+        }
+
+        // render particles
+        {
+            for(unsigned int i = 0; i < m_particles.size(); ++i)
+            {
+                m_particles[i].integrate(time_step.GetSeconds());
+
+                const auto& pos = m_particles[i].getPosition();
+                Transform   transform({pos.x, pos.y, pos.z}, {}, {0.15f});
+                model_matrix  = ToMatrix4(transform);
+                normal_matrix = Transposed(Inverse(model_matrix));
+                Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
+                Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+                // material
+                Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"),
+                                   m_particle_material.ambient);
+                Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"),
+                                   m_particle_material.diffuse);
+                Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"),
+                                   m_particle_material.specular);
+                Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"),
+                                    m_particle_material.shininess);
+
+                m_sphere->Draw(m_simple_lighting_shader, false, false, false);
+            }
+        }
+
+        m_simple_lighting_shader->Unbind();
+    }
 
     glDisable(GL_DEPTH_TEST);
     // render any debug visuals
     glEnable(GL_DEPTH_TEST);
+
+    // Render sky
+    {
+        // glBindVertexArray(0);
+
+        mat4 cubemap_view{};
+        for(unsigned int i = 0; i < 16; ++i)
+        {
+            cubemap_view.m[i] = view.v[i];
+        }
+        cubemap_view.m[3]  = 0;
+        cubemap_view.m[7]  = 0;
+        cubemap_view.m[11] = 0;
+        cubemap_view.m[15] = 1;
+        cubemap_view.m[12] = 0;
+        cubemap_view.m[13] = 0;
+        cubemap_view.m[14] = 0;
+
+        mat4 proj{};
+        for(unsigned i = 0; i < 16; ++i)
+        {
+            proj.m[i] = projection.v[i];
+        }
+
+        mat4 cubemap_view_projection = proj * cubemap_view;
+        // mat4 inv_cubemap_view_projection = cubemap_view_projection.inverse();
+        mat4 inv_cubemap_view_projection = cubemap_view_projection.invert(); // Todo:: This is buggy
+
+        mPreethamSkyModel.SetDirection(mDirection);
+        mPreethamSkyModel.Update();
+        m_sky_shader->Bind();
+        // Uniform<mat4>::Set(m_sky_shader->GetUniform("inv_view_projection"),
+        //                                               inv_cubemap_view_projection);
+        Uniform<Matrix4>::Set(m_sky_shader->GetUniform("inv_view_projection"), view);
+        mPreethamSkyModel.SetRenderUniforms(m_sky_shader);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        // glBindVertexArray(m_vao);
+    }
 }
 
 void BasicParticlesDemoLayer::OnEvent() {}
@@ -294,6 +352,34 @@ void BasicParticlesDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
     if(ImGui::Begin("Basic Particles"))
     {
     }
+    ImGui::End();
+
+    if(ImGui::Begin("Lighting"))
+    {
+        ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
+        ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
+        ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
+
+        ImGui::ColorEdit3("Light ambient", &m_light.ambient.x);
+        ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x);
+        ImGui::ColorEdit3("Light specular", &m_light.specular.x);
+    }
+    ImGui::End();
+
+    ImGui::Begin("Sky Scattering");
+
+    // ImGui::InputFloat("Exposure", &m_exposure);
+    ImGui::SliderFloat("Exposure", &m_exposure, 0, 10.0f);
+    ImGui::SliderAngle("Sun Angle", &m_sun_angle, 0.0f, -180.0f);
+
+    float turbidity = mPreethamSkyModel.GetTurbidity();
+    ImGui::SliderFloat("Turbidity", &turbidity, 2.0f, 30.0f);
+    mPreethamSkyModel.SetTurbidity(turbidity);
+
+    mDirection = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
+
+    ImGui::Text("Sun Direction = [ %f, %f, %f ]", mDirection.x, mDirection.y, mDirection.z);
+
     ImGui::End();
 }
 

@@ -14,15 +14,16 @@ namespace sputnik::graphics::glcore
 
 GlGraphicsSubsystem::GlGraphicsSubsystem()
 {
-    m_window                = std::make_unique<window::Window>();
-    m_context               = std::make_unique<GlContext>(m_window->GetNativeWindow());
-    m_ui_layer              = std::make_shared<GlUiLayer>(m_window->GetNativeWindow());
+    m_window   = std::make_unique<window::Window>();
+    m_context  = std::make_unique<GlContext>(m_window->GetNativeWindow());
+    m_ui_layer = std::make_shared<GlUiLayer>(m_window->GetNativeWindow());
 
     // TODO:: GLobal VAO - only temporary
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
     main::Application::GetInstance()->PushOverlay(m_ui_layer);
-    main::Application::GetInstance()->PushOverlay(std::make_shared<sputnik::graphics::EditorViewPortCanvas>(m_window->GetWidth(), m_window->GetHeight()));
+    main::Application::GetInstance()->PushOverlay(
+        std::make_shared<sputnik::graphics::EditorViewPortCanvas>(m_window->GetWidth(), m_window->GetHeight()));
 }
 
 GlGraphicsSubsystem::~GlGraphicsSubsystem()

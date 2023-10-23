@@ -98,8 +98,8 @@ void GlUiLayer::OnAttach()
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
-    // io.ConfigViewportsNoAutoMerge = true;
-    // io.ConfigViewportsNoTaskBarIcon = true;
+                                                        // io.ConfigViewportsNoAutoMerge = true;
+                                                        // io.ConfigViewportsNoTaskBarIcon = true;
 
     // io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Bold.ttf", 18.0f);
     // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Regular.ttf", 18.0f);
@@ -107,8 +107,8 @@ void GlUiLayer::OnAttach()
     // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
 
     // required my modification
-    // io.Fonts->AddFontFromFileTTF("assets/fonts/Ruda/Ruda-Bold.ttf", 15.0f);
-    // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/Ruda/Ruda-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("fonts/Ruda/Ruda-Bold.ttf", 17.0f);
+    //io.FontDefault = io.Fonts->AddFontFromFileTTF("../../../fonts/Ruda/Ruda-Regular.ttf", 17.0f);
 
     // Setup Dear ImGui style
     // ImGui::StyleColorsDark();
@@ -223,19 +223,19 @@ void GlUiLayer::RenderMenuBar()
         {
             if(ImGui::MenuItem("New", "Ctrl+N"))
             {
-                //NewSceneFile();
+                // NewSceneFile();
             }
             if(ImGui::MenuItem("Open...", "Ctrl+O"))
             {
-                //OpenSceneFile();
+                // OpenSceneFile();
             }
             if(ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
             {
-                //SaveSceneFile();
+                // SaveSceneFile();
             }
             if(ImGui::MenuItem("Close", "Alt+F4"))
             {
-                //Application::Get().Close();
+                // Application::Get().Close();
             }
             ImGui::EndMenu();
         }
@@ -248,19 +248,19 @@ void GlUiLayer::RenderMenuBar()
         {
             if(ImGui::BeginMenu("Themes"))
             {
-                //for(auto& x : EditorStyleUtility::sThemes)
+                // for(auto& x : EditorStyleUtility::sThemes)
                 //{
-                //    EditorStyleUtility::Theme theme     = x.first;
-                //    std::string               themeName = x.second;
-                //    if(ImGui::MenuItem(themeName.c_str(),
-                //                       NULL,
-                //                       EditorStyleUtility::sActiveTheme == theme,
-                //                       EditorStyleUtility::sActiveTheme != theme))
-                //    {
-                //        EditorStyleUtility::sActiveTheme = theme;
-                //        EditorStyleUtility::sThemeFunctions[theme]();
-                //    }
-                //}
+                //     EditorStyleUtility::Theme theme     = x.first;
+                //     std::string               themeName = x.second;
+                //     if(ImGui::MenuItem(themeName.c_str(),
+                //                        NULL,
+                //                        EditorStyleUtility::sActiveTheme == theme,
+                //                        EditorStyleUtility::sActiveTheme != theme))
+                //     {
+                //         EditorStyleUtility::sActiveTheme = theme;
+                //         EditorStyleUtility::sThemeFunctions[theme]();
+                //     }
+                // }
 
                 ImGui::EndMenu();
             }
@@ -306,26 +306,26 @@ void glcore::GlUiLayer::BeginDockspace()
     // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     if(ImGui::Begin("Editor Dockspace", &dockspaceOpen, window_flags))
-    //{
+        //{
         ImGui::PopStyleVar();
 
-        if(opt_fullscreen)
-            ImGui::PopStyleVar(2);
+    if(opt_fullscreen)
+        ImGui::PopStyleVar(2);
 
-        // DockSpace
-        ImGuiIO&    io          = ImGui::GetIO();
-        ImGuiStyle& style       = ImGui::GetStyle();
-        float       minWinSizeX = style.WindowMinSize.x;
-        style.WindowMinSize.x   = 370.0f;
-        if(io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-        {
-            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-        }
+    // DockSpace
+    ImGuiIO&    io          = ImGui::GetIO();
+    ImGuiStyle& style       = ImGui::GetStyle();
+    float       minWinSizeX = style.WindowMinSize.x;
+    style.WindowMinSize.x   = 370.0f;
+    if(io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+    {
+        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+    }
 
-        style.WindowMinSize.x = minWinSizeX;
+    style.WindowMinSize.x = minWinSizeX;
 
-        RenderMenuBar();
+    RenderMenuBar();
     //}
 }
 
