@@ -26,6 +26,6 @@ protected:
     vec3  m_direction;
     float m_normalized_sun_y = 1.15f;
     float m_albedo           = 0.1f;
-    float m_turbidity        = 4.0f;
+    float m_turbidity        = 2.372f;
 };
 } // namespace sputnik::graphics::api

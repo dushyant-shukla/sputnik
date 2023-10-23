@@ -59,24 +59,25 @@ void BasicParticlesDemoLayer::OnAttach()
     auto bool_1    = add_result.isParallel(add_result_1);
     auto bool_2    = add_result.isZero();
 
-    mat4 sample_matrix_4{real(0),
-                         real(1),
-                         real(2),
-                         real(3),
+    mat4 sample_matrix_4{real(3),
                          real(4),
                          real(5),
-                         real(6),
-                         real(7),
                          real(8),
-                         real(9),
-                         real(10),
+                         real(34),
+                         real(56),
+                         real(38),
+                         real(59),
+                         real(50),
+                         real(2),
+                         real(37),
                          real(11),
-                         real(12),
+                         real(80),
                          real(13),
-                         real(14),
+                         real(78),
                          real(15)};
-
-    // std::cout << sample_matrix_4 << std::endl;
+    std::cout << sample_matrix_4 << std::endl;
+    auto cof_mat = sample_matrix_4.invert();
+    std::cout << cof_mat << std::endl;
 
     // experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
     // experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
@@ -160,12 +161,12 @@ void BasicParticlesDemoLayer::OnAttach()
     editor_camera->SetPosition({0.0f, 0.0f, 10.0f});
 
     const auto& camera = sputnik::graphics::api::Camera::GetInstance();
-    camera->SetPosition({0.0f, 0.0f, 10.0f});
+    camera->SetPosition({0.0f, 5.0f, 10.0f});
 
     // setting up particles
     {
         sputnik::physics::Particle particle;
-        particle.setPosition(0.0f, 4.0f, 0.0f);
+        particle.setPosition(0.0f, 10.0f, 0.0f);
         particle.setMass(2.0f); // 2.0Kg
         particle.setAcceleration({0.0f, -1.0f, 0.0f});
         particle.setDamping(0.09f);
@@ -237,6 +238,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
         // light
         Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.position"), m_light.position);
+        // Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.position"), mDirection);
         Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.ambient"), m_light.ambient);
         Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.diffuse"), m_light.diffuse);
         Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.specular"), m_light.specular);
@@ -247,7 +249,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
         // render the platform
         {
 
-            Transform transform({0.0f, -10.0f, 0.0f}, {}, {25.0f, 1.0f, 25.0f});
+            Transform transform({0.0f, 0.0f, 0.0f}, {}, {100.0f, 1.0f, 100.0f});
             model_matrix  = ToMatrix4(transform);
             normal_matrix = Transposed(Inverse(model_matrix));
             Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);

@@ -45,7 +45,7 @@ private:
 
     struct Light
     {
-        vec3  position{0.0f, 7.0f, 0.0f};
+        vec3  position{0.0f, 20.0f, 0.0f};
         vec3  ambient{0.2f, 0.2f, 0.2f};
         vec3  diffuse{0.5f, 0.5f, 0.5f};
         vec3  specular{1.0f, 1.0f, 1.0f};
@@ -71,7 +71,7 @@ private:
     Light m_light;
 
     float            m_exposure  = 1.0f;
-    float            m_sun_angle = 0.0f;
+    float            m_sun_angle = -1.45f; // radians (~ (-83) degress)
     vec3             mDirection  = vec3(0.0f, 0.0f, 1.0f);
     PreethamSkyModel mPreethamSkyModel;
 };

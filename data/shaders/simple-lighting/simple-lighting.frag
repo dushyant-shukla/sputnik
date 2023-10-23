@@ -31,10 +31,12 @@ void main() {
     vec3 to_light = normalize(light.position - fs_frag_position);
     vec3 normal = normalize(fs_normal);
     float diffuse_strength = max(dot(normal, to_light), 0.0);
+    // float diffuse_strength = max(dot(normal, -light.position), 0.0);  // for sun's direction
     vec3 diffuse_color = light.diffuse * (diffuse_strength * material.diffuse);
 
     vec3 view_direction = normalize(eye_position - fs_frag_position);
     vec3 light_reflection_direction = reflect(-to_light, normal);
+    // vec3 light_reflection_direction = reflect(light.position, normal); // for sun's direction
     float specular_strength = pow(max(dot(view_direction, light_reflection_direction), 0.0), material.shininess * 128.0);
     vec3 specular_color = light.specular * (specular_strength * material.specular);
 
