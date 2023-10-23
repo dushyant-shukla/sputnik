@@ -74,8 +74,6 @@ private:
     float            m_sun_angle = 0.0f;
     vec3             mDirection  = vec3(0.0f, 0.0f, 1.0f);
     PreethamSkyModel mPreethamSkyModel;
-
-    uint32_t m_vao;
 };
 
 class BasicParticlesDemo : public sputnik::main::Application

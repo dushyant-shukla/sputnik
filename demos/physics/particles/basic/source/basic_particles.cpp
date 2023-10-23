@@ -21,16 +21,9 @@ using namespace ramanujan;
 using namespace experimental;
 using namespace sputnik::graphics::glcore;
 
-BasicParticlesDemoLayer::BasicParticlesDemoLayer(const std::string& name) : core::Layer(name)
-{
-    // glGenVertexArrays(1, &m_vao);
-    // glBindVertexArray(m_vao);
-}
+BasicParticlesDemoLayer::BasicParticlesDemoLayer(const std::string& name) : core::Layer(name) {}
 
-BasicParticlesDemoLayer::~BasicParticlesDemoLayer()
-{
-    // glBindVertexArray(0);
-}
+BasicParticlesDemoLayer::~BasicParticlesDemoLayer() {}
 
 void BasicParticlesDemoLayer::OnAttach()
 {
@@ -184,15 +177,12 @@ void BasicParticlesDemoLayer::OnAttach()
         m_particle_material.shininess = 0.4f;
     }
 
-    glPointSize(5.0f);
-    glLineWidth(1.5f);
+    // glPointSize(5.0f);
+    // glLineWidth(1.5f);
 }
 
 // Todo: OnDetach() must be called at system cleanup before shutdown
-void BasicParticlesDemoLayer::OnDetach()
-{
-    // glBindVertexArray(0);
-}
+void BasicParticlesDemoLayer::OnDetach() {}
 
 void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
@@ -218,6 +208,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
         view.v[i]       = v.m[i];
     }
 
+    glEnable(GL_DEPTH_TEST);
     // render light source
     {
         m_static_shader->Bind();
@@ -301,48 +292,57 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
         m_simple_lighting_shader->Unbind();
     }
-
     glDisable(GL_DEPTH_TEST);
-    // render any debug visuals
-    glEnable(GL_DEPTH_TEST);
+
+    // debug draw
+    {
+        // glDisable(GL_DEPTH_TEST);
+        //  render any debug visuals
+        // glEnable(GL_DEPTH_TEST);
+    }
 
     // Render sky
     {
-        // glBindVertexArray(0);
+        // very important
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glDisable(GL_CULL_FACE);
 
-        mat4 cubemap_view{};
+        Matrix4 cubemap_view{};
         for(unsigned int i = 0; i < 16; ++i)
         {
-            cubemap_view.m[i] = view.v[i];
+            cubemap_view.v[i] = view.v[i];
         }
-        cubemap_view.m[3]  = 0;
-        cubemap_view.m[7]  = 0;
-        cubemap_view.m[11] = 0;
-        cubemap_view.m[15] = 1;
-        cubemap_view.m[12] = 0;
-        cubemap_view.m[13] = 0;
-        cubemap_view.m[14] = 0;
+        cubemap_view.v[3]  = 0;
+        cubemap_view.v[7]  = 0;
+        cubemap_view.v[11] = 0;
+        cubemap_view.v[15] = 1;
+        cubemap_view.v[12] = 0;
+        cubemap_view.v[13] = 0;
+        cubemap_view.v[14] = 0;
 
-        mat4 proj{};
-        for(unsigned i = 0; i < 16; ++i)
-        {
-            proj.m[i] = projection.v[i];
-        }
+        // mat4 proj{};
+        // for(unsigned i = 0; i < 16; ++i)
+        //{
+        //     proj.m[i] = projection.v[i];
+        // }
 
-        mat4 cubemap_view_projection = proj * cubemap_view;
+        Matrix4 cubemap_view_projection = projection * cubemap_view;
         // mat4 inv_cubemap_view_projection = cubemap_view_projection.inverse();
-        mat4 inv_cubemap_view_projection = cubemap_view_projection.invert(); // Todo:: This is buggy
+        Matrix4 inv_cubemap_view_projection = Inverse(cubemap_view_projection); // Todo:: This is buggy with mat4
 
         mPreethamSkyModel.SetDirection(mDirection);
         mPreethamSkyModel.Update();
         m_sky_shader->Bind();
         // Uniform<mat4>::Set(m_sky_shader->GetUniform("inv_view_projection"),
         //                                               inv_cubemap_view_projection);
-        Uniform<Matrix4>::Set(m_sky_shader->GetUniform("inv_view_projection"), view);
+        Uniform<Matrix4>::Set(m_sky_shader->GetUniform("inv_view_projection"), inv_cubemap_view_projection);
         mPreethamSkyModel.SetRenderUniforms(m_sky_shader);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        // glBindVertexArray(m_vao);
+        // very important
+        glDepthFunc(GL_LESS);
+        glDisable(GL_DEPTH_TEST);
     }
 }
 
@@ -369,7 +369,6 @@ void BasicParticlesDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
 
     ImGui::Begin("Sky Scattering");
 
-    // ImGui::InputFloat("Exposure", &m_exposure);
     ImGui::SliderFloat("Exposure", &m_exposure, 0, 10.0f);
     ImGui::SliderAngle("Sun Angle", &m_sun_angle, 0.0f, -180.0f);
 

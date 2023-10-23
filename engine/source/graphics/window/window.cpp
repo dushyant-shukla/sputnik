@@ -35,6 +35,10 @@ Window::Window(const WindowSpecification& specification)
                                        nullptr);
     glfwMaximizeWindow(m_window_handle);
 
+    int width, height;
+    glfwGetWindowSize(m_window_handle, &width, &height);
+    // glViewport(0, 0, width, height);
+
     // GLFWmonitor*       monitor = glfwGetWindowMonitor(m_window_handle);
     // const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
     // glfwSetWindowMonitor(m_window_handle, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);

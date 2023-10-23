@@ -107,8 +107,8 @@ void GlUiLayer::OnAttach()
     // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
 
     // required my modification
-    //io.Fonts->AddFontFromFileTTF("fonts/Ruda/Ruda-Bold.ttf", 17.0f);
-    //io.FontDefault = io.Fonts->AddFontFromFileTTF("../../../fonts/Ruda/Ruda-Regular.ttf", 17.0f);
+    // io.Fonts->AddFontFromFileTTF("fonts/Ruda/Ruda-Bold.ttf", 17.0f);
+    // io.FontDefault = io.Fonts->AddFontFromFileTTF("../../../fonts/Ruda/Ruda-Regular.ttf", 17.0f);
 
     // Setup Dear ImGui style
     // ImGui::StyleColorsDark();

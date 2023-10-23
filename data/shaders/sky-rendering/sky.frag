@@ -39,5 +39,4 @@ void main()
 	vec3 col = preetham_sky_rgb(dir, direction);
 
 	ps_out_color = vec4(col, 1.0);
-	//ps_out_color = vec4(0, 1, 0, 1.0);
 }
