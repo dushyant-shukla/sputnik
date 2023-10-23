@@ -155,7 +155,9 @@ void BasicParticlesDemoLayer::OnAttach()
 
     m_static_mesh_texture = std::make_shared<Texture>("../../../../data/assets/dq.png");
 
-    m_box = Model::LoadModel("../../../../data/assets/box/Box.gltf");
+    m_box    = Model::LoadModel("../../../../data/assets/box/Box.gltf");
+    m_sphere = Model::LoadModel("../../../../data/assets/sphere.gltf");
+
     m_platform_material.ambient   = {0.05f, 0.0f, 0.0f};
     m_platform_material.diffuse   = {0.5f, 0.4f, 0.4f};
     m_platform_material.specular  = {0.7f, 0.4f, 0.4f};
@@ -169,7 +171,6 @@ void BasicParticlesDemoLayer::OnAttach()
 
     // setting up particles
     {
-        m_sphere = Model::LoadModel("../../../../data/assets/sphere.gltf");
         sputnik::physics::Particle particle;
         particle.setPosition(0.0f, 4.0f, 0.0f);
         particle.setMass(2.0f); // 2.0Kg
