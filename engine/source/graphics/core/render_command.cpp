@@ -37,4 +37,14 @@ void RenderCommand::SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t
     s_graphics_subsystem->SetViewPort(x, y, width, height);
 }
 
+std::pair<uint32_t, uint32_t> RenderCommand::GetViewportDimensions()
+{
+    return s_graphics_subsystem->GetViewPortDimensions();
+}
+
+GLFWwindow* RenderCommand::GetNativeWindow()
+{
+    return s_graphics_subsystem->GetNativeWindow();
+}
+
 } // namespace sputnik::graphics::core

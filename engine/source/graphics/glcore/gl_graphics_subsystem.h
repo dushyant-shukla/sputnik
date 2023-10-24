@@ -21,10 +21,12 @@ public:
     GlGraphicsSubsystem();
     virtual ~GlGraphicsSubsystem();
 
-    virtual void                 Update(const sputnik::core::TimeStep& time_step) override;
-    virtual void                 Clear() const override;
-    virtual void                 SetClearColor(float r, float g, float b, float a) override;
-    virtual void                 SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+    virtual void                          Update(const sputnik::core::TimeStep& time_step) override;
+    virtual void                          Clear() const override;
+    virtual void                          SetClearColor(float r, float g, float b, float a) override;
+    virtual void                          SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+    virtual std::pair<uint32_t, uint32_t> GetViewPortDimensions() const override;
+    virtual GLFWwindow*                   GetNativeWindow() override;
 
 private:
     std::unique_ptr<window::Window> m_window;

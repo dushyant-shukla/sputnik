@@ -18,18 +18,27 @@ EditorViewPortCanvas::EditorViewPortCanvas(unsigned int width, unsigned int heig
     , m_window_height(height)
     , m_viewport_size(width, height)
 {
-}
-
-EditorViewPortCanvas::~EditorViewPortCanvas() {}
-
-void EditorViewPortCanvas::OnAttach()
-{
     glcore::FrameBufferSpecification framebuffer_spec;
     framebuffer_spec.width         = m_window_width;
     framebuffer_spec.height        = m_window_height;
     framebuffer_spec.m_attachments = {glcore::FrameBufferTextureFormat::RGBA8, glcore::FrameBufferTextureFormat::DEPTH};
     m_framebuffer                  = std::make_shared<glcore::FrameBuffer>(framebuffer_spec);
 }
+
+EditorViewPortCanvas::~EditorViewPortCanvas() {}
+
+void EditorViewPortCanvas::BeginFrame()
+{
+    m_framebuffer->Bind();
+    api::Renderer::Clear();
+}
+
+void EditorViewPortCanvas::EndFrame()
+{
+    m_framebuffer->UnBind();
+}
+
+void EditorViewPortCanvas::OnAttach() {}
 
 void EditorViewPortCanvas::OnDetach() {}
 
@@ -43,8 +52,8 @@ void EditorViewPortCanvas::OnPreUpdate(const TimeStep& time_step)
         graphics::api::Camera::GetInstance()->SetViewportSize(m_viewport_size.first, m_viewport_size.second);
     }
 
-    m_framebuffer->Bind();
-    api::Renderer::Clear();
+    //m_framebuffer->Bind();
+    //api::Renderer::Clear();
 
     graphics::api::EditorCamera::GetInstance()->Update(time_step);
     graphics::api::Camera::GetInstance()->Update(time_step, m_block_camera_update);
@@ -54,7 +63,7 @@ void EditorViewPortCanvas::OnUpdate(const TimeStep& time_step) {}
 
 void EditorViewPortCanvas::OnPostUpdate(const TimeStep& time_step)
 {
-    m_framebuffer->UnBind();
+    //m_framebuffer->UnBind();
 }
 
 void EditorViewPortCanvas::OnEvent() {}
@@ -78,7 +87,7 @@ void EditorViewPortCanvas::OnPreUpdateUI(const TimeStep& time_step)
         m_viewport_focused    = ImGui::IsWindowFocused();
         m_viewport_hovered    = ImGui::IsWindowHovered();
         m_block_camera_update = !m_viewport_focused && !m_viewport_hovered;
-        //std::cout << "block camera update: " << m_block_camera_update << std::endl;
+        // std::cout << "block camera update: " << m_block_camera_update << std::endl;
 
         ImVec2 viewport_min_region = ImGui::GetWindowContentRegionMin();
         ImVec2 viewport_max_region = ImGui::GetWindowContentRegionMax();
@@ -109,36 +118,16 @@ void EditorViewPortCanvas::OnPreUpdateUI(const TimeStep& time_step)
                           m_viewport_bounds[1].first - m_viewport_bounds[0].first,
                           m_viewport_bounds[1].second - m_viewport_bounds[0].second);
     }
+    ImGui::End(); // end "viewport" window
+    ImGui::PopStyleVar();
 }
 
-void EditorViewPortCanvas::OnUpdateUI(const TimeStep& time_step)
-{
-    // if(ImGui::Begin("example"))
-    //{
-    //     ImGui::Text("sjhajkshakjh");
-    // }
-    // ImGui::End();
-    auto& framebuffer_spec = m_framebuffer->GetSpecification();
-
-    // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    // if(ImGui::Begin("view port"))
-    //{
-    //     ImVec2 viewport_panel_size = ImGui::GetContentRegionAvail();
-    //     m_viewport_size            = {viewport_panel_size.x, viewport_panel_size.y};
-    //     uint64_t textureID         = m_framebuffer->GetColorAttachmentRendererId();
-    //     ImGui::Image(reinterpret_cast<void*>(textureID),
-    //                  ImVec2{m_viewport_size.x, m_viewport_size.y},
-    //                  ImVec2{0, 1},
-    //                  ImVec2{1, 0});
-    // }
-    // ImGui::End();
-    // ImGui::PopStyleVar();
-}
+void EditorViewPortCanvas::OnUpdateUI(const TimeStep& time_step) {}
 
 void EditorViewPortCanvas::OnPostUpdateUI(const TimeStep& time_step)
 {
-    ImGui::End(); // end "viewport" window
-    ImGui::PopStyleVar();
+    // ImGui::End(); // end "viewport" window
+    // ImGui::PopStyleVar();
 }
 
 } // namespace sputnik::graphics

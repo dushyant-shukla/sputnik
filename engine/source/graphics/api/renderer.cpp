@@ -45,4 +45,14 @@ const graphics::core::GraphicsSubsystemType& Renderer::GetCurrentGraphicsSubsyst
     return s_graphics_subsystem;
 }
 
+std::pair<uint32_t, uint32_t> Renderer::GetViewportDimensions()
+{
+    return core::RenderCommand::GetViewportDimensions();
+}
+
+GLFWwindow* Renderer::GetNativeWindow()
+{
+    return core::RenderCommand::GetNativeWindow();
+}
+
 } // namespace sputnik::graphics::api

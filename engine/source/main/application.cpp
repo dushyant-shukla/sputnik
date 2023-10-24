@@ -18,11 +18,13 @@ Application::Application(const std::string& application_name)
     , m_is_minimized(false)
     , m_last_frame_time(0.0f)
 {
+    sputnik::core::Logger::Init();
+
     m_input_manager = core::InputManager::GetInstance();
     s_instance      = this;
     graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
 
-    sputnik::core::Logger::Init();
+    m_editor = std::make_unique<sputnik::editor::Editor>();
 }
 
 Application ::~Application() {}
@@ -40,6 +42,7 @@ void Application::Run()
 
         if(!m_is_minimized)
         {
+            m_editor->BeginFrame();
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
                 layer->OnPreUpdate(time_step);
@@ -54,6 +57,9 @@ void Application::Run()
             {
                 layer->OnPostUpdate(time_step);
             }
+            m_editor->EndFrame();
+
+            m_editor->Update(time_step);
         }
 
         graphics::api::Renderer::Update(time_step);

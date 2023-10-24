@@ -4,6 +4,8 @@
 #include "core/time_step.h"
 #include "graphics/core/graphics_subsystem_type.h"
 
+struct GLFWwindow;
+
 namespace sputnik::graphics::api
 {
 
@@ -21,6 +23,8 @@ public:
     static void Shutdown();
     static void OnWindowResize(uint32_t width, uint32_t height);
     static const graphics::core::GraphicsSubsystemType& GetCurrentGraphicsSubsystemType();
+    static std::pair<uint32_t, uint32_t>                GetViewportDimensions();
+    static GLFWwindow*                                  GetNativeWindow();
 
 private:
     static graphics::core::GraphicsSubsystemType s_graphics_subsystem;

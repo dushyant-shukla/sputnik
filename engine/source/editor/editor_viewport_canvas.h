@@ -17,6 +17,9 @@ public:
     EditorViewPortCanvas(unsigned int width, unsigned int height);
     virtual ~EditorViewPortCanvas();
 
+    void BeginFrame();
+    void EndFrame();
+
     virtual void OnAttach();
     virtual void OnDetach();
 

@@ -1,6 +1,8 @@
 #include "pch.h"
+
 #include "gl_ui_layer.h"
 #include "graphics/window/window_specification.h"
+#include "graphics/api/renderer.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -12,7 +14,12 @@
 namespace sputnik::graphics::glcore
 {
 
-GlUiLayer::GlUiLayer(GLFWwindow* window) : core::Layer("UiLayer"), m_window(window) {}
+GlUiLayer::GlUiLayer() : sputnik::core::Layer("UiLayer")
+{
+    m_window = sputnik::graphics::api::Renderer::GetNativeWindow();
+}
+
+GlUiLayer::GlUiLayer(GLFWwindow* window) : sputnik::core::Layer("UiLayer"), m_window(window) {}
 
 GlUiLayer::~GlUiLayer() {}
 
@@ -143,14 +150,14 @@ void GlUiLayer::OnDetach()
     ImGui::DestroyContext();
 }
 
-void GlUiLayer::OnUpdate(const core::TimeStep& time_step) {}
+void GlUiLayer::OnUpdate(const sputnik::core::TimeStep& time_step) {}
 
 void GlUiLayer::OnEvent()
 {
     // Todo: handle view port resize
 }
 
-void GlUiLayer::OnUpdateUI(const core::TimeStep& time_step)
+void GlUiLayer::OnUpdateUI(const sputnik::core::TimeStep& time_step)
 {
     GLFWmonitor*       monitor      = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode         = glfwGetVideoMode(monitor);
@@ -175,6 +182,12 @@ void GlUiLayer::OnUpdateUI(const core::TimeStep& time_step)
 
         std::string frame_budget_str = "Frame Budget: %10.2f %s";
         ImGui::Text(frame_budget_str.c_str(), frame_budget, "ms");
+
+        std::string frame_time = "Frame Time: %10.5f %s";
+        ImGui::Text(frame_time.c_str(), time_step.GetMilliSeconds(), "ms");
+
+        std::string frame_rate_str = "Frame Rate: %10.2f %s";
+        ImGui::Text(frame_rate_str.c_str(), 1000.0f / time_step.GetMilliSeconds(), "fps");
     }
     ImGui::End();
 
@@ -191,7 +204,7 @@ void GlUiLayer::Begin()
     ImGui::NewFrame();
     ImGuizmo::BeginFrame();
     BeginDockspace();
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
 }
 
 void GlUiLayer::End()

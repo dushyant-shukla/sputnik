@@ -21,6 +21,7 @@ class GlUiLayer : public sputnik::core::Layer
 {
 
 public:
+    GlUiLayer();
     GlUiLayer(GLFWwindow* window);
     ~GlUiLayer();
 
