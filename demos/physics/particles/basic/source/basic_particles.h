@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fireworks.h"
+
 #include <main/application.h>
 #include <graphics/glcore/shader.h>
 #include <graphics/glcore/debug_draw.h>
@@ -35,6 +37,11 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
+    void SpawnFirework(unsigned int type, const std::optional<Firework>& parent);
+    void SpawnFireworks(unsigned int type, unsigned int number, const std::optional<Firework>& parent);
+    void InitFireworkRules();
+
+private:
     struct Material
     {
         vec3  ambient{1.0f, 0.5f, 0.31f};
@@ -65,6 +72,12 @@ private:
 
     Material m_platform_material;
     Material m_particle_material;
+    Material m_particle_silver;
+    Material m_particle_chrome;
+    Material m_particle_gold;
+    Material m_particle_pearl;
+    Material m_particle_ruby;
+    std::array<Material, 5> m_particle_materials;
 
     std::vector<sputnik::physics::Particle> m_particles;
 
@@ -74,6 +87,19 @@ private:
     float            m_sun_angle = -1.45f; // radians (~ (-83) degress)
     vec3             mDirection  = vec3(0.0f, 0.0f, 1.0f);
     PreethamSkyModel mPreethamSkyModel;
+
+    // Fireworks demo data
+
+    // Max 1000 fireworks allowed
+    static constexpr unsigned int kMaxFireworks = 1000;
+    std::array<Firework, kMaxFireworks> m_fireworks;
+
+    /*
+     * Holds the index of the next firework slot to use.
+     */
+    size_t m_next_firework{0};
+
+    std::array<FireworkRule, 9> m_fireworkwork_rules;
 };
 
 class BasicParticlesDemo : public sputnik::main::Application

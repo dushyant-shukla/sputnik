@@ -15,6 +15,10 @@ class Particle
 {
 
 public:
+    Particle() noexcept = default;
+
+    virtual ~Particle() noexcept = default;
+
     /*!
      * @brief Integrates the particle forward in time by the given amount.This function uses a Newton-Euler integration
      * method, which is a linear approximation to the correct integral. For this reason it may be inaccurate in some
@@ -116,11 +120,9 @@ public:
      */
     void addForce(const vec3& force) noexcept;
 
-protected:
-    /*!
-     * @brief .
-     */
     void clearAccumulator() noexcept;
+
+protected:
 
 protected:
     /*

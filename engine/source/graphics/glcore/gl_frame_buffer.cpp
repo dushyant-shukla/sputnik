@@ -188,6 +188,11 @@ uint32_t FrameBuffer::GetColorAttachmentRendererId(int index)
     return m_color_attachment_ids[index];
 }
 
+uint32_t FrameBuffer::GetDepthAttachmentRendererId()
+{
+    return m_depth_attachment_id;
+}
+
 bool FrameBuffer::IsDepthFormat(FrameBufferTextureFormat format)
 {
     switch(format)

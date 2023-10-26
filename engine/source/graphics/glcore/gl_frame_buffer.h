@@ -70,6 +70,7 @@ public:
     const FrameBufferSpecification& GetSpecification() const;
     uint32_t                        GetColorAttachmentRendererId(int index = 0) const;
     uint32_t                        GetColorAttachmentRendererId(int index = 0);
+    uint32_t                        GetDepthAttachmentRendererId();
 
 private:
     static bool   IsDepthFormat(FrameBufferTextureFormat format);

@@ -52,8 +52,8 @@ void EditorViewPortCanvas::OnPreUpdate(const TimeStep& time_step)
         graphics::api::Camera::GetInstance()->SetViewportSize(m_viewport_size.first, m_viewport_size.second);
     }
 
-    //m_framebuffer->Bind();
-    //api::Renderer::Clear();
+    // m_framebuffer->Bind();
+    // api::Renderer::Clear();
 
     graphics::api::EditorCamera::GetInstance()->Update(time_step);
     graphics::api::Camera::GetInstance()->Update(time_step, m_block_camera_update);
@@ -63,7 +63,7 @@ void EditorViewPortCanvas::OnUpdate(const TimeStep& time_step) {}
 
 void EditorViewPortCanvas::OnPostUpdate(const TimeStep& time_step)
 {
-    //m_framebuffer->UnBind();
+    // m_framebuffer->UnBind();
 }
 
 void EditorViewPortCanvas::OnEvent() {}
@@ -81,7 +81,7 @@ bool EditorViewPortCanvas::ShouldResizeFrameBuffer()
 
 void EditorViewPortCanvas::OnPreUpdateUI(const TimeStep& time_step)
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(3.0f, 3.0f));
     if(ImGui::Begin("viewport"))
     {
         m_viewport_focused    = ImGui::IsWindowFocused();
@@ -122,7 +122,18 @@ void EditorViewPortCanvas::OnPreUpdateUI(const TimeStep& time_step)
     ImGui::PopStyleVar();
 }
 
-void EditorViewPortCanvas::OnUpdateUI(const TimeStep& time_step) {}
+void EditorViewPortCanvas::OnUpdateUI(const TimeStep& time_step)
+{
+    if(ImGui::Begin("Depth Buffer"))
+    {
+        uint64_t textureID = m_framebuffer->GetDepthAttachmentRendererId();
+        ImGui::Image(reinterpret_cast<void*>(textureID),
+                     ImVec2{250, 250},
+                     ImVec2{0, 1},
+                     ImVec2{1, 0});
+    }
+    ImGui::End();
+}
 
 void EditorViewPortCanvas::OnPostUpdateUI(const TimeStep& time_step)
 {

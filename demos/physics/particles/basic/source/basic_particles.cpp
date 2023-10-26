@@ -8,11 +8,13 @@
 #include <imgui.h>
 #include <editor/editor_camera.h>
 #include <graphics/api/camera.h>
-
-#include <glad/glad.h>
+#include <core/input/input_manager.h>
 
 #include <vector.hpp>
 #include <matrix.hpp>
+
+#include <glad/glad.h>
+#include <optional>
 
 namespace sputnik::demos
 {
@@ -59,25 +61,48 @@ void BasicParticlesDemoLayer::OnAttach()
     auto bool_1    = add_result.isParallel(add_result_1);
     auto bool_2    = add_result.isZero();
 
-    mat4 sample_matrix_4{real(3),
-                         real(4),
-                         real(5),
-                         real(8),
-                         real(34),
-                         real(56),
-                         real(38),
-                         real(59),
-                         real(50),
-                         real(2),
-                         real(37),
-                         real(11),
-                         real(80),
-                         real(13),
-                         real(78),
-                         real(15)};
-    std::cout << sample_matrix_4 << std::endl;
-    auto cof_mat = sample_matrix_4.invert();
+    mat4 sample_mat4{real(3),
+                     real(4),
+                     real(5),
+                     real(8),
+                     real(34),
+                     real(56),
+                     real(38),
+                     real(59),
+                     real(50),
+                     real(2),
+                     real(37),
+                     real(11),
+                     real(80),
+                     real(13),
+                     real(78),
+                     real(15)};
+    std::cout << sample_mat4 << std::endl;
+    auto cof_mat = sample_mat4.invert();
     std::cout << cof_mat << std::endl;
+
+    float deter = sample_mat4.determinant();
+    std::cout << "determinant: " << deter << std::endl;
+
+    std::cout << "MATRIX4" << std::endl;
+    Matrix4 sample_matrix_4{real(3),
+                            real(4),
+                            real(5),
+                            real(8),
+                            real(34),
+                            real(56),
+                            real(38),
+                            real(59),
+                            real(50),
+                            real(2),
+                            real(37),
+                            real(11),
+                            real(80),
+                            real(13),
+                            real(78),
+                            real(15)};
+    deter = sample_mat4.determinant();
+    std::cout << "determinant: " << deter << std::endl;
 
     // experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
     // experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
@@ -152,10 +177,47 @@ void BasicParticlesDemoLayer::OnAttach()
     m_box    = Model::LoadModel("../../../../data/assets/box/Box.gltf");
     m_sphere = Model::LoadModel("../../../../data/assets/sphere.gltf");
 
-    m_platform_material.ambient   = {0.05f, 0.0f, 0.0f};
-    m_platform_material.diffuse   = {0.5f, 0.4f, 0.4f};
-    m_platform_material.specular  = {0.7f, 0.4f, 0.4f};
+    // red rubber
+    // m_platform_material.ambient   = {0.05f, 0.0f, 0.0f};
+    // m_platform_material.diffuse   = {0.5f, 0.4f, 0.4f};
+    // m_platform_material.specular  = {0.7f, 0.4f, 0.4f};
+    // m_platform_material.shininess = 0.078125f;
+
+    // rubber green
+    m_platform_material.ambient   = {0.0f, 0.05f, 0.0f};
+    m_platform_material.diffuse   = {0.4f, 0.5f, 0.4f};
+    m_platform_material.specular  = {0.04f, 0.7f, 0.04f};
     m_platform_material.shininess = 0.078125f;
+
+    m_particle_silver.ambient   = {0.19225f, 0.19225f, 0.19225f};
+    m_particle_silver.diffuse   = {0.50754f, 0.50754f, 0.50754f};
+    m_particle_silver.specular  = {0.508273f, 0.508273f, 0.508273f};
+    m_particle_silver.shininess = 0.4f;
+    m_particle_materials[0]     = m_particle_silver;
+
+    m_particle_gold.ambient   = {0.24725f, 0.1995f, 0.0745f};
+    m_particle_gold.diffuse   = {0.75164f, 0.60648f, 0.22648f};
+    m_particle_gold.specular  = {0.628281f, 0.555802f, 0.366065f};
+    m_particle_gold.shininess = 0.4f;
+    m_particle_materials[1]   = m_particle_gold;
+
+    m_particle_pearl.ambient   = {0.25f, 0.20725f, 0.20725f};
+    m_particle_pearl.diffuse   = {1.0f, 0.829f, 0.829f};
+    m_particle_pearl.specular  = {0.296648f, 0.296648f, 0.296648f};
+    m_particle_pearl.shininess = 0.088f;
+    m_particle_materials[2]    = m_particle_pearl;
+
+    m_particle_chrome.ambient   = {0.25f, 0.25f, 0.25f};
+    m_particle_chrome.diffuse   = {0.4f, 0.4f, 0.4f};
+    m_particle_chrome.specular  = {0.774597f, 0.774597f, 0.774597f};
+    m_particle_chrome.shininess = 0.088f;
+    m_particle_materials[3]     = m_particle_chrome;
+
+    m_particle_ruby.ambient   = {0.1745f, 0.01175f, 0.01175f};
+    m_particle_ruby.diffuse   = {0.61424f, 0.04136f, 0.04136f};
+    m_particle_ruby.specular  = {0.727811f, 0.626959f, 0.626959f};
+    m_particle_ruby.shininess = 0.6f;
+    m_particle_materials[4]   = m_particle_ruby;
 
     const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
     editor_camera->SetPosition({0.0f, 0.0f, 10.0f});
@@ -180,6 +242,19 @@ void BasicParticlesDemoLayer::OnAttach()
 
     // glPointSize(5.0f);
     // glLineWidth(1.5f);
+
+    // Firework setup
+    for(auto& firework_rule : m_fireworkwork_rules)
+    {
+        firework_rule.m_type = 0;
+    }
+
+    for(auto& fire_work : m_fireworks)
+    {
+        fire_work.m_type = 0;
+    }
+
+    InitFireworkRules();
 }
 
 // Todo: OnDetach() must be called at system cleanup before shutdown
@@ -190,6 +265,67 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
     if(time_step.GetSeconds() <= Constants::EPSILON)
     {
         return;
+    }
+
+    // create projectiles
+    const auto& input_manager = core::InputManager::GetInstance();
+    if(input_manager->IsMouseButtonTriggered(MOUSE_BUTTON_RIGHT))
+    {
+        sputnik::physics::Particle particle;
+
+        // pistol
+        particle.setPosition(0.0f, 5.0f, 0.0f);
+        particle.setMass(2.0f); // 2.0Kg
+        particle.setVelocity(0.0f, 0.0f, -35.0f);
+        particle.setAcceleration({0.0f, -1.0f, 0.0f});
+        particle.setDamping(0.99f);
+        m_particles.emplace_back(particle);
+
+        // artillery
+        particle.setPosition(0.0f, 5.0f, 0.0f);
+        particle.setMass(200.0f); // 2.0Kg
+        particle.setVelocity(0.0f, 30.0f, -40.0f);
+        particle.setAcceleration({0.0f, -20.0f, 0.0f});
+        particle.setDamping(0.99f);
+
+        m_particles.emplace_back(particle);
+    }
+
+    if(input_manager->IsKeyPressed(KEY_1))
+    {
+        SpawnFireworks(1, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_2))
+    {
+        SpawnFireworks(2, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_3))
+    {
+        SpawnFireworks(3, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_4))
+    {
+        SpawnFireworks(4, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_5))
+    {
+        SpawnFireworks(5, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_6))
+    {
+        SpawnFireworks(5, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_7))
+    {
+        SpawnFireworks(7, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_8))
+    {
+        SpawnFireworks(8, 1, std::nullopt);
+    }
+    if(input_manager->IsKeyPressed(KEY_9))
+    {
+        SpawnFireworks(9, 1, std::nullopt);
     }
 
     Matrix4 model_matrix;
@@ -249,7 +385,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
         // render the platform
         {
 
-            Transform transform({0.0f, 0.0f, 0.0f}, {}, {100.0f, 1.0f, 100.0f});
+            Transform transform({0.0f, -5.0f, 0.0f}, {}, {100.0f, 1.0f, 100.0f});
             model_matrix  = ToMatrix4(transform);
             normal_matrix = Transposed(Inverse(model_matrix));
             Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
@@ -289,6 +425,57 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
                                     m_particle_material.shininess);
 
                 m_sphere->Draw(m_simple_lighting_shader, false, false, false);
+            }
+        }
+
+        // render fireworks
+        {
+            for(auto& firework : m_fireworks)
+            {
+                if(firework.m_type > 0) // if valid
+                {
+                    // if the firework needs removing
+                    if(firework.update(time_step))
+                    {
+
+                        FireworkRule& firework_rule = m_fireworkwork_rules[firework.m_type - 1];
+                        firework.m_type             = 0; // stop the firework for physics and graphics processing
+                        for(const auto& firework_payload : firework_rule.m_payloads)
+                        {
+                            SpawnFireworks(firework_payload.m_type, firework_payload.m_count, firework);
+                            std::cout << "Firework payload spawned" << std::endl;
+                        }
+                    }
+
+                    const auto& pos = firework.getPosition();
+                    Transform   transform({pos.x, pos.y, pos.z}, {}, {0.15f});
+                    model_matrix  = ToMatrix4(transform);
+                    normal_matrix = Transposed(Inverse(model_matrix));
+                    Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
+                    Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+                    // m_particle_material.ambient   = {0.24725f, 0.1995f, 0.0745f};
+                    // m_particle_material.diffuse   = {0.75164f, 0.60648f, 0.22648f};
+                    // m_particle_material.specular  = {0.628281f, 0.555802f, 0.366065f};
+                    // m_particle_material.shininess = 0.4f;
+                    //  material
+                    // Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"),
+                    //                    s_random.randomVector({ 0.01, 0.01, 0.01 }, {0.24725f, 0.1995f, 0.0745f}));
+                    // Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"),
+                    //                    s_random.randomVector({0.2, 0.2, 0.2}, {0.75164f, 0.60648f, 0.22648f}));
+                    // Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"),
+                    //                    s_random.randomVector({0.3, 0.3, 0.3}, {0.628281f, 0.555802f, 0.366065f}));
+
+                    int         index    = s_random.randomInt(4);
+                    const auto& material = m_particle_materials[index];
+
+                    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), material.ambient);
+                    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material.diffuse);
+                    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material.specular);
+                    Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material.shininess);
+
+                    m_sphere->Draw(m_simple_lighting_shader, false, false, false);
+                }
             }
         }
 
@@ -343,6 +530,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         // very important
+        glEnable(GL_CULL_FACE);
         glDepthFunc(GL_LESS);
         glDisable(GL_DEPTH_TEST);
     }
@@ -369,7 +557,7 @@ void BasicParticlesDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
     }
     ImGui::End();
 
-    ImGui::Begin("Sky Scattering");
+    ImGui::Begin("Atmoshperic Scattering");
 
     ImGui::SliderFloat("Exposure", &m_exposure, 0, 10.0f);
     ImGui::SliderAngle("Sun Angle", &m_sun_angle, 0.0f, -180.0f);
@@ -383,6 +571,73 @@ void BasicParticlesDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
     ImGui::Text("Sun Direction = [ %f, %f, %f ]", mDirection.x, mDirection.y, mDirection.z);
 
     ImGui::End();
+}
+
+void BasicParticlesDemoLayer::SpawnFirework(unsigned int type, const std::optional<Firework>& parent)
+{
+    FireworkRule& firework_rule = m_fireworkwork_rules[type - 1];
+    firework_rule.Create(m_fireworks[m_next_firework], parent);
+    m_next_firework = (m_next_firework + 1) % kMaxFireworks;
+}
+
+void BasicParticlesDemoLayer::SpawnFireworks(unsigned int                   type,
+                                             unsigned int                   number,
+                                             const std::optional<Firework>& parent)
+{
+    for(unsigned int i = 0; i < number; ++i)
+    {
+        SpawnFirework(type, parent);
+    }
+}
+
+void BasicParticlesDemoLayer::InitFireworkRules()
+{
+    m_fireworkwork_rules[0].SetRuleParameters(1, 0.5f, 1.4f, {-5.0f, 25.0f, -5.0f}, {5.0f, 28.0f, 5.0f}, 0.1);
+    m_fireworkwork_rules[0].m_payloads.emplace_back(3, 5);
+    m_fireworkwork_rules[0].m_payloads.emplace_back(5, 5);
+
+    m_fireworkwork_rules[1].SetRuleParameters(2, 0.5f, 1.0f, {-5.0f, 10.0f, -5.0f}, {5.0f, 20.0f, 5.0f}, 0.8);
+    m_fireworkwork_rules[1].m_payloads.emplace_back(4, 2);
+
+    m_fireworkwork_rules[2].SetRuleParameters(3, 0.5f, 1.5f, {-5.0f, -5.0f, -5.0f}, {5.0f, 5.0f, 5.0f}, 0.1f);
+
+    m_fireworkwork_rules[3].SetRuleParameters(4, 0.25f, 0.5f, {-20.0f, 5.0f, -5.0f}, {20.0f, 5.0f, 5.0f}, 0.2f);
+
+    m_fireworkwork_rules[4].SetRuleParameters(5, 0.5f, 1.0f, {-20.0f, 2.0f, -5.0f}, {20.0f, 18.0f, 5.0f}, 0.01f);
+    m_fireworkwork_rules[4].m_payloads.emplace_back(3, 5);
+
+    m_fireworkwork_rules[5].SetRuleParameters(6, // type
+                                              3,
+                                              5,               // age range
+                                              vec3(-5, 5, -5), // min velocity
+                                              vec3(5, 10, 5),  // max velocity
+                                              0.95             // damping
+    );
+
+    m_fireworkwork_rules[6].SetRuleParameters(7, // type
+                                              4,
+                                              5,                // age range
+                                              vec3(-5, 50, -5), // min velocity
+                                              vec3(5, 60, 5),   // max velocity
+                                              0.01              // damping
+    );
+    m_fireworkwork_rules[6].m_payloads.emplace_back(8, 10);
+
+    m_fireworkwork_rules[7].SetRuleParameters(8, // type
+                                              0.25f,
+                                              0.5f,             // age range
+                                              vec3(-1, -1, -1), // min velocity
+                                              vec3(1, 1, 1),    // max velocity
+                                              0.01              // damping
+    );
+
+    m_fireworkwork_rules[8].SetRuleParameters(9, // type
+                                              3,
+                                              5,                 // age range
+                                              vec3(-15, 10, -5), // min velocity
+                                              vec3(15, 15, 5),   // max velocity
+                                              0.95               // damping
+    );
 }
 
 } // namespace sputnik::demos

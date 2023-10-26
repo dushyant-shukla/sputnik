@@ -62,8 +62,8 @@ void Application::Run()
             m_editor->Update(time_step);
         }
 
-        graphics::api::Renderer::Update(time_step);
         m_input_manager->LateUpdate(time_step);
+        graphics::api::Renderer::Update(time_step);
     }
 }
 
