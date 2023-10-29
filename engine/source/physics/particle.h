@@ -26,7 +26,7 @@ public:
      *
      * @param duration The frame time delta.
      */
-    void integrate(real duration) noexcept;
+    void integrate(const real& duration) noexcept;
 
     /*!
      * @brief Sets the mass of the particle using the given parameter.

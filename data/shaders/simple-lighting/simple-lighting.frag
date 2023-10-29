@@ -24,6 +24,7 @@ uniform Light light;
 uniform vec3 eye_position;
 
 layout(location = 0) out vec4 frag_color;
+layout(location = 1) out vec4 depth_color;
 
 void main() {
     vec3 ambient_color = light.ambient * material.ambient;
@@ -41,4 +42,5 @@ void main() {
     vec3 specular_color = light.specular * (specular_strength * material.specular);
 
     frag_color = vec4(ambient_color + diffuse_color + specular_color, 1.0);
+    depth_color = vec4(vec3(gl_FragCoord.z), 1.0);
 }

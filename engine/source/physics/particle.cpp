@@ -6,7 +6,7 @@
 namespace sputnik::physics
 {
 
-void Particle::integrate(real duration) noexcept
+void Particle::integrate(const real& duration) noexcept
 {
     // We don't integrate things with infinite mass.
     if(m_inv_mass <= Constants::EPSILON)
@@ -150,4 +150,4 @@ void Particle::addForce(const vec3& force) noexcept
     m_accumulated_force += force;
 }
 
-} // namespace sputnink::physics
+} // namespace sputnik::physics

@@ -21,7 +21,9 @@ EditorViewPortCanvas::EditorViewPortCanvas(unsigned int width, unsigned int heig
     glcore::FrameBufferSpecification framebuffer_spec;
     framebuffer_spec.width         = m_window_width;
     framebuffer_spec.height        = m_window_height;
-    framebuffer_spec.m_attachments = {glcore::FrameBufferTextureFormat::RGBA8, glcore::FrameBufferTextureFormat::DEPTH};
+    framebuffer_spec.m_attachments = {glcore::FrameBufferTextureFormat::RGBA8,
+                                      glcore::FrameBufferTextureFormat::RGBA8,
+                                      glcore::FrameBufferTextureFormat::DEPTH};
     m_framebuffer                  = std::make_shared<glcore::FrameBuffer>(framebuffer_spec);
 }
 
@@ -126,7 +128,7 @@ void EditorViewPortCanvas::OnUpdateUI(const TimeStep& time_step)
 {
     if(ImGui::Begin("Depth Buffer"))
     {
-        uint64_t textureID = m_framebuffer->GetDepthAttachmentRendererId();
+        uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
         ImGui::Image(reinterpret_cast<void*>(textureID),
                      ImVec2{250, 250},
                      ImVec2{0, 1},

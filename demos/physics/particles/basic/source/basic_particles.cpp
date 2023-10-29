@@ -531,7 +531,7 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
         // very important
         glEnable(GL_CULL_FACE);
-        glDepthFunc(GL_LESS);
+        glDepthFunc(GL_LESS); // This is the default depth function
         glDisable(GL_DEPTH_TEST);
     }
 }
