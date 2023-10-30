@@ -45,32 +45,18 @@ void ComputeShaderDemo::OnDetach() {}
 
 void ComputeShaderDemo::OnUpdate(const core::TimeStep& time_step)
 {
-    // Bind the compute shader
-    m_compute_shader->Bind();
+    m_compute_shader->Bind();                            // Bind the compute shader
+    glDispatchCompute(TEXTURE_WIDTH, TEXTURE_HEIGHT, 1); // Dispatch compute shader
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); // make sure writing to image has finished before read
+    m_compute_shader->Unbind();                          // Unbind the compute shader
 
-    // Dispatch compute shader
-    glDispatchCompute(TEXTURE_WIDTH, TEXTURE_HEIGHT, 1);
-
-    // make sure writing to image has finished before read
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-    // Unbind the compute shader
-    m_compute_shader->Unbind();
-
-    //// Bind the fullscreen quad shader
-    // m_fs_quad_shader->Bind();
-
-    //// Bind the texture
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, m_texture_id);
-    // glUniform1i(m_fs_quad_shader->GetUniform("s_texture"), 0); // 0 is texture unit
-
-    //// Draw the fullscreen quad
-    //// glDrawArrays(GL_TRIANGLES, 0, 6);
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    //// Unbind the fullscreen quad shader
-    // m_fs_quad_shader->Unbind();
+    // Just testing fullscreen quad rendering
+    m_fs_quad_shader->Bind();                                  // Bind the fullscreen quad shader
+    glActiveTexture(GL_TEXTURE0);                              // Activate texture unit 0
+    glBindTexture(GL_TEXTURE_2D, m_texture_id);                // Bind the texture
+    glUniform1i(m_fs_quad_shader->GetUniform("s_texture"), 0); // Set the sampler uniform to texture unit 0
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);                     // Draw the fullscreen quad
+    m_fs_quad_shader->Unbind();                                // Unbind the fullscreen quad shader
 }
 
 void ComputeShaderDemo::OnEvent() {}
@@ -79,7 +65,6 @@ void ComputeShaderDemo::OnUpdateUI(const core::TimeStep& time_step)
 {
     if(ImGui::Begin("Compute Texture"))
     {
-        // uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
         ImGui::Image(reinterpret_cast<void*>(m_texture_id),
                      ImVec2{static_cast<float>(TEXTURE_WIDTH), static_cast<float>(TEXTURE_HEIGHT)},
                      ImVec2{0, 1},
