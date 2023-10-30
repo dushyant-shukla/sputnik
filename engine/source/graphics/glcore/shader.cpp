@@ -11,6 +11,12 @@ Shader::Shader()
     m_id = glCreateProgram();
 }
 
+Shader::Shader(const std::string& compute_shader_path)
+{
+    m_id = glCreateProgram();
+    LoadComputeShader(compute_shader_path);
+}
+
 Shader::Shader(std::string vertex_shader, std::string fragment_shader)
 {
     m_id = glCreateProgram();
@@ -90,6 +96,22 @@ void Shader::Load(const std::string& vertex_shader, const std::string& fragment_
     }
 }
 
+void Shader::LoadComputeShader(const std::string& compute_shader)
+{
+    std::ifstream f(compute_shader.c_str());
+    bool          comp_file = f.good(); // check if the file exists
+    f.close();
+
+    std::string c_source = compute_shader;
+    if(comp_file)
+    {
+        c_source = ReadShaderSource(compute_shader);
+    }
+
+    unsigned int c_shader = CompileComputeShader(c_source);
+    LinkComputeShader(c_shader);
+}
+
 std::string Shader::ReadShaderSource(const std::string& filepath)
 {
     std::ifstream _file;
@@ -140,6 +162,26 @@ unsigned int Shader::CompileFragmentShader(const std::string& fragment_shader_so
     return fragment_shader_id;
 }
 
+unsigned int Shader::CompileComputeShader(const std::string& compute_shader_source)
+{
+    unsigned int compute_shader_id = glCreateShader(GL_COMPUTE_SHADER);
+    const char*  shader_source     = compute_shader_source.c_str();
+    glShaderSource(compute_shader_id, 1, &shader_source, NULL);
+    glCompileShader(compute_shader_id);
+    int success = 0;
+    glGetShaderiv(compute_shader_id, GL_COMPILE_STATUS, &success);
+    if(!success)
+    {
+        char info_log[512];
+        glGetShaderInfoLog(compute_shader_id, 512, NULL, info_log);
+        std::cout << "Compute shader compilation failed.\n";
+        std::cout << "\t" << info_log << "\n";
+        glDeleteShader(compute_shader_id);
+        return 0;
+    }
+    return compute_shader_id;
+}
+
 bool Shader::LinkShaders(unsigned int vertex_shader_id, unsigned int fragment_shader_id)
 {
     glAttachShader(m_id, vertex_shader_id);
@@ -149,10 +191,10 @@ bool Shader::LinkShaders(unsigned int vertex_shader_id, unsigned int fragment_sh
     glGetProgramiv(m_id, GL_LINK_STATUS, &success);
     if(!success)
     {
-        char infoLog[512];
-        glGetProgramInfoLog(m_id, 512, NULL, infoLog);
+        char info_log[512];
+        glGetProgramInfoLog(m_id, 512, NULL, info_log);
         std::cout << "ERROR: Shader linking failed.\n";
-        std::cout << "\t" << infoLog << "\n";
+        std::cout << "\t" << info_log << "\n";
         glDeleteShader(vertex_shader_id);
         glDeleteShader(fragment_shader_id);
         return false;
@@ -162,6 +204,27 @@ bool Shader::LinkShaders(unsigned int vertex_shader_id, unsigned int fragment_sh
     glDeleteShader(fragment_shader_id);
 
     return true;
+}
+
+bool Shader::LinkComputeShader(unsigned int compute_shader_id)
+{
+    glAttachShader(m_id, compute_shader_id);
+    glLinkProgram(m_id);
+    int success = 0;
+    glGetProgramiv(m_id, GL_LINK_STATUS, &success);
+    if(!success)
+    {
+        char info_log[512];
+        glGetProgramInfoLog(m_id, 512, NULL, info_log);
+        std::cout << "ERROR: Shader linking failed.\n";
+        std::cout << "\t" << info_log << "\n";
+        glDeleteShader(compute_shader_id);
+        return false;
+    }
+
+    glDeleteShader(compute_shader_id);
+
+    return false;
 }
 
 void Shader::PopulateAttributes()

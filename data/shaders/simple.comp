@@ -1,0 +1,26 @@
+#version 460 core
+
+// Since we execute the shader for every pixel of an image, we will keep the local size at 1 in every dimension.
+// 1 pixel per work group.
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+// A 2D image for the shader to write to.
+// The internal format (rgba32f) here needs to be the same as the format of the texture in the application program.
+
+// An image2D represents a single image from a texture. While sampler variables use the entire texture including mipmap
+// levels and array layers, images only have a single image from a texture.
+
+// Most texture sampling functions use normalized texture coordinates [0, 1], for images we need the absolute integer texel coordinates.
+// Images and samplers are completely separated including their bindings.
+// While samplers can only read data from textures, image variables can read and/or write data.
+layout(rgba32f, binding = 0) uniform image2D img_output;
+
+void main ()
+{
+    vec4 value = vec4(0.0, 0.0, 0.0, 1.0);
+    // ivec2 texel_coord = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 texel_coord = ivec2(gl_WorkGroupID.xy);
+    value.x = float(texel_coord.x) / (gl_NumWorkGroups.x);
+    value.y = float(texel_coord.y) / (gl_NumWorkGroups.y);
+    imageStore(img_output, texel_coord, value);
+}

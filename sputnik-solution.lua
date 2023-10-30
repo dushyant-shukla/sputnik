@@ -77,6 +77,11 @@ include "demos/ik-ccd-solver/ik-ccd-solver.lua"
 include "demos/fabrik-ik-solver-demo/fabrik-ik-solver-demo.lua"
 group ""
 
+group "graphics-demos"
+include "demos/compute-shader/compute-shader.lua"
+group ""
+
+
 group "physics-demos"
 include "demos/physics/particles/basic/basic-particles.lua"
 group ""

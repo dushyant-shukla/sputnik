@@ -18,6 +18,13 @@ public:
      */
     Shader();
 
+    /*!
+     * @brief .
+     *
+     * @param compute_shader_path
+     */
+    Shader(const std::string& compute_shader_path);
+
     /**
      * This constructor accepts either the paths to files containing the shader source or inline defined shader
      * definition.
@@ -65,6 +72,14 @@ protected:
      */
     void Load(const std::string& vertex_shader, const std::string& fragment_shader);
 
+    /*!
+     * @brief This method loads a compute shader. It takes a string, which can be either a filepath or inline defined
+     * shader source.
+     *
+     * @param compute_shader Path to the file containing compute shader source, or the source itself.
+     */
+    void LoadComputeShader(const std::string& compute_shader);
+
     /**
      * This method reads shader source given a path to the shader file.
      *
@@ -89,6 +104,14 @@ protected:
      */
     unsigned int CompileFragmentShader(const std::string& fragment_shader_source);
 
+    /*!
+     * @brief This method prepares a compute shader.
+     *
+     * @param compute_shader_source Source of a compute shader
+     * @return  An id associated with the shader on sussecful compilation, zero otherwise.
+     */
+    unsigned int CompileComputeShader(const std::string& compute_shader_source);
+
     /**
      * This method attaches the shaders to the shader program.
      *
@@ -97,6 +120,14 @@ protected:
      * \return true if shader linked successfully, false otherwise
      */
     bool LinkShaders(unsigned int vertex_shader_id, unsigned int fragment_shader_id);
+
+    /*!
+     * @brief This method attaches the given compute shader to the shader program.
+     *
+     * @param compute_shader_id The compute shader id
+     * @return true if shader linked successfully, false otherwise
+     */
+    bool LinkComputeShader(unsigned int compute_shader_id);
 
     /**
      * This method enumerates over all the attributes stored in the shader program, and stores them as key-value pairs

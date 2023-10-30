@@ -48,7 +48,7 @@ public:
 
 private:
     /**
-     * Holds the acceleration due to gravity.
+     * @brief Holds the acceleration due to gravity.
      */
     vec3 m_gravity;
 };
