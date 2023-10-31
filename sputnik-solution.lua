@@ -79,6 +79,7 @@ group ""
 
 group "graphics-demos"
 include "demos/compute-shader/compute-shader.lua"
+include "demos/compute-shader-particles/compute-shader-particles.lua"
 group ""
 
 

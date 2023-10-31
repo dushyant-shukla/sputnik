@@ -109,7 +109,10 @@ void Shader::LoadComputeShader(const std::string& compute_shader)
     }
 
     unsigned int c_shader = CompileComputeShader(c_source);
-    LinkComputeShader(c_shader);
+    if(LinkComputeShader(c_shader))
+    {
+        PopulateUniforms();
+    }
 }
 
 std::string Shader::ReadShaderSource(const std::string& filepath)

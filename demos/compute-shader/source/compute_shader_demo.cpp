@@ -21,7 +21,7 @@ ComputeShaderDemo::~ComputeShaderDemo() {}
 
 void ComputeShaderDemo::OnAttach()
 {
-    m_compute_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/simple.comp");
+    m_compute_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/simple.comp");
     m_fs_quad_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/fullscreen_vs.glsl",
                                                                            "../../data/shaders/fullscreen_fs.glsl");
 
@@ -50,7 +50,7 @@ void ComputeShaderDemo::OnUpdate(const core::TimeStep& time_step)
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); // make sure writing to image has finished before read
     m_compute_shader->Unbind();                          // Unbind the compute shader
 
-    // Just testing fullscreen quad rendering
+    // Just testing fullscreen quad rendering ;-D
     m_fs_quad_shader->Bind();                                  // Bind the fullscreen quad shader
     glActiveTexture(GL_TEXTURE0);                              // Activate texture unit 0
     glBindTexture(GL_TEXTURE_2D, m_texture_id);                // Bind the texture
