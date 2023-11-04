@@ -29,80 +29,80 @@ BasicParticlesDemoLayer::~BasicParticlesDemoLayer() {}
 
 void BasicParticlesDemoLayer::OnAttach()
 {
-    experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
-    auto               norm_res = test_position.normalized();
+    // experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
+    // auto               norm_res = test_position.normalized();
 
-    experimental::vec3 test_position_3{4.0f, 5.0f, 6.0f};
+    // experimental::vec3 test_position_3{4.0f, 5.0f, 6.0f};
 
-    test_position += test_position_3;
-    test_position -= test_position_3;
-    test_position *= test_position_3;
-    test_position /= test_position_3;
+    // test_position += test_position_3;
+    // test_position -= test_position_3;
+    // test_position *= test_position_3;
+    // test_position /= test_position_3;
 
-    test_position += 2.0f;
-    test_position -= 2.0f;
-    test_position *= 2.0f;
-    test_position /= 2.0f;
+    // test_position += 2.0f;
+    // test_position -= 2.0f;
+    // test_position *= 2.0f;
+    // test_position /= 2.0f;
 
-    experimental::vec3 add_result = test_position + test_position_3;
-    experimental::vec3 sub_result = test_position - test_position_3;
-    experimental::vec3 mul_result = test_position * test_position_3;
-    experimental::vec3 div_result = test_position / test_position_3;
+    // experimental::vec3 add_result = test_position + test_position_3;
+    // experimental::vec3 sub_result = test_position - test_position_3;
+    // experimental::vec3 mul_result = test_position * test_position_3;
+    // experimental::vec3 div_result = test_position / test_position_3;
 
-    experimental::vec3 add_result_1 = test_position + 3.0f;
-    experimental::vec3 sub_result_1 = test_position - 3.0f;
-    experimental::vec3 mul_result_1 = test_position * 3.0f;
-    experimental::vec3 div_result_1 = test_position / 3.0f;
+    // experimental::vec3 add_result_1 = test_position + 3.0f;
+    // experimental::vec3 sub_result_1 = test_position - 3.0f;
+    // experimental::vec3 mul_result_1 = test_position * 3.0f;
+    // experimental::vec3 div_result_1 = test_position / 3.0f;
 
-    auto slerp_res = slerp(add_result, add_result_1, real(0.4));
-    auto lerp_res  = lerp(add_result, add_result_1, real(0.4));
-    auto nlerp_res = nlerp(add_result, add_result_1, real(0.4));
-    auto bool_0    = add_result.isOrthogonal(add_result_1);
-    auto bool_1    = add_result.isParallel(add_result_1);
-    auto bool_2    = add_result.isZero();
+    // auto slerp_res = slerp(add_result, add_result_1, real(0.4));
+    // auto lerp_res  = lerp(add_result, add_result_1, real(0.4));
+    // auto nlerp_res = nlerp(add_result, add_result_1, real(0.4));
+    // auto bool_0    = add_result.isOrthogonal(add_result_1);
+    // auto bool_1    = add_result.isParallel(add_result_1);
+    // auto bool_2    = add_result.isZero();
 
-    mat4 sample_mat4{real(3),
-                     real(4),
-                     real(5),
-                     real(8),
-                     real(34),
-                     real(56),
-                     real(38),
-                     real(59),
-                     real(50),
-                     real(2),
-                     real(37),
-                     real(11),
-                     real(80),
-                     real(13),
-                     real(78),
-                     real(15)};
-    std::cout << sample_mat4 << std::endl;
-    auto cof_mat = sample_mat4.invert();
-    std::cout << cof_mat << std::endl;
+    // mat4 sample_mat4{real(3),
+    //                  real(4),
+    //                  real(5),
+    //                  real(8),
+    //                  real(34),
+    //                  real(56),
+    //                  real(38),
+    //                  real(59),
+    //                  real(50),
+    //                  real(2),
+    //                  real(37),
+    //                  real(11),
+    //                  real(80),
+    //                  real(13),
+    //                  real(78),
+    //                  real(15)};
+    // std::cout << sample_mat4 << std::endl;
+    // auto cof_mat = sample_mat4.inverted();
+    // std::cout << cof_mat << std::endl;
 
-    float deter = sample_mat4.determinant();
-    std::cout << "determinant: " << deter << std::endl;
+    // float deter = sample_mat4.determinant();
+    // std::cout << "determinant: " << deter << std::endl;
 
-    std::cout << "MATRIX4" << std::endl;
-    Matrix4 sample_matrix_4{real(3),
-                            real(4),
-                            real(5),
-                            real(8),
-                            real(34),
-                            real(56),
-                            real(38),
-                            real(59),
-                            real(50),
-                            real(2),
-                            real(37),
-                            real(11),
-                            real(80),
-                            real(13),
-                            real(78),
-                            real(15)};
-    deter = sample_mat4.determinant();
-    std::cout << "determinant: " << deter << std::endl;
+    // std::cout << "MATRIX4" << std::endl;
+    // Matrix4 sample_matrix_4{real(3),
+    //                         real(4),
+    //                         real(5),
+    //                         real(8),
+    //                         real(34),
+    //                         real(56),
+    //                         real(38),
+    //                         real(59),
+    //                         real(50),
+    //                         real(2),
+    //                         real(37),
+    //                         real(11),
+    //                         real(80),
+    //                         real(13),
+    //                         real(78),
+    //                         real(15)};
+    // deter = sample_mat4.determinant();
+    // std::cout << "determinant: " << deter << std::endl;
 
     // experimental::vec3 lerp_result  = lerp(test_position, test_position_3, 0.5f);
     // experimental::vec3 slerp_result = slerp(test_position, test_position_3, 0.5f);
@@ -331,33 +331,39 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
     Matrix4 model_matrix;
     Matrix4 normal_matrix;
 
-    const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
-    Matrix4     projection    = editor_camera->GetCameraPerspective();
-    Matrix4     view          = editor_camera->GetCameraView();
+    // const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
+    // Matrix4     projection    = editor_camera->GetCameraPerspective();
+    // Matrix4     view          = editor_camera->GetCameraView();
 
     const auto& camera          = sputnik::graphics::api::Camera::GetInstance();
     const auto& p               = camera->GetCameraPerspective();
     const auto& v               = camera->GetCameraView();
     const auto& camera_position = camera->GetCameraPosition();
-    for(unsigned int i = 0; i < 16; ++i)
-    {
-        projection.v[i] = p.m[i];
-        view.v[i]       = v.m[i];
-    }
+    // for(unsigned int i = 0; i < 16; ++i)
+    //{
+    //     projection.v[i] = p.m[i];
+    //     view.v[i]       = v.m[i];
+    // }
 
     glEnable(GL_DEPTH_TEST);
     // render light source
     {
         m_static_shader->Bind();
-        Uniform<Matrix4>::Set(m_static_shader->GetUniform("view"), view);
-        Uniform<Matrix4>::Set(m_static_shader->GetUniform("projection"), projection);
+        Uniform<mat4>::Set(m_static_shader->GetUniform("view"), v);
+        Uniform<mat4>::Set(m_static_shader->GetUniform("projection"), p);
         Uniform<vec3>::Set(m_static_shader->GetUniform("light"), m_light.position);
 
         m_static_mesh_texture->Set(m_static_shader->GetUniform("diffuse"), 0);
 
-        Transform transform({m_light.position.x, m_light.position.y, m_light.position.z}, {}, {0.20f, 0.20f, 0.20f});
-        model_matrix = ToMatrix4(transform);
-        Uniform<Matrix4>::Set(m_static_shader->GetUniform("model"), model_matrix);
+        // old math api
+        // Transform transform({m_light.position.x, m_light.position.y, m_light.position.z}, {}, {0.20f, 0.20f, 0.20f});
+        // model_matrix = ToMatrix4(transform);
+        // Uniform<Matrix4>::Set(m_static_shader->GetUniform("model"), model_matrix);
+
+        mat4 model_mat4;
+        model_mat4 = model_mat4.translate({m_light.position.x, m_light.position.y, m_light.position.z});
+        model_mat4 = model_mat4.scale({0.20f, 0.20f, 0.20f});
+        Uniform<mat4>::Set(m_static_shader->GetUniform("model"), model_mat4);
 
         m_sphere->Draw(m_static_shader, true, false, false);
 
@@ -369,8 +375,10 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
     {
         m_simple_lighting_shader->Bind();
 
-        Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("view"), view);
-        Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("projection"), projection);
+        // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("view"), view);
+        // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("projection"), projection);
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("view"), v);
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("projection"), p);
 
         // light
         Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.position"), m_light.position);
@@ -385,11 +393,19 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
         // render the platform
         {
 
-            Transform transform({0.0f, -5.0f, 0.0f}, {}, {100.0f, 1.0f, 100.0f});
-            model_matrix  = ToMatrix4(transform);
-            normal_matrix = Transposed(Inverse(model_matrix));
-            Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
-            Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+            // old maths+transform api
+            // Transform transform({0.0f, -5.0f, 0.0f}, {}, {100.0f, 1.0f, 100.0f});
+            // model_matrix  = ToMatrix4(transform);
+            // normal_matrix = Transposed(Inverse(model_matrix));
+            // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
+            // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+            mat4 model_mat4;
+            model_mat4       = model_mat4.translate({0.0f, -5.0f, 0.0f});
+            model_mat4       = model_mat4.scale({100.0f, 1.0f, 100.0f});
+            mat4 normal_mat4 = model_mat4.inverted().transpose();
+            Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("model"), model_mat4);
+            Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_mat4);
 
             // material
             Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), m_platform_material.ambient);
@@ -408,11 +424,20 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
                 m_particles[i].integrate(time_step.GetSeconds());
 
                 const auto& pos = m_particles[i].getPosition();
-                Transform   transform({pos.x, pos.y, pos.z}, {}, {0.15f});
-                model_matrix  = ToMatrix4(transform);
-                normal_matrix = Transposed(Inverse(model_matrix));
-                Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
-                Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+                // old maths+transform api
+                // Transform   transform({pos.x, pos.y, pos.z}, {}, {0.15f});
+                // model_matrix  = ToMatrix4(transform);
+                // normal_matrix = Transposed(Inverse(model_matrix));
+                // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
+                // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+                mat4 model_mat4;
+                model_mat4       = model_mat4.translate({pos.x, pos.y, pos.z});
+                model_mat4       = model_mat4.scale({0.15f});
+                mat4 normal_mat4 = model_mat4.inverted().transpose();
+                Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("model"), model_mat4);
+                Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_mat4);
 
                 // material
                 Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"),
@@ -448,11 +473,20 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
                     }
 
                     const auto& pos = firework.getPosition();
-                    Transform   transform({pos.x, pos.y, pos.z}, {}, {0.15f});
-                    model_matrix  = ToMatrix4(transform);
-                    normal_matrix = Transposed(Inverse(model_matrix));
-                    Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
-                    Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+                    // old maths+transform api
+                    // Transform   transform({pos.x, pos.y, pos.z}, {}, {0.15f});
+                    // model_matrix  = ToMatrix4(transform);
+                    // normal_matrix = Transposed(Inverse(model_matrix));
+                    // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("model"), model_matrix);
+                    // Uniform<Matrix4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+                    mat4 model_mat4;
+                    model_mat4       = model_mat4.translate({pos.x, pos.y, pos.z});
+                    model_mat4       = model_mat4.scale({0.15f});
+                    mat4 normal_mat4 = model_mat4.inverted().transpose();
+                    Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("model"), model_mat4);
+                    Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_mat4);
 
                     // m_particle_material.ambient   = {0.24725f, 0.1995f, 0.0745f};
                     // m_particle_material.diffuse   = {0.75164f, 0.60648f, 0.22648f};
@@ -497,35 +531,28 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
         glDepthFunc(GL_LEQUAL);
         glDisable(GL_CULL_FACE);
 
-        Matrix4 cubemap_view{};
+        // removing translation from the view matrix
+        mat4 cubemap_view_mat4{};
         for(unsigned int i = 0; i < 16; ++i)
         {
-            cubemap_view.v[i] = view.v[i];
+            cubemap_view_mat4.m[i] = v.m[i];
         }
-        cubemap_view.v[3]  = 0;
-        cubemap_view.v[7]  = 0;
-        cubemap_view.v[11] = 0;
-        cubemap_view.v[15] = 1;
-        cubemap_view.v[12] = 0;
-        cubemap_view.v[13] = 0;
-        cubemap_view.v[14] = 0;
 
-        // mat4 proj{};
-        // for(unsigned i = 0; i < 16; ++i)
-        //{
-        //     proj.m[i] = projection.v[i];
-        // }
+        cubemap_view_mat4.m[3]  = 0;
+        cubemap_view_mat4.m[7]  = 0;
+        cubemap_view_mat4.m[11] = 0;
+        cubemap_view_mat4.m[15] = 1;
+        cubemap_view_mat4.m[12] = 0;
+        cubemap_view_mat4.m[13] = 0;
+        cubemap_view_mat4.m[14] = 0;
 
-        Matrix4 cubemap_view_projection = projection * cubemap_view;
-        // mat4 inv_cubemap_view_projection = cubemap_view_projection.inverse();
-        Matrix4 inv_cubemap_view_projection = Inverse(cubemap_view_projection); // Todo:: This is buggy with mat4
+        mat4 cubemap_view_projection_mat4     = p * cubemap_view_mat4;
+        mat4 inv_cubemap_view_projection_mat4 = cubemap_view_projection_mat4.inverted();
 
         mPreethamSkyModel.SetDirection(mDirection);
         mPreethamSkyModel.Update();
         m_sky_shader->Bind();
-        // Uniform<mat4>::Set(m_sky_shader->GetUniform("inv_view_projection"),
-        //                                               inv_cubemap_view_projection);
-        Uniform<Matrix4>::Set(m_sky_shader->GetUniform("inv_view_projection"), inv_cubemap_view_projection);
+        Uniform<mat4>::Set(m_sky_shader->GetUniform("inv_view_projection"), inv_cubemap_view_projection_mat4);
         mPreethamSkyModel.SetRenderUniforms(m_sky_shader);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
