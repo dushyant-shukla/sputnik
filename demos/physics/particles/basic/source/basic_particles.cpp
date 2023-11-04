@@ -9,6 +9,7 @@
 #include <editor/editor_camera.h>
 #include <graphics/api/camera.h>
 #include <core/input/input_manager.h>
+#include <physics/geometry.h>
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -22,6 +23,7 @@ namespace sputnik::demos
 using namespace ramanujan;
 using namespace experimental;
 using namespace sputnik::graphics::glcore;
+using namespace sputnik::physics;
 
 BasicParticlesDemoLayer::BasicParticlesDemoLayer(const std::string& name) : core::Layer(name) {}
 
@@ -29,6 +31,8 @@ BasicParticlesDemoLayer::~BasicParticlesDemoLayer() {}
 
 void BasicParticlesDemoLayer::OnAttach()
 {
+    Triangle t;
+    int      a = 10;
     // experimental::vec3 test_position{1.0f, 2.0f, 3.0f};
     // auto               norm_res = test_position.normalized();
 
