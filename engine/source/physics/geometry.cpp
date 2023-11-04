@@ -83,6 +83,29 @@ AABB fromMinMax(const vec3& min, const vec3& max) noexcept
 
 //////////////////////////////// OBB //////////////////////////////////////
 
+OBB::OBB() noexcept : center{real(0.0)}, half_extents{real(1.0)}, orientation{mat3::identity()} {}
+
+OBB::OBB(const OBB& other) noexcept
+    : center{other.center}
+    , half_extents{other.half_extents}
+    , orientation{other.orientation}
+{
+}
+
+OBB::OBB(OBB&& other) noexcept
+    : center{std::move(other.center)}
+    , half_extents{std::move(other.half_extents)}
+    , orientation{std::move(other.orientation)}
+{
+}
+
+OBB::OBB(const Point& _center, const vec3& _half_extents, const mat3& _orientation) noexcept
+    : center{_center}
+    , half_extents{_half_extents}
+    , orientation{_orientation}
+{
+}
+
 //////////////////////////////// Sphere //////////////////////////////////////
 
 Sphere::Sphere() noexcept : center{real(0.0)}, radius{real(1.0f)} {}
@@ -92,5 +115,29 @@ Sphere::Sphere(const Sphere& other) noexcept : center{other.center}, radius{othe
 Sphere::Sphere(Sphere&& other) noexcept : center{std::move(other.center)}, radius{std::move(other.radius)} {}
 
 Sphere::Sphere(const Point& _center, real _radius) noexcept : center(_center), radius(_radius) {}
+
+//////////////////////////////// Plane //////////////////////////////////////
+
+Plane::Plane() noexcept
+    : normal{real(1.0), real(0.0), real(0.0)} // Todo:: Why is x component 1.0?
+    , distance{real(0.0)}
+{
+}
+
+Plane::Plane(const Plane& other) noexcept : normal{other.normal}, distance{other.distance} {}
+
+Plane::Plane(Plane&& other) noexcept : normal{std::move(other.normal)}, distance{std::move(other.distance)} {}
+
+Plane::Plane(const vec3& _normal, real _distance) noexcept : normal{_normal}, distance{_distance} {}
+
+real Plane::distanceToPoint(const Point& point) const noexcept
+{
+    return normal.dot(point);
+}
+
+real Plane::planeEquation(const Point& point) const noexcept
+{
+    return normal.dot(point) - distance;
+}
 
 } // namespace sputnik::physics

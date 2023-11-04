@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector.hpp>
+#include <matrix.hpp>
 
 namespace sputnik::physics
 {
@@ -62,8 +63,35 @@ struct Triangle
     Triangle(const Point& _a, const Point& _b, const Point& _c) noexcept;
 };
 
+/**
+ * @brief A plane is a flat surface that extents infinitely is all directions.
+ */
 struct Plane
 {
+    vec3 normal;
+    real distance;
+
+    Plane() noexcept;
+    Plane(const Plane& other) noexcept;
+    Plane(Plane&& other) noexcept;
+    Plane(const vec3& _normal, real _distance) noexcept;
+
+    /*!
+     * @brief Evaluate the distance of the given point from origin along the normal of this plane. The method assumes
+     * the normal is of unit length.
+     *
+     * @param point
+     * @return The distance of the point from the origin along the normal of this plane.
+     */
+    real distanceToPoint(const Point& point) const noexcept;
+
+    /*!
+     * @brief Evaluate the distance of the point from the plane along the normal of the plane. Use this method to check
+     * if the given point lies on this plane.
+     *
+     * @return distance of the point from the plane along the normal of the plane.
+     */
+    real planeEquation(const Point& point) const noexcept;
 };
 
 struct AABB
@@ -85,7 +113,12 @@ struct OBB
 {
     Point center;
     vec3  half_extents;
-    vec3  orientation;
+    mat3  orientation;
+
+    OBB() noexcept;
+    OBB(const OBB& other) noexcept;
+    OBB(OBB&& other) noexcept;
+    OBB(const Point& _center, const vec3& _half_extents, const mat3& _orientation) noexcept;
 };
 
 struct Sphere
