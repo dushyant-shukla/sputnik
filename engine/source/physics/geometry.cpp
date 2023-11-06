@@ -20,7 +20,6 @@ real Line::lengthSquared() const noexcept
 {
     return (start - end).lengthSquared();
 }
-
 //////////////////////////////// Ray //////////////////////////////////////
 
 Ray::Ray() noexcept : origin{real(0.0)}, direction{real(0.0), real(0.0), real(1.0)} {}
@@ -49,8 +48,6 @@ Ray fromPoints(const Point& from, const Point& to) noexcept
 Triangle::Triangle(const Triangle& other) noexcept : a(other.a), b(other.b), c(other.c) {}
 Triangle::Triangle(Triangle&& other) noexcept : a(std::move(other.a)), b(std::move(other.b)), c(std::move(other.c)) {}
 Triangle::Triangle(const Point& _a, const Point& _b, const Point& _c) noexcept : a(_a), b(_b), c(_c) {}
-
-//////////////////////////////// Plane //////////////////////////////////////
 
 //////////////////////////////// AABB //////////////////////////////////////
 
@@ -128,7 +125,7 @@ Plane::Plane(const Plane& other) noexcept : normal{other.normal}, distance{other
 
 Plane::Plane(Plane&& other) noexcept : normal{std::move(other.normal)}, distance{std::move(other.distance)} {}
 
-Plane::Plane(const vec3& _normal, real _distance) noexcept : normal{_normal}, distance{_distance} {}
+Plane::Plane(const vec3& _normal, const real& _distance) noexcept : normal{_normal}, distance{_distance} {}
 
 real Plane::distanceToPoint(const Point& point) const noexcept
 {

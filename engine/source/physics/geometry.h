@@ -74,7 +74,7 @@ struct Plane
     Plane() noexcept;
     Plane(const Plane& other) noexcept;
     Plane(Plane&& other) noexcept;
-    Plane(const vec3& _normal, real _distance) noexcept;
+    Plane(const vec3& _normal, const real& _distance) noexcept;
 
     /*!
      * @brief Evaluate the distance of the given point from origin along the normal of this plane. The method assumes

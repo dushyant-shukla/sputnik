@@ -67,7 +67,6 @@ group ""
 include "engine/engine-project.lua"
 
 -- include the demo projects
--- include "demos/sandbox/sandbox.lua"
 -- include "demos/curve-plotting/curve-plotting.lua"
 -- include "demos/animation-poses/animation-poses.lua"
 
@@ -78,6 +77,7 @@ include "demos/fabrik-ik-solver-demo/fabrik-ik-solver-demo.lua"
 group ""
 
 group "graphics-demos"
+include "demos/sandbox/sandbox.lua"
 include "demos/compute-shader/compute-shader.lua"
 include "demos/compute-shader-particles/compute-shader-particles.lua"
 group ""

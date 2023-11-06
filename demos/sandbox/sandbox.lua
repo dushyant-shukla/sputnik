@@ -1,6 +1,7 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
 project "sandbox"
+kind "WindowedApp"
 language "C++"
 characterset("MBCS")
 
@@ -26,7 +27,7 @@ files
 
 externalincludedirs
 {
-  "$(SolutionDir)sputnik/source",
+  "$(SolutionDir)engine/source",
   "%{include_dir.ramanujan}",
 
   -- these imcludes should not be required here as we write a better abstraction over lower level libraries
@@ -46,9 +47,9 @@ links
 -- In debug mode, the application should link to the console subsystem.
 -- To make logging a bit easier, two windows will be open at the same time in debug mode.
 -- One will be the standard Win32 window, and the other will be a console window for viewing logs.
-filter "configurations:Debug"
-kind "ConsoleApp"
+-- filter "configurations:Debug"
+-- kind "ConsoleApp"
 
 -- In release mode, it should link to the window subsystem.
-filter "configurations:Release"
-kind "WindowedApp"
+-- filter "configurations:Release"
+-- kind "WindowedApp"
