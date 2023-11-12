@@ -1,0 +1,135 @@
+#version 460 core
+
+layout(local_size_x = 10, local_size_y = 10, local_size_z = 1) in;
+
+uniform vec3 gravity = vec3(0, -10, 0);
+uniform float particle_mass = 0.1;
+uniform float particle_inv_mass = 1.0 / 0.1;
+uniform float springK = 2000.0;
+uniform float rest_length_horizontal;
+uniform float rest_length_vertical;
+uniform float rest_length_diagonal;
+uniform float delta_t = 0.000005;
+uniform float damping_const = 0.1;
+
+// We'll lay out the particle positions/velocities in row-major order starting at the lower left
+// and proceeding to the upper right of the lattice.
+layout(std430, binding = 0) buffer position_in_buffer
+{
+    vec4 position_in[];
+};
+
+layout(std430, binding = 1) buffer position_out_buffer
+{
+    vec4 position_out[];
+};
+
+layout(std430, binding = 2) buffer velocity_in_buffer
+{
+    vec4 velocity_in[];
+};
+
+layout(std430, binding = 3) buffer velocity_out_buffer
+{
+    vec4 velocity_out[];
+};
+
+void main(){
+
+    uvec3 particle_count = gl_NumWorkGroups * gl_WorkGroupSize;
+    uint particle_idx = gl_GlobalInvocationID.y * particle_count.x + gl_GlobalInvocationID.x;
+
+    vec3 position = vec3(position_in[particle_idx]);
+    vec3 velocity = vec3(velocity_in[particle_idx]);
+    vec3 r; // distance between the current particle and and its neighbors
+
+    // initialize force accumulation with gravitational force
+    vec3 total_force = gravity * particle_mass;
+
+    // calculate force from the neighboring particle above
+    // checking if the current particle belongs to a row less than the last row
+    if(gl_GlobalInvocationID.y < (particle_count.y - 1))
+    {
+        // in row-major layout, the neighbouring particle above the current particle
+        // lies exactly one row ahead, i.e., + particle_count.x
+        r = position_in[particle_idx + particle_count.x].xyz - position;
+
+        // force = sprint-constant * (distance_from_neighbor - spring's rest_length) * normalize(distance_from_neighbor)
+        total_force += normalize(r) * springK * (length(r) - rest_length_vertical);
+    }
+
+    // calculate force from the neighboring particle below
+    // checking if the current particle belongs to a row above the first row
+    if(gl_GlobalInvocationID.y > 0)
+    {
+        // in row-major layout, the neighbouring particle above the current particle
+        // lies exactly one row behing, i.e., - particle_count.x
+        r = position_in[particle_idx - particle_count.x].xyz - position;
+
+        total_force += normalize(r) * springK * (length(r) - rest_length_vertical);
+    }
+
+    // calculate force from the neighbouring particle to the left
+    if(gl_GlobalInvocationID.x > 0)
+    {
+        r = position_in[particle_idx - 1].xyz - position;
+        total_force += normalize(r) * springK * (length(r) - rest_length_horizontal);
+    }
+
+    // calculate force from the neighbouring particle to the right
+    // checking if the current particle belongs to the pernultimate column or less.
+    if(gl_GlobalInvocationID.x < (particle_count.x - 1))
+    {
+        r = position_in[particle_idx + 1].xyz - position;
+        total_force += normalize(r) * springK * (length(r) - rest_length_horizontal);
+    }
+
+    // Upper left diagonal (combine left and above)
+    if((gl_GlobalInvocationID.x > 0) && (gl_GlobalInvocationID.y < (particle_count.y - 1)))
+    {
+        r = position_in[particle_idx + particle_count.x - 1].xyz - position;
+        total_force += normalize(r) * springK * (length(r) - rest_length_diagonal);
+    }
+
+    // Upper right diagonal (combine right and above)
+    if((gl_GlobalInvocationID.x < (particle_count.x - 1)) && (gl_GlobalInvocationID.y < (particle_count.y - 1)))
+    {
+        r = position_in[particle_idx + particle_count.x + 1].xyz - position;
+        total_force += normalize(r) * springK * (length(r) - rest_length_diagonal);
+    }
+
+    // Lower left diagonal (combine left and below)
+    if((gl_GlobalInvocationID.x > 0) && gl_GlobalInvocationID.y > 0)
+    {
+        r = position_in[particle_idx - particle_count.x - 1].xyz - position;
+        total_force += normalize(r) * springK * (length(r) - rest_length_diagonal);
+    }
+
+    // Lower right diagonal (combine right and below)
+    if((gl_GlobalInvocationID.x < (particle_count.x - 1)) && gl_GlobalInvocationID.y > 0)
+    {
+        r = position_in[particle_idx - particle_count.x + 1].xyz - position;
+        total_force += normalize(r) * springK * (length(r) - rest_length_diagonal);
+    }
+
+
+    // apply damping
+    total_force += -damping_const * velocity;
+
+    // Integrate using Newton-Euler integration
+    vec3 acceleration = total_force * particle_inv_mass;
+    position_out[particle_idx] = vec4(position + velocity * delta_t + 0.5 * acceleration * delta_t * delta_t, 1.0);
+    velocity_out[particle_idx] = vec4(velocity + acceleration * delta_t, 0.0);
+
+    // Pin a few of the particles in the top row
+    if(gl_GlobalInvocationID.y == particle_count.y - 1 &&
+      (gl_GlobalInvocationID.x == 0 ||
+       gl_GlobalInvocationID.x == particle_count.x / 4 ||
+       gl_GlobalInvocationID.x == particle_count.x * 2 / 4 ||
+       gl_GlobalInvocationID.x == particle_count.x * 3 / 4 ||
+       gl_GlobalInvocationID.x == particle_count.x - 1))
+    {
+        position_out[particle_idx] = vec4(position, 1.0);
+        velocity_out[particle_idx] = vec4(0.0);
+    }
+}

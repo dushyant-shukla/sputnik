@@ -26,6 +26,7 @@ template Uniform<ramanujan::Quaternion>;
 template Uniform<ramanujan::Matrix4>;
 template Uniform<ramanujan::experimental::mat4>;
 template Uniform<ramanujan::experimental::vec3>;
+template Uniform<ramanujan::experimental::vec4>;
 
 #define UNIFORM_IMPL(gl_function, t_type, d_type)                                    \
     template <>                                                                      \
@@ -45,6 +46,7 @@ UNIFORM_IMPL(glUniform2fv, ramanujan::Vector2, float)
 UNIFORM_IMPL(glUniform3fv, ramanujan::Vector3, float)
 UNIFORM_IMPL(glUniform3fv, ramanujan::experimental::vec3, float)
 UNIFORM_IMPL(glUniform4fv, ramanujan::Vector4, float)
+UNIFORM_IMPL(glUniform4fv, ramanujan::experimental::vec4, float)
 UNIFORM_IMPL(glUniform4fv, ramanujan::Quaternion, float)
 
 template <typename T>

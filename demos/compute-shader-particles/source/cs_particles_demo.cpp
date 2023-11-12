@@ -36,6 +36,7 @@ void ComputeShaderParticlesDemo::OnAttach()
         std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/particles/particles.vert",
                                                             "../../data/shaders/compute/particles/particles.frag");
 
+    // each particle has a position (x, y, z, w)
     unsigned int buffer_size = TOTAL_PARTICLE_COUNT * 4 * sizeof(float);
 
     // Generate the buffers
@@ -110,7 +111,7 @@ void ComputeShaderParticlesDemo::OnUpdate(const core::TimeStep& time_step)
 
     // render particles
     {
-        glBindBuffer(GL_ARRAY_BUFFER, ssbos[0]);
+        glBindBuffer(GL_ARRAY_BUFFER, ssbos[0]); // send the data from position ssbo to the vertex shader
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
         Uniform<Vector4>::Set(m_particle_draw_shader->GetUniform("color"), m_particle_color);

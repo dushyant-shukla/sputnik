@@ -80,6 +80,7 @@ group "graphics-demos"
 include "demos/sandbox/sandbox.lua"
 include "demos/compute-shader/compute-shader.lua"
 include "demos/compute-shader-particles/compute-shader-particles.lua"
+include "demos/computer-shader-cloth/computer-shader-cloth.lua"
 group ""
 
 

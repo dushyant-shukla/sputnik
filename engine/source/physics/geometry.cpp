@@ -116,7 +116,7 @@ Sphere::Sphere(const Point& _center, real _radius) noexcept : center(_center), r
 //////////////////////////////// Plane //////////////////////////////////////
 
 Plane::Plane() noexcept
-    : normal{real(1.0), real(0.0), real(0.0)} // Todo:: Why is x component 1.0?
+    : normal{real(1.0), real(0.0), real(0.0)} // Todo:: Why is x component 1.0? Could just be random
     , distance{real(0.0)}
 {
 }
