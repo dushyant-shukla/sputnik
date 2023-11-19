@@ -1,8 +1,8 @@
 #pragma once
 
+#include <precision.h>
 #include "particle.h"
 
-#include <precision.h>
 #include <vector.hpp>
 
 #include <memory>
@@ -26,7 +26,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle& particle, const real& duration) = 0;
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) = 0;
 };
 
 /**
@@ -44,7 +44,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle& particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) override;
 
 private:
     /**
@@ -68,7 +68,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle& particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) override;
 
 private:
     /**
@@ -82,6 +82,179 @@ private:
      * speeds. For every doubling of the velocity, the drag almost quadruples.
      */
     real m_k2;
+};
+
+/**
+ * @brief Spring force generator for a pair of particles, each attached to either end of the spring.
+ */
+class ParticleSpringForceGenerator : public ParticleForceGenerator
+{
+public:
+    ParticleSpringForceGenerator(std::shared_ptr<Particle> other,
+                                 const real&               spring_constant,
+                                 const real&               rest_length) noexcept;
+
+    virtual ~ParticleSpringForceGenerator() noexcept = default;
+
+    /*!
+     * @brief This method applies the spring force to the given particles.
+     *
+     * @param particle The particle to apply the force to.
+     * @param duration The duration of the frame in seconds.
+     */
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) override;
+
+protected:
+    /**
+     *  The particle at the other end of the sprinf.
+     */
+    std::shared_ptr<Particle> m_other_particle;
+
+    /**
+     * Holds the spring constant (gives the spring its stiffness).
+     */
+    real m_spring_constant;
+
+    /**
+     * Holds the rest length of the spring.
+     */
+    real m_rest_length;
+};
+
+/**
+ * @brief An anchored spring force generator for a particle attached to a fixed point in space via a spring.
+ */
+class ParticleAnchoredSpringForceGenerator : public ParticleForceGenerator
+{
+public:
+    ParticleAnchoredSpringForceGenerator(const vec3& anchor,
+                                         const real& spring_constant,
+                                         const real& rest_length) noexcept;
+
+    virtual ~ParticleAnchoredSpringForceGenerator() noexcept = default;
+
+    /*!
+     * @brief This method applies the spring force to the given particle.
+     *
+     * @param particle The particle to apply the force to.
+     * @param duration The duration of the frame in seconds.
+     */
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) override;
+
+protected:
+    /**
+     * Holds the location of the anchored end of the spring.
+     */
+    vec3 m_anchor;
+
+    /**
+     * Holds the spring constant (gives the spring its stiffness).
+     */
+    real m_spring_constant;
+
+    /**
+     * Holds the rest length of the spring.
+     */
+    real m_rest_length;
+};
+
+/**
+ * @brief A bungee force generator for a pair of particles, each attached to either end of the bungee. The bungee acts
+ * as a spring only when the length of the bungee is greater than the rest length.
+ */
+class ParticleBungeeForceGenerator : public ParticleForceGenerator
+{
+public:
+    ParticleBungeeForceGenerator(std::shared_ptr<Particle> other,
+                                 const real&               spring_constant,
+                                 const real&               rest_length) noexcept;
+
+    virtual ~ParticleBungeeForceGenerator() noexcept = default;
+
+    /*!
+     * @brief This method applies the bungee force to the given particles.
+     *
+     * @param particle The particle to apply the force to.
+     * @param duration The duration of the frame in seconds.
+     */
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) override;
+
+protected:
+    /*
+     * The particle at the other end of the bungee.
+     */
+    std::shared_ptr<Particle> m_other_particle;
+
+    /*
+     * Holds the spring constant (gives the spring its stiffness).
+     */
+    real m_spring_constant;
+
+    /*
+     * Holds the rest length of the spring.
+     */
+    real m_rest_length;
+};
+
+class ParticleAnchoredBungeeForceGenerator : public ParticleAnchoredSpringForceGenerator
+{
+public:
+    virtual ~ParticleAnchoredBungeeForceGenerator() noexcept = default;
+
+    /*!
+     * @brief This method applies the spring force to the given particle.
+     *
+     * @param particle The particle to apply the force to.
+     * @param duration The duration of the frame in seconds.
+     */
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) override;
+};
+
+/**
+ * @brief A force generator that applies a buoyancy force for a plane of liquid parallel to XY plane.
+ */
+class ParticleBuoyancyForceGenerator : public ParticleForceGenerator
+{
+public:
+    ParticleBuoyancyForceGenerator(const real& max_depth,
+                                   const real& volume,
+                                   const real& liquid_height,
+                                   const real& liquid_density = 1000.0f) noexcept;
+
+    virtual ~ParticleBuoyancyForceGenerator() noexcept = default;
+
+    /*!
+     * @brief This method applies the buoyancy force to the given particle.
+     *
+     * @param particle The particle to apply the force to.
+     * @param duration The duration of the frame in seconds.
+     */
+    virtual void updateForce(std::shared_ptr<Particle> particle, const real& duration) override;
+
+protected:
+    /**
+     * @brief Holds the maximum submersion depth of the object before it generates its maximum buoyancy force.
+     *
+     * Particles have zero volume. Therefore, we cannot determine the submersion depth of a particle. However, we get
+     * around this by using a fixed depth. When calculating the buoyancy force, we give a depth at which the object is
+     * considered fully submerged. Beyond this depth, the buoyancy force will not increase any more.
+     */
+    real m_max_depth;
+
+    /**
+     * @brief Holds the volume of the object.
+     */
+    real m_volume;
+
+    /**
+     * @brief Holds the height of the liquid plane above y = 0. The plane will be parallel to the XZ plane.
+     */
+    real m_liquid_height;
+
+    /**
+     * @brief Holds the density of the liquid. Pure water has a density of 1000 kg per cubic meter.
+     */
+    real m_liquid_density;
 };
 
 } // namespace sputnik::physics
