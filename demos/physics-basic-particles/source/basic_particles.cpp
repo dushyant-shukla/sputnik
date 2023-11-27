@@ -168,18 +168,16 @@ void BasicParticlesDemoLayer::OnAttach()
     // experimental::vec2 test_uv_2{0.0f, 1.0f};
     // test_uv_1 = test_uv_2;
 
-    m_static_shader =
-        std::make_shared<Shader>("../../../../data/shaders/simple.vert", "../../../../data/shaders/simple.frag");
-    m_sky_shader = std::make_shared<Shader>("../../../../data/shaders/sky-rendering/sky.vert",
-                                            "../../../../data/shaders/sky-rendering/sky.frag");
-    m_simple_lighting_shader =
-        std::make_shared<Shader>("../../../../data/shaders/simple-lighting/simple-lighting.vert",
-                                 "../../../../data/shaders/simple-lighting/simple-lighting.frag");
+    m_static_shader = std::make_shared<Shader>("../../data/shaders/simple.vert", "../../data/shaders/simple.frag");
+    m_sky_shader    = std::make_shared<Shader>("../../data/shaders/sky-rendering/sky.vert",
+                                            "../../data/shaders/sky-rendering/sky.frag");
+    m_simple_lighting_shader = std::make_shared<Shader>("../../data/shaders/simple-lighting/simple-lighting.vert",
+                                                        "../../data/shaders/simple-lighting/simple-lighting.frag");
 
     m_static_mesh_texture = std::make_shared<Texture>("../../../../data/assets/dq.png");
 
-    m_box    = Model::LoadModel("../../../../data/assets/box/Box.gltf");
-    m_sphere = Model::LoadModel("../../../../data/assets/sphere.gltf");
+    m_box    = Model::LoadModel("../../data/assets/box/Box.gltf");
+    m_sphere = Model::LoadModel("../../data/assets/sphere.gltf");
 
     // red rubber
     // m_platform_material.ambient   = {0.05f, 0.0f, 0.0f};
@@ -233,7 +231,7 @@ void BasicParticlesDemoLayer::OnAttach()
     {
         sputnik::physics::Particle particle;
         particle.setPosition(0.0f, 10.0f, 0.0f);
-        particle.setMass(2.0f); // 2.0Kg
+        particle.setMass(2.0f);                        // 2.0Kg
         particle.setAcceleration({0.0f, -1.0f, 0.0f}); // gravity
         particle.setDamping(0.09f);
         m_particles.emplace_back(particle);
@@ -623,11 +621,11 @@ void BasicParticlesDemoLayer::SpawnFireworks(unsigned int                   type
 
 void BasicParticlesDemoLayer::InitFireworkRules()
 {
-    m_fireworkwork_rules[0].SetRuleParameters(1, 0.5f, 1.4f, {-5.0f, 25.0f, -5.0f}, {5.0f, 28.0f, 5.0f}, 0.1);
+    m_fireworkwork_rules[0].SetRuleParameters(1, 0.5f, 1.4f, {-5.0f, 25.0f, -5.0f}, {5.0f, 28.0f, 5.0f}, 0.1f);
     m_fireworkwork_rules[0].m_payloads.emplace_back(3, 5);
     m_fireworkwork_rules[0].m_payloads.emplace_back(5, 5);
 
-    m_fireworkwork_rules[1].SetRuleParameters(2, 0.5f, 1.0f, {-5.0f, 10.0f, -5.0f}, {5.0f, 20.0f, 5.0f}, 0.8);
+    m_fireworkwork_rules[1].SetRuleParameters(2, 0.5f, 1.0f, {-5.0f, 10.0f, -5.0f}, {5.0f, 20.0f, 5.0f}, 0.8f);
     m_fireworkwork_rules[1].m_payloads.emplace_back(4, 2);
 
     m_fireworkwork_rules[2].SetRuleParameters(3, 0.5f, 1.5f, {-5.0f, -5.0f, -5.0f}, {5.0f, 5.0f, 5.0f}, 0.1f);
@@ -642,7 +640,7 @@ void BasicParticlesDemoLayer::InitFireworkRules()
                                               5,               // age range
                                               vec3(-5, 5, -5), // min velocity
                                               vec3(5, 10, 5),  // max velocity
-                                              0.95             // damping
+                                              0.95f            // damping
     );
 
     m_fireworkwork_rules[6].SetRuleParameters(7, // type
@@ -650,7 +648,7 @@ void BasicParticlesDemoLayer::InitFireworkRules()
                                               5,                // age range
                                               vec3(-5, 50, -5), // min velocity
                                               vec3(5, 60, 5),   // max velocity
-                                              0.01              // damping
+                                              0.01f             // damping
     );
     m_fireworkwork_rules[6].m_payloads.emplace_back(8, 10);
 
@@ -659,7 +657,7 @@ void BasicParticlesDemoLayer::InitFireworkRules()
                                               0.5f,             // age range
                                               vec3(-1, -1, -1), // min velocity
                                               vec3(1, 1, 1),    // max velocity
-                                              0.01              // damping
+                                              0.01f             // damping
     );
 
     m_fireworkwork_rules[8].SetRuleParameters(9, // type
@@ -667,7 +665,7 @@ void BasicParticlesDemoLayer::InitFireworkRules()
                                               5,                 // age range
                                               vec3(-15, 10, -5), // min velocity
                                               vec3(15, 15, 5),   // max velocity
-                                              0.95               // damping
+                                              0.95f              // damping
     );
 }
 

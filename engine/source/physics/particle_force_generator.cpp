@@ -67,7 +67,7 @@ void ParticleSpringForceGenerator::updateForce(std::shared_ptr<Particle> particl
     particle->getPosition(current_particle_position);
 
     vec3 other_particle_position;
-    particle->getPosition(other_particle_position);
+    m_other_particle->getPosition(other_particle_position);
 
     vec3 distance_vector       = current_particle_position - other_particle_position;
     real current_spring_length = distance_vector.length();
@@ -134,7 +134,7 @@ void ParticleBungeeForceGenerator::updateForce(std::shared_ptr<Particle> particl
     particle->getPosition(current_particle_position);
 
     vec3 other_particle_position;
-    particle->getPosition(other_particle_position);
+    m_other_particle->getPosition(other_particle_position);
 
     vec3 distance_vector       = current_particle_position - other_particle_position;
     real current_spring_length = distance_vector.length();
@@ -219,7 +219,7 @@ void ParticleBuoyancyForceGenerator::updateForce(std::shared_ptr<Particle> parti
     // s is the maximum submersion depth of the object
     // d is clamped to the range [0 (fully out of the liquid), 1 (fully submerged)],
 
-    // NOTE: The calculation assumes the plane of the liquid is paralle to the XZ plane.
+    // NOTE: The calculation assumes the plane of the liquid is parallel to the XZ plane.
 
     real current_depth = particle->getPosition().y;
 

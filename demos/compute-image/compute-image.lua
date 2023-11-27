@@ -1,6 +1,6 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "compute-shader"
+project "compute-image"
 kind "WindowedApp"
 language "C++"
 characterset("MBCS")

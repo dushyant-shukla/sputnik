@@ -48,33 +48,6 @@ void ComputerShaderClothDemoLayer::OnAttach()
             m_initial_positions.push_back({pos.x, pos.y, pos.z, 1.0f});
             m_texture_coords.push_back({col * ds, row * dt});
 
-            // if(col > 0)
-            //{
-            //     m_indices.push_back(row * m_num_particles.x + col - 1);
-            //     m_indices.push_back(col);
-            //     m_indices.push_back(row * m_num_particles.x + col);
-            // }
-
-            // copilot
-            // if(col == 0)
-            //{
-            //    m_indices.push_back(row * m_num_particles.x + col);
-            //    m_indices.push_back(row * m_num_particles.x + col + 1);
-            //    m_indices.push_back(row * m_num_particles.x + col + 2);
-            //}
-            // else if(col == m_num_particles.x - 1)
-            //{
-            //    m_indices.push_back(row * m_num_particles.x + col - 2);
-            //    m_indices.push_back(row * m_num_particles.x + col - 1);
-            //    m_indices.push_back(row * m_num_particles.x + col);
-            //}
-            // else
-            //{
-            //    m_indices.push_back(row * m_num_particles.x + col - 1);
-            //    m_indices.push_back(row * m_num_particles.x + col);
-            //    m_indices.push_back(row * m_num_particles.x + col + 1);
-            //}
-
             if(row < m_num_particles.y - 1)
             {
                 unsigned current_index = row * m_num_particles.x + col;
@@ -105,7 +78,6 @@ void ComputerShaderClothDemoLayer::OnAttach()
             }
         }
     }
-    int a = 10;
 
     m_buffer_size = m_num_particles.x * m_num_particles.y * 4 * sizeof(float);
 

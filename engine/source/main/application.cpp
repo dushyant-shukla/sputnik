@@ -42,6 +42,8 @@ void Application::Run()
 
         if(!m_is_minimized)
         {
+            graphics::api::Renderer::Update(time_step);
+
             m_editor->BeginFrame();
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
@@ -63,7 +65,7 @@ void Application::Run()
         }
 
         m_input_manager->LateUpdate(time_step);
-        graphics::api::Renderer::Update(time_step);
+        graphics::api::Renderer::LateUpdate(time_step);
     }
 }
 

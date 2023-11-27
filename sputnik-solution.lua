@@ -72,19 +72,20 @@ include "engine/engine-project.lua"
 
 group "animation-demos"
 include "demos/vertex-skinning/vertex-skinning.lua"
-include "demos/ik-ccd-solver/ik-ccd-solver.lua"
-include "demos/fabrik-ik-solver-demo/fabrik-ik-solver-demo.lua"
+include "demos/ik-ccd-solver-basic/ik-ccd-solver-basic.lua"
+include "demos/ik-fabrik-solver-basic/ik-fabrik-solver-basic.lua"
 group ""
 
 group "graphics-demos"
 include "demos/sandbox/sandbox.lua"
-include "demos/compute-shader/compute-shader.lua"
-include "demos/compute-shader-particles/compute-shader-particles.lua"
-include "demos/computer-shader-cloth/computer-shader-cloth.lua"
+include "demos/compute-image/compute-image.lua"
+include "demos/compute-particles/compute-particles.lua"
+include "demos/compute-cloth/compute-cloth.lua"
 group ""
 
 
 group "physics-demos"
-include "demos/physics/particles/basic/basic-particles.lua"
+include "demos/physics-basic-particles/physics-basic-particles.lua"
+include "demos/physics-basic-mass-spring/physics-basic-mass-spring.lua"
 group ""
 

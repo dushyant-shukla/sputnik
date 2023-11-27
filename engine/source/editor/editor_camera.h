@@ -10,11 +10,15 @@
 #include <quaternion.h>
 #include <transform.h>
 #include <core/time_step.h>
+#include <vector.hpp>
+#include <matrix.hpp>
 
 struct GLFWwindow;
 
 namespace sputnik::graphics::api
 {
+
+using namespace ramanujan::experimental;
 
 class EditorCamera
 {

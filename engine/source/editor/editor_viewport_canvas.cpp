@@ -57,8 +57,8 @@ void EditorViewPortCanvas::OnPreUpdate(const TimeStep& time_step)
     // m_framebuffer->Bind();
     // api::Renderer::Clear();
 
-    graphics::api::EditorCamera::GetInstance()->Update(time_step);
-    graphics::api::Camera::GetInstance()->Update(time_step, m_block_camera_update);
+    //graphics::api::EditorCamera::GetInstance()->Update(time_step);
+    //graphics::api::Camera::GetInstance()->Update(time_step, m_block_camera_update);
 }
 
 void EditorViewPortCanvas::OnUpdate(const TimeStep& time_step) {}
@@ -89,6 +89,7 @@ void EditorViewPortCanvas::OnPreUpdateUI(const TimeStep& time_step)
         m_viewport_focused    = ImGui::IsWindowFocused();
         m_viewport_hovered    = ImGui::IsWindowHovered();
         m_block_camera_update = !m_viewport_focused && !m_viewport_hovered;
+        api::Renderer::BlockCameraUpdate(m_block_camera_update);
         // std::cout << "block camera update: " << m_block_camera_update << std::endl;
 
         ImVec2 viewport_min_region = ImGui::GetWindowContentRegionMin();
@@ -129,10 +130,7 @@ void EditorViewPortCanvas::OnUpdateUI(const TimeStep& time_step)
     if(ImGui::Begin("Depth Buffer"))
     {
         uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
-        ImGui::Image(reinterpret_cast<void*>(textureID),
-                     ImVec2{250, 250},
-                     ImVec2{0, 1},
-                     ImVec2{1, 0});
+        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{250, 250}, ImVec2{0, 1}, ImVec2{1, 0});
     }
     ImGui::End();
 }

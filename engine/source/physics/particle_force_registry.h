@@ -8,22 +8,20 @@
 namespace sputnik::physics
 {
 
+struct ParticleForceRegistration
+{
+    std::shared_ptr<Particle>               m_particle;
+    std::shared_ptr<ParticleForceGenerator> m_fg;
+
+    ParticleForceRegistration(std::shared_ptr<Particle> particle, std::shared_ptr<ParticleForceGenerator> fg)
+        : m_particle(particle)
+        , m_fg(fg)
+    {
+    }
+};
+
 class ParticleForceRegistry
 {
-protected:
-    struct ParticleForceRegistration
-    {
-        std::shared_ptr<Particle>               m_particle;
-        std::shared_ptr<ParticleForceGenerator> m_fg;
-
-        ParticleForceRegistration(std::shared_ptr<Particle> particle, std::shared_ptr<ParticleForceGenerator> fg)
-            : m_particle(particle)
-            , m_fg(fg)
-        {
-        }
-    };
-
-    std::vector<ParticleForceRegistration> m_registrations;
 
 public:
     /*!
@@ -55,6 +53,9 @@ public:
      * @param duration The duration of the frame in seconds.
      */
     void updateForces(const real& duration);
+
+protected:
+    std::vector<ParticleForceRegistration> m_registrations;
 };
 
 } // namespace sputnik::physics

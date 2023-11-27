@@ -1,6 +1,6 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "ik-ccd-solver"
+project "compute-particles"
 kind "WindowedApp"
 language "C++"
 characterset("MBCS")
@@ -36,8 +36,7 @@ externalincludedirs
   "%{include_dir.cgltf}",
   "%{include_dir.imgui}",
   "%{include_dir.spdlog}",
-  "%{include_dir.imguizmo}",
-  "%{include_dir.glm}"
+  "%{include_dir.imguizmo}"
 }
 
 links

@@ -9,6 +9,7 @@
 #include <imgui.h>
 #include <graphics/core/animation/rearrange_bones.h>
 #include <editor/editor_camera.h>
+#include <graphics/api/renderer.h>
 
 namespace sputnik::demos
 {
@@ -40,6 +41,9 @@ VertexSkinningDemo::~VertexSkinningDemo() {}
 
 void VertexSkinningDemo::OnAttach()
 {
+
+    sputnik::graphics::api::Renderer::SetCameraType(sputnik::graphics::api::CameraType::EditorCamera);
+
     m_static_shader   = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/simple.vert",
                                                                           "../../data/shaders/simple.frag");
     m_skinning_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/skinned.vert",
@@ -261,32 +265,32 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
 
     // render static meshes
     {
-        //m_static_shader->Bind();
-        //ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {1.0f});
-        //model = ramanujan::ToMatrix4(transform);
-        //sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("model"), model);
-        //sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("view"), view);
-        //sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("projection"),
-        //                                                            projection);
-        //sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(m_static_shader->GetUniform("light"),
-        //                                                            {0.0f, 5.0f, -10.0f});
-        //m_static_mesh_texture->Set(active_shader->GetUniform("diffuse"), 0);
-        //for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
+        // m_static_shader->Bind();
+        // ramanujan::Transform transform({0.0f, 0.0f, 0.0f}, {}, {1.0f});
+        // model = ramanujan::ToMatrix4(transform);
+        // sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("model"), model);
+        // sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("view"), view);
+        // sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_static_shader->GetUniform("projection"),
+        //                                                             projection);
+        // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(m_static_shader->GetUniform("light"),
+        //                                                             {0.0f, 5.0f, -10.0f});
+        // m_static_mesh_texture->Set(active_shader->GetUniform("diffuse"), 0);
+        // for(unsigned int i = 0, size = (unsigned int)m_meshes.size(); i < size; ++i)
         //{
-        //    m_static_meshes[i].Bind(m_static_shader->GetAttribute("position"),
-        //                            m_static_shader->GetAttribute("normal"),
-        //                            m_static_shader->GetAttribute("uv"),
-        //                            -1,
-        //                            -1);
-        //    m_static_meshes[i].Draw();
-        //    m_static_meshes[i].Unbind(m_static_shader->GetAttribute("position"),
-        //                              m_static_shader->GetAttribute("normal"),
-        //                              m_static_shader->GetAttribute("uv"),
-        //                              -1,
-        //                              -1);
-        //}
-        //m_static_mesh_texture->Unset(0);
-        //m_static_shader->Unbind();
+        //     m_static_meshes[i].Bind(m_static_shader->GetAttribute("position"),
+        //                             m_static_shader->GetAttribute("normal"),
+        //                             m_static_shader->GetAttribute("uv"),
+        //                             -1,
+        //                             -1);
+        //     m_static_meshes[i].Draw();
+        //     m_static_meshes[i].Unbind(m_static_shader->GetAttribute("position"),
+        //                               m_static_shader->GetAttribute("normal"),
+        //                               m_static_shader->GetAttribute("uv"),
+        //                               -1,
+        //                               -1);
+        // }
+        // m_static_mesh_texture->Unset(0);
+        // m_static_shader->Unbind();
     }
     // end render static meshes
 

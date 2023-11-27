@@ -23,10 +23,14 @@ public:
     void                  SetViewportSize(float width, float height);
     void                  SetPosition(const vec3& position);
     void                  SetPerspective(float fov, float aspect, float znear, float zfar);
-    const mat4&           GetCameraView();
-    const mat4&           GetCameraPerspective();
-    const vec3&           GetCameraPosition();
-    const vec3            GetUpDirection() const;
+    const mat4&           GetCameraView() const;
+    const mat4&           GetCameraPerspective() const;
+    const vec3&           GetCameraPosition() const;
+    const vec3&           GetUpDirection() const;
+    mat4                  GetCameraView();
+    mat4                  GetCameraPerspective();
+    vec3                  GetCameraPosition();
+    vec3                  GetUpDirection();
     const vec3            GetRightDirection() const;
     const vec3            GetForwardDirection() const;
     float                 GetPitch() const;

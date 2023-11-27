@@ -1,6 +1,6 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "computer-shader-cloth"
+project "ik-fabrik-solver-basic"
 kind "WindowedApp"
 language "C++"
 characterset("MBCS")
@@ -36,7 +36,8 @@ externalincludedirs
   "%{include_dir.cgltf}",
   "%{include_dir.imgui}",
   "%{include_dir.spdlog}",
-  "%{include_dir.imguizmo}"
+  "%{include_dir.imguizmo}",
+  "%{include_dir.glm}"
 }
 
 links

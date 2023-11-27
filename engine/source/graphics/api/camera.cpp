@@ -142,25 +142,50 @@ void Camera::SetPerspective(float fov, float aspect, float znear, float zfar)
     }
 }
 
-const mat4& Camera::GetCameraView()
+const mat4& Camera::GetCameraView() const
 {
     return m_view;
 }
 
-const mat4& Camera::GetCameraPerspective()
+const mat4& Camera::GetCameraPerspective() const
 {
     return m_projection;
 }
 
-const vec3& Camera::GetCameraPosition()
+const vec3& Camera::GetCameraPosition() const
 {
     return m_position;
 }
 
-const vec3 Camera::GetUpDirection() const
+const vec3& Camera::GetUpDirection() const
 {
     const auto& up_dir = GetOrientation() * ramanujan::Vector3(0.0f, 1.0f, 0.0f);
     return {up_dir.x, up_dir.y, up_dir.z};
+}
+
+mat4 graphics::api::Camera::GetCameraView()
+{
+    return m_view;
+    // This is allowed because current function is non-const, and this object is non-const. Therefore, we can drop the
+    // const qualifier.
+    // return const_cast<mat4&>(const_cast<const Camera*>(this)->GetCameraView());
+}
+
+mat4 graphics::api::Camera::GetCameraPerspective()
+{
+    return m_projection;
+    // return const_cast<mat4&>(const_cast<const Camera*>(this)->GetCameraPerspective());
+}
+
+vec3 graphics::api::Camera::GetCameraPosition()
+{
+    return m_position;
+    // return const_cast<vec3&>(const_cast<const Camera*>(this)->GetCameraPosition());
+}
+
+vec3 graphics::api::Camera::GetUpDirection()
+{
+    return const_cast<vec3&>(const_cast<const Camera*>(this)->GetUpDirection());
 }
 
 const vec3 Camera::GetRightDirection() const
