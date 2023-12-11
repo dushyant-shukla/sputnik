@@ -152,8 +152,6 @@ void Renderer::InitInstance(const sputnik::graphics::core::GraphicsSubsystemType
     m_sky_shader = std::make_shared<Shader>("../../data/shaders/sky-rendering/sky.vert",
                                             "../../data/shaders/sky-rendering/sky.frag");
 
-    // m_sky_shader      = std::make_shared<Shader>("A:/personal/projects/sputnik/data/shaders/sky-rendering/sky.vert",
-    //                                         "A:/personal/projects/sputnik/data/shaders/sky-rendering/sky.frag");
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
 }
 

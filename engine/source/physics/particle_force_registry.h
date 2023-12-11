@@ -10,14 +10,10 @@ namespace sputnik::physics
 
 struct ParticleForceRegistration
 {
-    std::shared_ptr<Particle>               m_particle;
-    std::shared_ptr<ParticleForceGenerator> m_fg;
+    Particle*               m_particle;
+    ParticleForceGenerator* m_fg;
 
-    ParticleForceRegistration(std::shared_ptr<Particle> particle, std::shared_ptr<ParticleForceGenerator> fg)
-        : m_particle(particle)
-        , m_fg(fg)
-    {
-    }
+    ParticleForceRegistration(Particle* particle, ParticleForceGenerator* fg) : m_particle(particle), m_fg(fg) {}
 };
 
 class ParticleForceRegistry
@@ -30,7 +26,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param fg The force generator that will be applied.
      */
-    void add(std::shared_ptr<Particle> particle, std::shared_ptr<ParticleForceGenerator> fg);
+    void add(Particle* particle, ParticleForceGenerator* fg);
 
     /*!
      * @brief Removes the given registered pair from the registry.
@@ -40,7 +36,7 @@ public:
      * @param particle The particle to remove.
      * @param fg The force generator to remove.
      */
-    void remove(std::shared_ptr<Particle> particle, std::shared_ptr<ParticleForceGenerator> fg);
+    void remove(Particle* particle, ParticleForceGenerator* fg);
 
     /*!
      * @brief Clears all registrations from the registry.

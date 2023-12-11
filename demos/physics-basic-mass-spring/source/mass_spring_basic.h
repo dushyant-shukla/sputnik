@@ -7,6 +7,8 @@
 
 #include <graphics/glcore/shader.h>
 #include <graphics/api/model.h>
+#include <graphics/api/light.h>
+#include <graphics/glcore/texture.h>
 
 #include <physics/particle_force_registry.h>
 #include <physics/particle_force_generator.h>
@@ -39,17 +41,24 @@ public:
 
 private:
     ParticleForceRegistry m_particle_force_registry;
-    std::vector<Particle> m_particles;
 
-    std::shared_ptr<Shader> m_sky_shader;
-    std::shared_ptr<Shader> m_simple_lighting_shader;
-    std::shared_ptr<Shader> m_static_shader;
+    std::shared_ptr<Shader>  m_simple_lighting_shader;
+    std::shared_ptr<Shader>  m_static_shader;
+    std::shared_ptr<Texture> m_static_mesh_texture;
 
     std::shared_ptr<Model> m_box;
     std::shared_ptr<Model> m_sphere;
 
-    std::shared_ptr<Particle> a;
-    std::shared_ptr<Particle> anchor;
+    std::vector<Particle*> m_particles;
+
+    ParticleAnchoredBungeeForceGenerator* m_anchored_bungee_force_generator;
+    ParticleSpringForceGenerator*         m_spring_force_generator_a;
+    ParticleSpringForceGenerator*         m_spring_force_generator_b;
+
+    Light m_light;
+
+    int         m_particle_idx{0};
+    std::string m_particle_str;
 };
 
 class MassSpringBasicDemo : public sputnik::main::Application

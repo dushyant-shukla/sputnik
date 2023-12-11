@@ -518,51 +518,6 @@ void BasicParticlesDemoLayer::OnUpdate(const core::TimeStep& time_step)
         m_simple_lighting_shader->Unbind();
     }
     glDisable(GL_DEPTH_TEST);
-
-    // debug draw
-    {
-        // glDisable(GL_DEPTH_TEST);
-        //  render any debug visuals
-        // glEnable(GL_DEPTH_TEST);
-    }
-
-    // Render sky
-    {
-        // very important
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glDisable(GL_CULL_FACE);
-
-        // removing translation from the view matrix
-        mat4 cubemap_view_mat4{};
-        for(unsigned int i = 0; i < 16; ++i)
-        {
-            cubemap_view_mat4.m[i] = v.m[i];
-        }
-
-        cubemap_view_mat4.m[3]  = 0;
-        cubemap_view_mat4.m[7]  = 0;
-        cubemap_view_mat4.m[11] = 0;
-        cubemap_view_mat4.m[15] = 1;
-        cubemap_view_mat4.m[12] = 0;
-        cubemap_view_mat4.m[13] = 0;
-        cubemap_view_mat4.m[14] = 0;
-
-        mat4 cubemap_view_projection_mat4     = p * cubemap_view_mat4;
-        mat4 inv_cubemap_view_projection_mat4 = cubemap_view_projection_mat4.inverted();
-
-        mPreethamSkyModel.SetDirection(mDirection);
-        mPreethamSkyModel.Update();
-        m_sky_shader->Bind();
-        Uniform<mat4>::Set(m_sky_shader->GetUniform("inv_view_projection"), inv_cubemap_view_projection_mat4);
-        mPreethamSkyModel.SetRenderUniforms(m_sky_shader);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        // very important
-        glEnable(GL_CULL_FACE);
-        glDepthFunc(GL_LESS); // This is the default depth function
-        glDisable(GL_DEPTH_TEST);
-    }
 }
 
 void BasicParticlesDemoLayer::OnEvent() {}
