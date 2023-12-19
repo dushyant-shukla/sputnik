@@ -106,7 +106,9 @@ public:
      * @param num_contacts The number of contacts in the array to resolve.
      * @param duration The duration of the prevuious integration step. This is used to compensate for forces applied.
      */
-    void resolveContacts(std::vector<ParticleContact*> contact_array, const unsigned& num_contacts, const real& duration) noexcept;
+    void resolveContacts(std::vector<ParticleContact*> contact_array,
+                         const unsigned&               num_contacts,
+                         const real&                   duration) noexcept;
 
 protected:
     /**
@@ -140,7 +142,10 @@ public:
      * @param limit The maximum number of contacts that can be written.
      * @return The number of contacts that have been written.
      */
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept = 0;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept = 0;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

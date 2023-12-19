@@ -10,7 +10,10 @@ real ParticleConstraint::currentLength() const noexcept
     return relative_position.length();
 }
 
-unsigned ParticleCable::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+// unsigned ParticleCable::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+unsigned ParticleCable::addContact(std::vector<ParticleContact*>& contacts,
+                                   const unsigned&                current_contact_index,
+                                   const unsigned&                limit) const noexcept
 {
     real current_length = currentLength();
 
@@ -21,21 +24,24 @@ unsigned ParticleCable::addContact(ParticleContact* contact, const unsigned& lim
     }
 
     // Otherwise return the contact
-    contact->m_particles[0] = m_particles[0];
-    contact->m_particles[1] = m_particles[1];
+    contacts[current_contact_index]->m_particles[0] = m_particles[0];
+    contacts[current_contact_index]->m_particles[1] = m_particles[1];
 
     // Calculate the normal
     vec3 normal = m_particles[1]->getPosition() - m_particles[0]->getPosition();
     normal.normalize();
-    contact->m_contact_normal = normal;
+    contacts[current_contact_index]->m_contact_normal = normal;
 
-    contact->m_penetration = current_length - m_max_length; // amount of extension
-    contact->m_restitution = m_restitution;
+    contacts[current_contact_index]->m_penetration = current_length - m_max_length; // amount of extension
+    contacts[current_contact_index]->m_restitution = m_restitution;
 
     return 1;
 }
 
-unsigned ParticleRod::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+// unsigned ParticleRod::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+unsigned ParticleRod::addContact(std::vector<ParticleContact*>& contacts,
+                                 const unsigned&                current_contact_index,
+                                 const unsigned&                limit) const noexcept
 {
     real current_length = currentLength();
 
@@ -44,8 +50,8 @@ unsigned ParticleRod::addContact(ParticleContact* contact, const unsigned& limit
         return 0;
     }
 
-    contact->m_particles[0] = m_particles[0];
-    contact->m_particles[1] = m_particles[1];
+    contacts[current_contact_index]->m_particles[0] = m_particles[0];
+    contacts[current_contact_index]->m_particles[1] = m_particles[1];
 
     vec3 normal = m_particles[1]->getPosition() - m_particles[0]->getPosition();
     normal.normalize();
@@ -54,17 +60,17 @@ unsigned ParticleRod::addContact(ParticleContact* contact, const unsigned& limit
     if(current_length > m_length)
     {
         // extended
-        contact->m_contact_normal = normal;
-        contact->m_penetration    = current_length - m_length;
+        contacts[current_contact_index]->m_contact_normal = normal;
+        contacts[current_contact_index]->m_penetration = current_length - m_length;
     }
     else
     {
         // compressed
-        contact->m_contact_normal = normal * -1;
-        contact->m_penetration    = m_length - current_length;
+        contacts[current_contact_index]->m_contact_normal = normal * -1;
+        contacts[current_contact_index]->m_penetration = m_length - current_length;
     }
 
-    contact->m_restitution = 0; // rods don't generate bouncy contacts
+    contacts[current_contact_index]->m_restitution = 0; // rods don't generate bouncy contacts
 
     return 1;
 }
@@ -75,7 +81,10 @@ real AnchoredParticleConstraint::currentLength() const noexcept
     return relative_position.length();
 }
 
-unsigned AnchoredParticleCable::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+// unsigned AnchoredParticleCable::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+unsigned AnchoredParticleCable::addContact(std::vector<ParticleContact*>& contacts,
+                                         const unsigned&                current_contact_index,
+                                         const unsigned&                limit) const noexcept
 {
     real current_length = currentLength();
 
@@ -85,21 +94,24 @@ unsigned AnchoredParticleCable::addContact(ParticleContact* contact, const unsig
         return 0;
     }
 
-    contact->m_particles[0] = m_particle;
-    contact->m_particles[1] = nullptr;
+    contacts[current_contact_index]->m_particles[0] = m_particle;
+    contacts[current_contact_index]->m_particles[1] = nullptr;
 
     // Calculate the normal
     vec3 normal = m_anchor - m_particle->getPosition();
     normal.normalize();
-    contact->m_contact_normal = normal;
+    contacts[current_contact_index]->m_contact_normal = normal;
 
-    contact->m_penetration = current_length - m_max_length; // amount of extension
-    contact->m_restitution = m_restitution;
+    contacts[current_contact_index]->m_penetration = current_length - m_max_length; // amount of extension
+    contacts[current_contact_index]->m_restitution = m_restitution;
 
     return 1;
 }
 
-unsigned AnchoredParticleRod::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+// unsigned AnchoredParticleRod::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+unsigned AnchoredParticleRod::addContact(std::vector<ParticleContact*>& contacts,
+                                         const unsigned&                current_contact_index,
+                                         const unsigned&                limit) const noexcept
 {
     real current_length = currentLength();
 
@@ -108,8 +120,8 @@ unsigned AnchoredParticleRod::addContact(ParticleContact* contact, const unsigne
         return 0;
     }
 
-    contact->m_particles[0] = m_particle;
-    contact->m_particles[1] = nullptr;
+    contacts[current_contact_index]->m_particles[0] = m_particle;
+    contacts[current_contact_index]->m_particles[1] = nullptr;
 
     vec3 normal = m_anchor - m_particle->getPosition();
     normal.normalize();
@@ -118,17 +130,17 @@ unsigned AnchoredParticleRod::addContact(ParticleContact* contact, const unsigne
     if(current_length > m_length)
     {
         // extended
-        contact->m_contact_normal = normal;
-        contact->m_penetration    = current_length - m_length;
+        contacts[current_contact_index]->m_contact_normal = normal;
+        contacts[current_contact_index]->m_penetration    = current_length - m_length;
     }
     else
     {
         // compressed
-        contact->m_contact_normal = normal * -1;
-        contact->m_penetration    = m_length - current_length;
+        contacts[current_contact_index]->m_contact_normal = normal * -1;
+        contacts[current_contact_index]->m_penetration    = m_length - current_length;
     }
 
-    contact->m_restitution = 0; // rods don't generate bouncy contacts
+    contacts[current_contact_index]->m_restitution = 0; // rods don't generate bouncy contacts
 
     return 1;
 }

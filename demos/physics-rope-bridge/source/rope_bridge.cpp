@@ -31,8 +31,17 @@ RopeBridgeDemoLayer::RopeBridgeDemoLayer(const std::string& name)
         m_particle_world.getParticles().push_back(particle);
     }
 
+    m_falling_particle = new Particle();
+    m_falling_particle->setPosition({0.0f, 4.0f, 0.0f});
+    m_falling_particle->setVelocity({0.0f, 0.0f, 0.0f});
+    m_falling_particle->setMass(kBaseMass);
+    m_falling_particle->setDamping(0.9f);
+    m_falling_particle->setAcceleration(kGravity);
+    //  m_falling_particles.push_back(particle);
+
+    m_particle_world.getParticles().push_back(m_falling_particle);
     m_ground_contact_generator.init(m_particle_world.getParticles());
-    // m_particle_world.getContactGenerators().push_back(&m_ground_contact_generator);
+    m_particle_world.getContactGenerators().push_back(&m_ground_contact_generator);
 }
 
 RopeBridgeDemoLayer::~RopeBridgeDemoLayer() {}
@@ -122,6 +131,7 @@ void RopeBridgeDemoLayer::OnDetach()
     delete[] m_rods;
     delete[] m_cables;
     delete[] m_anchored_cables;
+    delete m_falling_particle;
 }
 
 void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
@@ -302,6 +312,14 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
         Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_gold.specular);
         Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_gold.shininess);
         m_sphere->Draw(m_simple_lighting_shader, false, false, false);
+
+        model         = {};
+        model         = model.translate(m_falling_particle->getPosition());
+        model         = model.scale({0.25f});
+        normal_matrix = model.inverted().transpose();
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("model"), model);
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+        m_sphere->Draw(m_simple_lighting_shader, false, false, false);
     }
 
     m_simple_lighting_shader->Unbind();
@@ -339,27 +357,27 @@ void RopeBridgeDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
     {
         // ImGui::Combo("Particle", &m_particle_idx, m_particle_str.c_str());
         // Particle* particle = m_particles[m_particle_idx];
-        // ImGuizmo::SetGizmoSizeClipSpace(0.075f);
-        // mat4 model = {};
-        // model      = model.translate(particle->getPosition());
-        // ImGuizmo::Manipulate(&view.m[0],
-        //                      &projection.m[0],
-        //                      ImGuizmo::OPERATION::TRANSLATE,
-        //                      ImGuizmo::MODE::LOCAL,
-        //                      &model.m[0],
-        //                      nullptr,
-        //                      nullptr);
-        // if(ImGuizmo::IsUsing())
-        //{
-        //     particle->setPosition({model.m[12], model.m[13], model.m[14]});
+        ImGuizmo::SetGizmoSizeClipSpace(0.075f);
+        mat4 model = {};
+        model      = model.translate(m_falling_particle->getPosition());
+        ImGuizmo::Manipulate(&view.m[0],
+                             &projection.m[0],
+                             ImGuizmo::OPERATION::TRANSLATE,
+                             ImGuizmo::MODE::LOCAL,
+                             &model.m[0],
+                             nullptr,
+                             nullptr);
+        if(ImGuizmo::IsUsing())
+        {
+            m_falling_particle->setPosition({model.m[12], model.m[13], model.m[14]});
 
-        //    // We need to block camera update when we are using ImGuizmo
-        //    Renderer::BlockCameraUpdate();
-        //}
-        // else
-        //{
-        //    Renderer::BlockCameraUpdate(false);
-        //}
+            // We need to block camera update when we are using ImGuizmo
+            Renderer::BlockCameraUpdate();
+        }
+        else
+        {
+            Renderer::BlockCameraUpdate(false);
+        }
     }
     ImGui::End();
 }

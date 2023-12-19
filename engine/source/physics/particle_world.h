@@ -115,7 +115,10 @@ public:
 
     void init(const std::vector<Particle*>& particles) noexcept;
 
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    //virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept override;
 
 public:
     std::vector<Particle*> m_particles;

@@ -62,6 +62,8 @@ private:
     ParticleWorld          m_particle_world;
     std::vector<Particle*> m_particles;
     GroundContactGenerator m_ground_contact_generator;
+    std::vector<Particle*> m_falling_particles;
+    Particle*              m_falling_particle;
 
     AnchoredParticleCable* m_anchored_cables;
     ParticleCable*         m_cables;

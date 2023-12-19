@@ -22,7 +22,10 @@ public:
      * @param limit The maximum number of contacts that can be written.
      * @return The number of contacts that have been written.
      */
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept = 0;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept = 0;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept = 0;
 
 protected:
     /*!
@@ -58,7 +61,10 @@ public:
      * @param limit The maximum number of contacts that can be written.
      * @return The number of contacts that have been written.
      */
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept override;
 
 public:
     /**
@@ -91,7 +97,10 @@ public:
      * @param limit The maximum number of contacts that can be written.
      * @return The number of contacts that have been written.
      */
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept override;
 
 public:
     /**
@@ -119,7 +128,10 @@ public:
      * @param limit The maximum number of contacts that can be written.
      * @return The number of contacts that have been written.
      */
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept = 0;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept = 0;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept = 0;
 
 protected:
     /*!
@@ -160,7 +172,10 @@ public:
      * @param limit The maximum number of contacts that can be written.
      * @return The number of contacts that have been written.
      */
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept override;
 
 public:
     /**
@@ -193,7 +208,10 @@ public:
      * @param limit The maximum number of contacts that can be written.
      * @return The number of contacts that have been written.
      */
-    virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
+                                const unsigned&                current_contact_index,
+                                const unsigned&                limit) const noexcept override;
 
 public:
     /**

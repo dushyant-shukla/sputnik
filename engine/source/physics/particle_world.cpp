@@ -83,8 +83,9 @@ unsigned ParticleWorld::generateContacts() noexcept
 
     for(auto& generator : m_contact_generators)
     {
-        //unsigned used = generator->addContact(m_contacts, limit);
-        unsigned used = generator->addContact(m_contacts[next_contact], limit);
+        // unsigned used = generator->addContact(m_contacts, limit);
+        // unsigned used = generator->addContact(m_contacts[next_contact], limit);
+        unsigned used = generator->addContact(m_contacts, next_contact, limit);
         limit -= used;
         next_contact += used;
 
@@ -103,7 +104,9 @@ void GroundContactGenerator::init(const std::vector<Particle*>& particles) noexc
     m_particles = particles;
 }
 
-unsigned GroundContactGenerator::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+unsigned GroundContactGenerator::addContact(std::vector<ParticleContact*>& contacts,
+                                            const unsigned&                current_contact_index,
+                                            const unsigned&                limit) const noexcept
 {
     unsigned count = 0;
     for(Particle* particle : m_particles)
@@ -111,13 +114,14 @@ unsigned GroundContactGenerator::addContact(ParticleContact* contact, const unsi
         real y = particle->getPosition().y;
         if(y < kEpsilon)
         {
-            contact->m_contact_normal = kUp;
-            contact->m_particles[1]   = particle;
-            contact->m_particles[1]   = nullptr;
-            contact->m_penetration    = -y;
-            contact->m_restitution    = real(0.2);
+            contacts[count]->m_contact_normal = kUp;
+            contacts[count]->m_particles[0]   = particle;
+            contacts[count]->m_particles[1]   = nullptr;
+            contacts[count]->m_penetration    = -y;
+            //contacts[count]->m_restitution    = real(0.2);
+            contacts[count]->m_restitution    = real(0.75);
 
-            ++contact;
+            //++contact;
             ++count;
         }
 
@@ -128,5 +132,31 @@ unsigned GroundContactGenerator::addContact(ParticleContact* contact, const unsi
     }
     return count;
 }
+
+// unsigned GroundContactGenerator::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
+//{
+//    unsigned count = 0;
+//    for(Particle* particle : m_particles)
+//    {
+//        real y = particle->getPosition().y;
+//        if(y < kEpsilon)
+//        {
+//            contact->m_contact_normal = kUp;
+//            contact->m_particles[0]   = particle;
+//            contact->m_particles[1]   = nullptr;
+//            contact->m_penetration    = -y;
+//            contact->m_restitution    = real(0.2);
+//
+//            ++contact;
+//            ++count;
+//        }
+//
+//        if(count >= limit)
+//        {
+//            return count;
+//        }
+//    }
+//    return count;
+//}
 
 } // namespace sputnik::physics
