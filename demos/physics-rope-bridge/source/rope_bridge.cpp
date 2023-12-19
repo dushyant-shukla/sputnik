@@ -13,21 +13,21 @@
 namespace sputnik::demos
 {
 
-RopeBridgeDemoLayer::RopeBridgeDemoLayer(const std::string& name, unsigned particle_count)
+RopeBridgeDemoLayer::RopeBridgeDemoLayer(const std::string& name)
     : core::Layer{name}
-    , m_particle_world(particle_count * 10) // 10 contacts per particle
+    , m_particle_world(kParticleCount * 10) // 10 contacts per particle
     , m_anchored_cables{nullptr}
     , m_cables{nullptr}
     , m_rods{nullptr}
     , m_mass_position{0.0f, 0.0f, 0.5f}
 {
-    m_particles.reserve(particle_count);
+    m_particles.resize(kParticleCount);
 
-    for(unsigned i = 0; i < particle_count; ++i)
+    for(unsigned i = 0; i < kParticleCount; ++i)
     {
         Particle* particle = new Particle();
         // m_particles[i]     = particle;
-        m_particles.push_back(particle);
+        m_particles[i] = particle;
         m_particle_world.getParticles().push_back(particle);
     }
 
@@ -104,6 +104,11 @@ void RopeBridgeDemoLayer::OnAttach()
         m_rods[i].m_length       = 2.0f;
         m_particle_world.getContactGenerators().push_back(&m_rods[i]);
     }
+
+    UpdateAdditionalMass();
+
+    // glEnable(GL_DEPTH_TEST);
+    // glDepthFunc(GL_ALWAYS);
 }
 
 void RopeBridgeDemoLayer::OnDetach()
@@ -122,7 +127,40 @@ void RopeBridgeDemoLayer::OnDetach()
 void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
 
+    if(time_step.GetSeconds() <= Constants::EPSILON)
+    {
+        return;
+    }
+
+    float       speed         = 0.35f;
+    const auto& input_manager = core::InputManager::GetInstance();
+    if(input_manager->IsKeyPressed(KEY_LEFT))
+    {
+        m_mass_position.z += 0.1f * speed;
+        if(m_mass_position.z > 1.0f)
+            m_mass_position.z = 1.0f;
+    }
+    if(input_manager->IsKeyPressed(KEY_RIGHT))
+    {
+        m_mass_position.z -= 0.1f * speed;
+        if(m_mass_position.z < 0.0f)
+            m_mass_position.z = 0.0f;
+    }
+    if(input_manager->IsKeyPressed(KEY_UP))
+    {
+        m_mass_position.x -= 0.1f * speed;
+        if(m_mass_position.x < 0.0f)
+            m_mass_position.x = 0.0f;
+    }
+    if(input_manager->IsKeyPressed(KEY_DOWN))
+    {
+        m_mass_position.x += 0.1f * speed;
+        if(m_mass_position.x > 5.0f)
+            m_mass_position.x = 5.0f;
+    }
+
     m_particle_world.startFrame();
+    m_particle_world.simulatePhysics(time_step);
 
     // const auto& editor_camera   = sputnik::graphics::api::EditorCamera::GetInstance();
     // Matrix4     projection      = editor_camera->GetCameraPerspective();
@@ -154,73 +192,7 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
         m_static_shader->Unbind();
     }
 
-    m_simple_lighting_shader->Bind();
-    Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("view"), view);
-    Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("projection"), projection);
-    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("eye_position"), camera_position);
-
-    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.position"), m_light.position);
-    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.ambient"), m_light.ambient);
-    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.diffuse"), m_light.diffuse);
-    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.specular"), m_light.specular);
-
-    m_particle_world.simulatePhysics(time_step);
-
-    for(unsigned i = 0; i < m_particles.size(); ++i)
-    {
-        const auto& particle = m_particles[i];
-        // particle->integrate(time_step);
-        mat4 model{};
-        model              = model.translate(particle->getPosition());
-        model              = model.scale({0.15f});
-        mat4 normal_matrix = model.inverted().transpose();
-        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("model"), model);
-        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
-
-        switch(i)
-        {
-        case 0:
-        case 1:
-        case 6:
-        case 7:
-        {
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), material_pearl.ambient);
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material_pearl.diffuse);
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_pearl.specular);
-            Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_pearl.shininess);
-            break;
-        }
-        case 2:
-        case 3:
-        case 8:
-        case 9:
-        {
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), material_ruby.ambient);
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material_ruby.diffuse);
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_ruby.specular);
-            Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_ruby.shininess);
-            break;
-        }
-        case 4:
-        case 5:
-        case 10:
-        case 11:
-        {
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), material_gold.ambient);
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material_gold.diffuse);
-            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_gold.specular);
-            Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_gold.shininess);
-            break;
-        }
-        default:
-            break;
-        }
-
-        m_sphere->Draw(m_simple_lighting_shader, false, false, false);
-    }
-    m_simple_lighting_shader->Unbind();
-
-    // render joints
+    // render rods and cables
     glLineWidth(5.0);
     mat4 mvp = projection * view;
     {
@@ -287,7 +259,56 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
         }
     }
 
+    m_simple_lighting_shader->Bind();
+    Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("view"), view);
+    Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("projection"), projection);
+    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("eye_position"), camera_position);
+
+    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.position"), m_light.position);
+    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.ambient"), m_light.ambient);
+    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.diffuse"), m_light.diffuse);
+    Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("light.specular"), m_light.specular);
+
+    for(unsigned i = 0; i < m_particles.size(); ++i)
+    {
+        const auto& particle = m_particles[i];
+        // particle->integrate(time_step);
+        mat4 model{};
+        model              = model.translate(particle->getPosition());
+        model              = model.scale({0.15f});
+        mat4 normal_matrix = model.inverted().transpose();
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("model"), model);
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), material_ruby.ambient);
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material_ruby.diffuse);
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_ruby.specular);
+        Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_ruby.shininess);
+
+        m_sphere->Draw(m_simple_lighting_shader, false, false, false);
+    }
+
+    // render moving mass
+    {
+        mat4 model{};
+        model              = model.translate(m_mass_display_position);
+        model              = model.scale({0.25f});
+        mat4 normal_matrix = model.inverted().transpose();
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("model"), model);
+        Uniform<mat4>::Set(m_simple_lighting_shader->GetUniform("normal_matrix"), normal_matrix);
+
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), material_gold.ambient);
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material_gold.diffuse);
+        Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_gold.specular);
+        Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_gold.shininess);
+        m_sphere->Draw(m_simple_lighting_shader, false, false, false);
+    }
+
+    m_simple_lighting_shader->Unbind();
+
     ++debug_count;
+
+    UpdateAdditionalMass();
 }
 
 void RopeBridgeDemoLayer::OnEvent() {}
@@ -343,6 +364,69 @@ void RopeBridgeDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
     ImGui::End();
 }
 
-void RopeBridgeDemoLayer::UpdateAdditionalMass() {}
+void RopeBridgeDemoLayer::UpdateAdditionalMass()
+{
+    for(unsigned i = 0; i < kParticleCount; ++i)
+    {
+        m_particles[i]->setMass(kBaseMass);
+    }
+
+    // Find the coordinates of the mass as an index and proportion
+    int  x  = int(m_mass_position.x);
+    real xp = real_fmod(m_mass_position.x, real(1.0f));
+    if(x < 0)
+    {
+        x  = 0;
+        xp = 0;
+    }
+    if(x >= 5)
+    {
+        x  = 5;
+        xp = 0;
+    }
+
+    int  z  = int(m_mass_position.z);
+    real zp = real_fmod(m_mass_position.z, real(1.0f));
+    if(z < 0)
+    {
+        z  = 0;
+        zp = 0;
+    }
+    if(z >= 1)
+    {
+        z  = 1;
+        zp = 0;
+    }
+
+    // Calculate where to draw the mass
+    m_mass_display_position.clear();
+
+    m_mass_display_position.y += 0.2f;
+
+    // Add the proportion to the correct masses
+    m_particles[x * 2 + z]->setMass(kBaseMass + kExtraMass * (1 - xp) * (1 - zp));
+    m_mass_display_position += m_particles[x * 2 + z]->getPosition() * ((1 - xp) * (1 - zp));
+    // m_mass_display_position.addScaledVector(m_particles[x * 2 + z]->getPosition(), (1 - xp) * (1 - zp));
+
+    if(xp > 0)
+    {
+        m_particles[x * 2 + z + 2]->setMass(kBaseMass + kExtraMass * xp * (1 - zp));
+        m_mass_display_position += m_particles[x * 2 + z + 2]->getPosition() * (xp * (1 - zp));
+        // massDisplayPos.addScaledVector(m_particles[x * 2 + z + 2]->getPosition(), xp * (1 - zp));
+
+        if(zp > 0)
+        {
+            m_particles[x * 2 + z + 3]->setMass(kBaseMass + kExtraMass * xp * zp);
+            m_mass_display_position += m_particles[x * 2 + z + 3]->getPosition() * (xp * zp);
+            // massDisplayPos.addScaledVector(m_particles[x * 2 + z + 3]->getPosition(), xp * zp);
+        }
+    }
+    if(zp > 0)
+    {
+        m_particles[x * 2 + z + 1]->setMass(kBaseMass + kExtraMass * (1 - xp) * zp);
+        m_mass_display_position += m_particles[x * 2 + z + 1]->getPosition() * ((1 - xp) * zp);
+        // massDisplayPos.addScaledVector(m_particles[x * 2 + z + 1]->getPosition(), (1 - xp) * zp);
+    }
+}
 
 } // namespace sputnik::demos

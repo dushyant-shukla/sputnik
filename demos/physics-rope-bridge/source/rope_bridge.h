@@ -33,7 +33,7 @@ class RopeBridgeDemoLayer : public core::Layer
 {
 
 public:
-    RopeBridgeDemoLayer(const std::string& name, unsigned particle_count);
+    RopeBridgeDemoLayer(const std::string& name);
     virtual ~RopeBridgeDemoLayer();
 
     virtual void OnAttach();
@@ -70,13 +70,15 @@ private:
     vec3 m_mass_position;
     vec3 m_mass_display_position;
 
-    real const     kBaseMass{1};
-    real const     kExtraMass{10};
-    unsigned const kRodCount{6};
-    unsigned const kCableCount{10};
-    unsigned const kAnchoredCableCount{12};
+    real const             kBaseMass{1};
+    real const             kExtraMass{10};
+    unsigned const         kRodCount{6};
+    unsigned const         kCableCount{10};
+    unsigned const         kAnchoredCableCount{12};
     inline static unsigned debug_count{0};
 };
+
+unsigned const kParticleCount{12};
 
 class RopeBridgeDemo : public sputnik::main::Application
 {
@@ -84,7 +86,7 @@ class RopeBridgeDemo : public sputnik::main::Application
 public:
     RopeBridgeDemo(const std::string& name) : sputnik::main::Application(name)
     {
-        PushLayer(std::make_shared<RopeBridgeDemoLayer>(name, 12));
+        PushLayer(std::make_shared<RopeBridgeDemoLayer>(name));
     }
 
     ~RopeBridgeDemo() {}
