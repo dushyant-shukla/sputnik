@@ -68,6 +68,23 @@ void MassSpringBasicDemoLayer::OnAttach()
     m_particles.back()->setDamping(0.5f);
     m_particle_str += "Spring particle b";
     m_particle_str += '\0';
+
+    // particle c
+    m_particles.push_back(new Particle());
+    m_particles.back()->setPosition({3.0f, 1.0f, 0.0f});
+    m_particles.back()->setMass(10.0f); // 10 kg
+    m_particles.back()->setDamping(0.5f);
+    m_particle_str += "Spring particle c";
+    m_particle_str += '\0';
+
+    // particle d
+    m_particles.push_back(new Particle());
+    m_particles.back()->setPosition({3.0f, 0.0f, 0.0f});
+    m_particles.back()->setMass(10.0f); // 10 kg
+    m_particles.back()->setDamping(0.5f);
+    m_particles.back()->setAcceleration({0.0f, -9.81f, 0.0f});
+    m_particle_str += "Spring particle d";
+    m_particle_str += '\0';
     m_particle_str += '\0';
 
     m_spring_force_generator_a = new ParticleSpringForceGenerator(m_particles[3], 50.0f, 1.0f);
@@ -75,6 +92,10 @@ void MassSpringBasicDemoLayer::OnAttach()
 
     m_spring_force_generator_b = new ParticleSpringForceGenerator(m_particles[2], 50.0f, 1.0f);
     m_particle_force_registry.add(m_particles[3], m_spring_force_generator_b);
+
+    m_anchored_spring_force_generator =
+        new ParticleAnchoredSpringForceGenerator(m_particles[4]->getPosition(), 50.0f, 2.0f);
+    m_particle_force_registry.add(m_particles[5], m_anchored_spring_force_generator);
 
     m_anchored_bungee_force_generator =
         new ParticleAnchoredBungeeForceGenerator(m_particles[0]->getPosition(), 50.0f, 1.0f);
@@ -90,6 +111,7 @@ void MassSpringBasicDemoLayer::OnDetach()
     delete m_anchored_bungee_force_generator;
     delete m_spring_force_generator_a;
     delete m_spring_force_generator_b;
+    delete m_anchored_spring_force_generator;
 
     for(auto& particle : m_particles)
     {
@@ -130,6 +152,7 @@ void MassSpringBasicDemoLayer::OnUpdate(const core::TimeStep& time_step)
     }
 
     m_anchored_bungee_force_generator->setAnchor(m_particles[0]->getPosition());
+    m_anchored_spring_force_generator->setAnchor(m_particles[4]->getPosition());
     m_particle_force_registry.updateForces(time_step);
 
     m_simple_lighting_shader->Bind();
@@ -171,6 +194,15 @@ void MassSpringBasicDemoLayer::OnUpdate(const core::TimeStep& time_step)
             Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material_ruby.diffuse);
             Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_ruby.specular);
             Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_ruby.shininess);
+            break;
+        }
+        case 4:
+        case 5:
+        {
+            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.ambient"), material_gold.ambient);
+            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.diffuse"), material_gold.diffuse);
+            Uniform<vec3>::Set(m_simple_lighting_shader->GetUniform("material.specular"), material_gold.specular);
+            Uniform<float>::Set(m_simple_lighting_shader->GetUniform("material.shininess"), material_gold.shininess);
             break;
         }
         default:

@@ -3,6 +3,7 @@
 #include <editor/editor_camera.h>
 #include <graphics/api/camera.h>
 #include <graphics/glcore/uniform.h>
+#include <graphics/api/renderer.h>
 
 #include <constants.h>
 #include <vector.hpp>
@@ -112,6 +113,8 @@ void ComputerShaderClothDemoLayer::OnAttach()
 
     m_color_texture   = std::make_shared<Texture>("../../data/assets/fabric_basecolor.jpg");
     m_opacity_texture = std::make_shared<Texture>("../../data/assets/fabric_opacity.jpg");
+
+    sputnik::graphics::api::Renderer::SetCameraType(sputnik::graphics::api::CameraType::EditorCamera);
 }
 
 void ComputerShaderClothDemoLayer::OnDetach()
@@ -126,8 +129,8 @@ void ComputerShaderClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
     // update the positions and velocities
 
-    // const auto& camera = sputnik::graphics::api::Camera::GetInstance();
-    const auto& camera     = sputnik::graphics::api::EditorCamera::GetInstance();
+    //const auto& camera = sputnik::graphics::api::Camera::GetInstance();
+     const auto& camera     = sputnik::graphics::api::EditorCamera::GetInstance();
     const auto& projection = camera->GetCameraPerspective();
     const auto& view       = camera->GetCameraView();
 

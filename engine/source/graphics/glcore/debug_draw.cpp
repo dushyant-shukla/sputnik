@@ -97,6 +97,11 @@ void sputnik::graphics::glcore::DebugDraw::Push(const ramanujan::Vector3& v)
     m_points.push_back(v);
 }
 
+void sputnik::graphics::glcore::DebugDraw::Clear()
+{
+    m_points.clear();
+}
+
 void sputnik::graphics::glcore::DebugDraw::FromPose(const sputnik::graphics::core::Pose& pose)
 {
     unsigned int required_verts = 0;
@@ -192,6 +197,32 @@ void sputnik::graphics::glcore::DebugDraw::Draw(DebugDrawMode             mode,
     m_shader->Bind();
     sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(m_shader->GetUniform("mvp"), mvp);
     sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(m_shader->GetUniform("color"), color);
+    m_vertex_attributes->Bind(m_shader->GetAttribute("position"));
+    if(mode == DebugDrawMode::Lines)
+    {
+        sputnik::graphics::glcore::Renderer::Draw(Size(), sputnik::graphics::glcore::DrawMode::LINES);
+    }
+    else if(mode == DebugDrawMode::Loop)
+    {
+        sputnik::graphics::glcore::Renderer::Draw(Size(), sputnik::graphics::glcore::DrawMode::LINE_LOOP);
+    }
+    else if(mode == DebugDrawMode::Strip)
+    {
+        sputnik::graphics::glcore::Renderer::Draw(Size(), sputnik::graphics::glcore::DrawMode::LINE_STRIP);
+    }
+    else
+    {
+        sputnik::graphics::glcore::Renderer::Draw(Size(), sputnik::graphics::glcore::DrawMode::POINTS);
+    }
+    m_vertex_attributes->Unbind(m_shader->GetAttribute("position"));
+    m_shader->Unbind();
+}
+
+void sputnik::graphics::glcore::DebugDraw::Draw(DebugDrawMode mode, const vec3& color, const mat4& mvp)
+{
+    m_shader->Bind();
+    sputnik::graphics::glcore::Uniform<mat4>::Set(m_shader->GetUniform("mvp"), mvp);
+    sputnik::graphics::glcore::Uniform<vec3>::Set(m_shader->GetUniform("color"), color);
     m_vertex_attributes->Bind(m_shader->GetAttribute("position"));
     if(mode == DebugDrawMode::Lines)
     {

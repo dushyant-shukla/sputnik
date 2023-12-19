@@ -16,6 +16,7 @@ namespace sputnik::graphics::glcore
 
 using namespace sputnik::graphics::core;
 using namespace ramanujan;
+using namespace ramanujan::experimental;
 
 enum class DebugDrawMode
 {
@@ -39,6 +40,7 @@ public:
     void         Resize(unsigned int newSize);
     Vector3&     operator[](unsigned int index);
     void         Push(const Vector3& v);
+    void         Clear();
 
     void FromPose(const Pose& pose);
     void LinesFromIKSolver(CCDSolver& solver);
@@ -48,6 +50,7 @@ public:
 
     void UpdateOpenGLBuffers();
     void Draw(DebugDrawMode mode, const Vector3& color, const Matrix4& mvp);
+    void Draw(DebugDrawMode mode, const vec3& color, const mat4& mvp);
 
 protected:
     std::vector<Vector3>      m_points;
