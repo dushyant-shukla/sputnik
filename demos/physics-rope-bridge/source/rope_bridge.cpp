@@ -10,8 +10,16 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 
+#include <core/core.h>
+
 namespace sputnik::demos
 {
+
+const char* getShaderStageTypeStringA(cstring shader_file)
+{
+    int length = strlen(shader_file);
+    return shader_file + length - 4;
+}
 
 RopeBridgeDemoLayer::RopeBridgeDemoLayer(const std::string& name)
     : core::Layer{name}
@@ -48,6 +56,15 @@ RopeBridgeDemoLayer::~RopeBridgeDemoLayer() {}
 
 void RopeBridgeDemoLayer::OnAttach()
 {
+    const char* type = getShaderStageTypeStringA("../../data/shaders/simple.vert");
+    std::cout << "type: " << type;
+
+    // SPUTNIK_ASSERT_MESSAGE(false, "Invalid include statement in shader: {}", "../../data/shaders/simple.vert");
+
+    // std::ifstream shader_file_stream("../../data/shaders/simple.vert");
+    // std::string   shader_source(std::istreambuf_iterator<char>(shader_file_stream),
+    // std::istreambuf_iterator<char>()); std::cout << "shader: " << shader_source;
+
     Renderer::SetCameraType(CameraType::Camera);
 
     m_static_shader = std::make_shared<Shader>("../../data/shaders/simple.vert", "../../data/shaders/simple.frag");
@@ -423,27 +440,23 @@ void RopeBridgeDemoLayer::UpdateAdditionalMass()
 
     // Add the proportion to the correct masses
     m_particles[x * 2 + z]->setMass(kBaseMass + kExtraMass * (1 - xp) * (1 - zp));
-    m_mass_display_position += m_particles[x * 2 + z]->getPosition() * ((1 - xp) * (1 - zp));
-    // m_mass_display_position.addScaledVector(m_particles[x * 2 + z]->getPosition(), (1 - xp) * (1 - zp));
+    m_mass_display_position += m_particles[x * 2 + z]->getPosition() * (1 - xp) * (1 - zp);
 
     if(xp > 0)
     {
         m_particles[x * 2 + z + 2]->setMass(kBaseMass + kExtraMass * xp * (1 - zp));
-        m_mass_display_position += m_particles[x * 2 + z + 2]->getPosition() * (xp * (1 - zp));
-        // massDisplayPos.addScaledVector(m_particles[x * 2 + z + 2]->getPosition(), xp * (1 - zp));
+        m_mass_display_position += m_particles[x * 2 + z + 2]->getPosition() * xp * (1 - zp);
 
         if(zp > 0)
         {
             m_particles[x * 2 + z + 3]->setMass(kBaseMass + kExtraMass * xp * zp);
-            m_mass_display_position += m_particles[x * 2 + z + 3]->getPosition() * (xp * zp);
-            // massDisplayPos.addScaledVector(m_particles[x * 2 + z + 3]->getPosition(), xp * zp);
+            m_mass_display_position += m_particles[x * 2 + z + 3]->getPosition() * xp * zp;
         }
     }
     if(zp > 0)
     {
         m_particles[x * 2 + z + 1]->setMass(kBaseMass + kExtraMass * (1 - xp) * zp);
-        m_mass_display_position += m_particles[x * 2 + z + 1]->getPosition() * ((1 - xp) * zp);
-        // massDisplayPos.addScaledVector(m_particles[x * 2 + z + 1]->getPosition(), (1 - xp) * zp);
+        m_mass_display_position += m_particles[x * 2 + z + 1]->getPosition() * (1 - xp) * zp;
     }
 }
 

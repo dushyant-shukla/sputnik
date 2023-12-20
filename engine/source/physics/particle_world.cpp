@@ -114,7 +114,7 @@ unsigned GroundContactGenerator::addContact(std::vector<ParticleContact*>& conta
         real y = particle->getPosition().y;
         if(y < kEpsilon)
         {
-            contacts[count]->m_contact_normal = kUp;
+            contacts[count]->m_contact_normal = kUp; // count should be replaced with current_contact_index TODO??
             contacts[count]->m_particles[0]   = particle;
             contacts[count]->m_particles[1]   = nullptr;
             contacts[count]->m_penetration    = -y;

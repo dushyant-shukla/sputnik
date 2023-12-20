@@ -11,9 +11,9 @@ std::shared_ptr<sputnik::graphics::core::GraphicsSubsystem> RenderCommand::s_gra
 
 void RenderCommand::Init(const sputnik::graphics::core::GraphicsSubsystemType& subsystem_type)
 {
-    SPUTNIK_ASSERT(subsystem_type != GraphicsSubsystemType::NONE &&
-                   subsystem_type != GraphicsSubsystemType::VULKAN &&
-                   subsystem_type != GraphicsSubsystemType::DIRECTX);
+    SPUTNIK_ASSERT(subsystem_type != GraphicsSubsystemType::NONE && subsystem_type != GraphicsSubsystemType::VULKAN &&
+                       subsystem_type != GraphicsSubsystemType::DIRECTX,
+                   "Invalid graphics subsystem type.");
     s_graphics_subsystem = std::make_shared<glcore::GlGraphicsSubsystem>();
 }
 
