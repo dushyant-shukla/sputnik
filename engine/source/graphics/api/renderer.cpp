@@ -87,6 +87,7 @@ void Renderer::BlockCameraUpdate(const bool& block)
 void Renderer::RenderAtmoshericScattering()
 {
     auto renderer = Instance();
+    glBindVertexArray(renderer->m_vao); // Todo:: Temporary solution
 
     renderer->m_preetham_sky_model.SetDirection(renderer->m_light_direction);
     renderer->m_preetham_sky_model.Update();
@@ -138,6 +139,8 @@ void Renderer::RenderAtmoshericScattering()
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS); // This is the default depth function
     glDisable(GL_DEPTH_TEST);
+
+    glBindVertexArray(0); // Todo:: Temporary solution
 }
 
 Renderer* Renderer::Instance()
@@ -153,6 +156,8 @@ void Renderer::InitInstance(const sputnik::graphics::core::GraphicsSubsystemType
                                             "../../data/shaders/sky-rendering/sky.frag");
 
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
+
+    glGenVertexArrays(1, &m_vao);
 }
 
 } // namespace sputnik::graphics::api

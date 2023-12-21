@@ -2,13 +2,13 @@
 
 #include "core/core.h"
 
-namespace sputnik::graphics::glcore::v2
+namespace sputnik::graphics::gl
 {
 
-class BufferUsageFlags
+class BufferUsageFlagBits
 {
 public:
-    NON_INSTATIABLE(BufferUsageFlags)
+    NON_INSTATIABLE(BufferUsageFlagBits)
 
     static const u32 kDynamicStorageBit;
     static const u32 kMapReadBit;
@@ -18,11 +18,11 @@ public:
     static const u32 kClientStorageBit;
 };
 
-class GlBuffer
+class OglBuffer
 {
 
 public:
-    NON_COPYABLE(GlBuffer)
+    NON_COPYABLE(OglBuffer)
 
     /*!
      * @brief .
@@ -30,7 +30,7 @@ public:
      * @param data
      * @param bytes
      */
-    GlBuffer(void* data, const u64& bytes);
+    OglBuffer(void* data, const u64& bytes);
 
     /*!
      * @brief .
@@ -39,14 +39,14 @@ public:
      * @param bytes
      * @param usage_flags
      */
-    GlBuffer(void* data, const u64& bytes, const u32& usage_flags);
+    OglBuffer(void* data, const u64& bytes, const u32& usage_flags);
 
     /*!
      * @brief .
      *
      * @param bytes
      */
-    GlBuffer(const u64& bytes);
+    OglBuffer(const u64& bytes);
 
     /*!
      * @brief .
@@ -54,13 +54,13 @@ public:
      * @param bytes
      * @param usage_flags
      */
-    GlBuffer(const u64& bytes, const u32& usage_flags);
+    OglBuffer(const u64& bytes, const u32& usage_flags);
 
     /*!
      * @brief .
      *
      */
-    ~GlBuffer();
+    ~OglBuffer();
 
     /*!
      * @brief .
@@ -70,6 +70,11 @@ public:
      */
     void setData(void* data, u64 bytes);
 
+    const u32& getId() const;
+
+    void bind() const;
+    void unbind() const;
+
 private:
     u32 m_id;
 
@@ -77,4 +82,4 @@ private:
     u64   m_bytes;
 };
 
-} // namespace sputnik::graphics::glcore::v2
+} // namespace sputnik::graphics::gl

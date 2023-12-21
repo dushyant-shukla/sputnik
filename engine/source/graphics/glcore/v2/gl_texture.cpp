@@ -2,7 +2,7 @@
 
 #include "gl_texture.h"
 
-namespace sputnik::graphics::glcore::v2
+namespace sputnik::graphics::gl
 {
 
-}
+} // namespace sputnik::graphics::gl

@@ -57,6 +57,8 @@ private:
     vec3                    m_light_direction = vec3(0.0f, 0.0f, 1.0f);
     PreethamSkyModel        m_preetham_sky_model;
     std::shared_ptr<Shader> m_sky_shader;
+
+    u32 m_vao;
 };
 
 } // namespace sputnik::graphics::api

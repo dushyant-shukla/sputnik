@@ -2,16 +2,16 @@
 
 #include "core/core.h"
 
-namespace sputnik::graphics::glcore::v2
+namespace sputnik::graphics::gl
 {
 
-class GlTexture
+class OglTexture
 {
 protected:
-    NON_COPYABLE(GlTexture)
+    NON_COPYABLE(OglTexture)
 
-    GlTexture();
-    virtual ~GlTexture();
+    OglTexture();
+    virtual ~OglTexture();
 
     void bind();
     void unbind();
@@ -20,11 +20,11 @@ protected:
     u32 m_id;
 };
 
-class GlTexture2D : public GlTexture
+class OglTexture2D : public OglTexture
 {
 public:
-    GlTexture2D();
-    ~GlTexture2D();
+    OglTexture2D();
+    ~OglTexture2D();
 
     void setData(void* data, u32 width, u32 height, u32 channels);
     void setData(void* data, u32 width, u32 height, u32 channels, u32 format, u32 type);
@@ -36,4 +36,4 @@ public:
     void unbind(u32 slot);
 };
 
-} // namespace sputnik::graphics::glcore::v2
+} // namespace sputnik::graphics::gl

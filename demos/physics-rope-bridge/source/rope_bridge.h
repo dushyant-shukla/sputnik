@@ -78,6 +78,8 @@ private:
     unsigned const         kCableCount{10};
     unsigned const         kAnchoredCableCount{12};
     inline static unsigned debug_count{0};
+
+    u32 m_vao;
 };
 
 unsigned const kParticleCount{12};

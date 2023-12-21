@@ -78,6 +78,7 @@ group ""
 
 group "graphics-demos"
 include "demos/sandbox/sandbox.lua"
+include "demos/graphics-sandbox/graphics-sandbox.lua"
 include "demos/compute-image/compute-image.lua"
 include "demos/compute-particles/compute-particles.lua"
 include "demos/compute-cloth/compute-cloth.lua"

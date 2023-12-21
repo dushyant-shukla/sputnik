@@ -50,6 +50,8 @@ RopeBridgeDemoLayer::RopeBridgeDemoLayer(const std::string& name)
     m_particle_world.getParticles().push_back(m_falling_particle);
     m_ground_contact_generator.init(m_particle_world.getParticles());
     m_particle_world.getContactGenerators().push_back(&m_ground_contact_generator);
+
+    glGenVertexArrays(1, &m_vao);
 }
 
 RopeBridgeDemoLayer::~RopeBridgeDemoLayer() {}
@@ -199,6 +201,8 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
     mat4        view            = camera->GetCameraView();
     vec3        camera_position = camera->GetCameraPosition();
 
+    glBindVertexArray(m_vao); // Todo:: Temporary solution
+
     // render light source
     {
         m_static_shader->Bind();
@@ -340,6 +344,8 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
     }
 
     m_simple_lighting_shader->Unbind();
+
+    glBindVertexArray(0); // Todo:: Temporary solution
 
     ++debug_count;
 
