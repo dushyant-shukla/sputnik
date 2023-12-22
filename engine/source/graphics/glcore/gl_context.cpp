@@ -88,26 +88,18 @@ GlContext::GlContext(GLFWwindow* window_handle) : m_window_handle(window_handle)
     {
         std::cout << "Failed to initialize Glad!";
     }
-    glfwSwapInterval(1); // Enable vsync: Limits the max frame rate to the screen refresh rate
+    // glfwSwapInterval(1); // Enable vsync: Limits the max frame rate to the screen refresh rate
 
     // #ifdef _DEBUG
-    //     // Enable OpenGL debug messages
-    //     glEnable(GL_DEBUG_OUTPUT);
-    //     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    //     glDebugMessageCallback(oglMessageCallback, nullptr);
-    //
-    //     // Disable deprecated OpenGL functionality errors
-    //     //glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, GL_DONT_CARE, 0, nullptr, GL_FALSE);
-    //
-    // #endif // DEBUG
-
     // Enable OpenGL debug messages
-    //glEnable(GL_DEBUG_OUTPUT);
-    //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    //glDebugMessageCallback(oglMessageCallback, nullptr);
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(oglMessageCallback, nullptr);
 
     // Disable deprecated OpenGL functionality errors
-    // glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, GL_DONT_CARE, 0, nullptr, GL_FALSE);
+    glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, GL_DONT_CARE, 0, nullptr, GL_FALSE);
+
+    // #endif // DEBUG
 }
 
 GlContext::~GlContext() {}
