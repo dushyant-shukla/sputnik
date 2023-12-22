@@ -7,11 +7,14 @@
 #include <graphics/glcore/v2/gl_buffer.h>
 #include <graphics/glcore/v2/gl_vertex_array.h>
 #include <graphics/glcore/v2/gl_shader.h>
+#include <graphics/api/light.h>
 
 namespace sputnik::demos
 {
 
+using namespace sputnik::graphics::api;
 using namespace sputnik::graphics::gl;
+using namespace ramanujan::experimental;
 
 class GraphicsSandboxDemoLayer : public core::Layer
 {
@@ -27,6 +30,17 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
+    struct PerFrameData
+    {
+        alignas(16) mat4 projection;
+        alignas(16) mat4 view;
+        alignas(16) vec3 camera_position;
+    };
+    PerFrameData m_per_frame_data;
+    Light        m_light;
+
+    std::shared_ptr<OglBuffer>        m_per_frame_data_buffer;
+    std::shared_ptr<OglBuffer>        m_light_data_buffer;
     std::shared_ptr<OglBuffer>        m_vertex_buffer;
     std::shared_ptr<OglVertexArray>   m_vertex_array;
     std::shared_ptr<OglShaderProgram> m_static_program;

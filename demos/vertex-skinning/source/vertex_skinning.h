@@ -65,6 +65,8 @@ private:
     // GUI stuff
     int         m_skinning_type_index;
     std::string m_skinnig_types_str;
+
+    u32 m_vao;
 };
 
 class VertexSkinning : public sputnik::main::Application

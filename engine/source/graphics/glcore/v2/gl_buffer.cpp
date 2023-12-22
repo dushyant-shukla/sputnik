@@ -7,7 +7,7 @@
 namespace sputnik::graphics::gl
 {
 
-// More information at:
+// Useful references:
 // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferStorage.xhtml
 // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferSubData.xhtml
 // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml
@@ -21,7 +21,33 @@ const u32 BufferUsageFlagBits::kMapPersistentBit  = GL_MAP_PERSISTENT_BIT;
 const u32 BufferUsageFlagBits::kMapCoherentBit    = GL_MAP_COHERENT_BIT;
 const u32 BufferUsageFlagBits::kClientStorageBit  = GL_CLIENT_STORAGE_BIT;
 
-OglBuffer::OglBuffer(void* data, const u64& bytes) : m_id(0), m_bytes{bytes}, m_data{data}
+u32 getOglBufferBindTarget(const BufferBindTarget& bind_target)
+{
+    switch(bind_target)
+    {
+    case BufferBindTarget::VertexBuffer:
+        return GL_ARRAY_BUFFER;
+    case BufferBindTarget::IndexBuffer:
+        return GL_ELEMENT_ARRAY_BUFFER;
+    case BufferBindTarget::UniformBuffer:
+        return GL_UNIFORM_BUFFER;
+    case BufferBindTarget::ShaderStorageBuffer:
+        return GL_SHADER_STORAGE_BUFFER;
+    case BufferBindTarget::TextureBuffer:
+        return GL_TEXTURE_BUFFER;
+    default:
+        SPUTNIK_ASSERT(false, "Invalid buffer bind target.");
+        return 0;
+    }
+}
+
+OglBuffer::OglBuffer() : m_id(0), m_bind_target{0}, m_bytes{0}, m_data{nullptr}
+{
+    glCreateBuffers(1, &m_id);
+    SPUTNIK_ASSERT(m_id != 0, "Failed to create a buffer.");
+}
+
+OglBuffer::OglBuffer(void* data, const u64& bytes) : m_id(0), m_bind_target{0}, m_bytes{bytes}, m_data{data}
 {
     glCreateBuffers(1, &m_id);
     SPUTNIK_ASSERT(m_id != 0, "Failed to create a buffer.");
@@ -38,19 +64,27 @@ OglBuffer::OglBuffer(void* data, const u64& bytes) : m_id(0), m_bytes{bytes}, m_
     glNamedBufferStorage(m_id, bytes, data, GL_DYNAMIC_STORAGE_BIT);
 }
 
-OglBuffer::OglBuffer(void* data, const u64& bytes, const u32& usage_flags) : m_id{0}, m_bytes{bytes}, m_data{data}
+OglBuffer::OglBuffer(void* data, const u64& bytes, const u32& usage_flags)
+    : m_id{0}
+    , m_bind_target{0}
+    , m_bytes{bytes}
+    , m_data{data}
 {
     glCreateBuffers(1, &m_id);
     glNamedBufferStorage(m_id, bytes, data, usage_flags);
 }
 
-OglBuffer::OglBuffer(const u64& bytes) : m_id(0), m_bytes{bytes}, m_data{nullptr}
+OglBuffer::OglBuffer(const u64& bytes) : m_id(0), m_bind_target{0}, m_bytes{bytes}, m_data{nullptr}
 {
     glCreateBuffers(1, &m_id);
     glNamedBufferStorage(m_id, bytes, nullptr, GL_DYNAMIC_STORAGE_BIT);
 }
 
-OglBuffer::OglBuffer(const u64& bytes, const u32& usage_flags) : m_id{0}, m_bytes{bytes}, m_data{nullptr}
+OglBuffer::OglBuffer(const u64& bytes, const u32& usage_flags)
+    : m_id{0}
+    , m_bind_target{0}
+    , m_bytes{bytes}
+    , m_data{nullptr}
 {
     glCreateBuffers(1, &m_id);
     glNamedBufferStorage(m_id, bytes, nullptr, usage_flags);
@@ -58,11 +92,24 @@ OglBuffer::OglBuffer(const u64& bytes, const u32& usage_flags) : m_id{0}, m_byte
 
 OglBuffer::~OglBuffer()
 {
+    SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
     glDeleteBuffers(1, &m_id);
+}
+
+OglBuffer::OglBuffer(OglBuffer&& other) noexcept
+{
+    *this = std::move(other);
+}
+
+OglBuffer& OglBuffer::operator=(OglBuffer&& other) noexcept
+{
+    // TODO:: Need to implement this
+    return *this;
 }
 
 void OglBuffer::setData(void* data, u64 bytes)
 {
+    SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
     m_bytes = bytes;
     m_data  = data;
     glNamedBufferSubData(m_id, 0, bytes, data);
@@ -73,14 +120,32 @@ const u32& OglBuffer::getId() const
     return m_id;
 }
 
-void OglBuffer::bind() const
+void OglBuffer::bind(const BufferBindTarget& bind_target)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, m_id);
+    // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml
+    SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
+    m_bind_target = bind_target;
+    glBindBuffer(getOglBufferBindTarget(m_bind_target), m_id);
 }
 
-void OglBuffer::unbind() const
+void OglBuffer::bind(const BufferBindTarget& bind_target, const u32& bind_index)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBufferBase.xhtml
+    SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
+    glBindBufferBase(getOglBufferBindTarget(bind_target), bind_index, m_id);
+}
+
+void OglBuffer::bind(const BufferBindTarget& bind_target, const u32& bind_index, void* offset, void* size)
+{
+    // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBufferRange.xhtml
+    SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
+    glBindBufferRange(getOglBufferBindTarget(bind_target), bind_index, m_id, (GLintptr)offset, (GLsizeiptr)size);
+}
+
+void OglBuffer::unbind()
+{
+    glBindBuffer(getOglBufferBindTarget(m_bind_target), 0);
+    m_bind_target = BufferBindTarget::Invalid;
 }
 
 } // namespace sputnik::graphics::gl

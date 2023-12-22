@@ -42,6 +42,8 @@ VertexSkinningDemo::~VertexSkinningDemo() {}
 void VertexSkinningDemo::OnAttach()
 {
 
+    glCreateVertexArrays(1, &m_vao);
+
     sputnik::graphics::api::Renderer::SetCameraType(sputnik::graphics::api::CameraType::EditorCamera);
 
     m_static_shader   = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/simple.vert",
@@ -221,6 +223,9 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
         active_shader = m_skinning_shader;
     }
 
+    glBindVertexArray(m_vao);
+    glEnable(GL_DEPTH_TEST);
+
     active_shader->Bind();
     sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("model"), model);
     sputnik::graphics::glcore::Uniform<ramanujan::Matrix4>::Set(active_shader->GetUniform("view"), view);
@@ -295,6 +300,8 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
     // end render static meshes
 
     glDisable(GL_DEPTH_TEST);
+
+    // Debug draw
     if(m_show_rest_pose && m_skinning_type == sputnik::graphics::core::SkinningType::REST_POSE)
     {
         m_rest_pose_visual->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, {1.0f, 0.0f, 0.0f}, mvp);
@@ -309,7 +316,9 @@ void VertexSkinningDemo::OnUpdate(const core::TimeStep& time_step)
         m_current_pose_visual->UpdateOpenGLBuffers();
         m_current_pose_visual->Draw(sputnik::graphics::glcore::DebugDrawMode::Lines, {0.0f, 0.0f, 1.0f}, mvp);
     }
-    glEnable(GL_DEPTH_TEST);
+
+    glBindVertexArray(0);
+
 }
 
 void VertexSkinningDemo::OnEvent() {}

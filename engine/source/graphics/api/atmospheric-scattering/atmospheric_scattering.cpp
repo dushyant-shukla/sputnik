@@ -15,7 +15,7 @@ void AtmosphericScatteringLayer::OnDetach() {}
 
 void AtmosphericScatteringLayer::OnUpdate(const sputnik::core::TimeStep& time_step)
 {
-     graphics::api::Renderer::RenderAtmoshericScattering();
+    graphics::api::Renderer::RenderAtmoshericScattering();
 }
 
 void AtmosphericScatteringLayer::OnUpdateUI(const sputnik::core::TimeStep& time_step) {}

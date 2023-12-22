@@ -106,12 +106,12 @@ OglVertexArray::~OglVertexArray()
     glDeleteVertexArrays(1, &m_id);
 }
 
-void OglVertexArray::bind()
+void OglVertexArray::bind() const
 {
     glBindVertexArray(m_id);
 }
 
-void OglVertexArray::unbind()
+void OglVertexArray::unbind() const
 {
     glBindVertexArray(0);
 }
@@ -182,8 +182,9 @@ void OglVertexArray::addIndexBuffer(const OglBuffer& buffer)
 {
     // Reference:
     // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexArrayElementBuffer.xhtml
-
+    bind();
     glVertexArrayElementBuffer(m_id, buffer.getId());
+    unbind();
 }
 
 } // namespace sputnik::graphics::gl

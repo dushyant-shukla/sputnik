@@ -92,6 +92,8 @@ std::string readShaderSource(cstring shader_file)
 
 //////////////////////////////////////// EXPERIMENTAL STARTS HERE ////////////////////////////////////////
 
+#ifdef EXPERIMENTAL_SHADER
+
 OglShaderProgramStage::OglShaderProgramStage(cstring shader_file_path) : m_id{0}, m_stage_type{0}
 {
     // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateShaderProgram.xhtml
@@ -191,8 +193,9 @@ void OglShaderProgramPipeline::deleteShaderModules()
     }
 }
 
-/////////////////////////////////////////////////////// EXPERIMENTAL ENDS HERE
-/////////////////////////////////////////////////////////
+#endif // 0
+
+/////////////////////////// EXPERIMENTAL ENDS HERE ////////////////////////////////
 
 OglShaderProgram::OglShaderProgram() : m_id{0}
 {
@@ -200,7 +203,10 @@ OglShaderProgram::OglShaderProgram() : m_id{0}
     SPUTNIK_ASSERT(m_id != 0, "Failed to create shader program.");
 }
 
-OglShaderProgram::~OglShaderProgram() {}
+OglShaderProgram::~OglShaderProgram()
+{
+    glDeleteProgram(m_id);
+}
 
 OglShaderProgram::OglShaderProgram(OglShaderProgram&& other) noexcept
 {
@@ -459,7 +465,7 @@ OglShaderStage::OglShaderStage(cstring shader_file_path)
     if(!success)
     {
         int length;
-        glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &length);
+        glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)_malloca(length * sizeof(char));
         glGetShaderInfoLog(m_id, length, &length, message);
         SPUTNIK_ASSERT_MESSAGE(false, "Shader compilation failed: {}", message);
@@ -486,7 +492,7 @@ OglShaderStage::OglShaderStage(const ShaderStageType& stage_type, cstring shader
     if(!success)
     {
         int length;
-        glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &length);
+        glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)_malloca(length * sizeof(char));
         glGetShaderInfoLog(m_id, length, &length, message);
         SPUTNIK_ASSERT_MESSAGE(false, "Shader compilation failed: {}", message);

@@ -84,6 +84,7 @@ void Renderer::BlockCameraUpdate(const bool& block)
     m_is_camera_update_blocked = block;
 }
 
+// TODO:: This is only temporary. It is not the correct place to render the sky or for that matter any other object.
 void Renderer::RenderAtmoshericScattering()
 {
     auto renderer = Instance();
@@ -125,7 +126,6 @@ void Renderer::RenderAtmoshericScattering()
     // setup pipeline state, there should be a PipelineState API with set() and reset(), bind/unbind methods
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glDisable(GL_CULL_FACE);
 
     renderer->m_sky_shader->Bind();
 
@@ -136,7 +136,6 @@ void Renderer::RenderAtmoshericScattering()
     renderer->m_sky_shader->Unbind();
 
     // reset the pipeline state
-    glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS); // This is the default depth function
     glDisable(GL_DEPTH_TEST);
 

@@ -67,8 +67,8 @@ public:
     OglVertexArray(OglVertexArray&&)            = default;
     OglVertexArray& operator=(OglVertexArray&&) = default;
 
-    void bind();
-    void unbind();
+    void bind() const;
+    void unbind() const;
 
     const u32& getId() const;
 

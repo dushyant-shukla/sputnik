@@ -202,6 +202,7 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
     vec3        camera_position = camera->GetCameraPosition();
 
     glBindVertexArray(m_vao); // Todo:: Temporary solution
+    glEnable(GL_DEPTH_TEST);
 
     // render light source
     {
@@ -346,6 +347,7 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
     m_simple_lighting_shader->Unbind();
 
     glBindVertexArray(0); // Todo:: Temporary solution
+    glDisable(GL_DEPTH_TEST);
 
     ++debug_count;
 
