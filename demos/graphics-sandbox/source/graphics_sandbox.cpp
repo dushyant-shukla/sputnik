@@ -73,8 +73,8 @@ void GraphicsSandboxDemoLayer::OnAttach()
     ENGINE_INFO("Graphics Sandbox Demo Layer Attached: {}", sputnik::graphics::gl::attributeTypeToString(type));
 
     m_static_program = std::make_shared<OglShaderProgram>();
-    m_static_program->addShaderStage("../../data/shaders/glsl/static.vert");
-    m_static_program->addShaderStage("../../data/shaders/glsl/static.frag");
+    m_static_program->addShaderStage("../../data/shaders/glsl/blinn_phong.vert");
+    m_static_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
     m_static_program->configure();
 
     m_per_frame_data_buffer = std::make_shared<OglBuffer>(sizeof(PerFrameData));
@@ -103,6 +103,16 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_light.ambient  = vec3(1.0f, 1.0f, 1.0f);
     m_light.diffuse  = vec3(1.0f, 1.0f, 1.0f);
     m_light.specular = vec3(1.0f, 1.0f, 1.0f);
+
+    uint32_t white = 0xffffffff;
+    uint32_t red   = 0xff0000ff;
+    uint32_t green = 0xff00ff00;
+    uint32_t blue  = 0xffff0000;
+    m_diff_texture = std::make_shared<OglTexture2D>(1, 1, TextureFormat::RGBA8);
+    m_diff_texture->setData(&green, sizeof(uint32_t));
+    // m_diff_texture =
+    //     std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
+    m_spec_texture = std::make_shared<OglTexture2D>(1, 1, &white, TextureFormat::RGBA8);
 }
 
 void GraphicsSandboxDemoLayer::OnDetach() {}
@@ -129,10 +139,15 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     m_static_program->setMat4("model", model);
     m_static_program->setMat4("normal_matrix", normal_matrix);
 
-    m_static_program->setFloat3("material.ambient", material_emerald.ambient);
-    m_static_program->setFloat3("material.diffuse", material_emerald.diffuse);
-    m_static_program->setFloat3("material.specular", material_emerald.specular);
-    m_static_program->setFloat("material.shininess", material_emerald.shininess);
+    // m_static_program->setFloat3("material.ambient", material_emerald.ambient);
+    m_static_program->setFloat3("material.diffuse", material_white.diffuse);
+    m_static_program->setFloat3("material.specular", material_white.specular);
+    m_static_program->setFloat("material.shininess", material_white.shininess);
+
+    m_diff_texture->bind(0);
+    m_static_program->setInt("material.diffuse_texture", 0);
+    m_diff_texture->bind(1);
+    m_static_program->setInt("material.specular_texture", 1);
 
     m_vertex_array->bind();
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -144,10 +159,15 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     m_static_program->setMat4("model", model);
     m_static_program->setMat4("normal_matrix", normal_matrix);
 
-    m_static_program->setFloat3("material.ambient", material_ruby.ambient);
+    // m_static_program->setFloat3("material.ambient", material_ruby.ambient);
     m_static_program->setFloat3("material.diffuse", material_ruby.diffuse);
     m_static_program->setFloat3("material.specular", material_ruby.specular);
     m_static_program->setFloat("material.shininess", material_ruby.shininess);
+    m_diff_texture->bind(0);
+    m_static_program->setInt("material.diffuse_texture", 0);
+    m_diff_texture->bind(1);
+    m_static_program->setInt("material.specular_texture", 1);
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     m_vertex_array->unbind();

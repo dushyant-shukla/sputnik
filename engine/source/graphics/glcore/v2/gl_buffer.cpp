@@ -8,6 +8,7 @@ namespace sputnik::graphics::gl
 {
 
 // Useful references:
+// https://www.khronos.org/opengl/wiki/Buffer_Object
 // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferStorage.xhtml
 // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferSubData.xhtml
 // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml

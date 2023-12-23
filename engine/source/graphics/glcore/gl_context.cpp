@@ -99,6 +99,10 @@ GlContext::GlContext(GLFWwindow* window_handle) : m_window_handle(window_handle)
     // Disable deprecated OpenGL functionality errors
     glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, GL_DONT_CARE, 0, nullptr, GL_FALSE);
 
+    // Todo: Figure out the performance issue when running the rope bridge demo
+    // Disable performance warnings
+    glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_PERFORMANCE, GL_DONT_CARE, 0, nullptr, GL_FALSE);
+
     // #endif // DEBUG
 }
 

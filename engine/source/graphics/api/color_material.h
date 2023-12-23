@@ -10,11 +10,17 @@ using namespace ramanujan::experimental;
 
 struct Material
 {
-    vec3  ambient{1.0f, 0.5f, 0.31f};
-    vec3  diffuse{1.0f, 0.5f, 0.31f};
-    vec3  specular{0.5f, 0.5f, 0.5f};
+    vec3  ambient{1.0f, 1.0f, 1.0f};
+    vec3  diffuse{1.0f, 1.0f, 1.0f};
+    vec3  specular{1.0f, 1.0f, 1.0f};
     float shininess{32.0f};
+    float alpha{1.0f};
 };
+
+Material material_white{.ambient   = {1.0f, 1.0f, 1.0f},
+                        .diffuse   = {1.0f, 1.0f, 1.0f},
+                        .specular  = {1.0f, 1.0f, 1.0f},
+                        .shininess = 1.0f};
 
 Material material_silver{.ambient   = {0.19225f, 0.19225f, 0.19225f},
                          .diffuse   = {0.50754f, 0.50754f, 0.50754f},

@@ -5,35 +5,104 @@
 namespace sputnik::graphics::gl
 {
 
-class OglTexture
+enum class TextureFormat : u32
 {
-protected:
-    NON_COPYABLE(OglTexture)
-
-    OglTexture();
-    virtual ~OglTexture();
-
-    void bind();
-    void unbind();
-
-protected:
-    u32 m_id;
+    Invalid = 0,
+    R8,
+    R16,
+    R32,
+    RG8,
+    RG16,
+    RG32,
+    RGB8,
+    RGB16,
+    RGB32,
+    RGBA8,
+    RGBA16,
+    RGBA32,
+    Depth16,
+    Depth24,
+    Depth32,
+    Depth32F,
+    Depth24Stencil8,
+    Depth32FStencil8
 };
 
-class OglTexture2D : public OglTexture
+enum class TextureWrap : u32
+{
+    Invalid = 0,
+    Repeat,
+    MirroredRepeat,
+    ClampToEdge,
+    ClampToBorder
+};
+
+enum class TextureFilter : u32
+{
+    Invalid = 0,
+    Nearest,
+    Linear,
+    NearestMipmapNearest,
+    LinearMipmapNearest,
+    NearestMipmapLinear,
+    LinearMipmapLinear
+};
+
+class OglTexture2D
 {
 public:
-    OglTexture2D();
+    OglTexture2D(cstring              texture_filepath,
+                 bool                 flip_vertically = false,
+                 const TextureFormat& texture_format  = TextureFormat::RGB8,
+                 const TextureWrap&   s_wrap          = TextureWrap::Repeat,
+                 const TextureWrap&   t_wrap          = TextureWrap::Repeat,
+                 const TextureFilter& min_filter      = TextureFilter::Linear,
+                 const TextureFilter& mag_filter      = TextureFilter::Nearest);
+
+    OglTexture2D(const u32&           width,
+                 const u32&           height,
+                 const TextureFormat& texture_format = TextureFormat::RGB8,
+                 const TextureWrap&   s_wrap         = TextureWrap::Repeat,
+                 const TextureWrap&   t_wrap         = TextureWrap::Repeat,
+                 const TextureFilter& min_filter     = TextureFilter::Linear,
+                 const TextureFilter& mag_filter     = TextureFilter::Nearest);
+
+    OglTexture2D(const u32&           width,
+                 const u32&           height,
+                 void*                data,
+                 const TextureFormat& texture_format = TextureFormat::RGB8,
+                 const TextureWrap&   s_wrap         = TextureWrap::Repeat,
+                 const TextureWrap&   t_wrap         = TextureWrap::Repeat,
+                 const TextureFilter& min_filter     = TextureFilter::Linear,
+                 const TextureFilter& mag_filter     = TextureFilter::Nearest);
+
     ~OglTexture2D();
 
-    void setData(void* data, u32 width, u32 height, u32 channels);
-    void setData(void* data, u32 width, u32 height, u32 channels, u32 format, u32 type);
+    OglTexture2D(OglTexture2D&& other) noexcept;
+    OglTexture2D& operator=(OglTexture2D&& other) noexcept;
 
-    void setFiltering(u32 min_filter, u32 mag_filter);
-    void setWrapping(u32 s_wrap, u32 t_wrap);
+    void setData(void* data, const u32& size);
+    void setFiltering(const TextureFilter& min_filter, const TextureFilter& mag_filter);
+    void setWrapping(const TextureWrap& s_wrap, const TextureWrap& t_wrap);
 
-    void bind(u32 slot);
-    void unbind(u32 slot);
+    void bind(const u32& slot = 0);
+    void unbind(const u32& slot = 0);
+
+private:
+    OglTexture2D(const OglTexture2D&)            = delete;
+    OglTexture2D& operator=(const OglTexture2D&) = delete;
+
+    void init(void*                data,
+              const TextureWrap&   s_wrap,
+              const TextureWrap&   t_wrap,
+              const TextureFilter& min_filter,
+              const TextureFilter& mag_filter);
+
+private:
+    u32           m_id;
+    u32           m_width;
+    u32           m_height;
+    TextureFormat m_format;
 };
 
 } // namespace sputnik::graphics::gl

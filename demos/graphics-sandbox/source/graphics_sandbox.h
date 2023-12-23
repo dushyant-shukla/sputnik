@@ -7,6 +7,7 @@
 #include <graphics/glcore/v2/gl_buffer.h>
 #include <graphics/glcore/v2/gl_vertex_array.h>
 #include <graphics/glcore/v2/gl_shader.h>
+#include <graphics/glcore/v2/gl_texture.h>
 #include <graphics/api/light.h>
 
 namespace sputnik::demos
@@ -44,6 +45,8 @@ private:
     std::shared_ptr<OglBuffer>        m_vertex_buffer;
     std::shared_ptr<OglVertexArray>   m_vertex_array;
     std::shared_ptr<OglShaderProgram> m_static_program;
+    std::shared_ptr<OglTexture2D>     m_diff_texture;
+    std::shared_ptr<OglTexture2D>     m_spec_texture;
 };
 
 class GraphicsSandboxDemo : public sputnik::main::Application
