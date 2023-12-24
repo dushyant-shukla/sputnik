@@ -1,16 +1,20 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "sandbox"
-kind "WindowedApp"
+project "editor"
+kind "SharedLib"
 language "C++"
 characterset("MBCS")
 
 -- targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
 objdir("$(SolutionDir)_output/bin-intermediate/" .. outputdir .. "/%{prj.name}")
 
+-- targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
+-- objdir("$(SolutionDir)_output/bin-intermediate/" .. outputdir .. "/%{prj.name}")
+
 files
 {
   "source/**.h",
+  "source/**.hpp",
   "source/**.cpp"
 }
 

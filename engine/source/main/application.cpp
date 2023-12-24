@@ -24,7 +24,7 @@ Application::Application(const std::string& application_name)
     s_instance      = this;
     graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
 
-    m_editor = std::make_unique<sputnik::editor::Editor>();
+    m_editor = std::make_unique<sputnik::editor::Editor>();  // Todo:: Editor dll: Not needed
 }
 
 Application ::~Application() {}
@@ -44,7 +44,7 @@ void Application::Run()
         {
             graphics::api::Renderer::Update(time_step);
 
-            m_editor->BeginFrame();
+            m_editor->BeginFrame(); // Todo:: Editor dll
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
                 layer->OnPreUpdate(time_step);
@@ -59,9 +59,9 @@ void Application::Run()
             {
                 layer->OnPostUpdate(time_step);
             }
-            m_editor->EndFrame();
+            m_editor->EndFrame(); // Todo:: Editor dll
 
-            m_editor->Update(time_step);
+            m_editor->Update(time_step); // Todo:: Editor dll
         }
 
         m_input_manager->LateUpdate(time_step);

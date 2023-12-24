@@ -22,6 +22,8 @@ public:
 
     static Application* GetInstance();
 
+    std::string& GetApplicationName() { return m_application_name; }
+
 public:
     virtual void PushLayer(const std::shared_ptr<core::Layer>& layer);
     virtual void PushOverlay(const std::shared_ptr<core::Layer>& layer);

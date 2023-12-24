@@ -111,7 +111,8 @@ void GlUiLayer::OnAttach()
     // io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Bold.ttf", 18.0f);
     // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Regular.ttf", 18.0f);
 
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
+    //io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
 
     // required my modification
     // io.Fonts->AddFontFromFileTTF("fonts/Ruda/Ruda-Bold.ttf", 17.0f);
@@ -164,7 +165,7 @@ void GlUiLayer::OnUpdateUI(const sputnik::core::TimeStep& time_step)
     const float        frame_budget = 1000.0f / mode->refreshRate;
     // std::cout << "width: " << mode->width << std::endl;
     // std::cout << "height: " << mode->height << std::endl;
-    // std::cout << "red: " << mode->redBits << std::endl;
+    // std::cout << "Red: " << mode->redBits << std::endl;
     // std::cout << "Blue: " << mode->blueBits << std::endl;
     // std::cout << "green: " << mode->greenBits << std::endl;
     if(ImGui::Begin("System Information"))

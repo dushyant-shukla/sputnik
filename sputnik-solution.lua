@@ -7,7 +7,10 @@ configurations
   "Release"
 }
 
+-- outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+targetdir(outputdir)
+
 
 externals               = {}
 externals["glad"]       = "$(SolutionDir)engine/externals/glad"
@@ -65,18 +68,20 @@ group ""
 
 -- include the renderer project
 include "engine/engine-project.lua"
+include "runtime/runtime.lua"
+include "editor/editor.lua"
 
 -- include the demo projects
 -- include "demos/curve-plotting/curve-plotting.lua"
 -- include "demos/animation-poses/animation-poses.lua"
 
-group "animation-demos"
+group "demos-animation"
 include "demos/vertex-skinning/vertex-skinning.lua"
 include "demos/ik-ccd-solver-basic/ik-ccd-solver-basic.lua"
 include "demos/ik-fabrik-solver-basic/ik-fabrik-solver-basic.lua"
 group ""
 
-group "graphics-demos"
+group "demos-graphics"
 include "demos/sandbox/sandbox.lua"
 include "demos/graphics-sandbox/graphics-sandbox.lua"
 include "demos/compute-image/compute-image.lua"
@@ -85,7 +90,7 @@ include "demos/compute-cloth/compute-cloth.lua"
 group ""
 
 
-group "physics-demos"
+group "demos-physics"
 include "demos/physics-basic-particles/physics-basic-particles.lua"
 include "demos/physics-basic-mass-spring/physics-basic-mass-spring.lua"
 include "demos/physics-rope-bridge/physics-rope-bridge.lua"

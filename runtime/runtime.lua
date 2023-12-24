@@ -1,6 +1,6 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "sandbox"
+project "runtime"
 kind "WindowedApp"
 language "C++"
 characterset("MBCS")
@@ -11,6 +11,7 @@ objdir("$(SolutionDir)_output/bin-intermediate/" .. outputdir .. "/%{prj.name}")
 files
 {
   "source/**.h",
+  "source/**.hpp",
   "source/**.cpp"
 }
 

@@ -1,11 +1,11 @@
 ------------------------------------------------------------- RENDERER LIBRARY PROJECT CONFIGURATION ------------------------------------------------------
 
-project "sputnik"
+project "engine"
 kind "StaticLib"
 language "C++"
 characterset("MBCS")
 
-targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
+-- targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
 objdir("$(SolutionDir)_output/bin-intermediate/" .. outputdir .. "/%{prj.name}")
 
 pchheader "pch.h"
