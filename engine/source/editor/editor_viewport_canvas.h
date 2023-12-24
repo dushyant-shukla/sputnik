@@ -2,6 +2,7 @@
 
 #include "core/layers/layer.h"
 #include "graphics/glcore/gl_frame_buffer.h"
+#include "graphics/glcore/v2/gl_framebuffer.h"
 
 #include <memory>
 
@@ -9,6 +10,7 @@ namespace sputnik::graphics
 {
 
 using namespace sputnik::core;
+using namespace sputnik::graphics::gl;
 
 class EditorViewPortCanvas : public Layer
 {
@@ -38,11 +40,12 @@ private:
 
 private:
     // private data
-    unsigned int                         m_window_width{0};
-    unsigned int                         m_window_height{0};
-    std::pair<float, float>              m_viewport_size{0.0f, 0.0f};
-    std::pair<float, float>              m_viewport_bounds[2];
-    std::shared_ptr<glcore::FrameBuffer> m_framebuffer;
+    unsigned int            m_window_width{0};
+    unsigned int            m_window_height{0};
+    std::pair<float, float> m_viewport_size{0.0f, 0.0f};
+    std::pair<float, float> m_viewport_bounds[2];
+    // std::shared_ptr<glcore::FrameBuffer> m_framebuffer;
+    std::shared_ptr<OglFramebuffer> m_framebuffer;
 
     // utility data (temporary)
     bool m_viewport_focused{false};

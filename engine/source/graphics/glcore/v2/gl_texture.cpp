@@ -15,6 +15,7 @@ namespace sputnik::graphics::gl
 
 u32 getOglTextureFormat(const TextureFormat& format)
 {
+    // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexStorage2D.xhtml
     switch(format)
     {
     case TextureFormat::R8:
@@ -23,6 +24,8 @@ u32 getOglTextureFormat(const TextureFormat& format)
         return GL_R16;
     case TextureFormat::R32:
         return GL_R32F;
+    case TextureFormat::R32I:
+        return GL_R32I;
     case TextureFormat::RG8:
         return GL_RG8;
     case TextureFormat::RG16:
@@ -62,6 +65,7 @@ u32 getOglTextureFormat(const TextureFormat& format)
 
 u32 getOglTextureDataFormat(const TextureFormat& format)
 {
+    // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexStorage2D.xhtml
     switch(format)
     {
     case TextureFormat::R8:
@@ -70,6 +74,9 @@ u32 getOglTextureDataFormat(const TextureFormat& format)
         return GL_RED;
     case TextureFormat::R32:
         return GL_RED;
+    case TextureFormat::R32I:
+        return GL_RED;
+        // return GL_RED_INTEGER;
     case TextureFormat::RG8:
         return GL_RG;
     case TextureFormat::RG16:
@@ -179,6 +186,7 @@ u32 getBytesPerPixel(const TextureFormat& format)
 OglTexture2D::OglTexture2D(cstring              texture_filepath,
                            bool                 flip_vertically,
                            const TextureFormat& texture_format,
+                           const TextureWrap&   r_wrap,
                            const TextureWrap&   s_wrap,
                            const TextureWrap&   t_wrap,
                            const TextureFilter& min_filter,
@@ -195,12 +203,13 @@ OglTexture2D::OglTexture2D(cstring              texture_filepath,
     m_width  = width;
     m_height = height;
     m_format = texture_format;
-    init(data, s_wrap, t_wrap, min_filter, mag_filter);
+    init(data, r_wrap, s_wrap, t_wrap, min_filter, mag_filter);
 }
 
 OglTexture2D::OglTexture2D(const u32&           width,
                            const u32&           height,
                            const TextureFormat& texture_format,
+                           const TextureWrap&   r_wrap,
                            const TextureWrap&   s_wrap,
                            const TextureWrap&   t_wrap,
                            const TextureFilter& min_filter,
@@ -210,13 +219,14 @@ OglTexture2D::OglTexture2D(const u32&           width,
     , m_height{height}
     , m_format{texture_format}
 {
-    init(nullptr, s_wrap, t_wrap, min_filter, mag_filter);
+    init(nullptr, r_wrap, s_wrap, t_wrap, min_filter, mag_filter);
 }
 
 OglTexture2D::OglTexture2D(const u32&           width,
                            const u32&           height,
                            void*                data,
                            const TextureFormat& texture_format,
+                           const TextureWrap&   r_wrap,
                            const TextureWrap&   s_wrap,
                            const TextureWrap&   t_wrap,
                            const TextureFilter& min_filter,
@@ -226,7 +236,7 @@ OglTexture2D::OglTexture2D(const u32&           width,
     , m_height{height}
     , m_format{texture_format}
 {
-    init(data, s_wrap, t_wrap, min_filter, mag_filter);
+    init(data, r_wrap, s_wrap, t_wrap, min_filter, mag_filter);
 }
 
 OglTexture2D::~OglTexture2D()
@@ -284,7 +294,13 @@ void OglTexture2D::unbind(const u32& slot)
     glBindTextureUnit(slot, 0);
 }
 
+const u32& OglTexture2D::getId() const
+{
+    return m_id;
+}
+
 void OglTexture2D::init(void*                data,
+                        const TextureWrap&   r_wrap,
                         const TextureWrap&   s_wrap,
                         const TextureWrap&   t_wrap,
                         const TextureFilter& min_filter,

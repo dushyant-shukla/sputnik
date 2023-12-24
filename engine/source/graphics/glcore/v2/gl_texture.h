@@ -11,6 +11,7 @@ enum class TextureFormat : u32
     R8,
     R16,
     R32,
+    R32I,
     RG8,
     RG16,
     RG32,
@@ -54,6 +55,7 @@ public:
     OglTexture2D(cstring              texture_filepath,
                  bool                 flip_vertically = false,
                  const TextureFormat& texture_format  = TextureFormat::RGB8,
+                 const TextureWrap&   r_wrap          = TextureWrap::Repeat,
                  const TextureWrap&   s_wrap          = TextureWrap::Repeat,
                  const TextureWrap&   t_wrap          = TextureWrap::Repeat,
                  const TextureFilter& min_filter      = TextureFilter::Linear,
@@ -62,6 +64,7 @@ public:
     OglTexture2D(const u32&           width,
                  const u32&           height,
                  const TextureFormat& texture_format = TextureFormat::RGB8,
+                 const TextureWrap&   r_wrap         = TextureWrap::Repeat,
                  const TextureWrap&   s_wrap         = TextureWrap::Repeat,
                  const TextureWrap&   t_wrap         = TextureWrap::Repeat,
                  const TextureFilter& min_filter     = TextureFilter::Linear,
@@ -71,6 +74,7 @@ public:
                  const u32&           height,
                  void*                data,
                  const TextureFormat& texture_format = TextureFormat::RGB8,
+                 const TextureWrap&   r_wrap         = TextureWrap::Repeat,
                  const TextureWrap&   s_wrap         = TextureWrap::Repeat,
                  const TextureWrap&   t_wrap         = TextureWrap::Repeat,
                  const TextureFilter& min_filter     = TextureFilter::Linear,
@@ -88,11 +92,14 @@ public:
     void bind(const u32& slot = 0);
     void unbind(const u32& slot = 0);
 
+    const u32& getId() const;
+
 private:
     OglTexture2D(const OglTexture2D&)            = delete;
     OglTexture2D& operator=(const OglTexture2D&) = delete;
 
     void init(void*                data,
+              const TextureWrap&   r_wrap,
               const TextureWrap&   s_wrap,
               const TextureWrap&   t_wrap,
               const TextureFilter& min_filter,

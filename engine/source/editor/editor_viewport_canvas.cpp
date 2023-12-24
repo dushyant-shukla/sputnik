@@ -18,26 +18,37 @@ EditorViewPortCanvas::EditorViewPortCanvas(unsigned int width, unsigned int heig
     , m_window_height(height)
     , m_viewport_size(width, height)
 {
-    glcore::FrameBufferSpecification framebuffer_spec;
-    framebuffer_spec.width         = m_window_width;
-    framebuffer_spec.height        = m_window_height;
-    framebuffer_spec.m_attachments = {glcore::FrameBufferTextureFormat::RGBA8,
-                                      glcore::FrameBufferTextureFormat::RGBA8,
-                                      glcore::FrameBufferTextureFormat::DEPTH};
-    m_framebuffer                  = std::make_shared<glcore::FrameBuffer>(framebuffer_spec);
+    // glcore::FrameBufferSpecification framebuffer_spec;
+    // framebuffer_spec.width         = m_window_width;
+    // framebuffer_spec.height        = m_window_height;
+    // framebuffer_spec.m_attachments = {glcore::FrameBufferTextureFormat::RGBA8,
+    //                                   glcore::FrameBufferTextureFormat::RGBA8,
+    //                                   glcore::FrameBufferTextureFormat::DEPTH};
+    // m_framebuffer                  = std::make_shared<glcore::FrameBuffer>(framebuffer_spec);
+
+    FramebufferSpecification framebuffer_spec;
+    // framebuffer_spec.attachments = {{FramebufferTextureFormat::RGBA8},
+    //                                 {FramebufferTextureFormat::RGBA8},
+    //                                 {FramebufferTextureFormat::Depth}};
+    framebuffer_spec.attachments = {{FramebufferTextureFormat::RGBA8}, {FramebufferTextureFormat::Depth}};
+    framebuffer_spec.width       = m_window_width;
+    framebuffer_spec.height      = m_window_height;
+    m_framebuffer                = std::make_shared<OglFramebuffer>(framebuffer_spec);
 }
 
 EditorViewPortCanvas::~EditorViewPortCanvas() {}
 
 void EditorViewPortCanvas::BeginFrame()
 {
-    m_framebuffer->Bind();
+    // m_framebuffer->Bind();
+    m_framebuffer->bind();
     api::Renderer::Clear();
 }
 
 void EditorViewPortCanvas::EndFrame()
 {
-    m_framebuffer->UnBind();
+    // m_framebuffer->UnBind();
+    m_framebuffer->unbind();
 }
 
 void EditorViewPortCanvas::OnAttach() {}
@@ -48,7 +59,9 @@ void EditorViewPortCanvas::OnPreUpdate(const TimeStep& time_step)
 {
     if(ShouldResizeFrameBuffer())
     {
-        m_framebuffer->Resize(static_cast<uint32_t>(m_viewport_size.first),
+        // m_framebuffer->Resize(static_cast<uint32_t>(m_viewport_size.first),
+        //                       static_cast<uint32_t>(m_viewport_size.second));
+        m_framebuffer->resize(static_cast<uint32_t>(m_viewport_size.first),
                               static_cast<uint32_t>(m_viewport_size.second));
         graphics::api::EditorCamera::GetInstance()->SetViewportSize(m_viewport_size.first, m_viewport_size.second);
         graphics::api::Camera::GetInstance()->SetViewportSize(m_viewport_size.first, m_viewport_size.second);
@@ -57,8 +70,8 @@ void EditorViewPortCanvas::OnPreUpdate(const TimeStep& time_step)
     // m_framebuffer->Bind();
     // api::Renderer::Clear();
 
-    //graphics::api::EditorCamera::GetInstance()->Update(time_step);
-    //graphics::api::Camera::GetInstance()->Update(time_step, m_block_camera_update);
+    // graphics::api::EditorCamera::GetInstance()->Update(time_step);
+    // graphics::api::Camera::GetInstance()->Update(time_step, m_block_camera_update);
 }
 
 void EditorViewPortCanvas::OnUpdate(const TimeStep& time_step) {}
@@ -72,7 +85,8 @@ void EditorViewPortCanvas::OnEvent() {}
 
 bool EditorViewPortCanvas::ShouldResizeFrameBuffer()
 {
-    glcore::FrameBufferSpecification framebuffer_spec = m_framebuffer->GetSpecification();
+    // glcore::FrameBufferSpecification framebuffer_spec = m_framebuffer->GetSpecification();
+    const auto& framebuffer_spec = m_framebuffer->getSpecification();
     if(m_viewport_size.first > 0.0f && m_viewport_size.second > 0.0f &&
        (framebuffer_spec.width != m_viewport_size.first || framebuffer_spec.height != m_viewport_size.second))
     {
@@ -106,7 +120,8 @@ void EditorViewPortCanvas::OnPreUpdateUI(const TimeStep& time_step)
         ImVec2 viewport_panel_size = ImGui::GetContentRegionAvail();
         m_viewport_size            = {viewport_panel_size.x, viewport_panel_size.y};
 
-        uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId();
+        // uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId();
+        uint64_t textureID = m_framebuffer->getColorAttachmentId();
         ImGui::Image(reinterpret_cast<void*>(textureID),
                      ImVec2{m_viewport_size.first, m_viewport_size.second},
                      ImVec2{0, 1},
@@ -129,7 +144,8 @@ void EditorViewPortCanvas::OnUpdateUI(const TimeStep& time_step)
 {
     if(ImGui::Begin("Depth Buffer"))
     {
-        uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
+        // uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
+        uint64_t textureID = m_framebuffer->getDepthAttachmentId();
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{250, 250}, ImVec2{0, 1}, ImVec2{1, 0});
     }
     ImGui::End();

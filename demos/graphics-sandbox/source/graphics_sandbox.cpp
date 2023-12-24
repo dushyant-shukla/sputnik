@@ -104,14 +104,13 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_light.diffuse  = vec3(1.0f, 1.0f, 1.0f);
     m_light.specular = vec3(1.0f, 1.0f, 1.0f);
 
-    uint32_t white = 0xffffffff;
-    uint32_t red   = 0xff0000ff;
-    uint32_t green = 0xff00ff00;
-    uint32_t blue  = 0xffff0000;
+    u32 white      = 0xffffffff;
+    u32 red        = 0xff0000ff;
+    u32 green      = 0xff00ff00;
+    u32 blue       = 0xffff0000;
     m_diff_texture = std::make_shared<OglTexture2D>(1, 1, TextureFormat::RGBA8);
-    m_diff_texture->setData(&green, sizeof(uint32_t));
-    // m_diff_texture =
-    //     std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
+    // m_diff_texture->setData(&green, sizeof(u32));
+    m_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
     m_spec_texture = std::make_shared<OglTexture2D>(1, 1, &white, TextureFormat::RGBA8);
 }
 
