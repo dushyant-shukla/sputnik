@@ -151,11 +151,11 @@ Renderer* Renderer::Instance()
 void Renderer::InitInstance(const sputnik::graphics::core::GraphicsSubsystemType& subsystem_type)
 {
     // Todo:: Paths to assets are with respect to the current executable.
-     //m_sky_shader = std::make_shared<Shader>("../../data/shaders/sky-rendering/sky.vert",
-     //                                       "../../data/shaders/sky-rendering/sky.frag");
+    m_sky_shader = std::make_shared<Shader>("../../data/shaders/sky-rendering/sky.vert",
+                                            "../../data/shaders/sky-rendering/sky.frag");
 
-    m_sky_shader =
-        std::make_shared<Shader>("../data/shaders/sky-rendering/sky.vert", "../data/shaders/sky-rendering/sky.frag");
+    /*m_sky_shader =
+        std::make_shared<Shader>("../data/shaders/sky-rendering/sky.vert", "../data/shaders/sky-rendering/sky.frag");*/
 
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
 
