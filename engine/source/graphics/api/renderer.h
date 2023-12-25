@@ -4,7 +4,7 @@
 #include "core/time_step.h"
 #include "graphics/core/graphics_subsystem_type.h"
 #include "graphics/api/camera_types.h"
-#include "graphics/glcore/shader.h"
+#include "graphics/glcore/gl_shader.h"
 #include <graphics/api/PreethamSkyModel.h>
 #include "editor/editor_camera.h"
 #include "graphics/api/camera.h"
@@ -16,7 +16,7 @@ struct GLFWwindow;
 namespace sputnik::graphics::api
 {
 
-using namespace sputnik::graphics::glcore;
+using namespace sputnik::graphics::gl;
 
 class Renderer
 {
@@ -52,11 +52,11 @@ private:
     inline static bool          m_is_camera_update_blocked = false;
 
     // atmospheric scattering
-    float                   m_exposure        = 1.0f;
-    float                   m_sun_angle       = -1.45f; // radians (~ (-83) degress)
-    vec3                    m_light_direction = vec3(0.0f, 0.0f, 1.0f);
-    PreethamSkyModel        m_preetham_sky_model;
-    std::shared_ptr<Shader> m_sky_shader;
+    float                             m_exposure        = 1.0f;
+    float                             m_sun_angle       = -1.45f; // radians (~ (-83) degress)
+    vec3                              m_light_direction = vec3(0.0f, 0.0f, 1.0f);
+    PreethamSkyModel                  m_preetham_sky_model;
+    std::shared_ptr<OglShaderProgram> m_sky_shader;
 
     u32 m_vao;
 };

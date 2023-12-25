@@ -84,8 +84,8 @@ std::string readShaderSource(cstring shader_file)
         }
         const auto include_shader_file = shader_source.substr(pos1 + 1, pos2 - pos1 - 1);
         // const auto include_shader_source = readShaderSource(include_shader_file.c_str());
-        const auto include_shader_source = readShaderSource(("../../data/shaders/glsl/" + include_shader_file).c_str());
-        //const auto include_shader_source = readShaderSource(("../data/shaders/glsl/" + include_shader_file).c_str());
+        //const auto include_shader_source = readShaderSource(("../../data/shaders/glsl/" + include_shader_file).c_str());
+        const auto include_shader_source = readShaderSource(("../data/shaders/glsl/" + include_shader_file).c_str());
         shader_source.replace(pos, pos2 - pos + 1, include_shader_source);
     }
     return shader_source;

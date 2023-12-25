@@ -76,7 +76,7 @@ public:
                          const VertexInputBindingSpecification&                          buffer_specification,
                          const std::initializer_list<VertexInputAttributeSpecification>& attribute_specifications);
 
-    void addIndexBuffer(const OglBuffer& buffer);
+    void setIndexBuffer(const OglBuffer& buffer);
 
 private:
     OglVertexArray(const OglVertexArray&)            = delete;
@@ -84,6 +84,7 @@ private:
 
 private:
     u32 m_id;
+    u32 m_next_slot_index;
 };
 
 } // namespace sputnik::graphics::gl

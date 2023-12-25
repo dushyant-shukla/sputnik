@@ -236,6 +236,8 @@ void MeshFromAttribute(sputnik::graphics::core::Mesh& out_mesh,
         }
     }
 
+    //out_mesh.initializeGpuBuffers();
+
     // std::cout << "writing mesh data." << std::endl;
     // std::ofstream ofs("mesh_data_sputnik.txt", std::ofstream::out);
     ////std::cout << "Position:" << std::endl;
@@ -500,7 +502,8 @@ std::vector<sputnik::graphics::core::Mesh> GltfLoader::LoadMeshes(Data* data)
                 }
             }
 
-            mesh.ResetOpenglBuffersToBindPose();
+            mesh.initializeGpuBuffers();
+            //mesh.ResetOpenglBuffersToBindPose();
         }
     }
 

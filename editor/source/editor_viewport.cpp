@@ -1,7 +1,7 @@
 #include "editor_viewport.hpp"
 
 #include <graphics/api/renderer.h>
-#include <graphics/glcore/v2/gl_framebuffer.h>
+#include <graphics/glcore/gl_framebuffer.h>
 
 #include <imgui.h>
 #include <imgui_internal.h> // For GImGui->CurrentWindow;

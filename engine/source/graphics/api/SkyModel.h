@@ -1,20 +1,27 @@
 #pragma once
 
+//#include "graphics/glcore/gl_shader.h"
+
 #include <vector.hpp>
-#include <graphics/glcore/shader.h>
+
+namespace sputnik::graphics::gl
+{
+class OglShaderProgram;
+}
 
 namespace sputnik::graphics::api
 {
 
 using namespace ramanujan;
 using namespace ramanujan::experimental;
+using namespace sputnik::graphics::gl;
 
 class SkyModel
 {
 public:
-    virtual bool Initialize()                                                                         = 0;
-    virtual void Update()                                                                             = 0;
-    virtual void SetRenderUniforms(std::shared_ptr<sputnik::graphics::glcore::Shader> shader_program) = 0;
+    virtual bool Initialize()                                                        = 0;
+    virtual void Update()                                                            = 0;
+    virtual void SetRenderUniforms(std::shared_ptr<OglShaderProgram> shader_program) = 0;
 
     inline vec3 GetDirection() { return m_direction; }
     inline void SetDirection(vec3 dir) { m_direction = -1 * dir; }

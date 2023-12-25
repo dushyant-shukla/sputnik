@@ -95,7 +95,7 @@ inline u32 getOglType(VertexAttributeType type)
     return itr->second;
 }
 
-OglVertexArray::OglVertexArray() : m_id{0}
+OglVertexArray::OglVertexArray() : m_id{0}, m_next_slot_index{0}
 {
     glGenVertexArrays(1, &m_id);
     SPUTNIK_ASSERT(m_id != 0, "Failed to create a vertex array.");
@@ -147,38 +147,47 @@ void OglVertexArray::addVertexBuffer(
                               0,
                               binding_specification.stride);
 
-    u32 slot_index = 0;
-    u32 offset     = 0;
+    // u32 slot_index = 0;
+    u32 offset = 0;
     for(const auto& specification : attribute_specifications)
     {
         SPUTNIK_ASSERT_MESSAGE(
-            slot_index < GL_MAX_VERTEX_ATTRIBS,
+            m_next_slot_index < GL_MAX_VERTEX_ATTRIBS,
             "Invalid vertex input attribute specification. Provided vertex input attribute slot index: {}. "
             "The maximum number of vertex input attribute slots is {}.",
-            slot_index,
+            m_next_slot_index,
             GL_MAX_VERTEX_ATTRIBS);
 
-        glEnableVertexArrayAttrib(m_id, slot_index); // Enable the attribute stream at the specified slot index.
+        // glEnableVertexArrayAttrib(m_id, slot_index); // Enable the attribute stream at the specified slot index.
+        glEnableVertexArrayAttrib(m_id, m_next_slot_index); // Enable the attribute stream at the specified slot index.
 
         // Specify the format of the attribute stream at the specified slot index.
+        // glVertexArrayAttribFormat(m_id,
+        //                          slot_index,
+        //                          getComponentCount(specification.type),
+        //                          getOglType(specification.type),
+        //                          specification.normalized ? GL_TRUE : GL_FALSE,
+        //                          offset);
         glVertexArrayAttribFormat(m_id,
-                                  slot_index,
+                                  m_next_slot_index,
                                   getComponentCount(specification.type),
                                   getOglType(specification.type),
                                   specification.normalized ? GL_TRUE : GL_FALSE,
                                   offset);
 
         // Bind the attribute stream at the specified slot index to the specified binding index.
-        glVertexArrayAttribBinding(m_id, slot_index, binding_specification.binding_index);
+        // glVertexArrayAttribBinding(m_id, slot_index, binding_specification.binding_index);
+        glVertexArrayAttribBinding(m_id, m_next_slot_index, binding_specification.binding_index);
 
         offset += getAttributeSize(specification.type);
-        ++slot_index;
+        //++slot_index;
+        ++m_next_slot_index;
     }
 
     unbind();
 }
 
-void OglVertexArray::addIndexBuffer(const OglBuffer& buffer)
+void OglVertexArray::setIndexBuffer(const OglBuffer& buffer)
 {
     // Reference:
     // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexArrayElementBuffer.xhtml

@@ -54,7 +54,7 @@ class OglTexture2D
 public:
     OglTexture2D(cstring              texture_filepath,
                  bool                 flip_vertically = false,
-                 const TextureFormat& texture_format  = TextureFormat::RGB8,
+                 const TextureFormat& texture_format  = TextureFormat::Invalid,
                  const TextureWrap&   r_wrap          = TextureWrap::Repeat,
                  const TextureWrap&   s_wrap          = TextureWrap::Repeat,
                  const TextureWrap&   t_wrap          = TextureWrap::Repeat,

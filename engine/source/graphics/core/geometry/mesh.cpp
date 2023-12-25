@@ -1,49 +1,41 @@
 #include "pch.h"
 #include "mesh.h"
 #include "graphics/glcore/renderer.h"
+#include <graphics/glcore/gl_buffer.h>
+#include <graphics/glcore/gl_vertex_array.h>
 
 namespace sputnik::graphics::core
 {
 
-Mesh::Mesh()
+Mesh::Mesh() {}
+
+Mesh::Mesh(Mesh&& other) noexcept
 {
-    m_position_attribute  = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_normal_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_uv_attribute        = std::make_shared<glcore::VertexAttribute<ramanujan::Vector2>>();
-    m_weight_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector4>>();
-    m_influence_attribute = std::make_shared<glcore::VertexAttribute<ramanujan::IVector4>>();
-    m_index_buffer        = std::make_shared<glcore::IndexBuffer>();
+    *this = std::move(other);
 }
 
-Mesh::Mesh(const Mesh& other)
+Mesh& Mesh::operator=(Mesh&& other) noexcept
 {
-    m_position_attribute  = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_normal_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector3>>();
-    m_uv_attribute        = std::make_shared<glcore::VertexAttribute<ramanujan::Vector2>>();
-    m_weight_attribute    = std::make_shared<glcore::VertexAttribute<ramanujan::Vector4>>();
-    m_influence_attribute = std::make_shared<glcore::VertexAttribute<ramanujan::IVector4>>();
-    m_index_buffer        = std::make_shared<glcore::IndexBuffer>();
-    *this                 = other;
+    if(this != &other)
+    {
+        m_index_buffer     = std::move(other.m_index_buffer);
+        m_position_buffer  = std::move(other.m_position_buffer);
+        m_normal_buffer    = std::move(other.m_normal_buffer);
+        m_uv_buffer        = std::move(other.m_uv_buffer);
+        m_weight_buffer    = std::move(other.m_weight_buffer);
+        m_influence_buffer = std::move(other.m_influence_buffer);
+        m_vertex_array     = std::move(other.m_vertex_array);
+        m_position         = std::move(other.m_position);
+        m_normal           = std::move(other.m_normal);
+        m_uv               = std::move(other.m_uv);
+        m_weights          = std::move(other.m_weights);
+        m_influences       = std::move(other.m_influences);
+        m_indices          = std::move(other.m_indices);
+    }
+    return *this;
 }
 
 Mesh::~Mesh() {}
-
-Mesh& Mesh::operator=(const Mesh& other)
-{
-    if(this == &other)
-    {
-        return *this;
-    }
-
-    m_position   = other.m_position;
-    m_normal     = other.m_normal;
-    m_uv         = other.m_uv;
-    m_weights    = other.m_weights;
-    m_influences = other.m_influences;
-    m_indices    = other.m_indices;
-    ResetOpenglBuffersToBindPose();
-    return *this;
-}
 
 std::vector<ramanujan::Vector3>& Mesh::GetPosition()
 {
@@ -130,8 +122,8 @@ void Mesh::CpuSkin(const Skeleton& skeleton, const Pose& pose)
     }
 
     // update the gpu buffers
-    m_position_attribute->Set(m_skinned_position);
-    m_normal_attribute->Set(m_skinned_normal);
+    m_position_buffer->setData((float*)&m_skinned_position, (u64)m_skinned_position.size() * sizeof(float));
+    m_normal_buffer->setData((float*)&m_skinned_normal, (u64)m_skinned_normal.size() * sizeof(float));
 }
 
 void Mesh::CpuSkin(const std::vector<ramanujan::Matrix4>& skin_transform)
@@ -172,109 +164,124 @@ void Mesh::CpuSkin(const std::vector<ramanujan::Matrix4>& skin_transform)
     }
 
     // update the gpu buffers
-    m_position_attribute->Set(m_skinned_position);
-    m_normal_attribute->Set(m_skinned_normal);
+    m_position_buffer->setData((float*)&m_skinned_position, (u64)m_skinned_position.size() * sizeof(float));
+    m_normal_buffer->setData((float*)&m_skinned_normal, (u64)m_skinned_normal.size() * sizeof(float));
 }
 
 void Mesh::ResetOpenglBuffersToBindPose()
 {
+    // Update data for the buffers here
     if(m_position.size() > 0)
     {
-        m_position_attribute->Set(m_position);
+        m_position_buffer->setData(&m_position[0], m_position.size() * sizeof(ramanujan::Vector3));
     }
     if(m_normal.size() > 0)
     {
-        m_normal_attribute->Set(m_normal);
+        m_normal_buffer->setData(&m_normal[0], m_normal.size() * sizeof(ramanujan::Vector3));
     }
     if(m_uv.size() > 0)
     {
-        m_uv_attribute->Set(m_uv);
+        m_uv_buffer->setData(&m_uv[0], m_uv.size() * sizeof(ramanujan::Vector2));
     }
     if(m_weights.size() > 0)
     {
-        m_weight_attribute->Set(m_weights);
+        m_weight_buffer->setData(&m_weights[0], (u64)m_weights.size() * sizeof(ramanujan::Vector4));
     }
     if(m_influences.size() > 0)
     {
-        m_influence_attribute->Set(m_influences);
+        m_influence_buffer->setData(&m_influences[0], (u64)m_influences.size() * sizeof(ramanujan::IVector4));
     }
     if(m_indices.size() > 0)
     {
-        m_index_buffer->Set(m_indices);
-    }
-}
-
-void Mesh::Bind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot)
-{
-    if(position_slot >= 0)
-    {
-        m_position_attribute->Bind(position_slot);
-    }
-    if(normal_slot >= 0)
-    {
-        m_normal_attribute->Bind(normal_slot);
-    }
-    if(uv_slot >= 0)
-    {
-        m_uv_attribute->Bind(uv_slot);
-    }
-    if(weight_slot >= 0)
-    {
-        m_weight_attribute->Bind(weight_slot);
-    }
-    if(influence_slot >= 0)
-    {
-        m_influence_attribute->Bind(influence_slot);
+        m_index_buffer->setData(&m_indices[0], m_indices.size() * sizeof(unsigned int));
     }
 }
 
 void Mesh::Draw()
 {
+    m_vertex_array->bind();
     if(m_indices.size() > 0)
     {
-        glcore::Renderer::Draw(*m_index_buffer, glcore::DrawMode::TRIANGLES);
+        glcore::Renderer::DrawElements((u64)m_indices.size(), glcore::DrawMode::TRIANGLES);
     }
     else
     {
-        glcore::Renderer::Draw(static_cast<unsigned int>(m_position.size()), glcore::DrawMode::TRIANGLES);
+        glcore::Renderer::DrawArrays(static_cast<unsigned int>(m_position.size()), glcore::DrawMode::TRIANGLES);
     }
+    m_vertex_array->unbind();
 }
 
 void Mesh::DrawInstanced(unsigned int num_instances)
 {
+    m_vertex_array->bind();
     if(m_indices.size() > 0)
     {
-        glcore::Renderer::DrawInstanced(*m_index_buffer, glcore::DrawMode::TRIANGLES, num_instances);
+        glcore::Renderer::DrawElementsInstanced((u64)m_indices.size(), num_instances, glcore::DrawMode::TRIANGLES);
     }
     else
     {
-        glcore::Renderer::DrawInstanced(static_cast<unsigned int>(m_position.size()),
-                                        glcore::DrawMode::TRIANGLES,
-                                        num_instances);
+        glcore::Renderer::DrawArraysInstanced(static_cast<unsigned int>(m_position.size()),
+                                              num_instances,
+                                              glcore::DrawMode::TRIANGLES);
     }
+    m_vertex_array->unbind();
 }
 
-void Mesh::Unbind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot)
+void Mesh::initializeGpuBuffers()
 {
-    if(position_slot >= 0)
+    m_vertex_array = std::make_shared<OglVertexArray>();
+
+    if(m_position.size() > 0)
     {
-        m_position_attribute->Unbind(position_slot);
+        m_position_buffer = std::make_shared<OglBuffer>(&m_position[0], m_position.size() * sizeof(ramanujan::Vector3));
+        m_vertex_array->addVertexBuffer(
+            *m_position_buffer.get(),
+            {.binding_index = 0, .stride = 12},
+            {{.name = "position", .location = 0, .type = VertexAttributeType::Float3, .normalized = false}});
     }
-    if(normal_slot >= 0)
+
+    if(m_normal.size() > 0)
     {
-        m_normal_attribute->Unbind(normal_slot);
+        m_normal_buffer = std::make_shared<OglBuffer>(&m_normal[0], m_normal.size() * sizeof(ramanujan::Vector3));
+        m_vertex_array->addVertexBuffer(
+            *m_normal_buffer.get(),
+            {.binding_index = 1, .stride = 12},
+            {{.name = "normal", .location = 1, .type = VertexAttributeType::Float3, .normalized = false}});
     }
-    if(uv_slot >= 0)
+
+    if(m_uv.size() > 0)
     {
-        m_uv_attribute->Unbind(uv_slot);
+        m_uv_buffer = std::make_shared<OglBuffer>(&m_uv[0], m_uv.size() * sizeof(ramanujan::Vector2));
+        m_vertex_array->addVertexBuffer(
+            *m_uv_buffer.get(),
+            {.binding_index = 2, .stride = 8},
+            {{.name = "uv", .location = 2, .type = VertexAttributeType::Float2, .normalized = false}});
     }
-    if(weight_slot >= 0)
+
+    if(m_weights.size() > 0)
     {
-        m_weight_attribute->Unbind(weight_slot);
+        m_weight_buffer =
+            std::make_shared<OglBuffer>(&m_weights[0], (u64)m_weights.size() * sizeof(ramanujan::Vector4));
+        m_vertex_array->addVertexBuffer(
+            *m_weight_buffer.get(),
+            {.binding_index = 3, .stride = 16},
+            {{.name = "weights", .location = 3, .type = VertexAttributeType::Float4, .normalized = false}});
     }
-    if(influence_slot >= 0)
+
+    if(m_influences.size() > 0)
     {
-        m_influence_attribute->Unbind(influence_slot);
+        m_influence_buffer =
+            std::make_shared<OglBuffer>(&m_influences[0], (u64)m_influences.size() * sizeof(ramanujan::IVector4));
+        m_vertex_array->addVertexBuffer(
+            *m_influence_buffer.get(),
+            {.binding_index = 4, .stride = 16},
+            {{.name = "joints", .location = 4, .type = VertexAttributeType::Int4, .normalized = false}});
+    }
+
+    if(m_indices.size() > 0)
+    {
+        m_index_buffer = std::make_shared<OglBuffer>(&m_indices[0], m_indices.size() * sizeof(unsigned int));
+        m_vertex_array->setIndexBuffer(*m_index_buffer.get());
     }
 }
 

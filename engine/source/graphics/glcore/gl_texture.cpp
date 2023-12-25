@@ -200,9 +200,27 @@ OglTexture2D::OglTexture2D(cstring              texture_filepath,
     stbi_set_flip_vertically_on_load(flip_vertically);
     unsigned char* data = stbi_load(texture_filepath, &width, &height, &channels, 0);
     SPUTNIK_ASSERT_MESSAGE(data, "Failed to load texture: {}", texture_filepath);
+    switch(channels)
+    {
+    case 1:
+        m_format = TextureFormat::R8;
+        break;
+    case 2:
+        m_format = TextureFormat::RG8;
+        break;
+    case 3:
+        m_format = TextureFormat::RGB8;
+        break;
+    case 4:
+        m_format = TextureFormat::RGBA8;
+        break;
+    default:
+        break;
+    }
+
     m_width  = width;
     m_height = height;
-    m_format = texture_format;
+    //m_format = texture_format;
     init(data, r_wrap, s_wrap, t_wrap, min_filter, mag_filter);
 }
 

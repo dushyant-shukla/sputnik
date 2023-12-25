@@ -2,7 +2,6 @@
 #include "renderer.h"
 #include "graphics/core/render_command.h"
 #include "graphics/api/PreethamSkyModel.h"
-#include "graphics/glcore/uniform.h"
 #include "graphics/api/atmospheric-scattering/atmospheric_scattering.h"
 #include "main/application.h"
 
@@ -127,13 +126,16 @@ void Renderer::RenderAtmoshericScattering()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
-    renderer->m_sky_shader->Bind();
+    renderer->m_sky_shader->bind();
 
-    Uniform<mat4>::Set(renderer->m_sky_shader->GetUniform("inv_view_projection"), inv_cubemap_view_projection_mat4);
+    // Uniform<mat4>::Set(renderer->m_sky_shader->GetUniform("inv_view_projection"), inv_cubemap_view_projection_mat4);
+
+    renderer->m_sky_shader->setMat4("inv_view_projection", inv_cubemap_view_projection_mat4);
+
     renderer->m_preetham_sky_model.SetRenderUniforms(renderer->m_sky_shader);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    renderer->m_sky_shader->Unbind();
+    renderer->m_sky_shader->unbind();
 
     // reset the pipeline state
     glDepthFunc(GL_LESS); // This is the default depth function
@@ -151,11 +153,16 @@ Renderer* Renderer::Instance()
 void Renderer::InitInstance(const sputnik::graphics::core::GraphicsSubsystemType& subsystem_type)
 {
     // Todo:: Paths to assets are with respect to the current executable.
-    m_sky_shader = std::make_shared<Shader>("../../data/shaders/sky-rendering/sky.vert",
-                                            "../../data/shaders/sky-rendering/sky.frag");
+    // m_sky_shader = std::make_shared<Shader>("../../data/shaders/sky-rendering/sky.vert",
+    //                                        "../../data/shaders/sky-rendering/sky.frag");
 
-    /*m_sky_shader =
-        std::make_shared<Shader>("../data/shaders/sky-rendering/sky.vert", "../data/shaders/sky-rendering/sky.frag");*/
+    // m_sky_shader = std::make_shared<OglShaderProgram>("../data/shaders/sky-rendering/sky.vert",
+    //                                                   "../data/shaders/sky-rendering/sky.frag");
+
+    m_sky_shader = std::make_shared<OglShaderProgram>();
+    m_sky_shader->addShaderStage("../data/shaders/sky-rendering/sky.vert");
+    m_sky_shader->addShaderStage("../data/shaders/sky-rendering/sky.frag");
+    m_sky_shader->configure();
 
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
 

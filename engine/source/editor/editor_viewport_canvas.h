@@ -1,8 +1,8 @@
 #pragma once
 
 #include "core/layers/layer.h"
-#include "graphics/glcore/gl_frame_buffer.h"
-#include "graphics/glcore/v2/gl_framebuffer.h"
+
+#include "graphics/glcore/gl_framebuffer.h"
 
 #include <memory>
 

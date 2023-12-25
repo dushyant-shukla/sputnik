@@ -105,12 +105,31 @@ OglBuffer::OglBuffer(OglBuffer&& other) noexcept
 OglBuffer& OglBuffer::operator=(OglBuffer&& other) noexcept
 {
     // TODO:: Need to implement this
+    if(this != &other)
+    {
+        m_id          = other.m_id;
+        m_bind_target = other.m_bind_target;
+        m_bytes       = other.m_bytes;
+        m_data        = other.m_data;
+        other.m_id    = 0;
+    }
     return *this;
+}
+
+void OglBuffer::setSize(const u64& bytes)
+{
+    SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
+    m_bytes = bytes;
+    glNamedBufferStorage(m_id, bytes, nullptr, GL_DYNAMIC_STORAGE_BIT);
 }
 
 void OglBuffer::setData(void* data, u64 bytes)
 {
     SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
+    if(m_bytes == 0)
+    {
+        glNamedBufferStorage(m_id, bytes, data, GL_DYNAMIC_STORAGE_BIT);
+    }
     m_bytes = bytes;
     m_data  = data;
     glNamedBufferSubData(m_id, 0, bytes, data);

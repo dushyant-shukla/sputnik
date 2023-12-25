@@ -111,8 +111,8 @@ void GlUiLayer::OnAttach()
     // io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Bold.ttf", 18.0f);
     // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Regular.ttf", 18.0f);
 
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
-    //io.FontDefault = io.Fonts->AddFontFromFileTTF("../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
+    // io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
 
     // required my modification
     // io.Fonts->AddFontFromFileTTF("fonts/Ruda/Ruda-Bold.ttf", 17.0f);

@@ -4,10 +4,12 @@
 #include <graphics/api/renderer.h>
 #include <graphics/api/camera.h>
 #include <graphics/api/color_material.h>
-#include <graphics/glcore/v2/gl_vertex_array.h>
+#include <graphics/glcore/gl_vertex_array.h>
 #include <vector.hpp>
 #include <matrix.hpp>
 #include <imgui.h>
+
+#include <glad/glad.h>
 
 namespace sputnik::demos
 {

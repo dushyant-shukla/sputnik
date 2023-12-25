@@ -14,7 +14,7 @@ public:
 
     bool Initialize() override;
     void Update() override;
-    void SetRenderUniforms(std::shared_ptr<sputnik::graphics::glcore::Shader>) override;
+    void SetRenderUniforms(std::shared_ptr<OglShaderProgram>) override;
 
 private:
     vec3 A, B, C, D, E, Z;

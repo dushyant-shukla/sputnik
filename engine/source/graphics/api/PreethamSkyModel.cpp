@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PreethamSkyModel.h"
+#include "graphics/glcore/gl_shader.h"
 
-#include <graphics/glcore/uniform.h>
 #include <vector3.h>
 #include <vector4.h>
 
@@ -91,18 +91,26 @@ void PreethamSkyModel::Update()
 
 // -----------------------------------------------------------------------------------------------------------------------------------
 
-void PreethamSkyModel::SetRenderUniforms(std::shared_ptr<sputnik::graphics::glcore::Shader> shader_program)
+void PreethamSkyModel::SetRenderUniforms(std::shared_ptr<OglShaderProgram> shader_program)
 {
-    shader_program->Bind();
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("direction"),
-                                                                {m_direction.x, m_direction.y, m_direction.z});
+    // shader_program->Bind();
+    // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("direction"),
+    //                                                             {m_direction.x, m_direction.y, m_direction.z});
+    // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_A"), {A.x, A.y, A.z});
+    // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_B"), {B.x, B.y, B.z});
+    // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_C"), {C.x, C.y, C.z});
+    // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_D"), {D.x, D.y, D.z});
+    // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_E"), {E.x, E.y, E.z});
+    // sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_Z"), {Z.x, Z.y, Z.z});
 
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_A"), {A.x, A.y, A.z});
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_B"), {B.x, B.y, B.z});
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_C"), {C.x, C.y, C.z});
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_D"), {D.x, D.y, D.z});
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_E"), {E.x, E.y, E.z});
-    sputnik::graphics::glcore::Uniform<ramanujan::Vector3>::Set(shader_program->GetUniform("p_Z"), {Z.x, Z.y, Z.z});
+    shader_program->bind();
+    shader_program->setFloat3("direction", m_direction);
+    shader_program->setFloat3("p_A", A);
+    shader_program->setFloat3("p_B", B);
+    shader_program->setFloat3("p_C", C);
+    shader_program->setFloat3("p_D", D);
+    shader_program->setFloat3("p_E", E);
+    shader_program->setFloat3("p_Z", Z);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------

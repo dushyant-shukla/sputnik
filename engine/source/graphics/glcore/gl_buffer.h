@@ -82,6 +82,13 @@ public:
     /*!
      * @brief .
      *
+     * @param bytes
+     */
+    void setSize(const u64& bytes);
+
+    /*!
+     * @brief .
+     *
      * @param data
      * @param bytes
      */

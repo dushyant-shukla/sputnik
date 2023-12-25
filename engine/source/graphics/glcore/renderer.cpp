@@ -1,30 +1,31 @@
 #include "pch.h"
 #include "renderer.h"
+#include "graphics/glcore/gl_buffer.h"
+#include "graphics/glcore/gl_vertex_array.h"
 
 namespace sputnik::graphics::glcore
 {
-void Renderer::Draw(IndexBuffer& index_buffer, DrawMode mode)
-{
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.GetId());
-    glDrawElements(DrawModeToGLEnum(mode), index_buffer.GetCount(), GL_UNSIGNED_INT, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
 
-void Renderer::Draw(unsigned int vertex_count, DrawMode mode)
+void Renderer::DrawArrays(const u64& vertex_count, DrawMode mode)
 {
     glDrawArrays(DrawModeToGLEnum(mode), 0, vertex_count);
 }
 
-void Renderer::DrawInstanced(IndexBuffer& index_buffer, DrawMode mode, unsigned int instance_count)
-{
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.GetId());
-    glDrawElementsInstanced(DrawModeToGLEnum(mode), index_buffer.GetCount(), GL_UNSIGNED_INT, 0, instance_count);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-void Renderer::DrawInstanced(unsigned int vertex_count, DrawMode mode, unsigned int instance_count)
+void Renderer::DrawArraysInstanced(const u64& vertex_count, const u64& instance_count, DrawMode mode)
 {
     glDrawArraysInstanced(DrawModeToGLEnum(mode), 0, vertex_count, instance_count);
+}
+
+void Renderer::DrawElements(const u64& index_count, DrawMode mode)
+{
+    glDrawElements(DrawModeToGLEnum(mode), index_count, GL_UNSIGNED_INT, 0);
+    // glDrawElements(DrawModeToGLEnum(mode), index_count, GL_UNSIGNED_INT, indices); // does not work
+    //(GLenum mode, GLsizei count, GLenum type, const void* indices);
+}
+
+void Renderer::DrawElementsInstanced(const u64& index_count, const u64& instance_count, DrawMode mode)
+{
+    glDrawElementsInstanced(DrawModeToGLEnum(mode), index_count, GL_UNSIGNED_INT, 0, instance_count);
 }
 
 GLenum Renderer::DrawModeToGLEnum(DrawMode mode)

@@ -4,10 +4,10 @@
 #include <main/application.h>
 #include <core/layers/layer.h>
 #include <core/time_step.h>
-#include <graphics/glcore/v2/gl_buffer.h>
-#include <graphics/glcore/v2/gl_vertex_array.h>
-#include <graphics/glcore/v2/gl_shader.h>
-#include <graphics/glcore/v2/gl_texture.h>
+#include <graphics/glcore/gl_buffer.h>
+#include <graphics/glcore/gl_vertex_array.h>
+#include <graphics/glcore/gl_shader.h>
+#include <graphics/glcore/gl_texture.h>
 #include <graphics/api/light.h>
 
 namespace sputnik::demos
