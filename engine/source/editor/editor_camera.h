@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/core.h"
-#include "core/input/input_manager.h"
+#include "api/input_manager.h"
 
 #include <stdint.h>
 #include <vector3.h>
@@ -18,6 +18,7 @@ struct GLFWwindow;
 namespace sputnik::graphics::api
 {
 
+using namespace sputnik::engine::api;
 using namespace ramanujan::experimental;
 
 class EditorCamera
@@ -74,7 +75,7 @@ private:
     ramanujan::Vector2 m_previous_mouse_position{0.0f, 0.0f};
     float              m_rotation_speed{0.005f};
 
-    sputnik::core::InputManager* m_input_manager;
+    InputManager* m_input_manager;
 };
 
 } // namespace sputnik::graphics::api

@@ -7,7 +7,7 @@
 
 #include <vector2.h>
 
-namespace sputnik::core
+namespace sputnik::engine::api
 {
 class InputManager
 {
@@ -69,4 +69,4 @@ private:
     ramanujan::Vector2 m_cursor_max_position;
     ramanujan::Vector2 m_scroll_offset;
 };
-} // namespace sputnik::core
+} // namespace sputnik::engine::api

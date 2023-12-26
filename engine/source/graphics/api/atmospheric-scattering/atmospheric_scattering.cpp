@@ -18,12 +18,12 @@ void AtmosphericScatteringLayer::OnAttach()
     int a = sizeof(ramanujan::Vector3);
     int b = sizeof(ramanujan::IVector4);
 
-    m_animated_model = Model::LoadModel("../data/assets/Woman.gltf");
-    m_diff_texture   = std::make_shared<OglTexture2D>("../data/assets/Woman.png", false);
+    m_animated_model = Model::LoadModel("../../data/assets/Woman.gltf");
+    m_diff_texture   = std::make_shared<OglTexture2D>("../../data/assets/Woman.png", false);
 
     m_shader_program = std::make_shared<OglShaderProgram>();
-    m_shader_program->addShaderStage("../data/shaders/simple.vert");
-    m_shader_program->addShaderStage("../data/shaders/simple.frag");
+    m_shader_program->addShaderStage("../../data/shaders/simple.vert");
+    m_shader_program->addShaderStage("../../data/shaders/simple.frag");
     m_shader_program->configure();
 }
 

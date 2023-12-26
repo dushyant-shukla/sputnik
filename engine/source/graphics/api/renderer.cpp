@@ -160,8 +160,8 @@ void Renderer::InitInstance(const sputnik::graphics::core::GraphicsSubsystemType
     //                                                   "../data/shaders/sky-rendering/sky.frag");
 
     m_sky_shader = std::make_shared<OglShaderProgram>();
-    m_sky_shader->addShaderStage("../data/shaders/sky-rendering/sky.vert");
-    m_sky_shader->addShaderStage("../data/shaders/sky-rendering/sky.frag");
+    m_sky_shader->addShaderStage("../../data/shaders/sky-rendering/sky.vert");
+    m_sky_shader->addShaderStage("../../data/shaders/sky-rendering/sky.frag");
     m_sky_shader->configure();
 
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();

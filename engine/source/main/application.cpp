@@ -20,22 +20,22 @@ Application::Application(const std::string& application_name)
 {
     sputnik::core::Logger::Init();
 
-    m_input_manager = core::InputManager::GetInstance();
+    m_input_manager = InputManager::GetInstance();
     s_instance      = this;
     graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
-
-    m_editor = std::make_unique<sputnik::editor::Editor>();  // Todo:: Editor dll: Not needed
+    m_window = graphics::api::Renderer::GetNativeWindow();
+    m_editor = std::make_unique<sputnik::editor::Editor>(); // Todo:: Editor dll: Not needed
 }
 
 Application ::~Application() {}
 
 void Application::Run()
 {
-    while(m_is_running)
+     while(m_is_running)
     {
-        float          time      = (float)glfwGetTime();
-        core::TimeStep time_step = time - m_last_frame_time;
-        m_last_frame_time        = time;
+         float          time      = (float)glfwGetTime();
+         core::TimeStep time_step = time - m_last_frame_time;
+         m_last_frame_time        = time;
 
         graphics::api::Renderer::SetClearColor(0.16f, 0.16f, 0.16f, 1.00f);
         graphics::api::Renderer::Clear();
@@ -75,6 +75,11 @@ void Application::Shutdown()
     m_is_running = false;
 }
 
+double Application::GetTime() const
+{
+    return glfwGetTime();
+}
+
 core::LayerStack& Application::GetApplicationLayerStack()
 {
     return m_application_layer_stack;
@@ -85,6 +90,12 @@ Application* Application::GetInstance()
     return s_instance;
 }
 
+GLFWwindow* Application::GetWindow() const
+{
+    //return graphics::api::Renderer::GetNativeWindow();
+    return m_window;
+}
+
 void Application::PushLayer(const std::shared_ptr<core::Layer>& layer)
 {
     m_application_layer_stack.PushLayer(layer);
@@ -93,6 +104,12 @@ void Application::PushLayer(const std::shared_ptr<core::Layer>& layer)
 void Application::PushOverlay(const std::shared_ptr<core::Layer>& layer)
 {
     m_application_layer_stack.PushOverLay(layer);
+}
+
+void Application::LoadModel(sputnik::graphics::api::Model* model, const std::string& path)
+{
+    auto m = sputnik::graphics::api::Model::LoadModel("../data/assets/Woman.gltf");
+    model  = m.get();
 }
 
 } // namespace sputnik::main

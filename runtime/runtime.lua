@@ -45,6 +45,35 @@ links
   "engine"
 }
 
+
+-- externalincludedirs
+-- {
+--   "$(SolutionDir)sputnik/source",
+--   "%{include_dir.glad}",
+--   "%{include_dir.stb_image}",
+--   "%{include_dir.cgltf}",
+--   "%{include_dir.ramanujan}",
+--   "%{include_dir.imgui}",
+--   "%{include_dir.spdlog}",
+--   "%{include_dir.imguizmo}",
+--   "%{include_dir.glfw}",
+--   "%{externals.imgui}/backends/imgui_impl_glfw.h",
+--   "%{externals.imgui}/backends/imgui_impl_opengl3.h"
+-- }
+
+-- links
+-- {
+--   "%{static_libs.opengl}",
+--   "ramanujan",
+--   "ImGui",
+--   "GLFW",
+--   "cgltf",
+--   "stb_image",
+--   "ImGuizmo",
+--   "engine"
+-- }
+
+
 -- In debug mode, the application should link to the console subsystem.
 -- To make logging a bit easier, two windows will be open at the same time in debug mode.
 -- One will be the standard Win32 window, and the other will be a console window for viewing logs.

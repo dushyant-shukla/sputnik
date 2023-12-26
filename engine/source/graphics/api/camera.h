@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/time_step.h>
-#include <core/input/input_manager.h>
+#include <api/input_manager.h>
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -12,6 +12,7 @@ namespace sputnik::graphics::api
 
 using namespace ramanujan;
 using namespace ramanujan::experimental;
+using namespace sputnik::engine::api;
 
 class Camera
 {
@@ -71,6 +72,6 @@ private:
     float m_movement_speed{5.0f};
     float m_zoom_speed{5.50f};
 
-    sputnik::core::InputManager* m_input_manager;
+    InputManager* m_input_manager;
 };
 } // namespace sputnik::graphics::api

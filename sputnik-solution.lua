@@ -68,8 +68,8 @@ group ""
 
 -- include the renderer project
 include "engine/engine-project.lua"
-include "runtime/runtime.lua"
-include "editor/editor.lua"
+-- include "runtime/runtime.lua"
+-- include "editor/editor.lua"
 
 -- include the demo projects
 -- include "demos/curve-plotting/curve-plotting.lua"

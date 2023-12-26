@@ -26,6 +26,7 @@ Editor::~Editor() {}
 void Editor::BeginFrame()
 {
     // call imgui begin frame
+    //m_ui_layer->Begin();
     m_editor_viewport_canvas->BeginFrame();
 }
 
@@ -33,6 +34,7 @@ void Editor::EndFrame()
 {
     // call imgui end frame
     m_editor_viewport_canvas->EndFrame();
+    //m_ui_layer->End();
 }
 
 void Editor::Update(sputnik::core::TimeStep& time_step)

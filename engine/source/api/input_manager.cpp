@@ -3,7 +3,7 @@
 #include "input_manager.h"
 #include "core/core.h"
 
-namespace sputnik::core
+namespace sputnik::engine::api
 {
 InputManager* InputManager::GetInstance()
 {
@@ -179,4 +179,4 @@ float InputManager::lerp(float x, float y, float t)
 {
     return x * (1.f - t) + y * t;
 }
-} // namespace sputnik::core
+} // namespace sputnik::engine::api

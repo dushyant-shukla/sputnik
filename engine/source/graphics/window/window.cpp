@@ -5,7 +5,6 @@
 #include "graphics/api/renderer.h"
 #include "editor/editor_camera.h"
 #include "graphics/api/camera.h"
-#include "core/input/input_manager.h"
 
 #include <GLFW/glfw3.h>
 
