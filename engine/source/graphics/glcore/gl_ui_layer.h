@@ -15,6 +15,7 @@ struct SystemInformation
     std::string renderer;
     std::string gl_version;
     std::string shading_language_version;
+    bool        is_vsync_on;
 };
 
 class GlUiLayer : public sputnik::core::Layer
@@ -35,7 +36,6 @@ public:
     void End();
 
 private:
-
     void RenderMenuBar();
 
     void BeginDockspace();

@@ -114,12 +114,12 @@ void Editor::update(sputnik::core::TimeStep& time_step)
         ImGui::Text("%d", mode->refreshRate);
         ImGui::Columns(1);
 
-        // ImGui::Columns(2);
-        // ImGui::AlignTextToFramePadding();
-        // ImGui::Text("VSync");
-        // ImGui::NextColumn();
-        // ImGui::Text(m_system_information.is_vsync_on ? "ON" : "OFF");
-        // ImGui::Columns(1);
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("VSync");
+        ImGui::NextColumn();
+        ImGui::Text(m_system_information.is_vsync_on ? "ON" : "OFF");
+        ImGui::Columns(1);
 
         ImGui::Columns(2);
         ImGui::AlignTextToFramePadding();
