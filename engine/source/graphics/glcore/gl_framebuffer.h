@@ -45,7 +45,8 @@ public:
 
     void reset();
     void resize(u32 width, u32 height);
-    void clear(const vec4& rgba = {0.0f}, const float& d = 0.0, const int& s = 0);
+    void clear(const vec4& rgba = {0.0f});
+    void clear(const vec4& rgba, const float& depth_value, const int& stencil_value);
     void clear(const u32& color_attachment_index, const void* value);
 
     FramebufferSpecification&       getSpecification();

@@ -3,7 +3,6 @@
 #include "gl_graphics_subsystem.h"
 #include "graphics/window/window.h"
 #include "graphics/glcore/gl_context.h"
-#include "editor/editor_viewport_canvas.h"
 
 #include <glad/glad.h>
 

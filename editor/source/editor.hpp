@@ -3,7 +3,7 @@
 #include <memory>
 #include <main/application.h>
 
-namespace sputnik::expeditor
+namespace sputnik::editor
 {
 
 class EditorViewport;

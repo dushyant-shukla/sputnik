@@ -2,7 +2,7 @@
 
 #include "core/layers/layer_stack.h"
 #include "api/input_manager.h"
-#include "editor/editor.h"
+#include "editor/editor.hpp"
 #include <imgui.h>
 #include "graphics/api/light.h"
 #include "graphics/api/model.h"
@@ -93,7 +93,7 @@ protected:
     core::LayerStack                         m_application_layer_stack;
     InputManager*                            m_input_manager;
     static Application*                      s_instance;
-    std::unique_ptr<sputnik::editor::Editor> m_editor;
+    sputnik::editor::EditorNew*              m_editor_new;
     GLFWwindow*                              m_window;
 };
 

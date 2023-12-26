@@ -111,23 +111,59 @@ void OglFramebuffer::resize(u32 width, u32 height)
     reset();
 }
 
-void OglFramebuffer::clear(const vec4& rgba, const float& d, const int& s)
+void OglFramebuffer::clear(const vec4& rgba)
 {
-    // glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-    // glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
-    // glClearDepth(d);
-    // glClearStencil(s);
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClearDepth.xhtml
+
+    // Non DSA method for clearing framebuffer
+    //{
+    //    glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+    //    glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
+    //    glClearDepth(1);
+    //    glClearStencil(1);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //}
+
+    // Todo:: For some reason with DSA need to clear color and depth attachments simulataneously.
+    // Clearing just the color attachments does not work (viewport does not render anything).
+    // Just to be clear, clearing a color attachment does clear the attachment to the clear color.
+    for(size_t i = 0; i < m_color_attachments.size(); ++i)
+    {
+        // does not work
+        // glClearNamedFramebufferfv(m_id, GL_COLOR, GL_DRAW_BUFFER0 + (GLint)(i), &rgba.x);
+        glClearNamedFramebufferfv(m_id, GL_COLOR, (GLint)(i), &rgba.x);
+    }
+    glClearNamedFramebufferfi(m_id, GL_DEPTH_STENCIL, 0, 1, 1);
+
+    // This seems to clear the color attachment to the color provided, but causes the viewport to not show anything
+    // glClearNamedFramebufferfv(m_id, GL_COLOR, 0, rgba.data.data());
+}
+
+void OglFramebuffer::clear(const vec4& rgba, const float& depth_value, const int& stencil_value)
+{
+    // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClearBuffer.xhtml
+
+    // Non DSA method for clearing framebuffer
+    //{
+    //    glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+    //    glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
+    //    glClearDepth(depth_value);
+    //    glClearStencil(stencil_value);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //}
 
     for(size_t i = 0; i < m_color_attachments.size(); ++i)
     {
-        glClearNamedFramebufferfv(m_id, GL_COLOR, (GLint)(GL_DRAW_BUFFER0 + i), static_cast<const f32*>(&rgba.data[0]));
+        // does not work
+        // glClearNamedFramebufferfv(m_id, GL_COLOR, GL_DRAW_BUFFER0 + (GLint)(i), &rgba.x);
+        glClearNamedFramebufferfv(m_id, GL_COLOR, (GLint)(i), &rgba.x);
     }
-    glClearNamedFramebufferfi(m_id, GL_DEPTH_STENCIL, 0, d, s);
+    glClearNamedFramebufferfi(m_id, GL_DEPTH_STENCIL, 0, depth_value, stencil_value);
 }
 
 void OglFramebuffer::clear(const u32& color_attachment_index, const void* value)
 {
+    // TODO:: High chance this don't work
     SPUTNIK_ASSERT_MESSAGE(color_attachment_index < m_color_attachments.size(),
                            "Unknown framebuffer texture format: {}",
                            color_attachment_index);

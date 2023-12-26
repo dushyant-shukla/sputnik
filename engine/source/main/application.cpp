@@ -23,19 +23,19 @@ Application::Application(const std::string& application_name)
     m_input_manager = InputManager::GetInstance();
     s_instance      = this;
     graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
-    m_window = graphics::api::Renderer::GetNativeWindow();
-    m_editor = std::make_unique<sputnik::editor::Editor>(); // Todo:: Editor dll: Not needed
+    m_window     = graphics::api::Renderer::GetNativeWindow();
+    m_editor_new = sputnik::editor::EditorNew::getInstance();
 }
 
 Application ::~Application() {}
 
 void Application::Run()
 {
-     while(m_is_running)
+    while(m_is_running)
     {
-         float          time      = (float)glfwGetTime();
-         core::TimeStep time_step = time - m_last_frame_time;
-         m_last_frame_time        = time;
+        float          time      = (float)glfwGetTime();
+        core::TimeStep time_step = time - m_last_frame_time;
+        m_last_frame_time        = time;
 
         graphics::api::Renderer::SetClearColor(0.16f, 0.16f, 0.16f, 1.00f);
         graphics::api::Renderer::Clear();
@@ -44,7 +44,7 @@ void Application::Run()
         {
             graphics::api::Renderer::Update(time_step);
 
-            m_editor->BeginFrame(); // Todo:: Editor dll
+            m_editor_new->beginFrame();
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
                 layer->OnPreUpdate(time_step);
@@ -59,9 +59,8 @@ void Application::Run()
             {
                 layer->OnPostUpdate(time_step);
             }
-            m_editor->EndFrame(); // Todo:: Editor dll
-
-            m_editor->Update(time_step); // Todo:: Editor dll
+            m_editor_new->update(time_step);
+            m_editor_new->endFrame();
         }
 
         m_input_manager->LateUpdate(time_step);
@@ -92,7 +91,7 @@ Application* Application::GetInstance()
 
 GLFWwindow* Application::GetWindow() const
 {
-    //return graphics::api::Renderer::GetNativeWindow();
+    // return graphics::api::Renderer::GetNativeWindow();
     return m_window;
 }
 

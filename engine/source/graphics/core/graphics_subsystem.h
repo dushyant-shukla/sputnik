@@ -4,7 +4,6 @@
 #include "core/layers/layer_stack.h"
 #include "graphics/glcore/gl_ui_layer.h"
 #include "core/time_step.h"
-#include "editor/editor_viewport_canvas.h"
 
 #include <stdint.h>
 #include <memory>
@@ -34,10 +33,9 @@ protected:
     virtual void PushOverlay(const std::shared_ptr<sputnik::core::Layer>& layer);
 
 protected:
-    std::shared_ptr<GraphicsContext>                         m_context;
-    std::shared_ptr<glcore::GlUiLayer>                       m_ui_layer;
-    std::shared_ptr<sputnik::graphics::EditorViewPortCanvas> m_editor_viewport_canvas;
-    sputnik::core::LayerStack                                m_ui_layer_stack;
+    std::shared_ptr<GraphicsContext>   m_context;
+    std::shared_ptr<glcore::GlUiLayer> m_ui_layer;
+    sputnik::core::LayerStack          m_ui_layer_stack;
 };
 
 } // namespace sputnik::graphics::core
