@@ -27,20 +27,20 @@ public:
     static Theme                                  sActiveTheme;
 
 private:
-    static void SetDarkThemeColors();
-    static void SetLighterDarkThemeColors();
-    static void SetDeepDarkThemeColors();
-    static void SetLightThemeColors();
-    static void SetCherryThemeColors();
-    static void SetGoldenBlackThemeColors();
-    static void SetStreamingLifeThemeColors();
-    static void SetSoftLifeThemeColors();
-    static void SetWhiteThemeColors();
-    static void SetMayaThemecolors();
+    static void setDarkThemeColors();
+    static void setLighterDarkThemeColors();
+    static void setDeepDarkThemeColors();
+    static void setLightThemeColors();
+    static void setCherryThemeColors();
+    static void setGoldenBlackThemeColors();
+    static void setStreamingLifeThemeColors();
+    static void setSoftLifeThemeColors();
+    static void setWhiteThemeColors();
+    static void setMayaThemecolors();
 
     // unused
-    static void SetGreenThemeColors();
-    static void SetGreenBlueThemeColors();
+    static void setGreenThemeColors();
+    static void setGreenBlueThemeColors();
 };
 
 } // namespace sputnik::editor

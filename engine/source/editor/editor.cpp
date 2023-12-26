@@ -20,20 +20,20 @@
 namespace sputnik::editor
 {
 
-EditorNew::~EditorNew()
+Editor::~Editor()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-EditorNew* EditorNew::getInstance()
+Editor* Editor::getInstance()
 {
-    static EditorNew editor;
+    static Editor editor;
     return &editor;
 }
 
-void EditorNew::beginFrame()
+void Editor::beginFrame()
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -43,7 +43,7 @@ void EditorNew::beginFrame()
     m_viewport->beginFrame();
 }
 
-void EditorNew::endFrame()
+void Editor::endFrame()
 {
     m_viewport->endFrame();
 
@@ -67,7 +67,7 @@ void EditorNew::endFrame()
     }
 }
 
-void EditorNew::update(sputnik::core::TimeStep& time_step)
+void Editor::update(sputnik::core::TimeStep& time_step)
 {
     GLFWmonitor*       monitor      = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode         = glfwGetVideoMode(monitor);
@@ -76,35 +76,103 @@ void EditorNew::update(sputnik::core::TimeStep& time_step)
     // std::cout << "height: " << mode->height << std::endl;
     // std::cout << "Red: " << mode->redBits << std::endl;
     // std::cout << "Blue: " << mode->blueBits << std::endl;
-    // std::cout << "green: " << mode->greenBits << std::endl;
+    // std::cout << "Green: " << mode->greenBits << std::endl;
     if(ImGui::Begin("System Information"))
     {
-        ImGui::Text("Vendor: %s", m_system_information.vendor.c_str());
-        ImGui::Text("Renderer: %s", m_system_information.renderer.c_str());
-        ImGui::Text("Version: %s", m_system_information.gl_version.c_str());
-        ImGui::Text("Shanding Language Version: %s", m_system_information.shading_language_version.c_str());
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Vendor");
+        ImGui::NextColumn();
+        ImGui::Text(m_system_information.vendor.c_str());
+        ImGui::Columns(1);
 
-        std::string display_frequency = "Display Frequency: %d";
-        ImGui::Text(display_frequency.c_str(), mode->refreshRate);
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Renderer");
+        ImGui::NextColumn();
+        ImGui::Text(m_system_information.renderer.c_str());
+        ImGui::Columns(1);
 
-        // std::string vsync = "VSync: %s";
-        // ImGui::Text(vsync.c_str(), system_information.is_vsync_on ? "ON" : "OFF");
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Version");
+        ImGui::NextColumn();
+        ImGui::Text(m_system_information.gl_version.c_str());
+        ImGui::Columns(1);
 
-        std::string frame_budget_str = "Frame Budget: %10.2f %s";
-        ImGui::Text(frame_budget_str.c_str(), frame_budget, "ms");
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Shading Language Version");
+        ImGui::NextColumn();
+        ImGui::Text(m_system_information.shading_language_version.c_str());
+        ImGui::Columns(1);
 
-        std::string frame_time = "Frame Time: %10.5f %s";
-        ImGui::Text(frame_time.c_str(), time_step.GetMilliSeconds(), "ms");
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Display Frequency");
+        ImGui::NextColumn();
+        ImGui::Text("%d", mode->refreshRate);
+        ImGui::Columns(1);
 
-        std::string frame_rate_str = "Frame Rate: %10.2f %s";
-        ImGui::Text(frame_rate_str.c_str(), 1000.0f / time_step.GetMilliSeconds(), "fps");
+        // ImGui::Columns(2);
+        // ImGui::AlignTextToFramePadding();
+        // ImGui::Text("VSync");
+        // ImGui::NextColumn();
+        // ImGui::Text(m_system_information.is_vsync_on ? "ON" : "OFF");
+        // ImGui::Columns(1);
+
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Frame Budget");
+        ImGui::NextColumn();
+        // ImGui::Text("%10.2f %s", frame_budget, "ms");
+        ImGui::Text("%.2f %s", frame_budget, "ms");
+        ImGui::Columns(1);
+
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Frame Time");
+        ImGui::NextColumn();
+        // ImGui::Text("%10.5f %s", time_step.GetMilliSeconds(), "ms");
+        ImGui::Text("%.5f %s", time_step.GetMilliSeconds(), "ms");
+        ImGui::Columns(1);
+
+        ImGui::Columns(2);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Frame Rate");
+        ImGui::NextColumn();
+        // ImGui::Text("%10.2f %s", 1000.0f / time_step.GetMilliSeconds(), "fps");
+        ImGui::Text("%.2f %s", 1000.0f / time_step.GetMilliSeconds(), "fps");
+        ImGui::Columns(1);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // ImGui::Text("Vendor: %s", m_system_information.vendor.c_str());
+        // ImGui::Text("Renderer: %s", m_system_information.renderer.c_str());
+        // ImGui::Text("Version: %s", m_system_information.gl_version.c_str());
+        // ImGui::Text("Shanding Language Version: %s", m_system_information.shading_language_version.c_str());
+
+        // std::string display_frequency = "Display Frequency: %d";
+        // ImGui::Text(display_frequency.c_str(), mode->refreshRate);
+
+        //// std::string vsync = "VSync: %s";
+        //// ImGui::Text(vsync.c_str(), system_information.is_vsync_on ? "ON" : "OFF");
+
+        // std::string frame_budget_str = "Frame Budget: %10.2f %s";
+        // ImGui::Text(frame_budget_str.c_str(), frame_budget, "ms");
+
+        // std::string frame_time = "Frame Time: %10.5f %s";
+        // ImGui::Text(frame_time.c_str(), time_step.GetMilliSeconds(), "ms");
+
+        // std::string frame_rate_str = "Frame Rate: %10.2f %s";
+        // ImGui::Text(frame_rate_str.c_str(), 1000.0f / time_step.GetMilliSeconds(), "fps");
     }
     ImGui::End();
 
     m_viewport->update(time_step);
 }
 
-void EditorNew::drawWidgetFloat(const std::string& label, float& value, const float& widget_width)
+void Editor::drawWidgetFloat(const std::string& label, float& value, const float& widget_width)
 {
     ImGui::PushID(label.c_str());
 
@@ -124,9 +192,9 @@ void EditorNew::drawWidgetFloat(const std::string& label, float& value, const fl
     // return value_changed;
 }
 
-void EditorNew::drawWidgetVec2(const std::string& label, vec2& value, const float& widget_width, float default_value) {}
+void Editor::drawWidgetVec2(const std::string& label, vec2& value, const float& widget_width, float default_value) {}
 
-void EditorNew::drawWidgetVec3(const std::string& label, vec3& value, const float& widget_width, float default_value)
+void Editor::drawWidgetVec3(const std::string& label, vec3& value, const float& widget_width, float default_value)
 {
     float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 
@@ -203,7 +271,7 @@ void EditorNew::drawWidgetVec3(const std::string& label, vec3& value, const floa
     ImGui::PopID();
 }
 
-void EditorNew::drawWidgetVec4(const std::string& label, vec4& value, const float& widget_width, float default_value)
+void Editor::drawWidgetVec4(const std::string& label, vec4& value, const float& widget_width, float default_value)
 {
     float line_height = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 
@@ -285,7 +353,29 @@ void EditorNew::drawWidgetVec4(const std::string& label, vec4& value, const floa
     ImGui::PopID();
 }
 
-void EditorNew::drawWidgetColor(const std::string& label, vec4& value, const float& widget_width, float default_value)
+void Editor::drawWidgetColor3(const std::string& label, vec3& value, const float& widget_width, float default_value)
+{
+    ImGui::PushID(label.c_str());
+
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, widget_width);
+    ImGui::AlignTextToFramePadding();
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
+    ImGui::Text(label.c_str());
+
+    ImGui::NextColumn();
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
+    if(ImGui::ColorEdit3("##Color", &value.x))
+    {
+    }
+
+    ImGui::Columns(1);
+
+    ImGui::PopID();
+}
+
+void Editor::drawWidgetColor4(const std::string& label, vec4& value, const float& widget_width, float default_value)
 {
     ImGui::PushID(label.c_str());
 
@@ -307,7 +397,7 @@ void EditorNew::drawWidgetColor(const std::string& label, vec4& value, const flo
     ImGui::PopID();
 }
 
-EditorNew::EditorNew()
+Editor::Editor()
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -365,7 +455,7 @@ EditorNew::EditorNew()
     m_viewport = std::make_unique<EditorViewport>(window_specification.m_width, window_specification.m_height);
 }
 
-void EditorNew::beginDockspace()
+void Editor::beginDockspace()
 {
     // Note: Switch this to true to enable dockspace
     static bool               dockspaceOpen             = true;
@@ -424,12 +514,12 @@ void EditorNew::beginDockspace()
     //}
 }
 
-void EditorNew::endDockspace()
+void Editor::endDockspace()
 {
     ImGui::End();
 }
 
-void EditorNew::renderMenuBar()
+void Editor::renderMenuBar()
 {
     if(ImGui::BeginMenuBar())
     {
@@ -510,7 +600,7 @@ void CreateDefaultTabColorsFor(ImGuiStyle&   style,
         ImColorLerp(style.Colors[ImGuiCol_WindowBg], style.Colors[ImGuiCol_TabActive], unfocusedTabsLerp.y);
 }
 
-void EditorNew::setMayaThemecolors()
+void Editor::setMayaThemecolors()
 {
     ImGuiStyle* style                            = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                 = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);

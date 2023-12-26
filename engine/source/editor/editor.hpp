@@ -12,12 +12,12 @@ class EditorViewport;
 using namespace ramanujan::experimental;
 using namespace sputnik::graphics::glcore;
 
-class EditorNew
+class Editor
 {
 public:
-    virtual ~EditorNew();
+    virtual ~Editor();
 
-    static EditorNew* getInstance();
+    static Editor* getInstance();
 
     virtual void beginFrame();
     virtual void endFrame();
@@ -35,12 +35,15 @@ public:
     drawWidgetVec2(const std::string& label, vec2& value, const float& widget_width, float default_value = 0.0f);
 
     static void
-    drawWidgetColor(const std::string& label, vec4& value, const float& widget_width, float default_value = 0.0f);
+    drawWidgetColor3(const std::string& label, vec3& value, const float& widget_width, float default_value = 0.0f);
+
+    static void
+    drawWidgetColor4(const std::string& label, vec4& value, const float& widget_width, float default_value = 0.0f);
 
     static void setMayaThemecolors();
 
 protected:
-    EditorNew();
+    Editor();
 
     void beginDockspace();
     void endDockspace();

@@ -19,16 +19,16 @@ std::unordered_map<EditorStyleUtility::Theme, std::string> EditorStyleUtility::s
     {EditorStyleUtility::Theme::MAYA, "Maya"}};
 
 std::unordered_map<EditorStyleUtility::Theme, void (*)()> EditorStyleUtility::sThemeFunctions = {
-    {EditorStyleUtility::Theme::DARK, &SetDarkThemeColors},
-    {EditorStyleUtility::Theme::LIGHTER_DARK, &SetLighterDarkThemeColors},
-    {EditorStyleUtility::Theme::DEEP_DARK, &SetDeepDarkThemeColors},
-    {EditorStyleUtility::Theme::LIGHT, &SetLightThemeColors},
-    {EditorStyleUtility::Theme::CHERRY, &SetCherryThemeColors},
-    {EditorStyleUtility::Theme::GOLDEN_BLACK, &SetGoldenBlackThemeColors},
-    {EditorStyleUtility::Theme::STREAMING_LIFE, &SetStreamingLifeThemeColors},
-    {EditorStyleUtility::Theme::SOFT_LIFE, &SetSoftLifeThemeColors},
-    {EditorStyleUtility::Theme::WHITE, &SetWhiteThemeColors},
-    {EditorStyleUtility::Theme::MAYA, &SetMayaThemecolors}};
+    {EditorStyleUtility::Theme::DARK, &setDarkThemeColors},
+    {EditorStyleUtility::Theme::LIGHTER_DARK, &setLighterDarkThemeColors},
+    {EditorStyleUtility::Theme::DEEP_DARK, &setDeepDarkThemeColors},
+    {EditorStyleUtility::Theme::LIGHT, &setLightThemeColors},
+    {EditorStyleUtility::Theme::CHERRY, &setCherryThemeColors},
+    {EditorStyleUtility::Theme::GOLDEN_BLACK, &setGoldenBlackThemeColors},
+    {EditorStyleUtility::Theme::STREAMING_LIFE, &setStreamingLifeThemeColors},
+    {EditorStyleUtility::Theme::SOFT_LIFE, &setSoftLifeThemeColors},
+    {EditorStyleUtility::Theme::WHITE, &setWhiteThemeColors},
+    {EditorStyleUtility::Theme::MAYA, &setMayaThemecolors}};
 
 EditorStyleUtility::Theme EditorStyleUtility::sActiveTheme = EditorStyleUtility::Theme::MAYA;
 
@@ -58,7 +58,7 @@ static inline void CreateDefaultTabColorsFor(ImGuiStyle&   style,
         ImColorLerp(style.Colors[ImGuiCol_WindowBg], style.Colors[ImGuiCol_TabActive], unfocusedTabsLerp.y);
 }
 
-void EditorStyleUtility::SetDarkThemeColors()
+void EditorStyleUtility::setDarkThemeColors()
 {
     ImGuiStyle* style                             = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -121,7 +121,7 @@ void EditorStyleUtility::SetDarkThemeColors()
 #endif
 }
 
-void EditorStyleUtility::SetLighterDarkThemeColors()
+void EditorStyleUtility::setLighterDarkThemeColors()
 {
     ImGui::StyleColorsDark();
 
@@ -157,7 +157,7 @@ void EditorStyleUtility::SetLighterDarkThemeColors()
     colors[ImGuiCol_TitleBgCollapsed] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
 }
 
-void EditorStyleUtility::SetDeepDarkThemeColors()
+void EditorStyleUtility::setDeepDarkThemeColors()
 {
     ImGuiStyle* style = &ImGui::GetStyle();
 
@@ -207,7 +207,7 @@ void EditorStyleUtility::SetDeepDarkThemeColors()
 }
 
 // unused
-void EditorStyleUtility::SetGreenThemeColors()
+void EditorStyleUtility::setGreenThemeColors()
 {
     ImGuiStyle* style                            = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                 = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -253,12 +253,12 @@ void EditorStyleUtility::SetGreenThemeColors()
     style->Colors[ImGuiCol_TabUnfocusedActive]   = ImVec4(0.02f, 0.57f, 0.00f, 1.00f);
 }
 
-void EditorStyleUtility::SetLightThemeColors()
+void EditorStyleUtility::setLightThemeColors()
 {
     ImGui::StyleColorsLight();
 }
 
-void EditorStyleUtility::SetCherryThemeColors()
+void EditorStyleUtility::setCherryThemeColors()
 {
 // cherry colors, 3 intensities
 #define CHERRY_HI(v) ImVec4(0.502f, 0.075f, 0.256f, v)
@@ -321,7 +321,7 @@ void EditorStyleUtility::SetCherryThemeColors()
     CreateDefaultTabColorsFor(*style, ImGuiCol_HeaderHovered, 0.65f, ImVec2(0.4f, 0.6f), ImVec2(0.2f, 0.4f));
 }
 
-void EditorStyleUtility::SetGoldenBlackThemeColors()
+void EditorStyleUtility::setGoldenBlackThemeColors()
 {
     ImGuiStyle* style                             = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                  = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
@@ -374,7 +374,7 @@ void EditorStyleUtility::SetGoldenBlackThemeColors()
     style->Colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 }
 
-void EditorStyleUtility::SetStreamingLifeThemeColors()
+void EditorStyleUtility::setStreamingLifeThemeColors()
 {
     ImGuiStyle* style                             = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -432,7 +432,7 @@ void EditorStyleUtility::SetStreamingLifeThemeColors()
 #endif
 }
 
-void EditorStyleUtility::SetSoftLifeThemeColors()
+void EditorStyleUtility::setSoftLifeThemeColors()
 {
     ImGuiStyle* style                             = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -490,7 +490,7 @@ void EditorStyleUtility::SetSoftLifeThemeColors()
 #endif
 }
 
-void EditorStyleUtility::SetGreenBlueThemeColors()
+void EditorStyleUtility::setGreenBlueThemeColors()
 {
     ImGuiStyle* style                             = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -553,7 +553,7 @@ void EditorStyleUtility::SetGreenBlueThemeColors()
 #endif
 }
 
-void EditorStyleUtility::SetWhiteThemeColors()
+void EditorStyleUtility::setWhiteThemeColors()
 {
     ImGuiStyle* style                    = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]         = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
@@ -603,7 +603,7 @@ void EditorStyleUtility::SetWhiteThemeColors()
     CreateDefaultTabColorsFor(*style, ImGuiCol_Header, 0.f, ImVec2(0.0f, 1.f), ImVec2(0.0f, 0.6f));
 }
 
-void EditorStyleUtility::SetMayaThemecolors()
+void EditorStyleUtility::setMayaThemecolors()
 {
     ImGuiStyle* style                            = &ImGui::GetStyle();
     style->Colors[ImGuiCol_Text]                 = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);

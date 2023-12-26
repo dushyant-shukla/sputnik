@@ -8,6 +8,7 @@
 #include <vector.hpp>
 #include <matrix.hpp>
 #include <imgui.h>
+#include <editor/editor.hpp>
 
 #include <glad/glad.h>
 
@@ -106,12 +107,12 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_light.diffuse  = vec3(1.0f, 1.0f, 1.0f);
     m_light.specular = vec3(1.0f, 1.0f, 1.0f);
 
-    u32 white      = 0xffffffff;
-    u32 red        = 0xff0000ff;
-    u32 green      = 0xff00ff00;
-    u32 blue       = 0xffff0000;
-    m_diff_texture = std::make_shared<OglTexture2D>(1, 1, TextureFormat::RGBA8);
-    // m_diff_texture->setData(&green, sizeof(u32));
+    u32 white = 0xffffffff;
+    u32 red   = 0xff0000ff;
+    u32 green = 0xff00ff00;
+    u32 blue  = 0xffff0000;
+    // m_diff_texture = std::make_shared<OglTexture2D>(1, 1, TextureFormat::RGBA8);
+    //  m_diff_texture->setData(&green, sizeof(u32));
     m_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
     m_spec_texture = std::make_shared<OglTexture2D>(1, 1, &white, TextureFormat::RGBA8);
 }
@@ -147,7 +148,7 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
     m_diff_texture->bind(0);
     m_static_program->setInt("material.diffuse_texture", 0);
-    m_diff_texture->bind(1);
+    m_spec_texture->bind(1);
     m_static_program->setInt("material.specular_texture", 1);
 
     m_vertex_array->bind();
@@ -166,7 +167,7 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     m_static_program->setFloat("material.shininess", material_ruby.shininess);
     m_diff_texture->bind(0);
     m_static_program->setInt("material.diffuse_texture", 0);
-    m_diff_texture->bind(1);
+    m_spec_texture->bind(1);
     m_static_program->setInt("material.specular_texture", 1);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -176,6 +177,29 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     m_static_program->unbind();
 
     glDisable(GL_DEPTH_TEST);
+
+    // sputnik::editor::Editor::getInstance()->OnUpdate(time_step);
+    if(ImGui::Begin("Lighting"))
+    {
+        sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
+        sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
+        sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
+        sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
+        sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
+        sputnik::editor::Editor::drawWidgetFloat("linear", m_light.linear, 90.0f);
+        sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
+
+        // ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
+        // ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
+        // ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
+        // ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
+        // ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
+        // ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
+        // ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
+        // ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
+        // ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
+    }
+    ImGui::End();
 }
 
 void GraphicsSandboxDemoLayer::OnEvent() {}

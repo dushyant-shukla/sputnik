@@ -24,7 +24,7 @@ Application::Application(const std::string& application_name)
     s_instance      = this;
     graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
     m_window     = graphics::api::Renderer::GetNativeWindow();
-    m_editor_new = sputnik::editor::EditorNew::getInstance();
+    m_editor_new = sputnik::editor::Editor::getInstance();
 }
 
 Application ::~Application() {}
