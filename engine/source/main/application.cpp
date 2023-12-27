@@ -2,8 +2,7 @@
 #include "application.h"
 #include "core/time_step.h"
 #include "core/layers/layer.h"
-#include "graphics/api/renderer.h"
-#include "graphics/core/graphics_subsystem_type.h"
+#include "core/systems/render_system.h"
 
 #include <GLFW/glfw3.h>
 
@@ -22,12 +21,15 @@ Application::Application(const std::string& application_name)
 
     m_input_manager = InputManager::GetInstance();
     s_instance      = this;
-    graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
-    m_window     = graphics::api::Renderer::GetNativeWindow();
-    m_editor_new = sputnik::editor::Editor::getInstance();
+
+    // Initialize windows, and imgui
+    m_render_system = RenderSystem::getInstance();
+    m_render_system->initialize(RenderSystemType::OPEN_GL);
+
+    m_editor = sputnik::editor::Editor::getInstance();
 }
 
-Application ::~Application() {}
+Application::~Application() {}
 
 void Application::Run()
 {
@@ -37,14 +39,14 @@ void Application::Run()
         core::TimeStep time_step = time - m_last_frame_time;
         m_last_frame_time        = time;
 
-        graphics::api::Renderer::SetClearColor(0.16f, 0.16f, 0.16f, 1.00f);
-        graphics::api::Renderer::Clear();
+        m_render_system->preUpdate(time_step);
 
         if(!m_is_minimized)
         {
-            graphics::api::Renderer::Update(time_step);
+            // graphics::api::Renderer::Update(time_step);
 
-            m_editor_new->beginFrame();
+            m_editor->beginFrame();
+            m_render_system->update(time_step);
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
                 layer->OnPreUpdate(time_step);
@@ -59,12 +61,13 @@ void Application::Run()
             {
                 layer->OnPostUpdate(time_step);
             }
-            m_editor_new->update(time_step);
-            m_editor_new->endFrame();
+            m_editor->update(time_step);
+            m_editor->endFrame();
         }
 
+        m_editor->lateUpdate(time_step);
         m_input_manager->LateUpdate(time_step);
-        graphics::api::Renderer::LateUpdate(time_step);
+        m_render_system->lateUpdate(time_step);
     }
 }
 
@@ -72,11 +75,6 @@ void Application::Run()
 void Application::Shutdown()
 {
     m_is_running = false;
-}
-
-double Application::GetTime() const
-{
-    return glfwGetTime();
 }
 
 core::LayerStack& Application::GetApplicationLayerStack()
@@ -89,12 +87,6 @@ Application* Application::GetInstance()
     return s_instance;
 }
 
-GLFWwindow* Application::GetWindow() const
-{
-    // return graphics::api::Renderer::GetNativeWindow();
-    return m_window;
-}
-
 void Application::PushLayer(const std::shared_ptr<core::Layer>& layer)
 {
     m_application_layer_stack.PushLayer(layer);
@@ -103,12 +95,6 @@ void Application::PushLayer(const std::shared_ptr<core::Layer>& layer)
 void Application::PushOverlay(const std::shared_ptr<core::Layer>& layer)
 {
     m_application_layer_stack.PushOverLay(layer);
-}
-
-void Application::LoadModel(sputnik::graphics::api::Model* model, const std::string& path)
-{
-    auto m = sputnik::graphics::api::Model::LoadModel("../data/assets/Woman.gltf");
-    model  = m.get();
 }
 
 } // namespace sputnik::main

@@ -1,9 +1,9 @@
 #pragma once
 
-namespace sputnik::engine::api
+namespace sputnik::core::systems
 {
 
-class PhysicsManager
+class PhysicsSystem
 {
 
 public:
@@ -19,4 +19,4 @@ private:
     // private data
 };
 
-} // namespace sputnik::engine::api
+} // namespace sputnik::core::systems

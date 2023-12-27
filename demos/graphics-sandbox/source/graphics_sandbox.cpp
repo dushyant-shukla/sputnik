@@ -1,7 +1,7 @@
 #include "graphics_sandbox.h"
 
 #include <core/core.h>
-#include <graphics/api/renderer.h>
+#include <editor/editor_camera.h>
 #include <graphics/api/camera.h>
 #include <graphics/api/color_material.h>
 #include <graphics/glcore/gl_vertex_array.h>
@@ -67,10 +67,11 @@ GraphicsSandboxDemoLayer::~GraphicsSandboxDemoLayer() {}
 
 void GraphicsSandboxDemoLayer::OnAttach()
 {
-    Renderer::SetCameraType(CameraType::Camera);
+    // Renderer::SetCameraType(CameraType::Camera);
     auto camera_position = Camera::GetInstance()->GetCameraPosition();
     camera_position.y    = 0.0f;
-    EditorCamera::GetInstance()->SetPosition({camera_position.x, camera_position.y, camera_position.z});
+    sputnik::graphics::api::EditorCamera::GetInstance()->SetPosition(
+        {camera_position.x, camera_position.y, camera_position.z});
 
     sputnik::graphics::gl::VertexAttributeType type = sputnik::graphics::gl::VertexAttributeType::Float;
     ENGINE_INFO("Graphics Sandbox Demo Layer Attached: {}", sputnik::graphics::gl::attributeTypeToString(type));
@@ -112,9 +113,17 @@ void GraphicsSandboxDemoLayer::OnAttach()
     u32 green = 0xff00ff00;
     u32 blue  = 0xffff0000;
     // m_diff_texture = std::make_shared<OglTexture2D>(1, 1, TextureFormat::RGBA8);
-    //  m_diff_texture->setData(&green, sizeof(u32));
+    // m_diff_texture->setData(&green, sizeof(u32));
     m_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
     m_spec_texture = std::make_shared<OglTexture2D>(1, 1, &white, TextureFormat::RGBA8);
+
+    m_animated_model     = Model::LoadModel("../../data/assets/Woman.gltf");
+    m_diff_texture_woman = std::make_shared<OglTexture2D>("../../data/assets/Woman.png", false);
+
+    m_shader_program = std::make_shared<OglShaderProgram>();
+    m_shader_program->addShaderStage("../../data/shaders/simple.vert");
+    m_shader_program->addShaderStage("../../data/shaders/simple.frag");
+    m_shader_program->configure();
 }
 
 void GraphicsSandboxDemoLayer::OnDetach() {}
@@ -175,6 +184,30 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     m_vertex_array->unbind();
 
     m_static_program->unbind();
+
+    // render woman
+
+    const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
+    mat4        projection    = editor_camera->GetCameraPerspective();
+    mat4        view          = editor_camera->GetCameraView();
+    model                     = {};
+    model                     = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+
+    m_shader_program->bind();
+    m_shader_program->setMat4("projection", projection);
+    m_shader_program->setMat4("model", model);
+    m_shader_program->setMat4("view", view);
+
+    m_diff_texture_woman->bind(0);
+    m_shader_program->setInt("diffuse", 0);
+
+    m_shader_program->setFloat3("light", {0.0f, 5.0f, 5.0f});
+
+    m_animated_model->Draw();
+
+    m_shader_program->unbind();
+
+    // render woman ends
 
     glDisable(GL_DEPTH_TEST);
 

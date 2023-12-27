@@ -1,10 +1,9 @@
 #include "pch.h"
 #include "window.h"
-#include "graphics/glcore/gl_context.h"
 #include "main/application.h"
-#include "graphics/api/renderer.h"
 #include "editor/editor_camera.h"
 #include "graphics/api/camera.h"
+#include "core/systems/render_system.h"
 
 #include <GLFW/glfw3.h>
 
@@ -18,6 +17,10 @@ static void GLFWErrorCallback(int error, const char* description)
 
 Window::Window(const WindowSpecification& specification)
 {
+    // Useful resources: https://www.glfw.org/docs/3.3/window_guide.html
+    // https://www.glfw.org/docs/3.3/monitor_guide.html
+    // https://www.glfw.org/docs/3.0/monitor.html
+
     if(!glfwInit())
     {
         std::cout << "Failed to intialize GLFW.";
@@ -34,13 +37,16 @@ Window::Window(const WindowSpecification& specification)
                                        nullptr);
     glfwMaximizeWindow(m_window_handle);
 
-    int width, height;
-    glfwGetWindowSize(m_window_handle, &width, &height);
-    // glViewport(0, 0, width, height);
-
-    // GLFWmonitor*       monitor = glfwGetWindowMonitor(m_window_handle);
-    // const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
-    // glfwSetWindowMonitor(m_window_handle, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    // Windowed fullscreen
+    // int           count;
+    // GLFWmonitor** monitors = glfwGetMonitors(&count);
+    // cstring monitor1_name = glfwGetMonitorName(monitors[0]);
+    // std::cout << monitor1_name << std::endl;
+    // cstring monitor2_name = glfwGetMonitorName(monitors[1]);
+    // std::cout << monitor2_name << std::endl;
+    // const GLFWvidmode* mode = glfwGetVideoMode(monitors[0]);
+    // m_window_handle = glfwCreateWindow(mode->width, mode->height, specification.m_title.c_str(), monitors[0],
+    // nullptr);
 
     glfwSetWindowUserPointer(m_window_handle, &m_window_specification);
 
@@ -54,9 +60,10 @@ Window::Window(const WindowSpecification& specification)
             window_specification.m_height             = height;
             glfwRequestWindowAttention(window);
             // Todo:: This should happen with events (this is only temporary)
-            api::Renderer::OnWindowResize(width, height);
-            api::EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
-            api::Camera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+            //api::Renderer::OnWindowResize(width, height);
+            sputnik::core::systems::RenderSystem::getInstance()->onWindowResize(width, height);
+            //api::EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+            //api::Camera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
         });
 
     glfwSetWindowCloseCallback(m_window_handle,

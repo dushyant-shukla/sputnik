@@ -3,22 +3,24 @@
 #include "editor.hpp"
 #include "editor_style_utility.hpp"
 #include "main/application.h"
-#include "graphics/api/renderer.h"
 #include "core/layers/layer_stack.h"
 #include "graphics/window/window_specification.h"
 #include "editor_viewport.hpp"
+#include "core/systems/render_system.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <imgui.h>
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <memory>
+#include <format>
 
 namespace sputnik::editor
 {
+
+using namespace sputnik::core::systems;
 
 Editor::~Editor()
 {
@@ -40,17 +42,23 @@ void Editor::beginFrame()
     ImGui::NewFrame();
     ImGuizmo::BeginFrame();
     beginDockspace();
-    m_viewport->beginFrame();
+    if(m_is_viewport_active)
+    {
+        m_viewport->beginFrame();
+    }
 }
 
 void Editor::endFrame()
 {
-    m_viewport->endFrame();
+    if(m_is_viewport_active)
+    {
+        m_viewport->endFrame();
+    }
 
     endDockspace();
 
-    GLFWwindow*                                     window = sputnik::graphics::api::Renderer::GetNativeWindow();
-    ImGuiIO&                                        io     = ImGui::GetIO();
+    GLFWwindow* window = RenderSystem::getInstance()->getWindow()->GetNativeWindow();
+    ImGuiIO&    io     = ImGui::GetIO();
     sputnik::graphics::window::WindowSpecification& window_specification =
         *(sputnik::graphics::window::WindowSpecification*)glfwGetWindowUserPointer(window);
     io.DisplaySize = ImVec2((float)window_specification.m_width, (float)window_specification.m_height);
@@ -67,6 +75,21 @@ void Editor::endFrame()
     }
 }
 
+void Editor::beginViewportFrame()
+{
+    m_viewport->beginFrame();
+}
+
+void Editor::endViewportFrame()
+{
+    m_viewport->endFrame();
+}
+
+void Editor::updateViewport(const core::TimeStep& time_step)
+{
+    m_viewport->update(time_step);
+}
+
 void Editor::update(sputnik::core::TimeStep& time_step)
 {
     GLFWmonitor*       monitor      = glfwGetPrimaryMonitor();
@@ -79,71 +102,15 @@ void Editor::update(sputnik::core::TimeStep& time_step)
     // std::cout << "Green: " << mode->greenBits << std::endl;
     if(ImGui::Begin("System Information"))
     {
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Vendor");
-        ImGui::NextColumn();
-        ImGui::Text(m_system_information.vendor.c_str());
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Renderer");
-        ImGui::NextColumn();
-        ImGui::Text(m_system_information.renderer.c_str());
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Version");
-        ImGui::NextColumn();
-        ImGui::Text(m_system_information.gl_version.c_str());
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Shading Language Version");
-        ImGui::NextColumn();
-        ImGui::Text(m_system_information.shading_language_version.c_str());
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Display Frequency");
-        ImGui::NextColumn();
-        ImGui::Text("%d", mode->refreshRate);
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("VSync");
-        ImGui::NextColumn();
-        ImGui::Text(m_system_information.is_vsync_on ? "ON" : "OFF");
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Frame Budget");
-        ImGui::NextColumn();
-        // ImGui::Text("%10.2f %s", frame_budget, "ms");
-        ImGui::Text("%.2f %s", frame_budget, "ms");
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Frame Time");
-        ImGui::NextColumn();
-        // ImGui::Text("%10.5f %s", time_step.GetMilliSeconds(), "ms");
-        ImGui::Text("%.5f %s", time_step.GetMilliSeconds(), "ms");
-        ImGui::Columns(1);
-
-        ImGui::Columns(2);
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Frame Rate");
-        ImGui::NextColumn();
-        // ImGui::Text("%10.2f %s", 1000.0f / time_step.GetMilliSeconds(), "fps");
-        ImGui::Text("%.2f %s", 1000.0f / time_step.GetMilliSeconds(), "fps");
-        ImGui::Columns(1);
+        drawWidgetText("Vendor", m_system_information.vendor.c_str(), 90.0f);
+        drawWidgetText("Renderer", m_system_information.renderer.c_str(), 90.0f);
+        drawWidgetText("Version", m_system_information.gl_version.c_str(), 90.0f);
+        drawWidgetText("Shading Language Version", m_system_information.shading_language_version.c_str(), 90.0f);
+        drawWidgetText("Display Frequency", std::to_string(mode->refreshRate).c_str(), 90.0f, "%s");
+        drawWidgetText("VSync", m_system_information.is_vsync_enabled ? "ON" : "OFF", 90.0f);
+        drawWidgetText("Frame Budget [ms]", frame_budget, "%.2f");
+        drawWidgetText("Frame Time [ms]", time_step.GetMilliSeconds(), "%.5f");
+        drawWidgetText("Frame Rate [FPS]", 1000.0f / time_step.GetMilliSeconds(), "%.2f");
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -169,7 +136,21 @@ void Editor::update(sputnik::core::TimeStep& time_step)
     }
     ImGui::End();
 
-    m_viewport->update(time_step);
+    // m_viewport->update(time_step);
+    if(m_is_viewport_active)
+    {
+        m_viewport->update(time_step);
+    }
+}
+
+void Editor::lateUpdate(sputnik::core::TimeStep& time_step)
+{
+    auto input_manager = sputnik::engine::api::InputManager::GetInstance();
+    if(input_manager->IsKeyTriggered(KEY_E))
+    {
+        m_is_viewport_active  = !m_is_viewport_active;
+        m_is_dockspace_active = !m_is_dockspace_active;
+    }
 }
 
 void Editor::drawWidgetFloat(const std::string& label, float& value, const float& widget_width)
@@ -214,6 +195,7 @@ void Editor::drawWidgetVec3(const std::string& label, vec3& value, const float& 
     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - (widget_width - 10.0f));
     ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+    // ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
     ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
     {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
@@ -265,7 +247,7 @@ void Editor::drawWidgetVec3(const std::string& label, vec3& value, const float& 
         ImGui::PopItemWidth();
         ImGui::PopStyleColor(3);
     }
-    ImGui::PopStyleVar();
+    ImGui::PopStyleVar(1);
 
     ImGui::Columns(1);
     ImGui::PopID();
@@ -293,7 +275,7 @@ void Editor::drawWidgetVec4(const std::string& label, vec4& value, const float& 
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.2f, 0.2f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 2.5f);
-        if(ImGui::Button("x", buttonSize))
+        if(ImGui::Button("X", buttonSize))
         {
             value.x = default_value;
         }
@@ -308,7 +290,7 @@ void Editor::drawWidgetVec4(const std::string& label, vec4& value, const float& 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.8f, 0.2f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
-        if(ImGui::Button("y", buttonSize))
+        if(ImGui::Button("Y", buttonSize))
         {
             value.y = default_value;
         }
@@ -323,7 +305,7 @@ void Editor::drawWidgetVec4(const std::string& label, vec4& value, const float& 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.25f, 0.8f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.35f, 0.9f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.25f, 0.8f, 1.0f));
-        if(ImGui::Button("z", buttonSize))
+        if(ImGui::Button("Z", buttonSize))
         {
             value.z = default_value;
         }
@@ -397,6 +379,43 @@ void Editor::drawWidgetColor4(const std::string& label, vec4& value, const float
     ImGui::PopID();
 }
 
+void Editor::drawWidgetText(const std::string& label,
+                            cstring            value,
+                            const float&       widget_width,
+                            cstring            format,
+                            cstring            id)
+{
+    ImGui::PushID(id);
+
+    ImGui::Columns(2);
+    // ImGui::SetColumnWidth(0, widget_width);
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label.c_str());
+
+    ImGui::NextColumn();
+
+    // ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
+    if(format == nullptr)
+    {
+        ImGui::Text(value);
+    }
+    else
+    {
+        ImGui::Text(format, value);
+    }
+
+    ImGui::Columns(1);
+
+    ImGui::PopID();
+
+    // ImGui::Columns(2);
+    // ImGui::AlignTextToFramePadding();
+    // ImGui::Text("Display Frequency");
+    // ImGui::NextColumn();
+    // ImGui::Text("%d", mode->refreshRate);
+    // ImGui::Columns(1);
+}
+
 Editor::Editor()
 {
     // Setup Dear ImGui context
@@ -411,21 +430,21 @@ Editor::Editor()
                                                         // io.ConfigViewportsNoAutoMerge = true;
                                                         // io.ConfigViewportsNoTaskBarIcon = true;
 
-    // io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Bold.ttf", 18.0f);
-    // io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans/OpenSans-Regular.ttf", 18.0f);
+    // io.Fonts->AddFontFromFileTTF("../../data/fonts/OpenSans/OpenSans-Bold.ttf", 17.0f);
+    // io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/OpenSans/OpenSans-Regular.ttf", 17.0f);
 
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
-    // io.FontDefault = io.Fonts->AddFontFromFileTTF("../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 15.0f);
+    io.Fonts->AddFontFromFileTTF("../../data/fonts/RobotoMono/RobotoMono-Bold.ttf", 17.0f);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/RobotoMono/RobotoMono-Regular.ttf", 16.0f);
 
     // required my modification
-    // io.Fonts->AddFontFromFileTTF("fonts/Ruda/Ruda-Bold.ttf", 17.0f);
-    // io.FontDefault = io.Fonts->AddFontFromFileTTF("../../../fonts/Ruda/Ruda-Regular.ttf", 17.0f);
+    // io.Fonts->AddFontFromFileTTF("../../data/fonts/Ruda/Ruda-Bold.ttf", 17.0f);
+    // io.FontDefault = io.Fonts->AddFontFromFileTTF("../../data/fonts/Ruda/Ruda-Regular.ttf", 17.0f);
 
     // Setup Dear ImGui style
     // ImGui::StyleColorsDark();
     // ImGui::StyleColorsClassic();
     // setMayaThemecolors();
-    EditorStyleUtility::sActiveTheme = EditorStyleUtility::Theme::MAYA;
+    EditorStyleUtility::sActiveTheme = EditorStyleUtility::Theme::CHERRY;
     EditorStyleUtility::sThemeFunctions[EditorStyleUtility::sActiveTheme]();
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular
@@ -438,7 +457,7 @@ Editor::Editor()
     }
 
     // SetDarkThemeColors();
-    GLFWwindow* window = sputnik::graphics::api::Renderer::GetNativeWindow();
+    GLFWwindow* window = RenderSystem::getInstance()->getWindow()->GetNativeWindow();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
 
@@ -457,6 +476,11 @@ Editor::Editor()
 
 void Editor::beginDockspace()
 {
+    if(!m_is_dockspace_active)
+    {
+        return;
+    }
+
     // Note: Switch this to true to enable dockspace
     static bool               dockspaceOpen             = true;
     static bool               opt_fullscreen_persistant = true;
@@ -511,11 +535,14 @@ void Editor::beginDockspace()
     style.WindowMinSize.x = minWinSizeX;
 
     renderMenuBar();
-    //}
 }
 
 void Editor::endDockspace()
 {
+    if(!m_is_dockspace_active)
+    {
+        return;
+    }
     ImGui::End();
 }
 
@@ -543,11 +570,7 @@ void Editor::renderMenuBar()
             }
             ImGui::EndMenu();
         }
-        ImGui::EndMenuBar();
-    }
 
-    if(ImGui::BeginMenuBar())
-    {
         if(ImGui::BeginMenu("Options"))
         {
             if(ImGui::BeginMenu("Themes"))
@@ -570,8 +593,36 @@ void Editor::renderMenuBar()
             }
             ImGui::EndMenu();
         }
+
         ImGui::EndMenuBar();
     }
+
+    // if(ImGui::BeginMenuBar())
+    //{
+    //     if(ImGui::BeginMenu("Options"))
+    //     {
+    //         if(ImGui::BeginMenu("Themes"))
+    //         {
+    //             for(auto& x : EditorStyleUtility::sThemes)
+    //             {
+    //                 EditorStyleUtility::Theme theme     = x.first;
+    //                 std::string               themeName = x.second;
+    //                 if(ImGui::MenuItem(themeName.c_str(),
+    //                                    NULL,
+    //                                    EditorStyleUtility::sActiveTheme == theme,
+    //                                    EditorStyleUtility::sActiveTheme != theme))
+    //                 {
+    //                     EditorStyleUtility::sActiveTheme = theme;
+    //                     EditorStyleUtility::sThemeFunctions[theme]();
+    //                 }
+    //             }
+
+    //            ImGui::EndMenu();
+    //        }
+    //        ImGui::EndMenu();
+    //    }
+    //    ImGui::EndMenuBar();
+    //}
 }
 
 ImVec4 ImColorLerp(const ImVec4& a, const ImVec4& b, float t)
@@ -600,49 +651,49 @@ void CreateDefaultTabColorsFor(ImGuiStyle&   style,
         ImColorLerp(style.Colors[ImGuiCol_WindowBg], style.Colors[ImGuiCol_TabActive], unfocusedTabsLerp.y);
 }
 
-void Editor::setMayaThemecolors()
-{
-    ImGuiStyle* style                            = &ImGui::GetStyle();
-    style->Colors[ImGuiCol_Text]                 = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
-    style->Colors[ImGuiCol_TextDisabled]         = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-    style->Colors[ImGuiCol_WindowBg]             = ImVec4(0.26f, 0.26f, 0.26f, 0.95f);
-    style->Colors[ImGuiCol_ChildBg]              = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
-    style->Colors[ImGuiCol_PopupBg]              = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
-    style->Colors[ImGuiCol_Border]               = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
-    style->Colors[ImGuiCol_BorderShadow]         = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
-    style->Colors[ImGuiCol_FrameBg]              = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-    style->Colors[ImGuiCol_FrameBgHovered]       = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-    style->Colors[ImGuiCol_FrameBgActive]        = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-    style->Colors[ImGuiCol_TitleBg]              = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_TitleBgCollapsed]     = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_TitleBgActive]        = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_MenuBarBg]            = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
-    style->Colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
-    style->Colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_CheckMark]            = ImVec4(0.78f, 0.78f, 0.78f, 1.00f);
-    style->Colors[ImGuiCol_SliderGrab]           = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
-    style->Colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
-    style->Colors[ImGuiCol_Button]               = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_ButtonHovered]        = ImVec4(0.43f, 0.43f, 0.43f, 1.00f);
-    style->Colors[ImGuiCol_ButtonActive]         = ImVec4(0.11f, 0.11f, 0.11f, 1.00f);
-    style->Colors[ImGuiCol_Header]               = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_HeaderHovered]        = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_HeaderActive]         = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_Separator]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    style->Colors[ImGuiCol_SeparatorHovered]     = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style->Colors[ImGuiCol_SeparatorActive]      = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style->Colors[ImGuiCol_ResizeGrip]           = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    style->Colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style->Colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style->Colors[ImGuiCol_PlotLines]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    style->Colors[ImGuiCol_PlotLinesHovered]     = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-    style->Colors[ImGuiCol_PlotHistogram]        = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-    style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    style->Colors[ImGuiCol_TextSelectedBg]       = ImVec4(0.32f, 0.52f, 0.65f, 1.00f);
-    style->Colors[ImGuiCol_ModalWindowDimBg]     = ImVec4(0.20f, 0.20f, 0.20f, 0.50f);
-    CreateDefaultTabColorsFor(*style, ImGuiCol_ResizeGrip, 0.7f, ImVec2(0.25f, 0.8f), ImVec2(0.1f, 0.6f));
-}
+// void Editor::setMayaThemecolors()
+//{
+//     ImGuiStyle* style                            = &ImGui::GetStyle();
+//     style->Colors[ImGuiCol_Text]                 = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
+//     style->Colors[ImGuiCol_TextDisabled]         = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+//     style->Colors[ImGuiCol_WindowBg]             = ImVec4(0.26f, 0.26f, 0.26f, 0.95f);
+//     style->Colors[ImGuiCol_ChildBg]              = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+//     style->Colors[ImGuiCol_PopupBg]              = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
+//     style->Colors[ImGuiCol_Border]               = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
+//     style->Colors[ImGuiCol_BorderShadow]         = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
+//     style->Colors[ImGuiCol_FrameBg]              = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+//     style->Colors[ImGuiCol_FrameBgHovered]       = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+//     style->Colors[ImGuiCol_FrameBgActive]        = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+//     style->Colors[ImGuiCol_TitleBg]              = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_TitleBgCollapsed]     = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_TitleBgActive]        = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_MenuBarBg]            = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
+//     style->Colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
+//     style->Colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_CheckMark]            = ImVec4(0.78f, 0.78f, 0.78f, 1.00f);
+//     style->Colors[ImGuiCol_SliderGrab]           = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
+//     style->Colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
+//     style->Colors[ImGuiCol_Button]               = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_ButtonHovered]        = ImVec4(0.43f, 0.43f, 0.43f, 1.00f);
+//     style->Colors[ImGuiCol_ButtonActive]         = ImVec4(0.11f, 0.11f, 0.11f, 1.00f);
+//     style->Colors[ImGuiCol_Header]               = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_HeaderHovered]        = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_HeaderActive]         = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_Separator]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+//     style->Colors[ImGuiCol_SeparatorHovered]     = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+//     style->Colors[ImGuiCol_SeparatorActive]      = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+//     style->Colors[ImGuiCol_ResizeGrip]           = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+//     style->Colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+//     style->Colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+//     style->Colors[ImGuiCol_PlotLines]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+//     style->Colors[ImGuiCol_PlotLinesHovered]     = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+//     style->Colors[ImGuiCol_PlotHistogram]        = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+//     style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+//     style->Colors[ImGuiCol_TextSelectedBg]       = ImVec4(0.32f, 0.52f, 0.65f, 1.00f);
+//     style->Colors[ImGuiCol_ModalWindowDimBg]     = ImVec4(0.20f, 0.20f, 0.20f, 0.50f);
+//     CreateDefaultTabColorsFor(*style, ImGuiCol_ResizeGrip, 0.7f, ImVec2(0.25f, 0.8f), ImVec2(0.1f, 0.6f));
+// }
 
 } // namespace sputnik::editor

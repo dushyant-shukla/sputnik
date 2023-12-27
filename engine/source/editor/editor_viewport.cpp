@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "editor_viewport.hpp"
 
-#include <graphics/api/renderer.h>
-#include <graphics/glcore/gl_framebuffer.h>
+#include "graphics/glcore/gl_framebuffer.h"
+#include "core/systems/render_system.h"
 
 #include <imgui.h>
 #include <imgui_internal.h> // For GImGui->CurrentWindow;
@@ -10,6 +10,8 @@
 
 namespace sputnik::editor
 {
+
+using namespace sputnik::core::systems;
 
 EditorViewport::EditorViewport(const u32& width, const u32& height)
     : m_width(width)
@@ -32,7 +34,7 @@ EditorViewport::~EditorViewport() {}
 void EditorViewport::beginFrame()
 {
     m_framebuffer->bind();
-    m_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
+    m_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
     // graphics::api::Renderer::Clear();
 
     // graphics::api::Renderer::RenderAtmoshericScattering();
@@ -67,7 +69,8 @@ void EditorViewport::renderEditorViewport()
         m_viewport_focused    = ImGui::IsWindowFocused();
         m_viewport_hovered    = ImGui::IsWindowHovered();
         m_block_camera_update = !m_viewport_focused && !m_viewport_hovered;
-        graphics::api::Renderer::BlockCameraUpdate(m_block_camera_update);
+        //graphics::api::Renderer::BlockCameraUpdate(m_block_camera_update);
+        RenderSystem::getInstance()->blockCameraUpdate(m_block_camera_update);
         // std::cout << "block camera update: " << m_block_camera_update << std::endl;
 
         ImVec2 viewport_min_region = ImGui::GetWindowContentRegionMin();

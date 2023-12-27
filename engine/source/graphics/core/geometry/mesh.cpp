@@ -1,11 +1,13 @@
 #include "pch.h"
 #include "mesh.h"
-#include "graphics/glcore/renderer.h"
 #include <graphics/glcore/gl_buffer.h>
 #include <graphics/glcore/gl_vertex_array.h>
+#include <graphics/glcore/gl_renderer.h>
 
 namespace sputnik::graphics::core
 {
+
+using namespace sputnik::graphics::gl;
 
 Mesh::Mesh() {}
 
@@ -202,11 +204,13 @@ void Mesh::Draw()
     m_vertex_array->bind();
     if(m_indices.size() > 0)
     {
-        glcore::Renderer::DrawElements((u64)m_indices.size(), glcore::DrawMode::TRIANGLES);
+        OglRenderer::drawElements((u64)m_indices.size(), DrawMode::TRIANGLES);
+        // glcore::Renderer::DrawElements((u64)m_indices.size(), glcore::DrawMode::TRIANGLES);
     }
     else
     {
-        glcore::Renderer::DrawArrays(static_cast<unsigned int>(m_position.size()), glcore::DrawMode::TRIANGLES);
+        OglRenderer::drawArrays((u64)m_position.size(), DrawMode::TRIANGLES);
+        // glcore::Renderer::DrawArrays(static_cast<unsigned int>(m_position.size()), glcore::DrawMode::TRIANGLES);
     }
     m_vertex_array->unbind();
 }
@@ -216,13 +220,15 @@ void Mesh::DrawInstanced(unsigned int num_instances)
     m_vertex_array->bind();
     if(m_indices.size() > 0)
     {
-        glcore::Renderer::DrawElementsInstanced((u64)m_indices.size(), num_instances, glcore::DrawMode::TRIANGLES);
+        OglRenderer::drawElementsInstanced((u64)m_indices.size(), num_instances, DrawMode::TRIANGLES);
+        // glcore::Renderer::DrawElementsInstanced((u64)m_indices.size(), num_instances, glcore::DrawMode::TRIANGLES);
     }
     else
     {
-        glcore::Renderer::DrawArraysInstanced(static_cast<unsigned int>(m_position.size()),
-                                              num_instances,
-                                              glcore::DrawMode::TRIANGLES);
+        OglRenderer::drawArraysInstanced((u64)m_position.size(), num_instances, DrawMode::TRIANGLES);
+        // glcore::Renderer::DrawArraysInstanced(static_cast<unsigned int>(m_position.size()),
+        //                                       num_instances,
+        //                                       glcore::DrawMode::TRIANGLES);
     }
     m_vertex_array->unbind();
 }
