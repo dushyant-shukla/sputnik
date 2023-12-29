@@ -23,9 +23,9 @@ public:
     void beginFrame();
     void endFrame();
     void update(const core::TimeStep& timestep);
+    void resizeFramebuffer(const bool& force_resize = false);
 
 private:
-    void resizeFramebuffer();
     void renderEditorViewport();
     bool shouldResizeFramebuffer();
 

@@ -124,9 +124,18 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_shader_program->addShaderStage("../../data/shaders/simple.vert");
     m_shader_program->addShaderStage("../../data/shaders/simple.frag");
     m_shader_program->configure();
+
+    // glCreateVertexArrays(1, &m_grid_vao);
+    m_grid_program = std::make_shared<OglShaderProgram>();
+    m_grid_program->addShaderStage("../../data/shaders/glsl/grid.vert");
+    m_grid_program->addShaderStage("../../data/shaders/glsl/grid.frag");
+    m_grid_program->configure();
 }
 
-void GraphicsSandboxDemoLayer::OnDetach() {}
+void GraphicsSandboxDemoLayer::OnDetach()
+{
+    // glDeleteVertexArrays(1, &m_grid_vao);
+}
 
 void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
@@ -186,74 +195,110 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     m_static_program->unbind();
 
     // render woman
+    {
+        const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
+        mat4        projection    = editor_camera->GetCameraPerspective();
+        mat4        view          = editor_camera->GetCameraView();
+        model                     = {};
+        model                     = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
 
-    const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
-    mat4        projection    = editor_camera->GetCameraPerspective();
-    mat4        view          = editor_camera->GetCameraView();
-    model                     = {};
-    model                     = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+        m_shader_program->bind();
+        m_shader_program->setMat4("projection", projection);
+        m_shader_program->setMat4("model", model);
+        m_shader_program->setMat4("view", view);
 
-    m_shader_program->bind();
-    m_shader_program->setMat4("projection", projection);
-    m_shader_program->setMat4("model", model);
-    m_shader_program->setMat4("view", view);
+        m_diff_texture_woman->bind(0);
+        m_shader_program->setInt("diffuse", 0);
 
-    m_diff_texture_woman->bind(0);
-    m_shader_program->setInt("diffuse", 0);
+        m_shader_program->setFloat3("light", {0.0f, 5.0f, 5.0f});
 
-    m_shader_program->setFloat3("light", {0.0f, 5.0f, 5.0f});
+        m_animated_model->Draw();
 
-    m_animated_model->Draw();
-
-    m_shader_program->unbind();
-
+        m_shader_program->unbind();
+    }
     // render woman ends
+
+    // render grid
+    {
+        m_grid_vao.bind();
+        m_grid_program->bind();
+        glEnable(GL_BLEND);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // black lines
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA); // This gives best results - white lines
+        glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6, 1, 0);
+        glDisable(GL_BLEND);
+        m_grid_program->unbind();
+        m_grid_vao.unbind();
+    }
+    // render grid ends
 
     glDisable(GL_DEPTH_TEST);
 
     // sputnik::editor::Editor::getInstance()->OnUpdate(time_step);
-    if(ImGui::Begin("Lighting"))
-    {
-        sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
-        sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
-        sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
-        sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
-        sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
-        sputnik::editor::Editor::drawWidgetFloat("linear", m_light.linear, 90.0f);
-        sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
+    // if(ImGui::Begin("Lighting"))
+    //{
+    //    sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetFloat("linear", m_light.linear, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
 
-        // ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
-        // ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
-        // ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
-        // ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
-        // ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
-        // ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
-        // ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
-        // ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
-        // ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
-    }
-    ImGui::End();
+    //    // ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
+    //    // ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
+    //    // ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
+    //    // ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
+    //    // ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
+    //    // ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
+    //    // ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
+    //    // ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
+    //    // ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
+    //}
+    // ImGui::End();
 }
 
 void GraphicsSandboxDemoLayer::OnEvent() {}
 
 void GraphicsSandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
 {
-    if(ImGui::Begin("Lighting"))
-    {
-        ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
-        ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
-        ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
+    // if(ImGui::Begin("Lighting"))
+    //{
+    //     ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
+    //     ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
+    //     ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
 
-        ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
-        ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
-        ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
+    //    ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
+    //    ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
+    //    ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
 
-        ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
-        ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
-        ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
-    }
-    ImGui::End();
+    //    ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
+    //    ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
+    //    ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
+    //}
+    // ImGui::End();
+
+    // if(ImGui::Begin("Lighting"))
+    //{
+    //    sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetFloat("linear", m_light.linear, 90.0f);
+    //    sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
+
+    //    // ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
+    //    // ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
+    //    // ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
+    //    // ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
+    //    // ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
+    //    // ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
+    //    // ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
+    //    // ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
+    //    // ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
+    //}
+    // ImGui::End();
 }
 
 } // namespace sputnik::demos

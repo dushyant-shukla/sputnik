@@ -91,6 +91,7 @@ void oglMessageCallback(GLenum        source,
 OglRenderer::OglRenderer(GLFWwindow* const window)
 {
     glfwMakeContextCurrent(window);
+    // glfwSwapInterval(0); // Disable vsync
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize Glad!";
@@ -142,9 +143,15 @@ OglRenderer& OglRenderer::operator=(OglRenderer&& other) noexcept
     return *this;
 }
 
-void OglRenderer::resizeViewport(const u32& width, const u32& height) {}
+void OglRenderer::resizeViewport(const u32& width, const u32& height)
+{
+    glViewport(0, 0, width, height);
+}
 
-void OglRenderer::resizeViewport(const u32& x, const u32& y, const u32& width, const u32& height) {}
+void OglRenderer::resizeViewport(const u32& x, const u32& y, const u32& width, const u32& height)
+{
+    glViewport(x, y, width, height);
+}
 
 // TODO:: a bunch of draw call apis (indirect/canonical)
 void OglRenderer::draw() {}
@@ -177,23 +184,23 @@ void OglRenderer::renderAtmosphericScattering()
     mat4 camera_view{};
     vec3 camera_position{};
 
-    //if(m_camera_type == CameraType::Camera)
+    // if(m_camera_type == CameraType::Camera)
     //{
-    //    camera_projection = renderer->m_camera->GetCameraPerspective();
-    //    camera_view       = renderer->m_camera->GetCameraView();
-    //    camera_position   = renderer->m_camera->GetCameraPosition();
-    //}
-    //else
+    //     camera_projection = renderer->m_camera->GetCameraPerspective();
+    //     camera_view       = renderer->m_camera->GetCameraView();
+    //     camera_position   = renderer->m_camera->GetCameraPosition();
+    // }
+    // else
     //{
-    //    camera_projection = renderer->m_editor_camera->GetCameraPerspective();
-    //    camera_view       = renderer->m_editor_camera->GetCameraView();
-    //    camera_position   = renderer->m_editor_camera->GetCameraPosition();
-    //}
+    //     camera_projection = renderer->m_editor_camera->GetCameraPerspective();
+    //     camera_view       = renderer->m_editor_camera->GetCameraView();
+    //     camera_position   = renderer->m_editor_camera->GetCameraPosition();
+    // }
 
-    auto m_editor_camera   = EditorCamera::GetInstance();
-    camera_projection = m_editor_camera->GetCameraPerspective();
-    camera_view       = m_editor_camera->GetCameraView();
-    camera_position   = m_editor_camera->GetCameraPosition();
+    auto m_editor_camera = EditorCamera::GetInstance();
+    camera_projection    = m_editor_camera->GetCameraPerspective();
+    camera_view          = m_editor_camera->GetCameraView();
+    camera_position      = m_editor_camera->GetCameraPosition();
 
     // removing translation from the view matrix
     mat4 cubemap_view_mat4{camera_view};

@@ -2,6 +2,7 @@
 
 #include "core/core.h"
 #include "graphics/api/PreethamSkyModel.h"
+#include "graphics/glcore/gl_vertex_array.h"
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -84,6 +85,8 @@ private:
     vec3                              m_light_direction = vec3(0.0f, 0.0f, 1.0f);
     PreethamSkyModel                  m_preetham_sky_model;
     std::shared_ptr<OglShaderProgram> m_sky_shader;
+    // std::shared_ptr<OglShaderProgram> m_grid_program;
+    // OglVertexArray                    m_grid_vao;
 };
 
 } // namespace sputnik::graphics::gl

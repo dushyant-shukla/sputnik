@@ -85,6 +85,7 @@ void RenderSystem::onWindowResize(const u32& width, const u32& height)
     // do whatever that's needed when resizing the window
     EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
     Camera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+    m_ogl_renderer->resizeViewport(width, height);
 }
 
 void RenderSystem::updateLightGpuBuffer()
@@ -110,7 +111,7 @@ void core::systems::RenderSystem::clear()
 
 void core::systems::RenderSystem::setClearColor(float r, float g, float b, float a)
 {
-	m_ogl_renderer->setClearColor(r, g, b, a);
+    m_ogl_renderer->setClearColor(r, g, b, a);
 }
 
 void core::systems::RenderSystem::preUpdate(TimeStep& timestep)
@@ -127,6 +128,15 @@ void RenderSystem::blockCameraUpdate(const bool& block)
 void RenderSystem::renderAtmosphericScattering()
 {
     m_ogl_renderer->renderAtmosphericScattering();
+}
+
+void RenderSystem::setViewportToCurrentWindowSize()
+{
+    m_window->setViewportToCurrentWindowSize();
+    const auto& [width, height] = m_window->GetWindowWidthAndHeight();
+    EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+    Camera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+    m_ogl_renderer->resizeViewport(width, height);
 }
 
 } // namespace sputnik::core::systems

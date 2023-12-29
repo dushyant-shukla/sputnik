@@ -53,7 +53,12 @@ public:
     template <typename T>
     static void drawWidgetText(const std::string& label, T value, cstring format = nullptr, cstring id = "##");
 
+    static bool drawWidgetCheckbox(const std::string& label, bool& value, const float& widget_width, cstring id = "##");
+
     // static void setMayaThemecolors();
+
+    void beginViewportFrame();
+    void endViewportFrame();
 
 protected:
     Editor();
@@ -61,8 +66,7 @@ protected:
     void beginDockspace();
     void endDockspace();
     void renderMenuBar();
-    void beginViewportFrame();
-    void endViewportFrame();
+
     void updateViewport(const core::TimeStep& time_step);
 
 private:

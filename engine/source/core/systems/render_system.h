@@ -83,6 +83,8 @@ public:
 
     void renderAtmosphericScattering();
 
+    void setViewportToCurrentWindowSize();
+
 private:
     RenderSystem();
     RenderSystem(const RenderSystem&)            = delete;

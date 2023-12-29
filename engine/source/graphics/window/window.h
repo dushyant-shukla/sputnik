@@ -20,12 +20,14 @@ public:
     Window(const WindowSpecification& specification = WindowSpecification());
     virtual ~Window();
 
-    virtual unsigned int GetWidth() const;
-    virtual unsigned int GetHeight() const;
-    virtual void         SetVsync(bool enable_vsync);
-    virtual bool         IsVsyncEnabled();
-    virtual GLFWwindow*  GetNativeWindow();
-    virtual void         OnUpdate(const sputnik::core::TimeStep& time_step);
+    virtual unsigned int        GetWidth() const;
+    virtual unsigned int        GetHeight() const;
+    virtual std::pair<u32, u32> GetWindowWidthAndHeight() const;
+    virtual void                SetVsync(bool enable_vsync);
+    virtual bool                IsVsyncEnabled();
+    virtual GLFWwindow*         GetNativeWindow();
+    virtual void                OnUpdate(const sputnik::core::TimeStep& time_step);
+    virtual void                setViewportToCurrentWindowSize();
 
 protected:
     virtual void Shutdown();

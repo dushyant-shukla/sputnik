@@ -7,6 +7,7 @@
 #include <imgui.h>
 #include <imgui_internal.h> // For GImGui->CurrentWindow;
 #include <ImGuizmo.h>
+#include <glad/glad.h>
 
 namespace sputnik::editor
 {
@@ -22,8 +23,14 @@ EditorViewport::EditorViewport(const u32& width, const u32& height)
     , m_viewport_hovered{false}
     , m_block_camera_update{false}
 {
-    FramebufferSpecification framebuffer_spec;
-    framebuffer_spec.attachments = {{FramebufferTextureFormat::RGBA8}, {FramebufferTextureFormat::Depth}};
+    FramebufferSpecification           framebuffer_spec;
+    FramebufferAttachmentSpecification color_attachment_spec;
+    color_attachment_spec.attachment_format = TextureFormat::RGBA8;
+
+    FramebufferAttachmentSpecification depth_attachment_spec;
+    depth_attachment_spec.attachment_format = TextureFormat::Depth24Stencil8;
+
+    framebuffer_spec.attachments = {color_attachment_spec, depth_attachment_spec};
     framebuffer_spec.width       = m_width;
     framebuffer_spec.height      = m_height;
     m_framebuffer                = std::make_unique<OglFramebuffer>(framebuffer_spec);
@@ -51,9 +58,9 @@ void EditorViewport::update(const core::TimeStep& timestep)
     renderEditorViewport();
 }
 
-void EditorViewport::resizeFramebuffer()
+void EditorViewport::resizeFramebuffer(const bool& force_resize)
 {
-    if(shouldResizeFramebuffer())
+    if(shouldResizeFramebuffer() || force_resize)
     {
         m_framebuffer->resize(static_cast<u32>(m_viewport_size.first), static_cast<u32>(m_viewport_size.second));
         graphics::api::EditorCamera::GetInstance()->SetViewportSize(m_viewport_size.first, m_viewport_size.second);
@@ -69,7 +76,7 @@ void EditorViewport::renderEditorViewport()
         m_viewport_focused    = ImGui::IsWindowFocused();
         m_viewport_hovered    = ImGui::IsWindowHovered();
         m_block_camera_update = !m_viewport_focused && !m_viewport_hovered;
-        //graphics::api::Renderer::BlockCameraUpdate(m_block_camera_update);
+        // graphics::api::Renderer::BlockCameraUpdate(m_block_camera_update);
         RenderSystem::getInstance()->blockCameraUpdate(m_block_camera_update);
         // std::cout << "block camera update: " << m_block_camera_update << std::endl;
 
@@ -87,12 +94,16 @@ void EditorViewport::renderEditorViewport()
         ImVec2 viewport_panel_size = ImGui::GetContentRegionAvail();
         m_viewport_size            = {viewport_panel_size.x, viewport_panel_size.y};
 
-        // uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId();
+        // glEnable(GL_BLEND);
+        ////glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA); // This gives best results
+        //  uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId();
         uint64_t textureID = m_framebuffer->getColorAttachmentId();
         ImGui::Image(reinterpret_cast<void*>(textureID),
                      ImVec2{m_viewport_size.first, m_viewport_size.second},
                      ImVec2{0, 1},
                      ImVec2{1, 0});
+        // glDisable(GL_BLEND);
 
         // ImGuizmo setup
         ImGuizmo::SetOrthographic(false);

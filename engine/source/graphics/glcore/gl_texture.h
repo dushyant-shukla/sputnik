@@ -49,6 +49,39 @@ enum class TextureFilter : u32
     LinearMipmapLinear
 };
 
+enum class TextureSwizzle : i32
+{
+    Invalid = 0,
+    Red,
+    Green,
+    Blue,
+    Alpha,
+    Zero,
+    One
+};
+
+std::ostream& operator<<(std::ostream& os, const TextureFormat& format);
+std::ostream& operator<<(std::ostream& os, const TextureSwizzle& format);
+
+struct TextureSpecification
+{
+    u32            width;
+    u32            height;
+    void*          data{nullptr};
+    cstring        texture_filepath{nullptr}; // ideally this is temporary and texture loading is handled elsewhere
+    TextureFormat  texture_format  = TextureFormat::RGBA8;
+    TextureWrap    r_wrap          = TextureWrap::Repeat;
+    TextureWrap    s_wrap          = TextureWrap::Repeat;
+    TextureWrap    t_wrap          = TextureWrap::Repeat;
+    TextureFilter  min_filter      = TextureFilter::Linear;
+    TextureFilter  mag_filter      = TextureFilter::Nearest;
+    TextureSwizzle r_swizzle       = TextureSwizzle::Red;
+    TextureSwizzle g_swizzle       = TextureSwizzle::Green;
+    TextureSwizzle b_swizzle       = TextureSwizzle::Blue;
+    TextureSwizzle a_swizzle       = TextureSwizzle::Alpha;
+    bool           flip_vertically = false;
+};
+
 class OglTexture2D
 {
 public:
@@ -80,6 +113,8 @@ public:
                  const TextureFilter& min_filter     = TextureFilter::Linear,
                  const TextureFilter& mag_filter     = TextureFilter::Nearest);
 
+    OglTexture2D(const TextureSpecification& spec);
+
     ~OglTexture2D();
 
     OglTexture2D(OglTexture2D&& other) noexcept;
@@ -104,6 +139,8 @@ private:
               const TextureWrap&   t_wrap,
               const TextureFilter& min_filter,
               const TextureFilter& mag_filter);
+
+    void init(const TextureSpecification& spec);
 
 private:
     u32           m_id;

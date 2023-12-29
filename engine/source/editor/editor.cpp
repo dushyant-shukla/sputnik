@@ -42,18 +42,18 @@ void Editor::beginFrame()
     ImGui::NewFrame();
     ImGuizmo::BeginFrame();
     beginDockspace();
-    if(m_is_viewport_active)
-    {
-        m_viewport->beginFrame();
-    }
+    // if(m_is_viewport_active)
+    //{
+    //     m_viewport->beginFrame();
+    // }
 }
 
 void Editor::endFrame()
 {
-    if(m_is_viewport_active)
-    {
-        m_viewport->endFrame();
-    }
+    // if(m_is_viewport_active)
+    //{
+    //     m_viewport->endFrame();
+    // }
 
     endDockspace();
 
@@ -77,12 +77,18 @@ void Editor::endFrame()
 
 void Editor::beginViewportFrame()
 {
-    m_viewport->beginFrame();
+    if(m_is_viewport_active)
+    {
+        m_viewport->beginFrame();
+    }
 }
 
 void Editor::endViewportFrame()
 {
-    m_viewport->endFrame();
+    if(m_is_viewport_active)
+    {
+        m_viewport->endFrame();
+    }
 }
 
 void Editor::updateViewport(const core::TimeStep& time_step)
@@ -92,64 +98,92 @@ void Editor::updateViewport(const core::TimeStep& time_step)
 
 void Editor::update(sputnik::core::TimeStep& time_step)
 {
-    GLFWmonitor*       monitor      = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode         = glfwGetVideoMode(monitor);
-    const float        frame_budget = 1000.0f / mode->refreshRate;
-    // std::cout << "width: " << mode->width << std::endl;
-    // std::cout << "height: " << mode->height << std::endl;
-    // std::cout << "Red: " << mode->redBits << std::endl;
-    // std::cout << "Blue: " << mode->blueBits << std::endl;
-    // std::cout << "Green: " << mode->greenBits << std::endl;
-    if(ImGui::Begin("System Information"))
-    {
-        drawWidgetText("Vendor", m_system_information.vendor.c_str(), 90.0f);
-        drawWidgetText("Renderer", m_system_information.renderer.c_str(), 90.0f);
-        drawWidgetText("Version", m_system_information.gl_version.c_str(), 90.0f);
-        drawWidgetText("Shading Language Version", m_system_information.shading_language_version.c_str(), 90.0f);
-        drawWidgetText("Display Frequency", std::to_string(mode->refreshRate).c_str(), 90.0f, "%s");
-        drawWidgetText("VSync", m_system_information.is_vsync_enabled ? "ON" : "OFF", 90.0f);
-        drawWidgetText("Frame Budget [ms]", frame_budget, "%.2f");
-        drawWidgetText("Frame Time [ms]", time_step.GetMilliSeconds(), "%.5f");
-        drawWidgetText("Frame Rate [FPS]", 1000.0f / time_step.GetMilliSeconds(), "%.2f");
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        // ImGui::Text("Vendor: %s", m_system_information.vendor.c_str());
-        // ImGui::Text("Renderer: %s", m_system_information.renderer.c_str());
-        // ImGui::Text("Version: %s", m_system_information.gl_version.c_str());
-        // ImGui::Text("Shanding Language Version: %s", m_system_information.shading_language_version.c_str());
-
-        // std::string display_frequency = "Display Frequency: %d";
-        // ImGui::Text(display_frequency.c_str(), mode->refreshRate);
-
-        //// std::string vsync = "VSync: %s";
-        //// ImGui::Text(vsync.c_str(), system_information.is_vsync_on ? "ON" : "OFF");
-
-        // std::string frame_budget_str = "Frame Budget: %10.2f %s";
-        // ImGui::Text(frame_budget_str.c_str(), frame_budget, "ms");
-
-        // std::string frame_time = "Frame Time: %10.5f %s";
-        // ImGui::Text(frame_time.c_str(), time_step.GetMilliSeconds(), "ms");
-
-        // std::string frame_rate_str = "Frame Rate: %10.2f %s";
-        // ImGui::Text(frame_rate_str.c_str(), 1000.0f / time_step.GetMilliSeconds(), "fps");
-    }
-    ImGui::End();
-
-    // m_viewport->update(time_step);
     if(m_is_viewport_active)
     {
+        GLFWmonitor*       monitor      = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode         = glfwGetVideoMode(monitor);
+        const float        frame_budget = 1000.0f / mode->refreshRate;
+        // std::cout << "width: " << mode->width << std::endl;
+        // std::cout << "height: " << mode->height << std::endl;
+        // std::cout << "Red: " << mode->redBits << std::endl;
+        // std::cout << "Blue: " << mode->blueBits << std::endl;
+        // std::cout << "Green: " << mode->greenBits << std::endl;
+        if(ImGui::Begin("System Information"))
+        {
+            drawWidgetText("Vendor", m_system_information.vendor.c_str(), 90.0f);
+            drawWidgetText("Renderer", m_system_information.renderer.c_str(), 90.0f);
+            drawWidgetText("Version", m_system_information.gl_version.c_str(), 90.0f);
+            drawWidgetText("Shading Language Version", m_system_information.shading_language_version.c_str(), 90.0f);
+            drawWidgetText("Display Frequency", std::to_string(mode->refreshRate).c_str(), 90.0f, "%s");
+            if(drawWidgetCheckbox("VSync", m_system_information.is_vsync_enabled, 90.0f))
+            {
+                glfwSwapInterval(m_system_information.is_vsync_enabled ? 1 : 0); // Disable vsync
+            }
+            // drawWidgetCheckbox("VSync", m_system_information.is_vsync_enabled, 90.0f);
+            drawWidgetText("Frame Budget [ms]", frame_budget, "%.2f");
+            drawWidgetText("Frame Time [ms]", time_step.GetMilliSeconds(), "%.5f");
+            drawWidgetText("Frame Rate [FPS]", 1000.0f / time_step.GetMilliSeconds(), "%.2f");
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // ImGui::Text("Vendor: %s", m_system_information.vendor.c_str());
+            // ImGui::Text("Renderer: %s", m_system_information.renderer.c_str());
+            // ImGui::Text("Version: %s", m_system_information.gl_version.c_str());
+            // ImGui::Text("Shanding Language Version: %s", m_system_information.shading_language_version.c_str());
+
+            // std::string display_frequency = "Display Frequency: %d";
+            // ImGui::Text(display_frequency.c_str(), mode->refreshRate);
+
+            //// std::string vsync = "VSync: %s";
+            //// ImGui::Text(vsync.c_str(), system_information.is_vsync_on ? "ON" : "OFF");
+
+            // std::string frame_budget_str = "Frame Budget: %10.2f %s";
+            // ImGui::Text(frame_budget_str.c_str(), frame_budget, "ms");
+
+            // std::string frame_time = "Frame Time: %10.5f %s";
+            // ImGui::Text(frame_time.c_str(), time_step.GetMilliSeconds(), "ms");
+
+            // std::string frame_rate_str = "Frame Rate: %10.2f %s";
+            // ImGui::Text(frame_rate_str.c_str(), 1000.0f / time_step.GetMilliSeconds(), "fps");
+        }
+        ImGui::End();
+
         m_viewport->update(time_step);
+    }
+    else
+    {
+        ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 10, main_viewport->WorkPos.y + 10));
+        // ImGui::SetNextWindowSize({100.0f, 20.0f});
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.75);
+        ImGui::Begin("##");
+        drawWidgetText("Frame Rate [FPS]", 1000.0f / time_step.GetMilliSeconds(), "%.2f");
+        ImGui::End();
+        ImGui::PopStyleVar();
     }
 }
 
 void Editor::lateUpdate(sputnik::core::TimeStep& time_step)
 {
-    auto input_manager = sputnik::engine::api::InputManager::GetInstance();
-    if(input_manager->IsKeyTriggered(KEY_E))
+    bool viewport_toggled = false;
+    auto input_manager    = sputnik::engine::api::InputManager::GetInstance();
+    if(input_manager->IsKeyTriggered(KEY_P))
     {
         m_is_viewport_active  = !m_is_viewport_active;
         m_is_dockspace_active = !m_is_dockspace_active;
+        viewport_toggled      = true;
+        RenderSystem::getInstance()->setViewportToCurrentWindowSize();
+    }
+    if(viewport_toggled)
+    {
+        if(!m_is_viewport_active)
+        {
+            RenderSystem::getInstance()->setViewportToCurrentWindowSize();
+        }
+        else
+        {
+            m_viewport->resizeFramebuffer(true);
+        }
     }
 }
 
@@ -414,6 +448,58 @@ void Editor::drawWidgetText(const std::string& label,
     // ImGui::NextColumn();
     // ImGui::Text("%d", mode->refreshRate);
     // ImGui::Columns(1);
+}
+
+bool Editor::drawWidgetCheckbox(const std::string& label, bool& value, const float& widget_width, cstring id)
+{
+    bool value_changed = false;
+    ImGui::PushID(id);
+
+    ImGui::Columns(2);
+    // ImGui::SetColumnWidth(0, widget_width);
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label.c_str());
+
+    ImGui::NextColumn();
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
+    if(ImGui::Checkbox("##Checkbox", &value))
+    {
+        value_changed = true;
+        glfwSwapInterval(value ? 1 : 0); // Disable vsync
+    }
+    ImGui::SameLine();
+    ImGui::Text(value ? "ON" : "OFF");
+
+    ImGui::Columns(1);
+
+    ImGui::PopID();
+    return value_changed;
+
+    // ImGui::PushID(id);
+
+    // ImGui::Columns(2);
+    // ImGui::AlignTextToFramePadding();
+    //// auto h1 = ImGui::GetCursorPosY();
+    // ImGui::Text(label.c_str());
+
+    // ImGui::NextColumn();
+
+    //// auto h2 = ImGui::GetCursorPosY();
+    //// ImGui::SetCursorPosY(ImGui::GetCursorPosY());
+    // ImGui::AlignTextToFramePadding();
+    // if(format == nullptr)
+    //{
+    //     ImGui::Text(std::to_string(value).c_str());
+    // }
+    // else
+    //{
+    //     ImGui::Text(format, value);
+    // }
+
+    // ImGui::Columns(1);
+
+    // ImGui::PopID();
 }
 
 Editor::Editor()

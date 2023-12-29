@@ -11,7 +11,7 @@ struct SystemInformation
     std::string renderer;
     std::string gl_version;
     std::string shading_language_version;
-    bool        is_vsync_enabled;
+    bool        is_vsync_enabled{true}; // VSync is enabled by default
 };
 
 } // namespace sputnik::core

@@ -21,7 +21,12 @@ enum class FramebufferTextureFormat : u32
 
 struct FramebufferAttachmentSpecification
 {
-    FramebufferTextureFormat texture_format = FramebufferTextureFormat::None;
+    // FramebufferTextureFormat texture_format = FramebufferTextureFormat::None;
+    TextureFormat  attachment_format = TextureFormat::RGBA8;
+    TextureSwizzle swizzle_r         = TextureSwizzle::Red;
+    TextureSwizzle swizzle_g         = TextureSwizzle::Green;
+    TextureSwizzle swizzle_b         = TextureSwizzle::Blue;
+    TextureSwizzle swizzle_a         = TextureSwizzle::Alpha;
 };
 
 struct FramebufferSpecification
@@ -59,8 +64,7 @@ public:
     void unbind();
 
 private:
-    void attachColorAttachment(const FramebufferAttachmentSpecification& attachment_spec,
-                               const TextureFormat&                      texture_format);
+    void attachColorAttachment(const FramebufferAttachmentSpecification& attachment_spec);
 
 private:
     OglFramebuffer(const OglFramebuffer&)            = delete;

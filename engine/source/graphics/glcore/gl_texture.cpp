@@ -183,6 +183,72 @@ u32 getBytesPerPixel(const TextureFormat& format)
     return 0;
 }
 
+std::ostream& operator<<(std::ostream& os, const TextureFormat& format)
+{
+    switch(format)
+    {
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::R8, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::R16, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::R32, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::R32I, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RG8, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RG16, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RG32, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RGB8, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RGB16, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RGB32, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RGBA8, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RGBA16, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::RGBA32, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::Depth16, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::Depth24, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::Depth32, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::Depth32F, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::Depth24Stencil8, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureFormat::Depth32FStencil8, os);
+        SPUTNIK_CASE_DEFAULT_TO_OSTREAM(os);
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const TextureSwizzle& swizzle)
+{
+    switch(swizzle)
+    {
+        SPUTNIK_CASE_TO_OSTREAM(TextureSwizzle::Red, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureSwizzle::Green, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureSwizzle::Blue, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureSwizzle::Alpha, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureSwizzle::Zero, os);
+        SPUTNIK_CASE_TO_OSTREAM(TextureSwizzle::One, os);
+        SPUTNIK_CASE_DEFAULT_TO_OSTREAM(os);
+    }
+    return os;
+}
+
+i32 getOglTextureSwizzle(const TextureSwizzle& swizzle)
+{
+    switch(swizzle)
+    {
+    case TextureSwizzle::Red:
+        return GL_RED;
+    case TextureSwizzle::Green:
+        return GL_GREEN;
+    case TextureSwizzle::Blue:
+        return GL_BLUE;
+    case TextureSwizzle::Alpha:
+        return GL_ALPHA;
+    case TextureSwizzle::Zero:
+        return GL_ZERO;
+    case TextureSwizzle::One:
+        return GL_ONE;
+    default:
+        break;
+    }
+    SPUTNIK_ASSERT_MESSAGE(false, "Invalid texture swizzle: {}", static_cast<u32>(swizzle));
+    return 0;
+}
+
 OglTexture2D::OglTexture2D(cstring              texture_filepath,
                            bool                 flip_vertically,
                            const TextureFormat& texture_format,
@@ -220,7 +286,7 @@ OglTexture2D::OglTexture2D(cstring              texture_filepath,
 
     m_width  = width;
     m_height = height;
-    //m_format = texture_format;
+    // m_format = texture_format;
     init(data, r_wrap, s_wrap, t_wrap, min_filter, mag_filter);
 }
 
@@ -255,6 +321,15 @@ OglTexture2D::OglTexture2D(const u32&           width,
     , m_format{texture_format}
 {
     init(data, r_wrap, s_wrap, t_wrap, min_filter, mag_filter);
+}
+
+OglTexture2D::OglTexture2D(const TextureSpecification& spec)
+    : m_id{0}
+    , m_width{spec.width}
+    , m_height{spec.height}
+    , m_format{spec.texture_format}
+{
+    init(spec);
 }
 
 OglTexture2D::~OglTexture2D()
@@ -329,6 +404,72 @@ void OglTexture2D::init(void*                data,
     glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, getOglTextureFilter(mag_filter));
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, getOglTextureWrap(s_wrap));
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, getOglTextureWrap(s_wrap));
+    glTextureStorage2D(m_id, 1, getOglTextureFormat(m_format), m_width, m_height);
+    if(data)
+    {
+        glTextureSubImage2D(m_id,
+                            0,
+                            0,
+                            0,
+                            m_width,
+                            m_height,
+                            getOglTextureDataFormat(m_format),
+                            GL_UNSIGNED_BYTE,
+                            data);
+    }
+}
+
+void OglTexture2D::init(const TextureSpecification& spec)
+{
+    const void* data = nullptr;
+    if(spec.texture_filepath)
+    {
+        int width, height, channels;
+        stbi_set_flip_vertically_on_load(spec.flip_vertically);
+        data = stbi_load(spec.texture_filepath, &width, &height, &channels, 0);
+        SPUTNIK_ASSERT_MESSAGE(data, "Failed to load texture: {}", spec.texture_filepath);
+        switch(channels)
+        {
+        case 1:
+            m_format = TextureFormat::R8;
+            break;
+        case 2:
+            m_format = TextureFormat::RG8;
+            break;
+        case 3:
+            m_format = TextureFormat::RGB8;
+            break;
+        case 4:
+            m_format = TextureFormat::RGBA8;
+            break;
+        default:
+            break;
+        }
+
+        m_width  = width;
+        m_height = height;
+    }
+    else
+    {
+        m_width  = spec.width;
+        m_height = spec.height;
+        m_format = spec.texture_format;
+        data     = spec.data;
+    }
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, getOglTextureFilter(spec.min_filter));
+    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, getOglTextureFilter(spec.mag_filter));
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, getOglTextureWrap(spec.s_wrap));
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, getOglTextureWrap(spec.t_wrap));
+    GLint swizzle[4] = {
+        getOglTextureSwizzle(spec.r_swizzle), // Shader Red   channel source = Texture Red
+        getOglTextureSwizzle(spec.g_swizzle), // Shader Green channel source = Texture Green
+        getOglTextureSwizzle(spec.b_swizzle), // Shader Blue  channel source = Texture Blue
+        getOglTextureSwizzle(spec.a_swizzle), // Shader Alpha channel source = One
+    };
+    glTextureParameteriv(m_id, GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+
     glTextureStorage2D(m_id, 1, getOglTextureFormat(m_format), m_width, m_height);
     if(data)
     {

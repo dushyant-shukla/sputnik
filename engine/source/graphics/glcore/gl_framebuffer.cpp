@@ -53,19 +53,15 @@ void OglFramebuffer::reset()
     {
         for(const auto& attachment_spec : m_specification.attachments)
         {
-            switch(attachment_spec.texture_format)
+            switch(attachment_spec.attachment_format)
             {
-            case FramebufferTextureFormat::RGBA8:
+            case TextureFormat::RGBA8:
+            case TextureFormat::R32I:
             {
-                attachColorAttachment(attachment_spec, TextureFormat::RGBA8);
+                attachColorAttachment(attachment_spec);
                 break;
             }
-            case FramebufferTextureFormat::RedInteger:
-            {
-                attachColorAttachment(attachment_spec, TextureFormat::R32I);
-                break;
-            }
-            case FramebufferTextureFormat::Depth24Stencil8:
+            case TextureFormat::Depth24Stencil8:
             {
                 m_depth_attachment = std::make_unique<OglTexture2D>(m_specification.width,
                                                                     m_specification.height,
@@ -82,7 +78,7 @@ void OglFramebuffer::reset()
             default:
                 SPUTNIK_ASSERT_MESSAGE(false,
                                        "Unknown framebuffer texture format: {}",
-                                       static_cast<u32>(attachment_spec.texture_format));
+                                       static_cast<u32>(attachment_spec.attachment_format));
                 break;
             }
         }
@@ -167,9 +163,9 @@ void OglFramebuffer::clear(const u32& color_attachment_index, const void* value)
     SPUTNIK_ASSERT_MESSAGE(color_attachment_index < m_color_attachments.size(),
                            "Unknown framebuffer texture format: {}",
                            color_attachment_index);
-    switch(m_specification.attachments[color_attachment_index].texture_format)
+    switch(m_specification.attachments[color_attachment_index].attachment_format)
     {
-    case FramebufferTextureFormat::RGBA8:
+    case TextureFormat::RGBA8:
     {
         glClearNamedFramebufferfv(m_id,
                                   GL_COLOR,
@@ -177,7 +173,7 @@ void OglFramebuffer::clear(const u32& color_attachment_index, const void* value)
                                   static_cast<const f32*>(value));
         break;
     }
-    case FramebufferTextureFormat::RedInteger:
+    case TextureFormat::R32I:
     {
         glClearNamedFramebufferiv(m_id,
                                   GL_COLOR,
@@ -228,18 +224,34 @@ void OglFramebuffer::unbind()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OglFramebuffer::attachColorAttachment(const FramebufferAttachmentSpecification& attachment_spec,
-                                           const TextureFormat&                      texture_format)
+void OglFramebuffer::attachColorAttachment(const FramebufferAttachmentSpecification& attachment_spec)
 {
-    std::unique_ptr<OglTexture2D> texture = std::make_unique<OglTexture2D>(m_specification.width,
-                                                                           m_specification.height,
-                                                                           texture_format,
-                                                                           TextureWrap::ClampToEdge,
-                                                                           TextureWrap::ClampToEdge,
-                                                                           TextureWrap::ClampToEdge,
-                                                                           TextureFilter::Linear,
-                                                                           TextureFilter::Linear);
+    // std::unique_ptr<OglTexture2D> texture = std::make_unique<OglTexture2D>(m_specification.width,
+    //                                                                        m_specification.height,
+    //                                                                        texture_format,
+    //                                                                        TextureWrap::ClampToEdge,
+    //                                                                        TextureWrap::ClampToEdge,
+    //                                                                        TextureWrap::ClampToEdge,
+    //                                                                        TextureFilter::Linear,
+    //                                                                        TextureFilter::Linear);
+
     // texture->bind();
+
+    TextureSpecification texture_spec;
+    texture_spec.width                    = m_specification.width;
+    texture_spec.height                   = m_specification.height;
+    texture_spec.texture_format           = attachment_spec.attachment_format;
+    texture_spec.r_wrap                   = TextureWrap::ClampToEdge;
+    texture_spec.s_wrap                   = TextureWrap::ClampToEdge;
+    texture_spec.t_wrap                   = TextureWrap::ClampToEdge;
+    texture_spec.min_filter               = TextureFilter::Nearest;
+    texture_spec.mag_filter               = TextureFilter::Nearest;
+    texture_spec.r_swizzle                = attachment_spec.swizzle_r;
+    texture_spec.g_swizzle                = attachment_spec.swizzle_g;
+    texture_spec.b_swizzle                = attachment_spec.swizzle_b;
+    texture_spec.a_swizzle                = attachment_spec.swizzle_a;
+    std::unique_ptr<OglTexture2D> texture = std::make_unique<OglTexture2D>(texture_spec);
+
     glNamedFramebufferTexture(m_id,
                               GL_COLOR_ATTACHMENT0 + static_cast<u32>(m_color_attachments.size()),
                               texture->getId(),

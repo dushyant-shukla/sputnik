@@ -43,9 +43,7 @@ void Application::Run()
 
         if(!m_is_minimized)
         {
-            // graphics::api::Renderer::Update(time_step);
-
-            m_editor->beginFrame();
+            m_editor->beginViewportFrame();
             m_render_system->update(time_step);
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
@@ -61,9 +59,12 @@ void Application::Run()
             {
                 layer->OnPostUpdate(time_step);
             }
-            m_editor->update(time_step);
-            m_editor->endFrame();
+            m_editor->endViewportFrame();
         }
+
+        m_editor->beginFrame();
+        m_editor->update(time_step);
+        m_editor->endFrame();
 
         m_editor->lateUpdate(time_step);
         m_input_manager->LateUpdate(time_step);
