@@ -199,7 +199,8 @@ void Editor::drawWidgetFloat(const std::string& label, float& value, const float
 
     ImGui::NextColumn();
     // bool value_changed = ImGui::DragFloat("##", &value);
-    ImGui::DragFloat("##", &value);
+    //ImGui::DragFloat("##", &value);
+    ImGui::SliderFloat("##", &value, 0.0f, 1.0f);
 
     ImGui::Columns(1);
     ImGui::PopID();
@@ -382,7 +383,7 @@ void Editor::drawWidgetColor3(const std::string& label, vec3& value, const float
     ImGui::NextColumn();
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.5f);
-    if(ImGui::ColorEdit3("##Color", &value.x))
+    if(ImGui::ColorEdit3("##Color", &value.x, ImGuiColorEditFlags_Float))
     {
     }
 

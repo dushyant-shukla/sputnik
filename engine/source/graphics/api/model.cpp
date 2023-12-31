@@ -36,6 +36,14 @@ void Model::Draw()
     }
 }
 
+void Model::draw(const Material& material, const mat4& model)
+{
+    for (auto& mesh : m_meshes)
+    {
+        mesh.draw(material, model);
+	}
+}
+
 std::shared_ptr<Model> Model::LoadModel(const std::string& path)
 {
     auto        model     = std::make_shared<Model>();

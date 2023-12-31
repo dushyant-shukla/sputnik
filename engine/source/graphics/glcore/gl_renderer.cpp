@@ -91,10 +91,9 @@ void oglMessageCallback(GLenum        source,
 OglRenderer::OglRenderer(GLFWwindow* const window)
 {
     glfwMakeContextCurrent(window);
-    // glfwSwapInterval(0); // Disable vsync
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize Glad!";
+        ENGINE_CRITICAL("Failed to initialize Glad!");
     }
 
     // #ifdef _DEBUG
@@ -115,14 +114,46 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
 
     // #endif // DEBUG
 
-    m_sky_shader = std::make_shared<OglShaderProgram>();
-    m_sky_shader->addShaderStage("../../data/shaders/sky-rendering/sky.vert");
-    m_sky_shader->addShaderStage("../../data/shaders/sky-rendering/sky.frag");
-    m_sky_shader->configure();
+    m_per_frame_gpu_buffer = std::make_shared<OglBuffer>(sizeof(PerFrameData));
+    // m_per_frame_gpu_buffer->bind(BufferBindTarget::UniformBuffer, 0); // bind to binding point 0
+    m_per_frame_gpu_buffer->bind(BufferBindTarget::UniformBuffer, kPerFrameDataBindingPoint); // bind to binding point 0
+
+    m_light_gpu_buffer = std::make_shared<OglBuffer>(sizeof(Light));
+    // m_light_gpu_buffer->bind(BufferBindTarget::UniformBuffer, 1); // bind to binding point 1
+    m_light_gpu_buffer->bind(BufferBindTarget::UniformBuffer, kLightDataBindingPoint); // bind to binding point 1
+
+    m_vao = std::make_unique<OglVertexArray>();
+
+    m_sky_program = std::make_shared<OglShaderProgram>();
+    m_sky_program->addShaderStage("../../data/shaders/sky-rendering/sky.vert");
+    m_sky_program->addShaderStage("../../data/shaders/sky-rendering/sky.frag");
+    m_sky_program->configure();
+
+    m_grid_program = std::make_shared<OglShaderProgram>();
+    m_grid_program->addShaderStage("../../data/shaders/glsl/grid.vert");
+    m_grid_program->addShaderStage("../../data/shaders/glsl/grid.frag");
+    m_grid_program->configure();
+
+    m_blinn_phong_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_program->addShaderStage("../../data/shaders/glsl/blinn_phong.vert");
+    m_blinn_phong_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
+    m_blinn_phong_program->configure();
+
+    m_blinn_phong_pvp_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong_pvp.vert");
+    m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
+    m_blinn_phong_pvp_program->configure();
 
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
 
-    glGenVertexArrays(1, &m_vao);
+    u32 white       = 0xffffffff;
+    u32 red         = 0xff0000ff;
+    u32 green       = 0xff00ff00;
+    u32 blue        = 0xffff0000;
+    m_white_texture = std::make_shared<OglTexture2D>(1, 1, &white, TextureFormat::RGBA8);
+    m_red_texture   = std::make_shared<OglTexture2D>(1, 1, &red, TextureFormat::RGBA8);
+    m_green_texture = std::make_shared<OglTexture2D>(1, 1, &green, TextureFormat::RGBA8);
+    m_blue_texture  = std::make_shared<OglTexture2D>(1, 1, &blue, TextureFormat::RGBA8);
 }
 
 OglRenderer* OglRenderer::getInstance(GLFWwindow* const window)
@@ -153,8 +184,27 @@ void OglRenderer::resizeViewport(const u32& x, const u32& y, const u32& width, c
     glViewport(x, y, width, height);
 }
 
-// TODO:: a bunch of draw call apis (indirect/canonical)
-void OglRenderer::draw() {}
+void OglRenderer::render(const mat4& projection, const mat4& view, const vec3& camera_position, const Light& light)
+{
+    // Todo:: rendering code
+    // render sky
+    // render grid
+    // render scene geometry
+
+    // update per frame gpu buffer
+    m_per_frame_data.projection      = projection;
+    m_per_frame_data.view            = view;
+    m_per_frame_data.camera_position = camera_position;
+    m_per_frame_gpu_buffer->setData(&m_per_frame_data, sizeof(PerFrameData));
+
+    // update light gpu buffer
+    m_light_gpu_buffer->setData((void*)&light, sizeof(Light));
+
+    renderAtmosphericScattering(); // sky
+    renderEditorGrid();            // grid
+
+    // Todo:: render scene geometry with indirect draw calls
+}
 
 void OglRenderer::initializeRenderingState() {}
 
@@ -175,7 +225,7 @@ void OglRenderer::setClearColor(float r, float g, float b, float a)
 
 void OglRenderer::renderAtmosphericScattering()
 {
-    glBindVertexArray(m_vao); // Todo:: Temporary solution
+    m_vao->bind();
 
     m_preetham_sky_model.SetDirection(m_light_direction);
     m_preetham_sky_model.Update();
@@ -219,22 +269,138 @@ void OglRenderer::renderAtmosphericScattering()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
-    m_sky_shader->bind();
+    m_sky_program->bind();
 
-    // Uniform<mat4>::Set(renderer->m_sky_shader->GetUniform("inv_view_projection"), inv_cubemap_view_projection_mat4);
+    m_sky_program->setMat4("inv_view_projection", inv_cubemap_view_projection_mat4);
 
-    m_sky_shader->setMat4("inv_view_projection", inv_cubemap_view_projection_mat4);
-
-    m_preetham_sky_model.SetRenderUniforms(m_sky_shader);
+    m_preetham_sky_model.SetRenderUniforms(m_sky_program);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    m_sky_shader->unbind();
+    m_sky_program->unbind();
 
     // reset the pipeline state
     glDepthFunc(GL_LESS); // This is the default depth function
     glDisable(GL_DEPTH_TEST);
 
-    glBindVertexArray(0); // Todo:: Temporary solution
+    m_vao->unbind();
+}
+
+void OglRenderer::renderEditorGrid()
+{
+    m_vao->bind();
+    m_grid_program->bind();
+    glEnable(GL_BLEND);
+     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // black lines
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA); // This gives best results - white lines
+    // (GLenum mode, GLint first, GLsizei count, GLsizei instancecount, GLuint baseinstance)
+    glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6, 1, 0);
+    glDisable(GL_BLEND);
+    m_grid_program->unbind();
+    m_vao->unbind();
+}
+
+void OglRenderer::drawTriangles(const u64& vertex_count, const Material& material, const mat4& model)
+{
+    auto active_program = m_blinn_phong_program;
+    if(material.shader_name == "blinn_phong_pvp")
+    {
+        m_vao->bind();
+        active_program = m_blinn_phong_pvp_program;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    {
+        mat4 normal_matrix = model;
+        normal_matrix      = normal_matrix.inverted().transpose(); // (Transpose of inverse of the model matrix)
+
+        active_program->bind();
+        active_program->setMat4("model", model);
+        active_program->setMat4("normal_matrix", normal_matrix);
+        // m_blinn_phong_program->setFloat3("material.ambient", material.ambient);
+        active_program->setFloat3("material.diffuse", material.diffuse);
+        active_program->setFloat3("material.specular", material.specular);
+        active_program->setFloat("material.shininess", material.shininess);
+        if(material.diff_texture)
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            material.diff_texture->bind(0);
+        }
+        else
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            m_white_texture->bind(0);
+        }
+        if(material.spec_texture)
+        {
+            active_program->setInt("material.specular_texture", 1);
+            material.spec_texture->bind(1);
+        }
+        {
+            active_program->setInt("material.specular_texture", 1);
+            m_white_texture->bind(1);
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertex_count);
+        if(material.shader_name == "blinn_phong_pvp")
+        {
+            m_vao->unbind();
+        }
+
+        active_program->unbind();
+    }
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model)
+{
+    auto active_program = m_blinn_phong_program;
+    if(material.shader_name == "blinn_phong_pvp")
+    {
+        m_vao->bind();
+        active_program = m_blinn_phong_pvp_program;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    {
+        mat4 normal_matrix = model;
+        normal_matrix      = normal_matrix.inverted().transpose(); // (Transpose of inverse of the model matrix)
+
+        active_program->bind();
+        active_program->setMat4("model", model);
+        active_program->setMat4("normal_matrix", normal_matrix);
+        // m_blinn_phong_program->setFloat3("material.ambient", material.ambient);
+        active_program->setFloat3("material.diffuse", material.diffuse);
+        active_program->setFloat3("material.specular", material.specular);
+        active_program->setFloat("material.shininess", material.shininess);
+        if(material.diff_texture)
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            material.diff_texture->bind(0);
+        }
+        else
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            m_white_texture->bind(0);
+        }
+        if(material.spec_texture)
+        {
+            active_program->setInt("material.specular_texture", 1);
+            material.spec_texture->bind(1);
+        }
+        {
+            active_program->setInt("material.specular_texture", 1);
+            m_white_texture->bind(1);
+        }
+
+        glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
+        if(material.shader_name == "blinn_phong_pvp")
+        {
+            m_vao->unbind();
+        }
+
+        active_program->unbind();
+    }
+    glDisable(GL_DEPTH_TEST);
 }
 
 void OglRenderer::drawArrays(const u64& vertex_count, DrawMode mode)

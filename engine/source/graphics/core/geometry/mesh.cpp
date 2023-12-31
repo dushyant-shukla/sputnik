@@ -3,6 +3,7 @@
 #include <graphics/glcore/gl_buffer.h>
 #include <graphics/glcore/gl_vertex_array.h>
 #include <graphics/glcore/gl_renderer.h>
+#include <core/systems/render_system.h>
 
 namespace sputnik::graphics::core
 {
@@ -215,6 +216,21 @@ void Mesh::Draw()
     m_vertex_array->unbind();
 }
 
+void Mesh::draw(const Material& material, const mat4& model)
+{
+    auto render_system = sputnik::core::systems::RenderSystem::getInstance();
+    m_vertex_array->bind();
+    if(m_indices.size() > 0)
+    {
+        render_system->drawTrianglesIndexed((u64)m_indices.size(), material, model);
+    }
+    else
+    {
+        render_system->drawTriangles((u64)m_position.size(), material, model);
+    }
+    m_vertex_array->unbind();
+}
+
 void Mesh::DrawInstanced(unsigned int num_instances)
 {
     m_vertex_array->bind();
@@ -242,7 +258,7 @@ void Mesh::initializeGpuBuffers()
         m_position_buffer = std::make_shared<OglBuffer>(&m_position[0], m_position.size() * sizeof(ramanujan::Vector3));
         m_vertex_array->addVertexBuffer(
             *m_position_buffer.get(),
-            {.binding_index = 0, .stride = 12},
+            {.binding_index = 0, .stride = 12}, // 3 * sizeof(float)
             {{.name = "position", .location = 0, .type = VertexAttributeType::Float3, .normalized = false}});
     }
 
@@ -251,7 +267,7 @@ void Mesh::initializeGpuBuffers()
         m_normal_buffer = std::make_shared<OglBuffer>(&m_normal[0], m_normal.size() * sizeof(ramanujan::Vector3));
         m_vertex_array->addVertexBuffer(
             *m_normal_buffer.get(),
-            {.binding_index = 1, .stride = 12},
+            {.binding_index = 1, .stride = 12}, // 3 * sizeof(float)
             {{.name = "normal", .location = 1, .type = VertexAttributeType::Float3, .normalized = false}});
     }
 
@@ -260,7 +276,7 @@ void Mesh::initializeGpuBuffers()
         m_uv_buffer = std::make_shared<OglBuffer>(&m_uv[0], m_uv.size() * sizeof(ramanujan::Vector2));
         m_vertex_array->addVertexBuffer(
             *m_uv_buffer.get(),
-            {.binding_index = 2, .stride = 8},
+            {.binding_index = 2, .stride = 8}, // 2 * sizeof(float)
             {{.name = "uv", .location = 2, .type = VertexAttributeType::Float2, .normalized = false}});
     }
 
@@ -270,7 +286,7 @@ void Mesh::initializeGpuBuffers()
             std::make_shared<OglBuffer>(&m_weights[0], (u64)m_weights.size() * sizeof(ramanujan::Vector4));
         m_vertex_array->addVertexBuffer(
             *m_weight_buffer.get(),
-            {.binding_index = 3, .stride = 16},
+            {.binding_index = 3, .stride = 16}, // 4 * sizeof(float)
             {{.name = "weights", .location = 3, .type = VertexAttributeType::Float4, .normalized = false}});
     }
 
@@ -280,7 +296,7 @@ void Mesh::initializeGpuBuffers()
             std::make_shared<OglBuffer>(&m_influences[0], (u64)m_influences.size() * sizeof(ramanujan::IVector4));
         m_vertex_array->addVertexBuffer(
             *m_influence_buffer.get(),
-            {.binding_index = 4, .stride = 16},
+            {.binding_index = 4, .stride = 16}, // 4 * sizeof(int)
             {{.name = "joints", .location = 4, .type = VertexAttributeType::Int4, .normalized = false}});
     }
 

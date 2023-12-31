@@ -43,12 +43,12 @@ const std::unordered_map<std::string, ShaderStageType> kStringToShaderStageType 
     {"tese", ShaderStageType::TessellationEvaluation},
     {"comp", ShaderStageType::Compute}};
 
-const u32 ShaderStageBits::kVertexShaderBit                 = GL_VERTEX_SHADER_BIT;
-const u32 ShaderStageBits::kFragmentShaderBit               = GL_FRAGMENT_SHADER_BIT;
-const u32 ShaderStageBits::kGeometryShaderBit               = GL_GEOMETRY_SHADER_BIT;
-const u32 ShaderStageBits::kTessellationControlShaderBit    = GL_TESS_CONTROL_SHADER_BIT;
-const u32 ShaderStageBits::kTessellationEvaluationShaderBit = GL_TESS_EVALUATION_SHADER_BIT;
-const u32 ShaderStageBits::kComputeShaderBit                = GL_COMPUTE_SHADER_BIT;
+//const u32 ShaderStageBits::kVertexShaderBit                 = GL_VERTEX_SHADER_BIT;
+//const u32 ShaderStageBits::kFragmentShaderBit               = GL_FRAGMENT_SHADER_BIT;
+//const u32 ShaderStageBits::kGeometryShaderBit               = GL_GEOMETRY_SHADER_BIT;
+//const u32 ShaderStageBits::kTessellationControlShaderBit    = GL_TESS_CONTROL_SHADER_BIT;
+//const u32 ShaderStageBits::kTessellationEvaluationShaderBit = GL_TESS_EVALUATION_SHADER_BIT;
+//const u32 ShaderStageBits::kComputeShaderBit                = GL_COMPUTE_SHADER_BIT;
 
 const std::unordered_map<u32, u32> kGlShaderTypeToGlShaderBit = {
     {GL_VERTEX_SHADER, GL_VERTEX_SHADER_BIT},

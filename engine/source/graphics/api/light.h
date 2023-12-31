@@ -15,9 +15,9 @@ struct Light
     alignas(16) vec3 ambient{0.2f, 0.2f, 0.2f};
     alignas(16) vec3 diffuse{0.5f, 0.5f, 0.5f};
     alignas(16) vec3 specular{1.0f, 1.0f, 1.0f};
-    alignas(4) float constant{1.0f};
-    alignas(4) float linear{0.09f};
-    alignas(4) float quadratic{0.032f};
+    alignas(4) float constant{0.0f};
+    alignas(4) float linear{0.0f};
+    alignas(4) float quadratic{0.0f};
 };
 
 struct PerFrameData

@@ -60,6 +60,8 @@ public:
     void beginViewportFrame();
     void endViewportFrame();
 
+    bool isViewportActive() { return m_is_viewport_active; }
+
 protected:
     Editor();
 
@@ -73,8 +75,8 @@ private:
     std::unique_ptr<EditorViewport> m_viewport;
     SystemInformation               m_system_information;
 
-    bool m_is_viewport_active{true};
-    bool m_is_dockspace_active{true};
+    inline static bool m_is_viewport_active{true};
+    inline static bool m_is_dockspace_active{true};
 };
 
 template <typename T>

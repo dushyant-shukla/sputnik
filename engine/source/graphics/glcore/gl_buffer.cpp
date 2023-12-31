@@ -152,6 +152,7 @@ void OglBuffer::bind(const BufferBindTarget& bind_target, const u32& bind_index)
 {
     // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBufferBase.xhtml
     SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
+    m_bind_target = bind_target;
     glBindBufferBase(getOglBufferBindTarget(bind_target), bind_index, m_id);
 }
 
@@ -159,6 +160,7 @@ void OglBuffer::bind(const BufferBindTarget& bind_target, const u32& bind_index,
 {
     // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBufferRange.xhtml
     SPUTNIK_ASSERT(m_id != 0, "Buffer is not initialized.");
+    m_bind_target = bind_target;
     glBindBufferRange(getOglBufferBindTarget(bind_target), bind_index, m_id, (GLintptr)offset, (GLsizeiptr)size);
 }
 

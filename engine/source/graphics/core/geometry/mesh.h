@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "graphics/core/animation/skeleton.h"
+#include "graphics/api/color_material.h"
 
 #include <vector2.h>
 #include <vector3.h>
@@ -20,6 +21,7 @@ namespace sputnik::graphics::core
 {
 
 using namespace sputnik::graphics::gl;
+using namespace sputnik::graphics::api;
 
 /**
  * This is a naive implementation of a mesh construct. It is not production ready.
@@ -52,6 +54,7 @@ public:
     // void Bind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot);
 
     void Draw();
+    void draw(const Material& material, const mat4& model = {});
     void DrawInstanced(unsigned int num_instances);
     // void Unbind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot);
 

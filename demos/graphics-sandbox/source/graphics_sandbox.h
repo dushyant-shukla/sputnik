@@ -31,29 +31,15 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    struct PerFrameData
-    {
-        alignas(16) mat4 projection;
-        alignas(16) mat4 view;
-        alignas(16) vec3 camera_position;
-    };
-    PerFrameData m_per_frame_data;
-    Light        m_light;
-
-    std::shared_ptr<OglBuffer>        m_per_frame_data_buffer;
-    std::shared_ptr<OglBuffer>        m_light_data_buffer;
-    std::shared_ptr<OglBuffer>        m_vertex_buffer;
-    std::shared_ptr<OglVertexArray>   m_vertex_array;
-    std::shared_ptr<OglShaderProgram> m_static_program;
-    std::shared_ptr<OglTexture2D>     m_diff_texture;
-    std::shared_ptr<OglTexture2D>     m_spec_texture;
+    std::shared_ptr<OglBuffer>      m_vertex_buffer;
+    std::shared_ptr<OglVertexArray> m_vertex_array;
+    std::shared_ptr<OglTexture2D>   m_cloth_diff_texture;
 
     std::shared_ptr<Model>            m_animated_model;
     std::shared_ptr<OglTexture2D>     m_diff_texture_woman;
-    std::shared_ptr<OglShaderProgram> m_shader_program;
 
-    std::shared_ptr<OglShaderProgram> m_grid_program;
-    OglVertexArray                    m_grid_vao;
+    std::shared_ptr<OglVertexArray> m_pvp_vertex_array;
+    std::shared_ptr<OglBuffer>      m_pvp_vertex_buffer;
 };
 
 class GraphicsSandboxDemo : public sputnik::main::Application

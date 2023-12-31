@@ -22,18 +22,18 @@ enum class ShaderStageType : u32
 
 cstring shaderStageTypeToString(const ShaderStageType& type);
 
-class ShaderStageBits
-{
-public:
-    NON_INSTATIABLE(ShaderStageBits)
-
-    static const u32 kVertexShaderBit;
-    static const u32 kFragmentShaderBit;
-    static const u32 kGeometryShaderBit;
-    static const u32 kTessellationControlShaderBit;
-    static const u32 kTessellationEvaluationShaderBit;
-    static const u32 kComputeShaderBit;
-};
+//class ShaderStageBits
+//{
+//public:
+//    NON_INSTATIABLE(ShaderStageBits)
+//
+//    static const u32 kVertexShaderBit;
+//    static const u32 kFragmentShaderBit;
+//    static const u32 kGeometryShaderBit;
+//    static const u32 kTessellationControlShaderBit;
+//    static const u32 kTessellationEvaluationShaderBit;
+//    static const u32 kComputeShaderBit;
+//};
 
 /////////////////////////////////// EXPERIMENTAL /////////////////////////////////
 

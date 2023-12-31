@@ -8,6 +8,27 @@
 namespace sputnik::graphics::gl
 {
 
+// An example of setting up a vertex array with interleaved vertex attributes.
+// m_vertex_buffer = std::make_shared<OglBuffer>((void*)kCubeVertices, sizeof(kCubeVertices));
+//
+// Ideally all this must be read from the shader maybe?
+// Be more dynamic and less hardcoded
+// Maybe this is handled when creating pipeline infrastructure
+// std::initializer_list<VertexInputAttributeSpecification> vertex_input_attributes{
+//     {.name = "position", .location = 0, .type = VertexAttributeType::Float3, .normalized = false},
+//     {.name = "normal", .location = 1, .type = VertexAttributeType::Float3, .normalized = false},
+//     {.name = "uv", .location = 2, .type = VertexAttributeType::Float2, .normalized = false},
+// };
+//
+// VertexInputBindingSpecification vertex_input_binding{0, 8 * sizeof(float)};
+//
+// OglVertexArray m_vertex_array = std::make_shared<OglVertexArray>();
+// m_vertex_array->addVertexBuffer(*m_vertex_buffer.get(), vertex_input_binding, vertex_input_attributes);
+
+
+// An example of setting up a vertex array with separate vertex attributes.
+// 
+
 cstring attributeTypeToString(const VertexAttributeType& type)
 {
     switch(type)
@@ -98,7 +119,7 @@ inline u32 getOglType(VertexAttributeType type)
 OglVertexArray::OglVertexArray() : m_id{0}, m_next_slot_index{0}
 {
     glGenVertexArrays(1, &m_id);
-    SPUTNIK_ASSERT(m_id != 0, "Failed to create a vertex array.");
+    // SPUTNIK_ASSERT(m_id != 0, "Failed to create a vertex array.");
 }
 
 OglVertexArray::~OglVertexArray()

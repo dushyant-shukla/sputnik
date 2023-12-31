@@ -33,13 +33,14 @@ Application::~Application() {}
 
 void Application::Run()
 {
+    m_render_system->setClearColor(0.16f, 0.16f, 0.16f, 1.00f);
     while(m_is_running)
     {
         float          time      = (float)glfwGetTime();
         core::TimeStep time_step = time - m_last_frame_time;
         m_last_frame_time        = time;
 
-        m_render_system->preUpdate(time_step);
+        m_render_system->clear();
 
         if(!m_is_minimized)
         {
@@ -64,6 +65,10 @@ void Application::Run()
 
         m_editor->beginFrame();
         m_editor->update(time_step);
+        if(m_editor->isViewportActive())
+        {
+            m_render_system->drawUI();
+        }
         m_editor->endFrame();
 
         m_editor->lateUpdate(time_step);

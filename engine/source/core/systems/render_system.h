@@ -7,6 +7,7 @@
 #include "editor/editor_camera.h"
 #include "graphics/api/camera.h"
 #include "graphics/window/window.h"
+#include "graphics/api/color_material.h"
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -81,9 +82,16 @@ public:
 
     void blockCameraUpdate(const bool& block = true);
 
-    void renderAtmosphericScattering();
+    // void renderAtmosphericScattering();
 
     void setViewportToCurrentWindowSize();
+
+    void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
+    void drawTrianglesIndexed(const u64& vertex_count, const Material& material, const mat4& model);
+
+    void drawUI();
+
+    Light& getLight();
 
 private:
     RenderSystem();
@@ -121,8 +129,8 @@ private:
     std::shared_ptr<Window> m_window;
 
     // Light m_lights[4];
-    Light        m_light;
-    PerFrameData m_per_frame_data;
+    sputnik::graphics::api::Light        m_light;
+    sputnik::graphics::api::PerFrameData m_per_frame_data;
 
     RenderSystemType m_active_render_system_type;
 

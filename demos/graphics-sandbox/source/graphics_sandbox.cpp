@@ -9,11 +9,64 @@
 #include <matrix.hpp>
 #include <imgui.h>
 #include <editor/editor.hpp>
+#include <core/systems/render_system.h>
 
 #include <glad/glad.h>
 
 namespace sputnik::demos
 {
+
+using namespace sputnik::core::systems;
+
+struct VertexData
+{
+    alignas(16) vec3 position;
+    alignas(16) vec3 normal;
+    alignas(8) vec2 uv;
+};
+
+std::vector<VertexData> cube_verts = {
+    {.position = {-0.5f, -0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}, .uv = {0.0f, 0.0f}},
+    {.position = {0.5f, -0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {0.5f, 0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {0.5f, 0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {-0.5f, 0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {-0.5f, -0.5f, -0.5f}, .normal = {0.0f, 0.0f, -1.0f}, .uv = {0.0f, 0.0f}},
+
+    {.position = {-0.5f, -0.5f, 0.5f}, .normal = {0.0f, 0.0f, 1.0f}, .uv = {0.0f, 0.0f}},
+    {.position = {0.5f, -0.5f, 0.5f}, .normal = {0.0f, 0.0f, 1.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {0.5f, 0.5f, 0.5f}, .normal = {0.0f, 0.0f, 1.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {0.5f, 0.5f, 0.5f}, .normal = {0.0f, 0.0f, 1.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {-0.5f, 0.5f, 0.5f}, .normal = {0.0f, 0.0f, 1.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {-0.5f, -0.5f, 0.5f}, .normal = {0.0f, 0.0f, 1.0f}, .uv = {0.0f, 0.0f}},
+
+    {.position = {-0.5f, 0.5f, 0.5f}, .normal = {-1.0f, 0.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {-0.5f, 0.5f, -0.5f}, .normal = {-1.0f, 0.0f, 0.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {-0.5f, -0.5f, -0.5f}, .normal = {-1.0f, 0.0f, 0.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {-0.5f, -0.5f, -0.5f}, .normal = {-1.0f, 0.0f, 0.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {-0.5f, -0.5f, 0.5f}, .normal = {-1.0f, 0.0f, 0.0f}, .uv = {0.0f, 0.0f}},
+    {.position = {-0.5f, 0.5f, 0.5f}, .normal = {-1.0f, 0.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+
+    {.position = {0.5f, 0.5f, 0.5f}, .normal = {1.0f, 0.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {0.5f, 0.5f, -0.5f}, .normal = {1.0f, 0.0f, 0.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {0.5f, -0.5f, -0.5f}, .normal = {1.0f, 0.0f, 0.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {0.5f, -0.5f, -0.5f}, .normal = {1.0f, 0.0f, 0.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {0.5f, -0.5f, 0.5f}, .normal = {1.0f, 0.0f, 0.0f}, .uv = {0.0f, 0.0f}},
+    {.position = {0.5f, 0.5f, 0.5f}, .normal = {1.0f, 0.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+
+    {.position = {-0.5f, -0.5f, -0.5f}, .normal = {0.0f, -1.0f, 0.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {0.5f, -0.5f, -0.5f}, .normal = {0.0f, -1.0f, 0.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {0.5f, -0.5f, 0.5f}, .normal = {0.0f, -1.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {0.5f, -0.5f, 0.5f}, .normal = {0.0f, -1.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {-0.5f, -0.5f, 0.5f}, .normal = {0.0f, -1.0f, 0.0f}, .uv = {0.0f, 0.0f}},
+    {.position = {-0.5f, -0.5f, -0.5f}, .normal = {0.0f, -1.0f, 0.0f}, .uv = {0.0f, 1.0f}},
+
+    {.position = {-0.5f, 0.5f, -0.5f}, .normal = {0.0f, 1.0f, 0.0f}, .uv = {0.0f, 1.0f}},
+    {.position = {0.5f, 0.5f, -0.5f}, .normal = {0.0f, 1.0f, 0.0f}, .uv = {1.0f, 1.0f}},
+    {.position = {0.5f, 0.5f, 0.5f}, .normal = {0.0f, 1.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {0.5f, 0.5f, 0.5f}, .normal = {0.0f, 1.0f, 0.0f}, .uv = {1.0f, 0.0f}},
+    {.position = {-0.5f, 0.5f, 0.5f}, .normal = {0.0f, 1.0f, 0.0f}, .uv = {0.0f, 0.0f}},
+    {.position = {-0.5f, 0.5f, -0.5f}, .normal = {0.0f, 1.0f, 0.0f}, .uv = {0.0f, 1.0f}}};
 
 // clang-format off
 const float kCubeVertices[] = {
@@ -76,17 +129,6 @@ void GraphicsSandboxDemoLayer::OnAttach()
     sputnik::graphics::gl::VertexAttributeType type = sputnik::graphics::gl::VertexAttributeType::Float;
     ENGINE_INFO("Graphics Sandbox Demo Layer Attached: {}", sputnik::graphics::gl::attributeTypeToString(type));
 
-    m_static_program = std::make_shared<OglShaderProgram>();
-    m_static_program->addShaderStage("../../data/shaders/glsl/blinn_phong.vert");
-    m_static_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
-    m_static_program->configure();
-
-    m_per_frame_data_buffer = std::make_shared<OglBuffer>(sizeof(PerFrameData));
-    m_per_frame_data_buffer->bind(BufferBindTarget::UniformBuffer, 0);
-
-    m_light_data_buffer = std::make_shared<OglBuffer>(sizeof(Light));
-    m_light_data_buffer->bind(BufferBindTarget::UniformBuffer, 1);
-
     m_vertex_buffer = std::make_shared<OglBuffer>((void*)kCubeVertices, sizeof(kCubeVertices));
 
     // Ideally all this must be read from the shader maybe?
@@ -103,202 +145,95 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_vertex_array = std::make_shared<OglVertexArray>();
     m_vertex_array->addVertexBuffer(*m_vertex_buffer.get(), vertex_input_binding, vertex_input_attributes);
 
-    m_light.position = vec3(0.0f, 5.0f, 5.0f);
-    m_light.ambient  = vec3(1.0f, 1.0f, 1.0f);
-    m_light.diffuse  = vec3(1.0f, 1.0f, 1.0f);
-    m_light.specular = vec3(1.0f, 1.0f, 1.0f);
+    auto  render_system = RenderSystem::getInstance();
+    auto& light         = render_system->getLight();
+    light.position      = vec3(0.0f, 5.0f, 5.0f);
+    light.ambient       = vec3(1.0f, 1.0f, 1.0f);
+    light.diffuse       = vec3(1.0f, 1.0f, 1.0f);
+    light.specular      = vec3(1.0f, 1.0f, 1.0f);
 
-    u32 white = 0xffffffff;
-    u32 red   = 0xff0000ff;
-    u32 green = 0xff00ff00;
-    u32 blue  = 0xffff0000;
-    // m_diff_texture = std::make_shared<OglTexture2D>(1, 1, TextureFormat::RGBA8);
-    // m_diff_texture->setData(&green, sizeof(u32));
-    m_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
-    m_spec_texture = std::make_shared<OglTexture2D>(1, 1, &white, TextureFormat::RGBA8);
+    m_cloth_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
 
     m_animated_model     = Model::LoadModel("../../data/assets/Woman.gltf");
     m_diff_texture_woman = std::make_shared<OglTexture2D>("../../data/assets/Woman.png", false);
 
-    m_shader_program = std::make_shared<OglShaderProgram>();
-    m_shader_program->addShaderStage("../../data/shaders/simple.vert");
-    m_shader_program->addShaderStage("../../data/shaders/simple.frag");
-    m_shader_program->configure();
-
-    // glCreateVertexArrays(1, &m_grid_vao);
-    m_grid_program = std::make_shared<OglShaderProgram>();
-    m_grid_program->addShaderStage("../../data/shaders/glsl/grid.vert");
-    m_grid_program->addShaderStage("../../data/shaders/glsl/grid.frag");
-    m_grid_program->configure();
+    // binding point of VertexData SSBO in blinn phong pvp program is 2
+    m_pvp_vertex_buffer = std::make_shared<OglBuffer>((void*)cube_verts.data(), sizeof(VertexData) * cube_verts.size());
+    m_pvp_vertex_buffer->bind(BufferBindTarget::ShaderStorageBuffer, 2);
 }
 
-void GraphicsSandboxDemoLayer::OnDetach()
-{
-    // glDeleteVertexArrays(1, &m_grid_vao);
-}
+void GraphicsSandboxDemoLayer::OnDetach() {}
 
 void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
-    // const auto& camera               = EditorCamera::GetInstance();
-    const auto& camera               = Camera::GetInstance();
-    m_per_frame_data.projection      = camera->GetCameraPerspective();
-    m_per_frame_data.view            = camera->GetCameraView();
-    m_per_frame_data.camera_position = camera->GetCameraPosition();
 
-    m_per_frame_data_buffer->setData(&m_per_frame_data, sizeof(PerFrameData));
-    m_light_data_buffer->setData(&m_light, sizeof(Light));
+    RenderSystem* render_system = RenderSystem::getInstance();
 
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
 
-    m_static_program->bind();
+    // render using vao shader
+    {
+        m_vertex_array->bind();
 
-    mat4 model{};
-    // model              = model.translate({0.0f, 0.0f, 0.0f});
-    // model              = model.scale({0.15f});
-    mat4 normal_matrix = model.inverted().transpose();
-    m_static_program->setMat4("model", model);
-    m_static_program->setMat4("normal_matrix", normal_matrix);
+        // render cube
+        {
+            mat4 model{};
+            model = model.translate({3.0, 3.0, -5.0});
+            model = model.scale({2.0f});
+            Material material_cloth;
+            material_cloth.diff_texture = m_cloth_diff_texture;
+            render_system->drawTriangles(36, material_cloth, model);
+        }
 
-    // m_static_program->setFloat3("material.ambient", material_emerald.ambient);
-    m_static_program->setFloat3("material.diffuse", material_white.diffuse);
-    m_static_program->setFloat3("material.specular", material_white.specular);
-    m_static_program->setFloat("material.shininess", material_white.shininess);
+        // render light box
+        {
+            mat4 model = {};
+            model      = model.translate(render_system->getLight().position);
+            model      = model.scale({0.15f});
+            render_system->drawTriangles(36, material_ruby, model);
+        }
 
-    m_diff_texture->bind(0);
-    m_static_program->setInt("material.diffuse_texture", 0);
-    m_spec_texture->bind(1);
-    m_static_program->setInt("material.specular_texture", 1);
+        m_vertex_array->unbind();
+    }
 
-    m_vertex_array->bind();
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    // render using pvp shader
+    {
+        // draw#1
+        mat4     model{};
+        Material cloth     = {};
+        cloth.shader_name  = "blinn_phong_pvp";
+        cloth.diff_texture = m_cloth_diff_texture;
+        render_system->drawTriangles(36, cloth, model);
+        // draw#1 ends
 
-    model         = {};
-    model         = model.translate(m_light.position);
-    model         = model.scale({0.15f});
-    normal_matrix = model.inverted().transpose();
-    m_static_program->setMat4("model", model);
-    m_static_program->setMat4("normal_matrix", normal_matrix);
-
-    // m_static_program->setFloat3("material.ambient", material_ruby.ambient);
-    m_static_program->setFloat3("material.diffuse", material_ruby.diffuse);
-    m_static_program->setFloat3("material.specular", material_ruby.specular);
-    m_static_program->setFloat("material.shininess", material_ruby.shininess);
-    m_diff_texture->bind(0);
-    m_static_program->setInt("material.diffuse_texture", 0);
-    m_spec_texture->bind(1);
-    m_static_program->setInt("material.specular_texture", 1);
-
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    m_vertex_array->unbind();
-
-    m_static_program->unbind();
+        // draw#2
+        model                = {};
+        model                = model.translate({5.0f, 0.0f, 0.0f});
+        model                = model.rotate({0.0f, 1.0f, 0.0f}, 45.0f * kDegToRad);
+        model                = model.scale({0.5f});
+        Material material    = material_white;
+        material.shader_name = "blinn_phong_pvp";
+        render_system->drawTriangles(36, material, model);
+        // draw#2 ends
+    }
+    // render using pvp ends
 
     // render woman
     {
-        const auto& editor_camera = sputnik::graphics::api::EditorCamera::GetInstance();
-        mat4        projection    = editor_camera->GetCameraPerspective();
-        mat4        view          = editor_camera->GetCameraView();
-        model                     = {};
-        model                     = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
-
-        m_shader_program->bind();
-        m_shader_program->setMat4("projection", projection);
-        m_shader_program->setMat4("model", model);
-        m_shader_program->setMat4("view", view);
-
-        m_diff_texture_woman->bind(0);
-        m_shader_program->setInt("diffuse", 0);
-
-        m_shader_program->setFloat3("light", {0.0f, 5.0f, 5.0f});
-
-        m_animated_model->Draw();
-
-        m_shader_program->unbind();
+        mat4 model            = {};
+        model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+        Material material     = {};
+        material.diff_texture = m_diff_texture_woman;
+        material.shader_name  = "blinn_phong";
+        m_animated_model->draw(material, model);
     }
     // render woman ends
 
-    // render grid
-    {
-        m_grid_vao.bind();
-        m_grid_program->bind();
-        glEnable(GL_BLEND);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // black lines
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA); // This gives best results - white lines
-        glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6, 1, 0);
-        glDisable(GL_BLEND);
-        m_grid_program->unbind();
-        m_grid_vao.unbind();
-    }
-    // render grid ends
-
-    glDisable(GL_DEPTH_TEST);
-
-    // sputnik::editor::Editor::getInstance()->OnUpdate(time_step);
-    // if(ImGui::Begin("Lighting"))
-    //{
-    //    sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetFloat("linear", m_light.linear, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
-
-    //    // ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
-    //    // ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
-    //    // ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
-    //    // ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
-    //    // ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
-    //    // ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
-    //    // ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
-    //    // ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
-    //    // ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
-    //}
-    // ImGui::End();
+    // glDisable(GL_DEPTH_TEST);
 }
 
 void GraphicsSandboxDemoLayer::OnEvent() {}
 
-void GraphicsSandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
-{
-    // if(ImGui::Begin("Lighting"))
-    //{
-    //     ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
-    //     ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
-    //     ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
-
-    //    ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
-    //    ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
-    //    ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
-
-    //    ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
-    //    ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
-    //    ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
-    //}
-    // ImGui::End();
-
-    // if(ImGui::Begin("Lighting"))
-    //{
-    //    sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetFloat("linear", m_light.linear, 90.0f);
-    //    sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
-
-    //    // ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
-    //    // ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
-    //    // ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
-    //    // ImGui::ColorEdit3("Light ambient", &m_light.ambient.x, ImGuiColorEditFlags_Float);
-    //    // ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x, ImGuiColorEditFlags_Float);
-    //    // ImGui::ColorEdit3("Light specular", &m_light.specular.x, ImGuiColorEditFlags_Float);
-    //    // ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
-    //    // ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
-    //    // ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
-    //}
-    // ImGui::End();
-}
+void GraphicsSandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_step) {}
 
 } // namespace sputnik::demos

@@ -49,6 +49,14 @@ vec4 gridColor(vec2 uv)
 
 	// blend between LOD level alphas and scale with opacity falloff
 	c.a *= (lod2a > 0.0 ? lod2a : lod1a > 0.0 ? lod1a : (lod0a * (1.0-lodFade))) * opacityFalloff;
+	if(uv.y > -0.035 && uv.y < 0.035)
+	{
+		c = vec4(1.0, 0.0, 0.0, 1.0);
+	}
+	if(uv.x > -0.035 && uv.x < 0.035)
+	{
+		c = vec4(0.0, 0.0, 1.0, 1.0);
+	}
 
 	return c;
 }

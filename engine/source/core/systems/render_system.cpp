@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "render_system.h"
 #include "graphics/glcore/gl_renderer.h"
+#include "editor/editor.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -53,7 +54,7 @@ void RenderSystem::initialize(const RenderSystemType& render_system_type)
 
 void RenderSystem::setupOglPipeline()
 {
-    m_gl_pipeline = [this](double timestep) { ENGINE_TRACE("OPENGL PIPELINE EXECUTED..."); };
+    m_gl_pipeline = [this](double timestep) -> void { ENGINE_TRACE("OPENGL PIPELINE EXECUTED..."); };
 }
 
 void RenderSystem::update(const TimeStep& timestep)
@@ -61,8 +62,36 @@ void RenderSystem::update(const TimeStep& timestep)
     // Todo:: update cameras (temporary)
     m_camera->Update(timestep, m_is_camera_update_blocked);
     m_editor_camera->Update(timestep);
-    renderAtmosphericScattering();
-    m_gl_pipeline(timestep);
+    // renderAtmosphericScattering();
+    //  m_gl_pipeline(timestep);
+
+    // send in the camera matrices (camera pointer), and the
+    if(InputManager::GetInstance()->IsKeyTriggered(KEY_C))
+    {
+        if(m_camera_type == CameraType::Camera)
+        {
+            m_camera_type = CameraType::EditorCamera;
+        }
+        else
+        {
+            m_camera_type = CameraType::Camera;
+        }
+    }
+
+    if(m_camera_type == CameraType::Camera)
+    {
+        m_ogl_renderer->render(m_camera->GetCameraPerspective(),
+                               m_camera->GetCameraView(),
+                               m_camera->GetCameraPosition(),
+                               m_light);
+    }
+    else
+    {
+        m_ogl_renderer->render(m_editor_camera->GetCameraPerspective(),
+                               m_editor_camera->GetCameraView(),
+                               m_editor_camera->GetCameraPosition(),
+                               m_light);
+    }
 
     // SceneManager will register it's render method as a callback for drawing all the geometries in the scene
     // This gives the engine a flexibility to use a client provided draw method
@@ -116,8 +145,8 @@ void core::systems::RenderSystem::setClearColor(float r, float g, float b, float
 
 void core::systems::RenderSystem::preUpdate(TimeStep& timestep)
 {
-    setClearColor(0.16f, 0.16f, 0.16f, 1.00f);
-    clear();
+    // setClearColor(0.16f, 0.16f, 0.16f, 1.00f);
+    // clear();
 }
 
 void RenderSystem::blockCameraUpdate(const bool& block)
@@ -125,10 +154,10 @@ void RenderSystem::blockCameraUpdate(const bool& block)
     m_is_camera_update_blocked = block;
 }
 
-void RenderSystem::renderAtmosphericScattering()
-{
-    m_ogl_renderer->renderAtmosphericScattering();
-}
+// void RenderSystem::renderAtmosphericScattering()
+//{
+//     m_ogl_renderer->renderAtmosphericScattering();
+// }
 
 void RenderSystem::setViewportToCurrentWindowSize()
 {
@@ -137,6 +166,36 @@ void RenderSystem::setViewportToCurrentWindowSize()
     EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
     Camera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
     m_ogl_renderer->resizeViewport(width, height);
+}
+
+void RenderSystem::drawTriangles(const u64& vertex_count, const Material& material, const mat4& model)
+{
+    m_ogl_renderer->drawTriangles(vertex_count, material, model);
+}
+
+void RenderSystem::drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model)
+{
+    m_ogl_renderer->drawTrianglesIndexed(index_count, material, model);
+}
+
+void core::systems::RenderSystem::drawUI()
+{
+    if(ImGui::Begin("Lighting"))
+    {
+        sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
+        sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
+        sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
+        sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
+        sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
+        sputnik::editor::Editor::drawWidgetFloat("linear", m_light.linear, 90.0f);
+        sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
+    }
+    ImGui::End();
+}
+
+Light& RenderSystem::getLight()
+{
+    return m_light;
 }
 
 } // namespace sputnik::core::systems
