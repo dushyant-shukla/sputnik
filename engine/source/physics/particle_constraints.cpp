@@ -10,10 +10,9 @@ real ParticleConstraint::currentLength() const noexcept
     return relative_position.length();
 }
 
-// unsigned ParticleCable::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
-unsigned ParticleCable::addContact(std::vector<ParticleContact*>& contacts,
-                                   const unsigned&                current_contact_index,
-                                   const unsigned&                limit) const noexcept
+unsigned ParticleCable::addContact(std::vector<std::shared_ptr<ParticleContact>>& contacts,
+                                   const unsigned&                                current_contact_index,
+                                   const unsigned&                                limit) noexcept
 {
     real current_length = currentLength();
 
@@ -38,10 +37,9 @@ unsigned ParticleCable::addContact(std::vector<ParticleContact*>& contacts,
     return 1;
 }
 
-// unsigned ParticleRod::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
-unsigned ParticleRod::addContact(std::vector<ParticleContact*>& contacts,
-                                 const unsigned&                current_contact_index,
-                                 const unsigned&                limit) const noexcept
+unsigned ParticleRod::addContact(std::vector<std::shared_ptr<ParticleContact>>& contacts,
+                                 const unsigned&                                current_contact_index,
+                                 const unsigned&                                limit) noexcept
 {
     real current_length = currentLength();
 
@@ -61,13 +59,13 @@ unsigned ParticleRod::addContact(std::vector<ParticleContact*>& contacts,
     {
         // extended
         contacts[current_contact_index]->m_contact_normal = normal;
-        contacts[current_contact_index]->m_penetration = current_length - m_length;
+        contacts[current_contact_index]->m_penetration    = current_length - m_length;
     }
     else
     {
         // compressed
         contacts[current_contact_index]->m_contact_normal = normal * -1;
-        contacts[current_contact_index]->m_penetration = m_length - current_length;
+        contacts[current_contact_index]->m_penetration    = m_length - current_length;
     }
 
     contacts[current_contact_index]->m_restitution = 0; // rods don't generate bouncy contacts
@@ -81,10 +79,9 @@ real AnchoredParticleConstraint::currentLength() const noexcept
     return relative_position.length();
 }
 
-// unsigned AnchoredParticleCable::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
-unsigned AnchoredParticleCable::addContact(std::vector<ParticleContact*>& contacts,
-                                         const unsigned&                current_contact_index,
-                                         const unsigned&                limit) const noexcept
+unsigned AnchoredParticleCable::addContact(std::vector<std::shared_ptr<ParticleContact>>& contacts,
+                                           const unsigned&                                current_contact_index,
+                                           const unsigned&                                limit) noexcept
 {
     real current_length = currentLength();
 
@@ -108,10 +105,9 @@ unsigned AnchoredParticleCable::addContact(std::vector<ParticleContact*>& contac
     return 1;
 }
 
-// unsigned AnchoredParticleRod::addContact(ParticleContact* contact, const unsigned& limit) const noexcept
-unsigned AnchoredParticleRod::addContact(std::vector<ParticleContact*>& contacts,
-                                         const unsigned&                current_contact_index,
-                                         const unsigned&                limit) const noexcept
+unsigned AnchoredParticleRod::addContact(std::vector<std::shared_ptr<ParticleContact>>& contacts,
+                                         const unsigned&                                current_contact_index,
+                                         const unsigned&                                limit) noexcept
 {
     real current_length = currentLength();
 

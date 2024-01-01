@@ -26,7 +26,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) = 0;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) = 0;
 };
 
 /**
@@ -44,7 +44,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) override;
 
 private:
     /**
@@ -68,7 +68,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) override;
 
 private:
     /**
@@ -90,7 +90,9 @@ private:
 class ParticleSpringForceGenerator : public ParticleForceGenerator
 {
 public:
-    ParticleSpringForceGenerator(Particle* other, const real& spring_constant, const real& rest_length) noexcept;
+    ParticleSpringForceGenerator(std::shared_ptr<Particle>& other,
+                                 const real&                spring_constant,
+                                 const real&                rest_length) noexcept;
 
     virtual ~ParticleSpringForceGenerator() noexcept = default;
 
@@ -100,13 +102,13 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) override;
 
 protected:
     /**
      *  The particle at the other end of the sprinf.
      */
-    Particle* m_other_particle;
+    std::shared_ptr<Particle> m_other_particle;
 
     /**
      * Holds the spring constant (gives the spring its stiffness).
@@ -137,7 +139,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) override;
 
     virtual void setAnchor(const vec3& anchor) noexcept;
 
@@ -165,7 +167,9 @@ protected:
 class ParticleBungeeForceGenerator : public ParticleForceGenerator
 {
 public:
-    ParticleBungeeForceGenerator(Particle* other, const real& spring_constant, const real& rest_length) noexcept;
+    ParticleBungeeForceGenerator(std::shared_ptr<Particle>& other,
+                                 const real&                spring_constant,
+                                 const real&                rest_length) noexcept;
 
     virtual ~ParticleBungeeForceGenerator() noexcept = default;
 
@@ -175,13 +179,13 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) override;
 
 protected:
     /*
      * The particle at the other end of the bungee.
      */
-    Particle* m_other_particle;
+    std::shared_ptr<Particle> m_other_particle;
 
     /*
      * Holds the spring constant (gives the spring its stiffness).
@@ -209,7 +213,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) override;
 };
 
 /**
@@ -231,7 +235,7 @@ public:
      * @param particle The particle to apply the force to.
      * @param duration The duration of the frame in seconds.
      */
-    virtual void updateForce(Particle* particle, const real& duration) override;
+    virtual void updateForce(std::shared_ptr<Particle>& particle, const real& duration) override;
 
 protected:
     /**

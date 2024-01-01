@@ -3,6 +3,7 @@
 #include "core/time_step.h"
 #include "core/layers/layer.h"
 #include "core/systems/render_system.h"
+#include "core/systems/physics_system.h"
 
 #include <GLFW/glfw3.h>
 
@@ -26,6 +27,8 @@ Application::Application(const std::string& application_name)
     m_render_system = RenderSystem::getInstance();
     m_render_system->initialize(RenderSystemType::OPEN_GL);
 
+    m_physics_system = PhysicsSystem::getInstance();
+
     m_editor = sputnik::editor::Editor::getInstance();
 }
 
@@ -45,6 +48,7 @@ void Application::Run()
         if(!m_is_minimized)
         {
             m_editor->beginViewportFrame();
+            m_physics_system->simulatePhysics(time_step);
             m_render_system->update(time_step);
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
@@ -61,19 +65,35 @@ void Application::Run()
                 layer->OnPostUpdate(time_step);
             }
             m_editor->endViewportFrame();
-        }
 
-        m_editor->beginFrame();
-        m_editor->update(time_step);
-        if(m_editor->isViewportActive())
-        {
-            m_render_system->drawUI();
-        }
-        m_editor->endFrame();
+            // UI pass
+            m_editor->beginFrame();
+            m_editor->update(time_step);
+            if(m_editor->isViewportActive())
+            {
+                m_render_system->drawUI();
 
-        m_editor->lateUpdate(time_step);
-        m_input_manager->LateUpdate(time_step);
-        m_render_system->lateUpdate(time_step);
+                for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+                {
+                    layer->OnPreUpdateUI(time_step);
+                }
+
+                for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+                {
+                    layer->OnUpdateUI(time_step);
+                }
+
+                for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+                {
+                    layer->OnPostUpdateUI(time_step);
+                }
+            }
+            m_editor->endFrame();
+
+            m_editor->lateUpdate(time_step);
+            m_input_manager->LateUpdate(time_step);
+            m_render_system->lateUpdate(time_step);
+        }
     }
 }
 

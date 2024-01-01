@@ -5,24 +5,25 @@
 namespace sputnik::physics
 {
 
-void ParticleForceRegistry::add(Particle* particle, ParticleForceGenerator* fg)
+void ParticleForceRegistry::add(const std::shared_ptr<Particle>&               particle,
+                                const std::shared_ptr<ParticleForceGenerator>& fg)
 {
     // ParticleForceRegistration registration(particle, fg);
     m_registrations.emplace_back(particle, fg);
 }
 
-void ParticleForceRegistry::remove(Particle* particle, ParticleForceGenerator* fg)
-{
-    for(auto it = m_registrations.begin(); it != m_registrations.end(); ++it)
-    {
-        // TODO: Check if this works
-        if(it->m_particle == particle && it->m_fg == fg)
-        {
-            m_registrations.erase(it);
-            break;
-        }
-    }
-}
+// void ParticleForceRegistry::remove(Particle* particle, ParticleForceGenerator* fg)
+//{
+//     for(auto it = m_registrations.begin(); it != m_registrations.end(); ++it)
+//     {
+//         // TODO: Check if this works
+//         if(it->m_particle == particle && it->m_fg == fg)
+//         {
+//             m_registrations.erase(it);
+//             break;
+//         }
+//     }
+// }
 
 void ParticleForceRegistry::clear()
 {

@@ -5,14 +5,15 @@
 #include <core/layers/layer.h>
 #include <core/time_step.h>
 
-#include <graphics/glcore/shader.h>
+// #include <graphics/glcore/shader.h>
 #include <graphics/api/model.h>
-#include <graphics/api/light.h>
-#include <graphics/glcore/texture.h>
+// #include <graphics/api/light.h>
+// #include <graphics/glcore/texture.h>
 
 #include <physics/particle_force_registry.h>
 #include <physics/particle_force_generator.h>
 #include <physics/particle.h>
+#include <core/systems/physics_system.h>
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -23,7 +24,7 @@ namespace sputnik::demos
 {
 
 using namespace sputnik::physics;
-using namespace sputnik::graphics::glcore;
+// using namespace sputnik::graphics::glcore;
 using namespace sputnik::graphics::api;
 
 class MassSpringBasicDemoLayer : public core::Layer
@@ -40,24 +41,17 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    ParticleForceRegistry m_particle_force_registry;
-
-    std::shared_ptr<Shader>  m_simple_lighting_shader;
-    std::shared_ptr<Shader>  m_static_shader;
-    std::shared_ptr<Texture> m_static_mesh_texture;
-
     std::shared_ptr<Model> m_box;
     std::shared_ptr<Model> m_sphere;
 
-    std::vector<Particle*> m_particles;
-
-    ParticleAnchoredBungeeForceGenerator* m_anchored_bungee_force_generator;
-    ParticleSpringForceGenerator*         m_spring_force_generator_a;
-    ParticleSpringForceGenerator*         m_spring_force_generator_b;
-    ParticleAnchoredSpringForceGenerator* m_anchored_spring_force_generator_c;
-    ParticleAnchoredSpringForceGenerator* m_anchored_spring_force_generator;
-
-    Light m_light;
+    u32                                                   kParticleCount{50};
+    std::vector<std::shared_ptr<Particle>>                m_particles;
+    core::systems::PhysicsSystem*                         m_physics_system;
+    std::shared_ptr<ParticleAnchoredBungeeForceGenerator> m_anchored_bungee_force_generator;
+    std::shared_ptr<ParticleSpringForceGenerator>         m_spring_force_generator_a;
+    std::shared_ptr<ParticleSpringForceGenerator>         m_spring_force_generator_b;
+    std::shared_ptr<ParticleAnchoredSpringForceGenerator> m_anchored_spring_force_generator_c;
+    std::shared_ptr<ParticleAnchoredSpringForceGenerator> m_anchored_spring_force_generator;
 
     int         m_particle_idx{0};
     std::string m_particle_str;

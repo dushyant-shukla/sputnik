@@ -37,14 +37,14 @@ public:
      *
      * @return The list of particles.
      */
-    std::vector<Particle*>& getParticles() noexcept;
+    std::vector<std::shared_ptr<Particle>>& getParticles() noexcept;
 
     /*!
      * @brief Returns the list of contact generators.
      *
      * @return The list of contact generators.
      */
-    std::vector<ParticleContactGenerator*>& getContactGenerators() noexcept;
+    std::vector<std::shared_ptr<ParticleContactGenerator>>& getContactGenerators() noexcept;
 
     /*!
      * @brief Returns the force registry.
@@ -52,6 +52,8 @@ public:
      * @return The force registry.
      */
     ParticleForceRegistry& getForceRegistry() noexcept;
+
+    //void registerParticleForce();
 
 protected:
     /*!
@@ -73,7 +75,7 @@ protected:
     /**
      * Holds the particles.
      */
-    std::vector<Particle*> m_particles;
+    std::vector<std::shared_ptr<Particle>> m_particles;
 
     /**
      * Holds the force generators for the particles in this world.
@@ -88,13 +90,13 @@ protected:
     /**
      * Contact generators.
      */
-    std::vector<ParticleContactGenerator*> m_contact_generators;
+    std::vector<std::shared_ptr<ParticleContactGenerator>> m_contact_generators;
 
     /**
      * Holds the list of contacts.
      */
-    std::vector<ParticleContact*> m_contacts;
-    //ParticleContact* m_contacts;
+    std::vector<std::shared_ptr<ParticleContact>> m_contacts;
+    // ParticleContact* m_contacts;
 
     /**
      * Holds the maximum number of contacts allowed (i.e. the size of the contacts array).
@@ -110,18 +112,18 @@ protected:
 class GroundContactGenerator : public ParticleContactGenerator
 {
 public:
-    GroundContactGenerator()  = default;
+    GroundContactGenerator()          = default;
     virtual ~GroundContactGenerator() = default;
 
-    void init(const std::vector<Particle*>& particles) noexcept;
+    void init(const std::vector<std::shared_ptr<Particle>>& particles) noexcept;
 
-    //virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
-    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
-                                const unsigned&                current_contact_index,
-                                const unsigned&                limit) const noexcept override;
+    // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept override;
+    virtual unsigned addContact(std::vector<std::shared_ptr<ParticleContact>>& contacts,
+                                const unsigned&                                current_contact_index,
+                                const unsigned&                                limit) noexcept override;
 
 public:
-    std::vector<Particle*> m_particles;
+    std::vector<std::shared_ptr<Particle>> m_particles;
 };
 
 } // namespace sputnik::physics

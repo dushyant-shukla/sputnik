@@ -9,7 +9,7 @@ namespace sputnik::physics
 
 ParticleGravityForceGenerator::ParticleGravityForceGenerator(const vec3& gravity) noexcept : m_gravity(gravity) {}
 
-void ParticleGravityForceGenerator::updateForce(Particle* particle, const real& duration)
+void ParticleGravityForceGenerator::updateForce(std::shared_ptr<Particle>& particle, const real& duration)
 {
     if(!particle->hasFiniteMass())
     {
@@ -29,7 +29,7 @@ void ParticleGravityForceGenerator::updateForce(Particle* particle, const real& 
  */
 ParticleDragForceGenerator::ParticleDragForceGenerator(const real& k1, const real& k2) noexcept : m_k1(k1), m_k2(k2) {}
 
-void ParticleDragForceGenerator::updateForce(Particle* particle, const real& duration)
+void ParticleDragForceGenerator::updateForce(std::shared_ptr<Particle>& particle, const real& duration)
 {
     vec3 velocity;
     particle->getVelocity(velocity);
@@ -46,16 +46,16 @@ void ParticleDragForceGenerator::updateForce(Particle* particle, const real& dur
 
 ////////////// Spring Force Generator //////////////////
 
-ParticleSpringForceGenerator::ParticleSpringForceGenerator(Particle*   other_particle,
-                                                           const real& spring_constant,
-                                                           const real& rest_length) noexcept
+ParticleSpringForceGenerator::ParticleSpringForceGenerator(std::shared_ptr<Particle>& other_particle,
+                                                           const real&                spring_constant,
+                                                           const real&                rest_length) noexcept
     : m_other_particle(other_particle)
     , m_spring_constant(spring_constant)
     , m_rest_length(rest_length)
 {
 }
 
-void ParticleSpringForceGenerator::updateForce(Particle* particle, const real& duration)
+void ParticleSpringForceGenerator::updateForce(std::shared_ptr<Particle>& particle, const real& duration)
 {
     // spring force is calculated as F = -k (|d| - l) (d / |d|)
     // where,
@@ -90,7 +90,7 @@ ParticleAnchoredSpringForceGenerator::ParticleAnchoredSpringForceGenerator(const
 {
 }
 
-void ParticleAnchoredSpringForceGenerator::updateForce(Particle* particle, const real& duration)
+void ParticleAnchoredSpringForceGenerator::updateForce(std::shared_ptr<Particle>& particle, const real& duration)
 {
     // spring force is calculated as F = -k (|d| - l) (d / |d|)
     // where,
@@ -111,23 +111,23 @@ void ParticleAnchoredSpringForceGenerator::updateForce(Particle* particle, const
 
 void ParticleAnchoredSpringForceGenerator::setAnchor(const vec3& anchor) noexcept
 {
-	m_anchor = anchor;
+    m_anchor = anchor;
 }
 
 ////////////// Anchored Spring Force Generator Ends //////////////////
 
 ////////////// Bungee Force Generator //////////////////
 
-ParticleBungeeForceGenerator::ParticleBungeeForceGenerator(Particle*   other,
-                                                           const real& spring_constant,
-                                                           const real& rest_length) noexcept
+ParticleBungeeForceGenerator::ParticleBungeeForceGenerator(std::shared_ptr<Particle>& other,
+                                                           const real&                spring_constant,
+                                                           const real&                rest_length) noexcept
     : m_other_particle(other)
     , m_spring_constant(spring_constant)
     , m_rest_length(rest_length)
 {
 }
 
-void ParticleBungeeForceGenerator::updateForce(Particle* particle, const real& duration)
+void ParticleBungeeForceGenerator::updateForce(std::shared_ptr<Particle>& particle, const real& duration)
 {
     // spring force is calculated as F = -k (|d| - l) (d / |d|)
     // where,
@@ -159,13 +159,13 @@ void ParticleBungeeForceGenerator::updateForce(Particle* particle, const real& d
 ////////////// Anchored Bungee Force Generator //////////////////
 
 ParticleAnchoredBungeeForceGenerator::ParticleAnchoredBungeeForceGenerator(const vec3& anchor,
-    const real& spring_constant,
-    const real& rest_length) noexcept
+                                                                           const real& spring_constant,
+                                                                           const real& rest_length) noexcept
     : ParticleAnchoredSpringForceGenerator(anchor, spring_constant, rest_length)
 {
 }
 
-void ParticleAnchoredBungeeForceGenerator::updateForce(Particle* particle, const real& duration)
+void ParticleAnchoredBungeeForceGenerator::updateForce(std::shared_ptr<Particle>& particle, const real& duration)
 {
     // spring force is calculated as F = -k (|d| - l) (d / |d|)
     // where,
@@ -204,7 +204,7 @@ ParticleBuoyancyForceGenerator::ParticleBuoyancyForceGenerator(const real& max_d
 {
 }
 
-void ParticleBuoyancyForceGenerator::updateForce(Particle* particle, const real& duration)
+void ParticleBuoyancyForceGenerator::updateForce(std::shared_ptr<Particle>& particle, const real& duration)
 {
     // In real life, force of buoyancy is calculated as Fb = -pVg,
     // where,

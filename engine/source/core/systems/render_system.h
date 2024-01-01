@@ -86,10 +86,12 @@ public:
 
     void setViewportToCurrentWindowSize();
 
-
     void drawUI();
 
     Light& getLight();
+
+    const mat4& getCameraProjection() const;
+    const mat4& getCameraView() const;
 
     // Drawing API
     void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);

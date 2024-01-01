@@ -9,8 +9,6 @@
 
 #include <memory>
 
-//struct GLFWwindow;
-
 namespace sputnik::core::systems
 {
 class RenderSystem;
@@ -50,10 +48,10 @@ protected:
     float               m_last_frame_time;
     core::LayerStack    m_application_layer_stack;
     InputManager*       m_input_manager;
-    static Application* s_instance;
     Editor*             m_editor;
-    //GLFWwindow*         m_window;
     RenderSystem*       m_render_system;
+    PhysicsSystem*      m_physics_system;
+    static Application* s_instance;
 };
 
 Application* CreateApplication(); // Must be defined by classes inheriting from this class

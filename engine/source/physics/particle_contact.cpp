@@ -127,9 +127,9 @@ void ParticleContactResolver::setIterations(const unsigned& iterations) noexcept
     m_iterations = iterations;
 }
 
-void ParticleContactResolver::resolveContacts(std::vector<ParticleContact*> contact_array,
-                                              const unsigned&               num_contacts,
-                                              const real&                   duration) noexcept
+void ParticleContactResolver::resolveContacts(std::vector<std::shared_ptr<ParticleContact>>& contact_array,
+                                              const unsigned&                                num_contacts,
+                                              const real&                                    duration) noexcept
 {
     // TODO:: Need to understand contact resolution better
 

@@ -55,7 +55,7 @@ public:
     /**
      * Holds the particles involved in the contact. The second of these can be NULL, for contacts with the scenery.
      */
-    Particle* m_particles[2];
+    std::shared_ptr<Particle> m_particles[2];
 
     /**
      * Holds the coefficient of restitution at the contact.
@@ -106,9 +106,9 @@ public:
      * @param num_contacts The number of contacts in the array to resolve.
      * @param duration The duration of the prevuious integration step. This is used to compensate for forces applied.
      */
-    void resolveContacts(std::vector<ParticleContact*> contact_array,
-                         const unsigned&               num_contacts,
-                         const real&                   duration) noexcept;
+    void resolveContacts(std::vector<std::shared_ptr<ParticleContact>>& contact_array,
+                         const unsigned&                                num_contacts,
+                         const real&                                    duration) noexcept;
 
 protected:
     /**
@@ -143,9 +143,9 @@ public:
      * @return The number of contacts that have been written.
      */
     // virtual unsigned addContact(ParticleContact* contact, const unsigned& limit) const noexcept = 0;
-    virtual unsigned addContact(std::vector<ParticleContact*>& contacts,
-                                const unsigned&                current_contact_index,
-                                const unsigned&                limit) const noexcept = 0;
+    virtual unsigned addContact(std::vector<std::shared_ptr<ParticleContact>>& contacts,
+                                const unsigned&                                current_contact_index,
+                                const unsigned&                                limit) noexcept = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

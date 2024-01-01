@@ -16,33 +16,32 @@
 namespace sputnik::demos
 {
 
-RopeBridgeDemoLayer::RopeBridgeDemoLayer(const std::string& name)
-    : core::Layer{name}
-    , m_particle_world(kParticleCount * 10) // 10 contacts per particle
-    , m_anchored_cables{nullptr}
-    , m_cables{nullptr}
-    , m_rods{nullptr}
-    , m_mass_position{0.0f, 0.0f, 0.5f}
+RopeBridgeDemoLayer::RopeBridgeDemoLayer(const std::string& name) : core::Layer{name}, m_mass_position{0.0f, 0.0f, 0.5f}
 {
+    m_physics_system = core::systems::PhysicsSystem::getInstance();
+    m_physics_system->initParticleWorld(kParticleCount * 10);
+
     m_particles.resize(kParticleCount);
 
     for(unsigned i = 0; i < kParticleCount; ++i)
     {
-        Particle* particle = new Particle();
-        m_particles[i]     = particle;
-        m_particle_world.getParticles().push_back(particle);
+        m_particles[i] = std::make_shared<Particle>();
+        m_physics_system->addParticle(m_particles[i]);
     }
 
-    m_falling_particle = new Particle();
+    m_falling_particle = std::make_shared<Particle>();
     m_falling_particle->setPosition({0.0f, 4.0f, 0.0f});
     m_falling_particle->setVelocity({0.0f, 0.0f, 0.0f});
     m_falling_particle->setMass(kBaseMass);
     m_falling_particle->setDamping(0.9f);
     m_falling_particle->setAcceleration(kGravity);
 
-    m_particle_world.getParticles().push_back(m_falling_particle);
-    m_ground_contact_generator.init(m_particle_world.getParticles());
-    m_particle_world.getContactGenerators().push_back(&m_ground_contact_generator);
+    m_physics_system->addParticle(m_falling_particle);
+
+    m_ground_contact_generator = std::make_shared<GroundContactGenerator>();
+    m_ground_contact_generator->init(m_physics_system->getParticles());
+
+    m_physics_system->addContactGenerator(m_ground_contact_generator);
 }
 
 RopeBridgeDemoLayer::~RopeBridgeDemoLayer() {}
@@ -72,59 +71,50 @@ void RopeBridgeDemoLayer::OnAttach()
 
     // add constrains
     {
-        m_cables = new ParticleCable[kCableCount];
         for(unsigned i = 0; i < kCableCount; ++i)
         {
-            m_cables[i].m_particles[0] = m_particles[i];
-            m_cables[i].m_particles[1] = m_particles[i + 2];
-            m_cables[i].m_max_length   = 1.9f;
-            m_cables[i].m_restitution  = 0.3f;
-            m_particle_world.getContactGenerators().push_back(&m_cables[i]);
+            std::shared_ptr<ParticleCable> cable = std::make_shared<ParticleCable>();
+            cable->m_particles[0]                = m_particles[i];
+            cable->m_particles[1]                = m_particles[i + 2];
+            cable->m_max_length                  = 1.9f;
+            cable->m_restitution                 = 0.3f;
+            m_cables.push_back(cable);
+            m_physics_system->addContactGenerator(cable);
         }
 
-        m_anchored_cables = new AnchoredParticleCable[kAnchoredCableCount];
         for(unsigned i = 0; i < kAnchoredCableCount; ++i)
         {
-            m_anchored_cables[i].m_particle = m_particles[i];
-            m_anchored_cables[i].m_anchor   = {real(i / 2) * 2.2f - 5.5f, 6.0f, real(i % 2) * 1.6f - 0.8f};
+            std::shared_ptr<AnchoredParticleCable> cable = std::make_shared<AnchoredParticleCable>();
+            cable->m_particle                            = m_particles[i];
+            cable->m_anchor                              = {real(i / 2) * 2.2f - 5.5f, 6.0f, real(i % 2) * 1.6f - 0.8f};
             if(i < 6)
             {
-                m_anchored_cables[i].m_max_length = real(i / 2) * 0.5f + 3.0f;
+                cable->m_max_length = real(i / 2) * 0.5f + 3.0f;
             }
             else
             {
-                m_anchored_cables[i].m_max_length = 5.5f - real(i / 2) * 0.5f;
+                cable->m_max_length = 5.5f - real(i / 2) * 0.5f;
             }
-            m_anchored_cables[i].m_restitution = 0.5f;
-            m_particle_world.getContactGenerators().push_back(&m_anchored_cables[i]);
+            cable->m_restitution = 0.5f;
+            m_anchored_cables.push_back(cable);
+            m_physics_system->addContactGenerator(cable);
         }
 
-        m_rods = new ParticleRod[kRodCount];
         for(unsigned i = 0; i < kRodCount; ++i)
         {
-            m_rods[i].m_particles[0] = m_particles[i * 2];
-            m_rods[i].m_particles[1] = m_particles[i * 2 + 1];
-            m_rods[i].m_length       = 2.0f;
-            m_particle_world.getContactGenerators().push_back(&m_rods[i]);
+            std::shared_ptr<ParticleRod> rod = std::make_shared<ParticleRod>();
+            rod->m_particles[0]              = m_particles[i * 2];
+            rod->m_particles[1]              = m_particles[i * 2 + 1];
+            rod->m_length                    = 2.0f;
+            m_rods.push_back(rod);
+            m_physics_system->addContactGenerator(rod);
         }
     }
 
     UpdateAdditionalMass();
 }
 
-void RopeBridgeDemoLayer::OnDetach()
-{
-    // delete particles
-    for(auto& particle : m_particles)
-    {
-        delete particle;
-    }
-
-    delete[] m_rods;
-    delete[] m_cables;
-    delete[] m_anchored_cables;
-    delete m_falling_particle;
-}
+void RopeBridgeDemoLayer::OnDetach() {}
 
 void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
@@ -163,14 +153,6 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
             m_mass_position.x = 5.0f;
     }
 
-    m_particle_world.startFrame();
-    m_particle_world.simulatePhysics(time_step);
-
-    const auto& camera          = Camera::GetInstance();
-    mat4        projection      = camera->GetCameraPerspective();
-    mat4        view            = camera->GetCameraView();
-    vec3        camera_position = camera->GetCameraPosition();
-
     // render light source
     {
         mat4 model;
@@ -183,9 +165,9 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
     for(unsigned i = 0; i < kRodCount; ++i)
     {
         const auto& rod      = m_rods[i];
-        vec3        position = rod.m_particles[0]->getPosition();
+        vec3        position = rod->m_particles[0]->getPosition();
         vertices.emplace_back(position.x, position.y, position.z, 1.0f);
-        position = rod.m_particles[1]->getPosition();
+        position = rod->m_particles[1]->getPosition();
         vertices.emplace_back(position.x, position.y, position.z, 1.0f);
     }
     render_system->debugDrawLines(vertices, {0.0f, 0.0f, 1.0f}, 10.0f);
@@ -194,9 +176,9 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
     for(unsigned i = 0; i < kCableCount; ++i)
     {
         const auto& cable    = m_cables[i];
-        vec3        position = cable.m_particles[0]->getPosition();
+        vec3        position = cable->m_particles[0]->getPosition();
         vertices.emplace_back(position.x, position.y, position.z, 1.0f);
-        position = cable.m_particles[1]->getPosition();
+        position = cable->m_particles[1]->getPosition();
         vertices.emplace_back(position.x, position.y, position.z, 1.0f);
     }
     render_system->debugDrawLines(vertices, {0.0f, 1.0f, 0.0f}, 10.0f);
@@ -205,16 +187,16 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
     for(unsigned i = 0; i < kAnchoredCableCount; ++i)
     {
         const auto& cable    = m_anchored_cables[i];
-        vec3        position = cable.m_particle->getPosition();
+        vec3        position = cable->m_particle->getPosition();
         vertices.emplace_back(position.x, position.y, position.z, 1.0f);
-        vertices.emplace_back(cable.m_anchor.x, cable.m_anchor.y, cable.m_anchor.z, 1.0f);
+        vertices.emplace_back(cable->m_anchor.x, cable->m_anchor.y, cable->m_anchor.z, 1.0f);
 
         mat4 model{};
-        model = model.translate({cable.m_anchor.x, cable.m_anchor.y, cable.m_anchor.z});
+        model = model.translate({cable->m_anchor.x, cable->m_anchor.y, cable->m_anchor.z});
         model = model.scale({0.15f});
         m_sphere->draw(material_ruby, model);
     }
-    render_system->debugDrawLines(vertices, {0.7f, 0.7f, 0.7f}, 10.0f);
+    render_system->debugDrawLines(vertices, {0.7f, 0.7f, 0.7f}, 7.5f);
     vertices.clear();
 
     // render particles
@@ -250,30 +232,12 @@ void RopeBridgeDemoLayer::OnEvent() {}
 
 void RopeBridgeDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
 {
-    const auto& camera     = sputnik::graphics::api::Camera::GetInstance();
-    mat4        projection = camera->GetCameraPerspective();
-    mat4        view       = camera->GetCameraView();
+    auto render_system = core::systems::RenderSystem::getInstance();
+    mat4 projection    = render_system->getCameraProjection();
+    mat4 view          = render_system->getCameraView();
 
-    // if(ImGui::Begin("Lighting"))
-    //{
-    //     ImGui::SliderFloat("Light X", &m_light.position.x, -50.0f, 50.0f);
-    //     ImGui::SliderFloat("Light Y", &m_light.position.y, -50.0f, 50.0f);
-    //     ImGui::SliderFloat("Light Z", &m_light.position.z, -50.0f, 50.0f);
-
-    //    ImGui::ColorEdit3("Light ambient", &m_light.ambient.x);
-    //    ImGui::ColorEdit3("Light diffuse", &m_light.diffuse.x);
-    //    ImGui::ColorEdit3("Light specular", &m_light.specular.x);
-
-    //    ImGui::SliderFloat("Light constant", &m_light.constant, 0.0f, 1.0f);
-    //    ImGui::SliderFloat("Light linear", &m_light.linear, 0.0f, 1.0f);
-    //    ImGui::SliderFloat("Light quadratic", &m_light.quadratic, 0.0f, 1.0f);
-    //}
-    // ImGui::End();
-
-    if(ImGui::Begin("Particles"))
+    // if(ImGui::Begin("Particles"))
     {
-        // ImGui::Combo("Particle", &m_particle_idx, m_particle_str.c_str());
-        // Particle* particle = m_particles[m_particle_idx];
         ImGuizmo::SetGizmoSizeClipSpace(0.075f);
         mat4 model = {};
         model      = model.translate(m_falling_particle->getPosition());
@@ -289,14 +253,14 @@ void RopeBridgeDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
             m_falling_particle->setPosition({model.m[12], model.m[13], model.m[14]});
 
             // We need to block camera update when we are using ImGuizmo
-            // Renderer::BlockCameraUpdate();
+            render_system->blockCameraUpdate();
         }
         else
         {
-            // Renderer::BlockCameraUpdate(false);
+            render_system->blockCameraUpdate(false);
         }
     }
-    ImGui::End();
+    // ImGui::End();
 }
 
 void RopeBridgeDemoLayer::UpdateAdditionalMass()

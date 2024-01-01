@@ -188,6 +188,29 @@ Light& RenderSystem::getLight()
     return m_light;
 }
 
+const mat4& RenderSystem::getCameraProjection() const
+{
+    if(m_camera_type == CameraType::Camera)
+    {
+        return m_camera->GetCameraPerspective();
+    }
+    else
+    {
+        return m_editor_camera->GetCameraPerspective();
+    }
+}
+
+const mat4& RenderSystem::getCameraView() const
+{
+    if(m_camera_type == CameraType::Camera)
+    {
+        return m_camera->GetCameraView();
+    }
+    else
+    {
+        return m_editor_camera->GetCameraView();
+    }
+}
 
 ////////////////////////////////////////// Drawing API //////////////////////////////////////////
 
@@ -210,7 +233,5 @@ void RenderSystem::debugDrawPoints(const std::vector<vec4>& vertices, const vec3
 {
     m_ogl_renderer->debugDrawPoints(vertices, color, point_size);
 }
-
-
 
 } // namespace sputnik::core::systems
