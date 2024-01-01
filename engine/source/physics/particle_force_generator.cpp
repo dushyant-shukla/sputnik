@@ -71,7 +71,10 @@ void ParticleSpringForceGenerator::updateForce(std::shared_ptr<Particle>& partic
 
     vec3 distance_vector       = current_particle_position - other_particle_position;
     real current_spring_length = distance_vector.length();
-    real delta_spring_length   = real_abs(current_spring_length - m_rest_length);
+    //real delta_spring_length   = real_abs(current_spring_length - m_rest_length);
+
+    // For some reason the book uses absolute value of the delta spring length, but I think it should be the delta
+    real delta_spring_length   = current_spring_length - m_rest_length;
 
     vec3 force = -m_spring_constant * delta_spring_length * distance_vector.normalize();
     particle->addForce(force);

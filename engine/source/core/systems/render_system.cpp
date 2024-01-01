@@ -224,14 +224,14 @@ void RenderSystem::drawTrianglesIndexed(const u64& index_count, const Material& 
     m_ogl_renderer->drawTrianglesIndexed(index_count, material, model);
 }
 
-void RenderSystem::debugDrawLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)
+void RenderSystem::drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)
 {
-    m_ogl_renderer->debugDrawLines(vertices, color, line_width);
+    m_ogl_renderer->drawDebugLines(vertices, color, line_width);
 }
 
-void RenderSystem::debugDrawPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
+void RenderSystem::drawDebugPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
 {
-    m_ogl_renderer->debugDrawPoints(vertices, color, point_size);
+    m_ogl_renderer->drawDebugPoints(vertices, color, point_size);
 }
 
 } // namespace sputnik::core::systems

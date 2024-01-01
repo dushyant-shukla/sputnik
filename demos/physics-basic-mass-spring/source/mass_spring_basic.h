@@ -53,8 +53,24 @@ private:
     std::shared_ptr<ParticleAnchoredSpringForceGenerator> m_anchored_spring_force_generator_c;
     std::shared_ptr<ParticleAnchoredSpringForceGenerator> m_anchored_spring_force_generator;
 
+    size_t                                 TOP_LEFT_IDX{0};
+    size_t                                 TOP_RIGHT_IDX{1};
+    size_t                                 BOTTOM_LEFT_IDX{2};
+    size_t                                 BOTTOM_RIGHT_IDX{3};
+    std::shared_ptr<Particle>              m_central_particle;
+    std::vector<std::shared_ptr<Particle>> m_front_cube_particles;
+    std::vector<std::shared_ptr<Particle>> m_back_cube_particles;
+    std::vector<std::shared_ptr<Particle>> m_connection_pairs;
+    // std::vector<std::shared_ptr<Particle>> m_cube_particles;
+
     int         m_particle_idx{0};
     std::string m_particle_str;
+
+    int         m_front_particle_idx{0};
+    std::string m_front_particle_str;
+
+    int         m_back_particle_idx{0};
+    std::string m_back_particle_str;
 };
 
 class MassSpringBasicDemo : public sputnik::main::Application

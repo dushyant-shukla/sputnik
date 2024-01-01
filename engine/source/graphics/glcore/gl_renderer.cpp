@@ -409,7 +409,7 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
     glDisable(GL_DEPTH_TEST);
 }
 
-void OglRenderer::debugDrawLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)
+void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)
 {
     glEnable(GL_DEPTH_TEST);
     glLineWidth(line_width);
@@ -430,7 +430,7 @@ void OglRenderer::debugDrawLines(const std::vector<vec4>& vertices, const vec3& 
     glDisable(GL_DEPTH_TEST);
 }
 
-void OglRenderer::debugDrawPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
+void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
 {
     glEnable(GL_DEPTH_TEST);
     glPointSize(point_size);

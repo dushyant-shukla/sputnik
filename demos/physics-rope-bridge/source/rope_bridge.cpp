@@ -170,7 +170,7 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
         position = rod->m_particles[1]->getPosition();
         vertices.emplace_back(position.x, position.y, position.z, 1.0f);
     }
-    render_system->debugDrawLines(vertices, {0.0f, 0.0f, 1.0f}, 10.0f);
+    render_system->drawDebugLines(vertices, {0.0f, 0.0f, 1.0f}, 10.0f);
     vertices.clear();
 
     for(unsigned i = 0; i < kCableCount; ++i)
@@ -181,7 +181,7 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
         position = cable->m_particles[1]->getPosition();
         vertices.emplace_back(position.x, position.y, position.z, 1.0f);
     }
-    render_system->debugDrawLines(vertices, {0.0f, 1.0f, 0.0f}, 10.0f);
+    render_system->drawDebugLines(vertices, {0.0f, 1.0f, 0.0f}, 10.0f);
     vertices.clear();
 
     for(unsigned i = 0; i < kAnchoredCableCount; ++i)
@@ -196,7 +196,7 @@ void RopeBridgeDemoLayer::OnUpdate(const core::TimeStep& time_step)
         model = model.scale({0.15f});
         m_sphere->draw(material_ruby, model);
     }
-    render_system->debugDrawLines(vertices, {0.7f, 0.7f, 0.7f}, 7.5f);
+    render_system->drawDebugLines(vertices, {0.7f, 0.7f, 0.7f}, 7.5f);
     vertices.clear();
 
     // render particles

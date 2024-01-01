@@ -4,6 +4,8 @@
 namespace sputnik::core::systems
 {
 
+using namespace sputnik::physics;
+
 PhysicsSystem::PhysicsSystem() {}
 
 PhysicsSystem::~PhysicsSystem() {}
@@ -17,6 +19,10 @@ PhysicsSystem* PhysicsSystem::getInstance()
 void PhysicsSystem::initParticleWorld(const u32& max_contacts, const u32& iterations) noexcept
 {
     m_particle_world = std::make_shared<ParticleWorld>(max_contacts, iterations);
+
+    //std::shared_ptr<GroundContactGenerator> ground_contact_generator = std::make_shared<GroundContactGenerator>();
+    //ground_contact_generator->init(m_particle_world->getParticles());
+    //m_particle_world->getContactGenerators().push_back(ground_contact_generator);
 }
 
 void PhysicsSystem::simulatePhysics(const real& timestep) noexcept
@@ -29,7 +35,7 @@ void PhysicsSystem::simulatePhysics(const real& timestep) noexcept
 }
 
 void PhysicsSystem::registerParticleForceGenerator(
-    const std::shared_ptr<Particle>&                particle,
+    const std::shared_ptr<Particle>&               particle,
     const std::shared_ptr<ParticleForceGenerator>& particle_force_generator) noexcept
 {
     if(m_particle_world)

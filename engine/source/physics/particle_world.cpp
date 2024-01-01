@@ -111,19 +111,31 @@ unsigned GroundContactGenerator::addContact(std::vector<std::shared_ptr<Particle
                                             const unsigned&                                current_contact_index,
                                             const unsigned&                                limit) noexcept
 {
-    unsigned count = 0;
+    // auto particle_world = PhysicsCore::getInstance()->getParticleWorld();
+
+    unsigned current_index = current_contact_index;
+    unsigned count         = 0;
     for(auto& particle : m_particles)
     {
         real y = particle->getPosition().y;
         if(y < kEpsilon)
         {
-            contacts[count]->m_contact_normal = kUp; // count should be replaced with current_contact_index TODO??
-            contacts[count]->m_particles[0]   = particle;
-            contacts[count]->m_particles[1]   = nullptr;
-            contacts[count]->m_penetration    = -y;
-            // contacts[count]->m_restitution    = real(0.2);
-            contacts[count]->m_restitution = real(0.75);
+            //contacts[count]->m_contact_normal = kUp; // count should be replaced with current_contact_index TODO??
+            //contacts[count]->m_particles[0]   = particle;
+            //contacts[count]->m_particles[1]   = nullptr;
+            //contacts[count]->m_penetration    = -y;
+            //// contacts[count]->m_restitution    = real(0.2);
+            //contacts[count]->m_restitution = real(0.75);
 
+             ////count should be replaced with current_contact_index TODO??
+             contacts[current_index]->m_contact_normal = kUp;
+             contacts[current_index]->m_particles[0]   = particle;
+             contacts[current_index]->m_particles[1]   = nullptr;
+             contacts[current_index]->m_penetration    = -y;
+            // contacts[count]->m_restitution    = real(0.2);
+             contacts[current_index]->m_restitution = real(0.75);
+
+            ++current_index;
             //++contact;
             ++count;
         }

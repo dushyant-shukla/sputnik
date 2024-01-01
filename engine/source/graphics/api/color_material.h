@@ -12,12 +12,12 @@ using namespace sputnik::graphics::gl;
 
 struct Material
 {
-    std::string                   shader_name{"blinn_phong"};
-    vec3                          ambient{1.0f, 1.0f, 1.0f};
-    vec3                          diffuse{1.0f, 1.0f, 1.0f};
-    vec3                          specular{1.0f, 1.0f, 1.0f};
-    float                         shininess{32.0f};
-    float                         alpha{1.0f};
+    std::string shader_name{"blinn_phong"};
+    vec3        ambient{1.0f, 1.0f, 1.0f};
+    vec3        diffuse{1.0f, 1.0f, 1.0f};
+    vec3        specular{1.0f, 1.0f, 1.0f};
+    float       shininess{32.0f};
+    float       alpha{1.0f};
 
     // Todo:: Get rid of the ogl specific stuff
     std::shared_ptr<OglTexture2D> diff_texture{nullptr};
@@ -63,5 +63,10 @@ static inline Material material_rubber_red{.ambient   = {0.05f, 0.0f, 0.0f},
                                            .diffuse   = {0.5f, 0.4f, 0.4f},
                                            .specular  = {0.7f, 0.04f, 0.04f},
                                            .shininess = 0.078125f};
+
+static inline Material material_blue_shine{.ambient   = {0.0f, 0.4f, 0.8f},
+                                           .diffuse   = {0.0f, 0.4f, 0.8f},
+                                           .specular  = {0.0f, 0.4f, 0.8f},
+                                           .shininess = 0.6f};
 
 } // namespace sputnik::graphics::api
