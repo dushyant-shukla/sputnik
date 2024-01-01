@@ -2,6 +2,7 @@
 #include "gl_renderer.h"
 #include "editor/editor_camera.h"
 #include "graphics/glcore/gl_shader.h"
+#include "graphics/glcore/gl_buffer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -143,6 +144,11 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong_pvp.vert");
     m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
     m_blinn_phong_pvp_program->configure();
+
+    m_debug_draw_program = std::make_shared<OglShaderProgram>();
+    m_debug_draw_program->addShaderStage("../../data/shaders/glsl/debug_draw.vert");
+    m_debug_draw_program->addShaderStage("../../data/shaders/glsl/debug_draw.frag");
+    m_debug_draw_program->configure();
 
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
 
@@ -290,7 +296,7 @@ void OglRenderer::renderEditorGrid()
     m_vao->bind();
     m_grid_program->bind();
     glEnable(GL_BLEND);
-     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // black lines
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // black lines
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA); // This gives best results - white lines
     // (GLenum mode, GLint first, GLsizei count, GLsizei instancecount, GLuint baseinstance)
     glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6, 1, 0);
@@ -400,6 +406,48 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
 
         active_program->unbind();
     }
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::debugDrawLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)
+{
+    glEnable(GL_DEPTH_TEST);
+    glLineWidth(line_width);
+    glEnable(GL_LINE_SMOOTH);
+    m_vao->bind();
+
+    m_debug_draw_program->bind();
+    m_debug_draw_program->setFloat3("color", color);
+
+    OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));
+    vbo.bind(BufferBindTarget::ShaderStorageBuffer, 0);
+
+    glDrawArrays(GL_LINES, 0, (GLsizei)vertices.size());
+
+    m_debug_draw_program->unbind();
+    m_vao->unbind();
+    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::debugDrawPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
+{
+    glEnable(GL_DEPTH_TEST);
+    glPointSize(point_size);
+    m_vao->bind();
+
+    m_debug_draw_program->bind();
+    m_debug_draw_program->setFloat3("color", color);
+
+    // https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
+    OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));
+    vbo.bind(BufferBindTarget::ShaderStorageBuffer, 0);
+
+    glDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size());
+
+    m_debug_draw_program->unbind();
+    m_vao->unbind();
+
     glDisable(GL_DEPTH_TEST);
 }
 

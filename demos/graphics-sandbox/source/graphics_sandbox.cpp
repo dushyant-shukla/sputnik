@@ -157,9 +157,9 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_animated_model     = Model::LoadModel("../../data/assets/Woman.gltf");
     m_diff_texture_woman = std::make_shared<OglTexture2D>("../../data/assets/Woman.png", false);
 
-    // binding point of VertexData SSBO in blinn phong pvp program is 2
+    // binding point of VertexData SSBO in blinn phong pvp program is 0
     m_pvp_vertex_buffer = std::make_shared<OglBuffer>((void*)cube_verts.data(), sizeof(VertexData) * cube_verts.size());
-    m_pvp_vertex_buffer->bind(BufferBindTarget::ShaderStorageBuffer, 2);
+    m_pvp_vertex_buffer->bind(BufferBindTarget::ShaderStorageBuffer, 0);
 }
 
 void GraphicsSandboxDemoLayer::OnDetach() {}

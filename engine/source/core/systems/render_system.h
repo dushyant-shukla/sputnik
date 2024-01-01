@@ -86,12 +86,16 @@ public:
 
     void setViewportToCurrentWindowSize();
 
-    void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
-    void drawTrianglesIndexed(const u64& vertex_count, const Material& material, const mat4& model);
 
     void drawUI();
 
     Light& getLight();
+
+    // Drawing API
+    void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
+    void drawTrianglesIndexed(const u64& vertex_count, const Material& material, const mat4& model);
+    void debugDrawLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width = 2.5f);
+    void debugDrawPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size = 2.5f);
 
 private:
     RenderSystem();

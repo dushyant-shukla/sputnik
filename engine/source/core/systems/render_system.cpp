@@ -168,22 +168,12 @@ void RenderSystem::setViewportToCurrentWindowSize()
     m_ogl_renderer->resizeViewport(width, height);
 }
 
-void RenderSystem::drawTriangles(const u64& vertex_count, const Material& material, const mat4& model)
-{
-    m_ogl_renderer->drawTriangles(vertex_count, material, model);
-}
-
-void RenderSystem::drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model)
-{
-    m_ogl_renderer->drawTrianglesIndexed(index_count, material, model);
-}
-
 void core::systems::RenderSystem::drawUI()
 {
     if(ImGui::Begin("Lighting"))
     {
         sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
-        sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
+        sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 110.0f);
         sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
         sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
         sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
@@ -197,5 +187,30 @@ Light& RenderSystem::getLight()
 {
     return m_light;
 }
+
+
+////////////////////////////////////////// Drawing API //////////////////////////////////////////
+
+void RenderSystem::drawTriangles(const u64& vertex_count, const Material& material, const mat4& model)
+{
+    m_ogl_renderer->drawTriangles(vertex_count, material, model);
+}
+
+void RenderSystem::drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model)
+{
+    m_ogl_renderer->drawTrianglesIndexed(index_count, material, model);
+}
+
+void RenderSystem::debugDrawLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)
+{
+    m_ogl_renderer->debugDrawLines(vertices, color, line_width);
+}
+
+void RenderSystem::debugDrawPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
+{
+    m_ogl_renderer->debugDrawPoints(vertices, color, point_size);
+}
+
+
 
 } // namespace sputnik::core::systems

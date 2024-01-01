@@ -77,11 +77,6 @@ public:
     // would be replaced by a pointer to the active camera type
     void render(const mat4& projection, const mat4& view, const vec3& camera_position, const Light& light);
 
-    // parameters: vao, shader program, material, mat4 model
-    // Canonical draw calls
-    void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
-    void drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model);
-
     // Todo:: Indirect draw calls
 
     void renderAtmosphericScattering();
@@ -91,6 +86,13 @@ public:
     static void drawArraysInstanced(const u64& vertex_count, const u64& instance_count, DrawMode mode);
     static void drawElements(const u64& index_count, DrawMode mode);
     static void drawElementsInstanced(const u64& index_count, const u64& instance_count, DrawMode mode);
+
+    // parameters: vao, shader program, material, mat4 model
+    // Canonical draw calls
+    void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
+    void drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model);
+    void debugDrawLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width = 2.5f);
+    void debugDrawPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size = 2.5f);
 
 protected:
 private:
@@ -128,6 +130,7 @@ private:
     std::shared_ptr<OglShaderProgram> m_grid_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_pvp_program;
+    std::shared_ptr<OglShaderProgram> m_debug_draw_program;
 
     // CPU data
     PerFrameData m_per_frame_data;

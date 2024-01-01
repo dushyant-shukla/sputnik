@@ -90,9 +90,9 @@ include "demos/graphics-sandbox/graphics-sandbox.lua"
 group ""
 
 
--- group "demos-physics"
+group "demos-physics"
 -- include "demos/physics-basic-particles/physics-basic-particles.lua"
 -- include "demos/physics-basic-mass-spring/physics-basic-mass-spring.lua"
--- include "demos/physics-rope-bridge/physics-rope-bridge.lua"
--- group ""
+include "demos/physics-rope-bridge/physics-rope-bridge.lua"
+group ""
 

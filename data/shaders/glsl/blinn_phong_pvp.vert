@@ -13,7 +13,7 @@ layout(std140, binding = 0) uniform PerFrameData {
     vec3 camera_position;
 };
 
-layout(std430, binding = 2) restrict readonly buffer VertexBuffer
+layout(std430, binding = 0) restrict readonly buffer VertexBuffer
 {
     VertexData vertices[];
 };

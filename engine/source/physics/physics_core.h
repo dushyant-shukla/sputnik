@@ -5,6 +5,7 @@
 namespace sputnik::physics
 {
 
+using namespace ramanujan;
 using namespace ramanujan::experimental;
 
 const vec3 kGravity(real(0), real(-9.81), real(0));

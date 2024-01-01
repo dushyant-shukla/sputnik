@@ -22,5 +22,7 @@ void main ()
     ivec2 texel_coord = ivec2(gl_WorkGroupID.xy);
     value.x = float(texel_coord.x) / (gl_NumWorkGroups.x);
     value.y = float(texel_coord.y) / (gl_NumWorkGroups.y);
+
+    // https://www.khronos.org/opengl/wiki/Image_Load_Store
     imageStore(img_output, texel_coord, value);
 }
