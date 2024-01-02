@@ -94,5 +94,7 @@ group "demos-physics"
 -- include "demos/physics-basic-particles/physics-basic-particles.lua"
 include "demos/physics-basic-mass-spring/physics-basic-mass-spring.lua"
 include "demos/physics-rope-bridge/physics-rope-bridge.lua"
+include "demos/physics-mass-spring-cloth/physics-mass-spring-cloth.lua"
+include "demos/physics-mass-spring-cube/physics-mass-spring-cube.lua"
 group ""
 

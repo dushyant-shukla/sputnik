@@ -35,6 +35,27 @@ void ParticleContact::resolveVelocity(const real& duration) noexcept
     // Calculate the new separating velocity
     real new_separating_velocity = -separating_velocity * m_restitution;
 
+
+    //// Todo:: Understand better - Resting contacts (Pg 126)
+    //// Check the velocity build-up due to acceleration only
+    //Vector3 accCausedVelocity = particle[0]->getAcceleration();
+    //if(particle[1])
+    //    accCausedVelocity -= particle[1]->getAcceleration();
+    //real accCausedSepVelocity = accCausedVelocity * contactNormal * duration;
+
+    //// If we've got a closing velocity due to acceleration build-up,
+    //// remove it from the new separating velocity
+    //if(accCausedSepVelocity < 0)
+    //{
+    //    newSepVelocity += restitution * accCausedSepVelocity;
+
+    //    // Make sure we haven't removed more than was
+    //    // there to remove.
+    //    if(newSepVelocity < 0)
+    //        newSepVelocity = 0;
+    //}
+
+
     real delta_velocity = new_separating_velocity - separating_velocity;
 
     // We apply the change in velocity to each object in proportion to its inverse mass (i.e., those with lower inverse
