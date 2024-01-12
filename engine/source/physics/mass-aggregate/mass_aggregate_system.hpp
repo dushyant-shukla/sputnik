@@ -77,8 +77,8 @@ protected:
     void integrateRK4(const real& dt) noexcept;
 
 protected:
-    // The particle data.
 
+    // Point mass(es) data
     std::vector<real> m_masses;
     std::vector<vec3> m_positions;
     std::vector<vec3> m_velocities;

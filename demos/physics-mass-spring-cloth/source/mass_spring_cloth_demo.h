@@ -52,6 +52,14 @@ private:
     MassAggregateBodySpecification       m_cube_specification;
     std::shared_ptr<MassAggregateVolume> m_mass_spring_volume;
     std::shared_ptr<OglBuffer>           m_instanced_buffer;
+
+    bool                 m_render_particles          = true;
+    bool                 m_render_structural_springs = false;
+    bool                 m_render_shear_springs      = false;
+    bool                 m_render_bend_springs       = false;
+    SpringForceGenerator m_structural_spring;
+    SpringForceGenerator m_shear_spring;
+    SpringForceGenerator m_bend_spring;
 };
 
 class MassSpringClothDemo : public sputnik::main::Application

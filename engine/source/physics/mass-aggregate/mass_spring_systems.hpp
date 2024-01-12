@@ -67,11 +67,14 @@ public:
 
     virtual ~MassAggregateVolume() = default;
 
-    void setStructuralSpring(const real& rest_length, const real& stiffness) noexcept;
-    void setShearSpring(const real& rest_length, const real& stiffness) noexcept;
-    void setBendSpring(const real& rest_length, const real& stiffness) noexcept;
+    void                        setStructuralSpring(const real& rest_length, const real& stiffness) noexcept;
+    void                        setShearSpring(const real& rest_length, const real& stiffness) noexcept;
+    void                        setBendSpring(const real& rest_length, const real& stiffness) noexcept;
+    const SpringForceGenerator& getStructuralSpring() const noexcept;
+    const SpringForceGenerator& getShearSpring() const noexcept;
+    const SpringForceGenerator& getBendSpring() const noexcept;
 
-    unsigned getIndex(const unsigned& row_idx, const unsigned& col_idx, const unsigned& slice_idx) const noexcept;
+    unsigned getIndex(const int& row_idx, const int& col_idx, const int& slice_idx) const noexcept;
     uvec3    getLocalCoordinates(const unsigned& idx) const noexcept;
 
     vec3 getPosition(const unsigned& row_idx, const unsigned& col_idx, const unsigned& slice_idx) const noexcept;
@@ -90,9 +93,9 @@ protected:
     SpringForceGenerator m_shear_spring;
     SpringForceGenerator m_bend_spring;
 
-    unsigned m_num_rows;
-    unsigned m_num_cols;
-    unsigned m_num_slices;
+    int m_num_rows;
+    int m_num_cols;
+    int m_num_slices;
 };
 
 } // namespace physics::mad

@@ -27,6 +27,8 @@ public:
     void setRestLength(const real& rest_length) noexcept;
     void setSpringConstant(const real& spring_constant) noexcept;
 
+    const std::vector<std::pair<unsigned, unsigned>>& getMassPairs() const noexcept;
+
 protected:
     // a list of pairs of particles at the ends of the spring
     std::vector<std::pair<unsigned, unsigned>> m_mass_pairs;
