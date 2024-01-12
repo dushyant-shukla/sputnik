@@ -38,10 +38,18 @@ void Model::Draw()
 
 void Model::draw(const Material& material, const mat4& model)
 {
-    for (auto& mesh : m_meshes)
+    for(auto& mesh : m_meshes)
     {
         mesh.draw(material, model);
-	}
+    }
+}
+
+void Model::drawInstanced(const Material& material, const u32& num_instances)
+{
+    for(auto& mesh : m_meshes)
+    {
+        mesh.drawInstanced(material, num_instances);
+    }
 }
 
 std::shared_ptr<Model> Model::LoadModel(const std::string& path)
@@ -50,6 +58,11 @@ std::shared_ptr<Model> Model::LoadModel(const std::string& path)
     cgltf_data* gltf_data = sputnik::gltf::GltfLoader::LoadFile(path.c_str());
     model->m_meshes       = sputnik::gltf::GltfLoader::LoadMeshes(gltf_data);
     return model;
+}
+
+std::shared_ptr<OglVertexArray> Model::getVertexArray() const
+{
+    return m_meshes[0].getVertexArray();
 }
 
 } // namespace sputnik::graphics::api

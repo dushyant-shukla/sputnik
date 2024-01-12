@@ -25,9 +25,8 @@ namespace sputnik::graphics::gl
 // OglVertexArray m_vertex_array = std::make_shared<OglVertexArray>();
 // m_vertex_array->addVertexBuffer(*m_vertex_buffer.get(), vertex_input_binding, vertex_input_attributes);
 
-
 // An example of setting up a vertex array with separate vertex attributes.
-// 
+//
 
 cstring attributeTypeToString(const VertexAttributeType& type)
 {
@@ -199,6 +198,11 @@ void OglVertexArray::addVertexBuffer(
         // Bind the attribute stream at the specified slot index to the specified binding index.
         // glVertexArrayAttribBinding(m_id, slot_index, binding_specification.binding_index);
         glVertexArrayAttribBinding(m_id, m_next_slot_index, binding_specification.binding_index);
+
+        // glVertexAttribDivisor(m_next_slot_index, specification.divisor);
+        // glVertexArrayBindingDivisor(m_id, binding_specification.binding_index, specification.divisor);
+
+        glVertexArrayBindingDivisor(m_id, m_next_slot_index, specification.divisor);
 
         offset += getAttributeSize(specification.type);
         //++slot_index;

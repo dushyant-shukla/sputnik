@@ -1,10 +1,12 @@
 #pragma once
 
-#ifndef _DEBUG
-#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-#else
 #pragma comment(linker, "/SUBSYSTEM:console")
-#endif
+
+// #ifndef _DEBUG
+// #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+// #else
+// #pragma comment(linker, "/SUBSYSTEM:console")
+// #endif
 
 #include "application.h"
 

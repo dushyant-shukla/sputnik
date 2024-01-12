@@ -29,7 +29,8 @@ private:
     void renderEditorViewport();
     bool shouldResizeFramebuffer();
 
-private:
+    // private:
+public:
     std::unique_ptr<OglFramebuffer> m_framebuffer;
 
     u32                     m_width;

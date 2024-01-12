@@ -8,6 +8,7 @@ namespace sputnik::physics
 using namespace ramanujan;
 using namespace ramanujan::experimental;
 
+const real kEpsilon = real(0.000001);
 const vec3 kGravity(real(0), real(-9.81), real(0));
 const vec3 kHighGravity(real(0), real(-19.62), real(0));
 const vec3 kRight(real(1), real(0), real(0));

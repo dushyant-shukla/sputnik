@@ -6,6 +6,7 @@
 #include "core/time_step.h"
 
 #include <vector2.h>
+#include <vector.hpp>
 
 namespace sputnik::engine::api
 {
@@ -37,23 +38,24 @@ public:
         return !ret;
     }
 
-    void                      UpdateMouseButtonState(const int& button, const bool& state);
-    bool                      IsMouseButtonTriggered(const int& mouse_button);
-    bool                      IsMouseButtonPressed(const int& mouse_button);
-    bool                      IsMouseButtonReleased(const int& mouse_button);
-    void                      UpdateScrollOffset(const double& offset_x, const double& offset_y);
-    void                      UpdateCursorPosition(const double& position_x, const double& position_y);
-    ramanujan::Vector2        GetScrollOffset();
-    const ramanujan::Vector2& GetCursorPosition() const;
-    const double              GetMousePositionX();
-    const double              GetMousePositionY();
-    void                      SetMouseMaxPositions(double x, double y);
-    const ramanujan::Vector2& GetCursorMaxPosition() const;
-    const double              GetMouseMaxPositionX();
-    const double              GetMouseMaxPositionY();
-    const ramanujan::Vector2  GetCursorViewPosition(float _x, float _y);
-    const ramanujan::Vector2  GetCursorViewPosition();
-    float                     lerp(float x, float y, float t);
+    void                                UpdateMouseButtonState(const int& button, const bool& state);
+    bool                                IsMouseButtonTriggered(const int& mouse_button);
+    bool                                IsMouseButtonPressed(const int& mouse_button);
+    bool                                IsMouseButtonReleased(const int& mouse_button);
+    void                                UpdateScrollOffset(const double& offset_x, const double& offset_y);
+    void                                UpdateCursorPosition(const double& position_x, const double& position_y);
+    ramanujan::Vector2                  GetScrollOffset();
+    const ramanujan::Vector2&           GetCursorPosition() const;
+    const double                        GetMousePositionX();
+    const double                        GetMousePositionY();
+    void                                SetMouseMaxPositions(double x, double y);
+    const ramanujan::Vector2&           GetCursorMaxPosition() const;
+    const double                        GetMouseMaxPositionX();
+    const double                        GetMouseMaxPositionY();
+    const ramanujan::Vector2            GetCursorViewPosition(float _x, float _y);
+    const ramanujan::Vector2            GetCursorViewPosition();
+    const ramanujan::experimental::vec2 GetCursorNDCPosition();
+    float                               lerp(float x, float y, float t);
 
 private:
     InputManager();

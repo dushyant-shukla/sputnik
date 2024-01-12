@@ -55,7 +55,8 @@ struct VertexInputAttributeSpecification
     std::string         name;
     u32                 location;
     VertexAttributeType type;
-    bool                normalized;
+    bool                normalized{false};
+    u32                 divisor{0};
 };
 
 class OglVertexArray

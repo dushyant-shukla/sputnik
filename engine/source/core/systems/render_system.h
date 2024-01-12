@@ -90,12 +90,14 @@ public:
 
     Light& getLight();
 
-    const mat4& getCameraProjection() const;
-    const mat4& getCameraView() const;
+    const mat4 getCameraProjection() const;
+    const mat4 getCameraView() const;
 
     // Drawing API
     void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
     void drawTrianglesIndexed(const u64& vertex_count, const Material& material, const mat4& model);
+    void drawTrianglesInstanced(const u64& vertex_count, const Material& material, const u32& instance_count);
+    void drawTrianglesIndexedInstanced(const u64& index_count, const Material& material, const u32& instance_count);
     void drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width = 2.5f);
     void drawDebugPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size = 2.5f);
 

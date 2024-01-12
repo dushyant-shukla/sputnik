@@ -8,6 +8,7 @@
 // #include <graphics/glcore/shader.h>
 #include <graphics/api/model.h>
 #include <graphics/api/light.h>
+#include <graphics/glcore/gl_buffer.h>
 // #include <graphics/glcore/texture.h>
 // #include <graphics/glcore/debug_draw.h>
 
@@ -20,12 +21,16 @@
 #include <vector.hpp>
 #include <matrix.hpp>
 
+#include <core/systems/render_system.h>
+#include <physics/mass-aggregate/mass_spring_systems.hpp>
+
 namespace sputnik::demos
 {
 
 using namespace sputnik::physics;
-// using namespace sputnik::graphics::glcore;
+using namespace core::systems;
 using namespace sputnik::graphics::api;
+using namespace ::physics::mad;
 
 class MassSpringClothDemoLayer : public core::Layer
 {
@@ -40,13 +45,14 @@ public:
     virtual void OnEvent();
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
-    void UpdateAdditionalMass();
-
 private:
-    std::shared_ptr<Model> m_sphere;
+    std::shared_ptr<Model>               m_sphere;
+    RenderSystem*                        m_render_system;
+    vec3                                 m_grid_size;
+    MassAggregateBodySpecification       m_cube_specification;
+    std::shared_ptr<MassAggregateVolume> m_mass_spring_volume;
+    std::shared_ptr<OglBuffer>           m_instanced_buffer;
 };
-
-unsigned const kParticleCount{12};
 
 class MassSpringClothDemo : public sputnik::main::Application
 {

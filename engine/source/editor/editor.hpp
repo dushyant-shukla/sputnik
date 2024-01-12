@@ -71,7 +71,7 @@ protected:
 
     void updateViewport(const core::TimeStep& time_step);
 
-private:
+public:
     std::unique_ptr<EditorViewport> m_viewport;
     SystemInformation               m_system_information;
 

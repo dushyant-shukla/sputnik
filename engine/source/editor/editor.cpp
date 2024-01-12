@@ -152,12 +152,29 @@ void Editor::update(sputnik::core::TimeStep& time_step)
     }
     else
     {
+        // Still render the FPS counter without editor viewport
         ImGuiViewport* main_viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 10, main_viewport->WorkPos.y + 10));
         // ImGui::SetNextWindowSize({100.0f, 20.0f});
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.75);
         ImGui::Begin("##");
         drawWidgetText("Frame Rate [FPS]", 1000.0f / time_step.GetMilliSeconds(), "%.2f");
+
+        auto [mx, my] = ImGui::GetMousePos();
+
+        auto input = InputManager::GetInstance();
+        if(input->IsMouseButtonTriggered(MOUSE_BUTTON_LEFT))
+        {
+            ENGINE_ERROR("=========================VIEWPORT INACTIVE==============================");
+            ENGINE_INFO("IMGUI mouse pos: ({}, {})", mx, my);
+            ENGINE_INFO("Cursor pos: ({}, {})", input->GetCursorPosition().x, input->GetCursorPosition().y);
+            ENGINE_INFO("Cursor max pos: ({}, {})", input->GetCursorMaxPosition().x, input->GetCursorMaxPosition().y);
+            ENGINE_INFO("Cursor view pos: ({}, {})",
+                        input->GetCursorViewPosition().x,
+                        input->GetCursorViewPosition().y);
+            ENGINE_INFO("Cursor NDC pos: ({}, {})", input->GetCursorNDCPosition().x, input->GetCursorNDCPosition().y);
+        }
+
         ImGui::End();
         ImGui::PopStyleVar();
     }
@@ -172,7 +189,7 @@ void Editor::lateUpdate(sputnik::core::TimeStep& time_step)
         m_is_viewport_active  = !m_is_viewport_active;
         m_is_dockspace_active = !m_is_dockspace_active;
         viewport_toggled      = true;
-        RenderSystem::getInstance()->setViewportToCurrentWindowSize();
+        //RenderSystem::getInstance()->setViewportToCurrentWindowSize();
     }
     if(viewport_toggled)
     {
@@ -199,7 +216,7 @@ void Editor::drawWidgetFloat(const std::string& label, float& value, const float
 
     ImGui::NextColumn();
     // bool value_changed = ImGui::DragFloat("##", &value);
-    //ImGui::DragFloat("##", &value);
+    // ImGui::DragFloat("##", &value);
     ImGui::SliderFloat("##", &value, 0.0f, 1.0f);
 
     ImGui::Columns(1);
@@ -467,7 +484,6 @@ bool Editor::drawWidgetCheckbox(const std::string& label, bool& value, const flo
     if(ImGui::Checkbox("##Checkbox", &value))
     {
         value_changed = true;
-        glfwSwapInterval(value ? 1 : 0); // Disable vsync
     }
     ImGui::SameLine();
     ImGui::Text(value ? "ON" : "OFF");

@@ -14,8 +14,27 @@ void Particle::integrate(const real& duration) noexcept
 
     assert(duration > 0.0f);
 
+    //// Update linear position
+    //m_position += m_velocity * duration;
+
+    //// Work out the acceleration from the force. We'll add to this vector when we come to generate forces.
+    //vec3 total_acceleration = m_acceleration;
+    //total_acceleration += m_accumulated_force * m_inv_mass;
+
+    //// Update linear velocity from the acceleration.
+    //m_velocity += total_acceleration * duration;
+
+    //// Impose drag
+    //m_velocity *= real_pow(m_damping, duration);
+
+    //////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+
+    ///// damping experiment
     // Update linear position
-    m_position += m_velocity * duration;
+
+    // https://gamedev.stackexchange.com/questions/169558/how-can-i-fix-my-velocity-damping-to-work-with-any-delta-frame-time
+    m_position += m_velocity * (std::pow(m_damping, duration) - 1.0f) / std::log(m_damping);
 
     // Work out the acceleration from the force. We'll add to this vector when we come to generate forces.
     vec3 total_acceleration = m_acceleration;
@@ -25,7 +44,8 @@ void Particle::integrate(const real& duration) noexcept
     m_velocity += total_acceleration * duration;
 
     // Impose drag
-    m_velocity *= real_pow(m_damping, duration);
+    m_velocity *= std::pow(m_damping, duration);
+
 
     // Clear the forces
     clearAccumulator();

@@ -145,6 +145,11 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
     m_blinn_phong_pvp_program->configure();
 
+    m_blinn_phong_instanced_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_instanced_program->addShaderStage("../../data/shaders/glsl/blinn_phong_instanced.vert");
+    m_blinn_phong_instanced_program->addShaderStage("../../data/shaders/glsl/blinn_phong_instanced.frag");
+    m_blinn_phong_instanced_program->configure();
+
     m_debug_draw_program = std::make_shared<OglShaderProgram>();
     m_debug_draw_program->addShaderStage("../../data/shaders/glsl/debug_draw.vert");
     m_debug_draw_program->addShaderStage("../../data/shaders/glsl/debug_draw.frag");
@@ -341,6 +346,7 @@ void OglRenderer::drawTriangles(const u64& vertex_count, const Material& materia
             active_program->setInt("material.specular_texture", 1);
             material.spec_texture->bind(1);
         }
+        else
         {
             active_program->setInt("material.specular_texture", 1);
             m_white_texture->bind(1);
@@ -403,6 +409,103 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
         {
             m_vao->unbind();
         }
+
+        active_program->unbind();
+    }
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawTrianglesInstanced(const u64& vertex_count, const u64& instance_count, const Material& material)
+{
+    auto active_program = m_blinn_phong_instanced_program;
+    // if(material.shader_name == "blinn_phong_pvp")
+    //{
+    //     m_vao->bind();
+    //     active_program = m_blinn_phong_pvp_program;
+    // }
+    // else if(material.shader_name == "blinn_phong_instanced")
+    //{
+    //     active_program = m_blinn_phong_instanced_program;
+    // }
+
+    glEnable(GL_DEPTH_TEST);
+    {
+        // mat4 normal_matrix = model;
+        // normal_matrix      = normal_matrix.inverted().transpose(); // (Transpose of inverse of the model matrix)
+
+        active_program->bind();
+        // active_program->setMat4("model", model);
+        // active_program->setMat4("normal_matrix", normal_matrix);
+        //  m_blinn_phong_program->setFloat3("material.ambient", material.ambient);
+        active_program->setFloat3("material.diffuse", material.diffuse);
+        active_program->setFloat3("material.specular", material.specular);
+        active_program->setFloat("material.shininess", material.shininess);
+        if(material.diff_texture)
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            material.diff_texture->bind(0);
+        }
+        else
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            m_white_texture->bind(0);
+        }
+        if(material.spec_texture)
+        {
+            active_program->setInt("material.specular_texture", 1);
+            material.spec_texture->bind(1);
+        }
+        {
+            active_program->setInt("material.specular_texture", 1);
+            m_white_texture->bind(1);
+        }
+
+        glDrawArraysInstanced(GL_TRIANGLES, 0, (GLsizei)vertex_count, (GLsizei)instance_count);
+
+        active_program->unbind();
+    }
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawTrianglesIndexedInstanced(const u64&      index_count,
+                                                const u64&      instance_count,
+                                                const Material& material)
+{
+    auto active_program = m_blinn_phong_instanced_program;
+
+    glEnable(GL_DEPTH_TEST);
+    {
+        // mat4 normal_matrix = model;
+        // normal_matrix      = normal_matrix.inverted().transpose(); // (Transpose of inverse of the model matrix)
+
+        active_program->bind();
+        // active_program->setMat4("model", model);
+        // active_program->setMat4("normal_matrix", normal_matrix);
+        //  m_blinn_phong_program->setFloat3("material.ambient", material.ambient);
+        active_program->setFloat3("material.diffuse", material.diffuse);
+        active_program->setFloat3("material.specular", material.specular);
+        active_program->setFloat("material.shininess", material.shininess);
+        if(material.diff_texture)
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            material.diff_texture->bind(0);
+        }
+        else
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            m_white_texture->bind(0);
+        }
+        if(material.spec_texture)
+        {
+            active_program->setInt("material.specular_texture", 1);
+            material.spec_texture->bind(1);
+        }
+        {
+            active_program->setInt("material.specular_texture", 1);
+            m_white_texture->bind(1);
+        }
+
+        glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0, (GLsizei)instance_count);
 
         active_program->unbind();
     }

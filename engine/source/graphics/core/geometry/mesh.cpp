@@ -231,6 +231,23 @@ void Mesh::draw(const Material& material, const mat4& model)
     m_vertex_array->unbind();
 }
 
+
+void Mesh::drawInstanced(const Material& material, const u32& num_instances)
+{
+    auto render_system = sputnik::core::systems::RenderSystem::getInstance();
+    m_vertex_array->bind();
+    if(m_indices.size() > 0)
+    {
+        render_system->drawTrianglesIndexedInstanced((u64)m_indices.size(), material, num_instances);
+    }
+    else
+    {
+        render_system->drawTrianglesInstanced((u64)m_position.size(), material, num_instances);
+    }
+    m_vertex_array->unbind();
+}
+
+
 void Mesh::DrawInstanced(unsigned int num_instances)
 {
     m_vertex_array->bind();
@@ -305,6 +322,11 @@ void Mesh::initializeGpuBuffers()
         m_index_buffer = std::make_shared<OglBuffer>(&m_indices[0], m_indices.size() * sizeof(unsigned int));
         m_vertex_array->setIndexBuffer(*m_index_buffer.get());
     }
+}
+
+std::shared_ptr<OglVertexArray> Mesh::getVertexArray() const
+{
+    return m_vertex_array;
 }
 
 } // namespace sputnik::graphics::core

@@ -12,6 +12,7 @@
 #include <physics/particle.h>
 #include <core/systems/physics_system.h>
 #include <core/systems/render_system.h>
+#include <physics/geometry.h>
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -46,6 +47,9 @@ private:
     std::shared_ptr<Particle>              m_central_particle;
     std::vector<std::shared_ptr<Particle>> m_particles;
     std::vector<vec4>                      m_particle_positions;
+    std::vector<Sphere>                    m_particle_shapes;
+    i32 hit_particle_idx{-1};
+    i32 gizmo_particle_idx{-1};
 
     // Constraints (contact generators)
     PhysicsSystem* m_physics_system;
@@ -59,6 +63,8 @@ private:
     real const kParticleDamping{0.05f};
     real const kParticleRadius{0.05f};
     real const kSpringStiffness{2.0f};
+
+    Sphere m_sphere_geometry;
 };
 
 unsigned const kParticleCount{12};

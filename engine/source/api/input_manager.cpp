@@ -179,4 +179,13 @@ float InputManager::lerp(float x, float y, float t)
 {
     return x * (1.f - t) + y * t;
 }
+
+const ramanujan::experimental::vec2 InputManager::GetCursorNDCPosition()
+{
+    float x = ((2.0f * m_cursor_position.x) / m_cursor_max_position.x) - 1.0f;
+    float y = 1.0f - (2.0f * m_cursor_position.y) / m_cursor_max_position.y;
+    // float y = ((2.0f * m_cursor_position.y) / m_cursor_max_position.y) - 1.0f;
+    return ramanujan::experimental::vec2(x, y);
+}
+
 } // namespace sputnik::engine::api

@@ -55,10 +55,13 @@ public:
 
     void Draw();
     void draw(const Material& material, const mat4& model = {});
+    void drawInstanced(const Material& material, const u32& num_instances);
     void DrawInstanced(unsigned int num_instances);
     // void Unbind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot);
 
     void initializeGpuBuffers();
+
+    std::shared_ptr<OglVertexArray> getVertexArray() const;
 
 protected:
     // cpu data

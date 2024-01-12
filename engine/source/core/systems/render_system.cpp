@@ -188,7 +188,7 @@ Light& RenderSystem::getLight()
     return m_light;
 }
 
-const mat4& RenderSystem::getCameraProjection() const
+const mat4 RenderSystem::getCameraProjection() const
 {
     if(m_camera_type == CameraType::Camera)
     {
@@ -200,7 +200,7 @@ const mat4& RenderSystem::getCameraProjection() const
     }
 }
 
-const mat4& RenderSystem::getCameraView() const
+const mat4 RenderSystem::getCameraView() const
 {
     if(m_camera_type == CameraType::Camera)
     {
@@ -222,6 +222,20 @@ void RenderSystem::drawTriangles(const u64& vertex_count, const Material& materi
 void RenderSystem::drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model)
 {
     m_ogl_renderer->drawTrianglesIndexed(index_count, material, model);
+}
+
+void RenderSystem::drawTrianglesInstanced(const u64&      vertex_count,
+                                          const Material& material,
+                                          const u32&      instance_count)
+{
+    m_ogl_renderer->drawTrianglesInstanced(vertex_count, instance_count, material);
+}
+
+void RenderSystem::drawTrianglesIndexedInstanced(const u64&      index_count,
+                                                 const Material& material,
+                                                 const u32&      instance_count)
+{
+    m_ogl_renderer->drawTrianglesIndexedInstanced(index_count, instance_count, material);
 }
 
 void RenderSystem::drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)

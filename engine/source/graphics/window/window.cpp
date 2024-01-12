@@ -44,6 +44,7 @@ Window::Window(const WindowSpecification& specification)
         glfwGetFramebufferSize(m_window_handle, &w, &h);
         m_window_specification.m_height = h;
         m_window_specification.m_width  = w;
+        m_window_specification.m_input->SetMouseMaxPositions(w, h);
         glfwSetWindowUserPointer(m_window_handle, &m_window_specification);
     }
 
@@ -53,6 +54,7 @@ Window::Window(const WindowSpecification& specification)
     //    const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
     //    m_window_handle = glfwCreateWindow(mode->width, mode->height, specification.m_title.c_str(), monitor,
     //    nullptr); m_window_specification.m_height = mode->height; m_window_specification.m_width  = mode->width;
+    //    m_window_specification.m_input->SetMouseMaxPositions(mode->width, mode->height);
     //    glfwSetWindowUserPointer(m_window_handle, &m_window_specification);
     //}
 
@@ -83,6 +85,7 @@ Window::Window(const WindowSpecification& specification)
                                   window_specification.m_width  = width;
                                   window_specification.m_height = height;
                                   glfwRequestWindowAttention(window);
+                                  window_specification.m_input->SetMouseMaxPositions(width, height);
                                   sputnik::core::systems::RenderSystem::getInstance()->onWindowResize(width, height);
                               });
 

@@ -2,6 +2,7 @@
 
 #include <vector.hpp>
 #include <matrix.hpp>
+#include <optional>
 
 namespace sputnik::physics
 {
@@ -27,20 +28,6 @@ struct Line
 
     real length() const noexcept;
     real lengthSquared() const noexcept;
-};
-
-struct Ray
-{
-    Point origin;
-    vec3  direction;
-
-    Ray() noexcept;
-    Ray(const Ray& other) noexcept;
-    Ray(Ray&& other) noexcept;
-    Ray(const Point& _origin, const vec3& _direction);
-
-    void       normalizeDirection() noexcept;
-    friend Ray fromPoints(const Point& from, const Point& to) noexcept;
 };
 
 struct Triangle
@@ -131,5 +118,55 @@ struct Sphere
     Sphere(Sphere&& other) noexcept;
     Sphere(const Point& _center, real _radius) noexcept;
 };
+
+struct Ray
+{
+    Point origin;
+    vec3  direction;
+
+    Ray() noexcept;
+    Ray(const Ray& other) noexcept;
+    Ray& operator=(const Ray& other) noexcept;
+    Ray(Ray&& other) noexcept;
+    Ray(const Point& _origin, const vec3& _direction);
+
+    void       normalizeDirection() noexcept;
+    friend Ray fromPoints(const Point& from, const Point& to) noexcept;
+};
+
+struct RaycastResult
+{
+    bool hit{false};
+    real t{-1.0f};
+    vec3 normal{0.0f, 0.0f, 1.0f};
+    vec3 point{0.0f};
+};
+
+// Ray GetPickRay(const vec2& viewportPoint,
+//                const vec2& viewportOrigin,
+//                const vec2& viewportSize,
+//                const mat4& view,
+//                const mat4& projection) noexcept
+//{
+//	vec2 ndc = (viewportPoint - viewportOrigin) / viewportSize;
+//	ndc.y = 1.0f - ndc.y;
+//	vec4 clip = {ndc.x * 2.0f - 1.0f, ndc.y * 2.0f - 1.0f, -1.0f, 1.0f};
+//	//vec4 eye = inverse(projection) * clip;
+//     vec4 eye   = projection.inverted() * clip;
+//	eye.z = -1.0f;
+//	eye.w = 0.0f;
+//	vec3 world = view.inverted() * eye;
+//     return {vec3{0.0f}, world.normalized()};
+// }
+
+Ray GetPickRay_2(const vec2& viewportPoint,
+                 const vec2& viewportOrigin,
+                 const vec2& viewportSize,
+                 const mat4& view,
+                 const mat4& projection);
+Ray getPickRay_1(vec2 ndc_coordinates, const mat4& projection, const mat4& view) noexcept;
+Ray getPickRay(vec2 ndc_coordinates, const mat4& projection, const mat4& view) noexcept;
+
+std::optional<RaycastResult> raycast(const Ray& ray, const Sphere& sphere) noexcept;
 
 } // namespace sputnik::physics

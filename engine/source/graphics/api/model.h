@@ -2,6 +2,7 @@
 
 #include "graphics/core/geometry/mesh.h"
 #include "graphics/api/color_material.h"
+#include "graphics/glcore/gl_vertex_array.h"
 // #include <graphics/glcore/shader.h>
 
 #include <string>
@@ -27,8 +28,11 @@ public:
 
     void Draw();
     void draw(const Material& material, const mat4& model = {});
+    void drawInstanced(const Material& material, const u32& num_instances);
 
     static std::shared_ptr<Model> LoadModel(const std::string& path);
+
+    std::shared_ptr<OglVertexArray> getVertexArray() const;
 
 protected:
 protected:

@@ -26,6 +26,16 @@ Ray::Ray() noexcept : origin{real(0.0)}, direction{real(0.0), real(0.0), real(1.
 
 Ray::Ray(const Ray& other) noexcept : origin{other.origin}, direction{other.direction} {}
 
+Ray& Ray::operator=(const Ray& other) noexcept
+{
+    if(this != &other)
+    {
+        origin    = other.origin;
+        direction = other.direction;
+    }
+    return *this;
+}
+
 Ray::Ray(Ray&& other) noexcept : origin{std::move(other.origin)}, direction{std::move(other.direction)} {}
 
 Ray::Ray(const Point& _origin, const vec3& _direction) : origin{_origin}, direction{_direction}
@@ -41,6 +51,173 @@ void Ray::normalizeDirection() noexcept
 Ray fromPoints(const Point& from, const Point& to) noexcept
 {
     return Ray{from, to - from};
+}
+
+// vec3 unproject(const vec3& screen_coordinates, const mat4& projection, const mat4& view, const vec4& viewport)
+// noexcept
+//{
+//	// https://antongerdelan.net/opengl/raycasting.html
+//	vec4 v;
+//	v.x = (2.0f * screen_coordinates.x) / viewport.z - 1.0f;
+//	v.y = 1.0f - (2.0f * screen_coordinates.y) / viewport.w;
+//	v.z = 0.0f;
+//	v.w = 1.0f;
+//	mat4 inv_projection = projection.inverted();
+//	mat4 inv_view       = view.inverted();
+//	vec4 ray_eye        = inv_projection.transformPoint(v);
+//	ray_eye             = vec4{ray_eye.x, ray_eye.y, -1.0f, 0.0f};
+//	vec3 ray_world      = (inv_view.transformPoint(ray_eye.xyz(), 0.0f).xyz()).normalize();
+//	return ray_world;
+// }
+
+vec3 unproject(const vec4& point, const mat4& projection, const mat4& view) noexcept
+{
+    // https://antongerdelan.net/opengl/raycasting.html
+    mat4 inv_projection = projection.inverted();
+    mat4 inv_view       = view.inverted();
+    vec4 ray_eye        = inv_projection.transformPoint(point);
+    ray_eye             = vec4{ray_eye.x, ray_eye.y, -1.0f, 0.0f};
+    vec3 ray_world      = (inv_view.transformPoint(ray_eye.xyz(), 0.0f).xyz()).normalize();
+    return ray_world;
+}
+
+Ray getPickRay_1(vec2 ndc_coordinates, const mat4& projection, const mat4& view) noexcept
+{
+    vec3 near_point = unproject(vec4{ndc_coordinates.x, ndc_coordinates.y, -1.0f, 1.0f}, projection, view);
+    vec3 far_point  = unproject(vec4{ndc_coordinates.x, ndc_coordinates.y, 1.0f, 1.0f}, projection, view);
+    vec3 normal     = (far_point - near_point).normalized();
+    return Ray{near_point, normal};
+}
+
+Ray getPickRay(vec2 ndc_coordinates, const mat4& projection, const mat4& view) noexcept
+{
+    // https://antongerdelan.net/opengl/raycasting.html
+    vec4 ray_clip{ndc_coordinates.x, ndc_coordinates.y, -1.0f, 1.0f};
+    mat4 inv_projection = projection.inverted();
+    // vec4 ray_eye        = inv_projection.transformPoint(ray_clip);
+    vec4 ray_eye  = inv_projection.transformPoint(ray_clip.xyz(), 1.0);
+    ray_eye       = vec4{ray_eye.x, ray_eye.y, -1.0f, 0.0f};
+    mat4 inv_view = view.inverted();
+    // vec3 ray_world      = (inv_view.transformPoint(ray_eye).xyz()).normalize();
+    vec3 ray_world = (inv_view.transformPoint(ray_eye.xyz(), 0.0f).xyz()).normalize();
+    return Ray({0.0f}, ray_world);
+}
+
+#define CMP(x, y) (fabsf(x - y) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
+
+vec3 Unproject_2(const vec3& viewportPoint,
+                 const vec2& viewportOrigin,
+                 const vec2& viewportSize,
+                 const mat4& view,
+                 const mat4& projection)
+{
+    // Step 1, Normalize the input vector to the view port
+    float normalized[4] = {(viewportPoint.x - viewportOrigin.x) / viewportSize.x,
+                           (viewportPoint.y - viewportOrigin.y) / viewportSize.y,
+                           viewportPoint.z,
+                           1.0f};
+
+    // Step 2, Translate into NDC space
+    float ndcSpace[4] = {normalized[0], normalized[1], normalized[2], normalized[3]};
+    // X Range: -1 to 1
+    ndcSpace[0] = ndcSpace[0] * 2.0f - 1.0f;
+    // Y Range: -1 to 1, our Y axis is flipped!
+    ndcSpace[1] = 1.0f - ndcSpace[1] * 2.0f;
+    // Z Range: 0 to 1
+    if(ndcSpace[2] < 0.0f)
+    {
+        ndcSpace[2] = 0.0f;
+    }
+    if(ndcSpace[2] > 1.0f)
+    {
+        ndcSpace[2] = 1.0f;
+    }
+
+    // Step 3, NDC to Eye Space
+    mat4 invProjection = projection.inverted();
+    // float eyeSpace[4]   = {0.0f, 0.0f, 0.0f, 0.0f};
+    // Multiply(eyeSpace, ndcSpace, 1, 4, invProjection.asArray, 4, 4);
+    //  eyeSpace = MultiplyPoint(ndcSpace, invProjection);
+    vec4 eyeSpace = invProjection.transformPoint({ndcSpace[0], ndcSpace[1], ndcSpace[2], ndcSpace[3]});
+
+    // Step 4, Eye Space to World Space
+    mat4 invView = view.inverted();
+    // float worldSpace[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    // Multiply(worldSpace, eyeSpace, 1, 4, invView.asArray, 4, 4);
+    //  worldSpace = MultiplyPoint(eyeSpace, invView);
+    vec4 worldSpace = invView.transformPoint(eyeSpace);
+
+    // Step 5, Undo perspective divide!
+    if(!CMP(worldSpace[3], 0.0f))
+    {
+        worldSpace[0] /= worldSpace[3];
+        worldSpace[1] /= worldSpace[3];
+        worldSpace[2] /= worldSpace[3];
+    }
+
+    // Return the resulting world space point
+    return vec3(worldSpace[0], worldSpace[1], worldSpace[2]);
+}
+
+Ray GetPickRay_2(const vec2& viewportPoint,
+                 const vec2& viewportOrigin,
+                 const vec2& viewportSize,
+                 const mat4& view,
+                 const mat4& projection)
+{
+    vec3 nearPoint(viewportPoint.x, viewportPoint.y, 0.0f);
+    vec3 farPoint(viewportPoint.x, viewportPoint.y, 1.0f);
+
+    vec3 pNear = Unproject_2(nearPoint, viewportOrigin, viewportSize, view, projection);
+    vec3 pFar  = Unproject_2(farPoint, viewportOrigin, viewportSize, view, projection);
+
+    vec3 normal = (pFar - pNear).normalized();
+    vec3 origin = pNear;
+
+    return Ray(origin, normal);
+}
+
+std::optional<RaycastResult> raycast(const Ray& ray, const Sphere& sphere) noexcept
+{
+    // return std::optional<RaycastResult>();
+    // return std::nullopt;
+    // return {};
+
+    // real radiusSq = sphere.radius * sphere.radius;
+
+    // vec3 e   = sphere.center - ray.origin;
+    // real eSq = e.magnitudeSquared();
+
+    // real a = e.dot(ray.direction); // ray direction is normalized (assumed)
+
+    vec3  e   = sphere.center - ray.origin;
+    float rSq = sphere.radius * sphere.radius;
+
+    float eSq = e.magnitudeSquared();
+    float a   = e.dot(ray.direction); // ray.direction is assumed to be normalized
+    float bSq = /*sqrtf(*/ eSq - (a * a) /*)*/;
+    float f   = sqrt(fabsf((rSq) - /*(b * b)*/ bSq));
+
+    // Assume normal intersection!
+    float t = a - f;
+
+    // No collision has happened
+    if(rSq - (eSq - a * a) < 0.0f)
+    {
+        return std::nullopt;
+    }
+    // Ray starts inside the sphere
+    else if(eSq < rSq)
+    {
+        // Just reverse direction
+        t = a + f;
+    }
+    RaycastResult result;
+    result.t      = t;
+    result.hit    = true;
+    result.point  = ray.origin + ray.direction * t;
+    result.normal = (result.point - sphere.center).normalized();
+    return result;
 }
 
 //////////////////////////////// Triangle //////////////////////////////////////
