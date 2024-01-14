@@ -2,6 +2,7 @@
 #include "force_generators.hpp"
 #include "mass_aggregate_system.hpp"
 
+#include <ranges>
 #include <execution>
 
 namespace physics::mad
@@ -50,20 +51,34 @@ void SpringForceGenerator::addForce(MassAggregateSystem* const owning_system)
 
         ////////////////////////////////////////////////////////////////
 
-        const auto& position_a = owning_system->getPosition(spring.mass_a_idx);
-        const auto& position_b = owning_system->getPosition(spring.mass_b_idx);
-        if(position_a.y <= kEpsilon)
-        {
-            int a = 10;
-        }
-        auto       distance_vector       = position_a - position_b;
-        const auto current_spring_length = distance_vector.magnitude();
-        const auto delta_length          = current_spring_length - spring.rest_length;
-        const auto force_a               = -spring.spring_constant * delta_length * distance_vector.normalize();
-        const auto force_b               = -1.0f * force_a;
+        const auto& position_a            = owning_system->getPosition(spring.mass_a_idx);
+        const auto& position_b            = owning_system->getPosition(spring.mass_b_idx);
+        auto        distance_vector       = position_a - position_b;
+        const auto  current_spring_length = distance_vector.magnitude();
+        const auto  delta_length          = current_spring_length - spring.rest_length;
+        const auto  force_a               = -spring.spring_constant * delta_length * distance_vector.normalize();
+        const auto  force_b               = -1.0f * force_a;
         owning_system->addForce(spring.mass_a_idx, force_a);
         owning_system->addForce(spring.mass_b_idx, force_b);
     }
+
+    ////////////////////////////////////////////////////////////////
+
+    // std::for_each(std::execution::par_unseq,
+    //               m_springs.begin(),
+    //               m_springs.end(),
+    //               [&](const auto& spring)
+    //               {
+    //                   const auto& position_a = owning_system->getPosition(spring.mass_a_idx);
+    //                   const auto& position_b = owning_system->getPosition(spring.mass_b_idx);
+    //                   auto       distance_vector       = position_a - position_b;
+    //                   const auto current_spring_length = distance_vector.magnitude();
+    //                   const auto delta_length          = current_spring_length - spring.rest_length;
+    //                   const auto force_a = -spring.spring_constant * delta_length * distance_vector.normalize();
+    //                   const auto force_b = -1.0f * force_a;
+    //                   owning_system->addForce(spring.mass_a_idx, force_a);
+    //                   owning_system->addForce(spring.mass_b_idx, force_b);
+    //               });
 }
 
 void BungeeForceGenerator::addForce(MassAggregateSystem* const owning_system) {}

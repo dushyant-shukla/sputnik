@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "mass_aggregate_system.hpp"
 
+#include <algorithm>
+#include <execution>
+#include <ranges>
+
 namespace physics::mad
 {
 
@@ -162,26 +166,51 @@ void MassAggregateSystem::integrateExplicitEuler(const real& dt) noexcept
 
 void MassAggregateSystem::integrateSemiImplicitEuler(const real& dt) noexcept
 {
-    size_t num_particles = m_masses.size();
-    for(size_t i = 0; i < num_particles; i++)
-    {
-        if(m_inverse_masses[i] <= kEpsilon)
-        {
-            continue;
-        }
+    // size_t num_particles = m_masses.size();
+    // for(size_t i = 0; i < num_particles; i++)
+    //{
+    //     if(m_inverse_masses[i] <= kEpsilon)
+    //     {
+    //         continue;
+    //     }
 
-        // https://gamedev.stackexchange.com/questions/169558/how-can-i-fix-my-velocity-damping-to-work-with-any-delta-frame-time
-        vec3 total_acceleration = m_accelerations[i];
-        total_acceleration += m_accumulated_forces[i] * m_inverse_masses[i];
-        m_velocities[i] += total_acceleration * dt;
-        m_velocities[i] *= std::pow(m_damping_values[i], dt);
-        m_positions[i] += m_velocities[i] * (std::pow(m_damping_values[i], dt) - 1.0f) / std::log(m_damping_values[i]);
-        m_accumulated_forces[i] = {0.0f, 0.0f, 0.0f};
-        if(m_positions[i].y < kEpsilon)
-        {
-            m_positions[i].y = 0.0f;
-        }
-    }
+    //    //
+    //    https://gamedev.stackexchange.com/questions/169558/how-can-i-fix-my-velocity-damping-to-work-with-any-delta-frame-time
+    //    vec3 total_acceleration = m_accelerations[i];
+    //    total_acceleration += m_accumulated_forces[i] * m_inverse_masses[i];
+    //    m_velocities[i] += total_acceleration * dt;
+    //    m_velocities[i] *= std::pow(m_damping_values[i], dt);
+    //    m_positions[i] += m_velocities[i] * (std::pow(m_damping_values[i], dt) - 1.0f) /
+    //    std::log(m_damping_values[i]); m_accumulated_forces[i] = {0.0f, 0.0f, 0.0f}; if(m_positions[i].y < kEpsilon)
+    //    {
+    //        m_positions[i].y = 0.0f;
+    //    }
+    //}
+
+    std::ranges::iota_view indexes((size_t)0, m_positions.size());
+    std::for_each(std::execution::par_unseq,
+                  indexes.begin(),
+                  indexes.end(),
+                  [&](const auto& index)
+                  {
+                      if(m_inverse_masses[index] > kEpsilon)
+                      {
+                          // https://gamedev.stackexchange.com/questions/169558/how-can-i-fix-my-velocity-damping-to-work-with-any-delta-frame-time
+                          vec3 total_acceleration = m_accelerations[index];
+                          total_acceleration += m_accumulated_forces[index] * m_inverse_masses[index];
+                          m_velocities[index] += total_acceleration * dt;
+                          m_velocities[index] *= std::pow(m_damping_values[index], dt);
+                          m_positions[index] += m_velocities[index] * (std::pow(m_damping_values[index], dt) - 1.0f) /
+                                                std::log(m_damping_values[index]);
+                          m_accumulated_forces[index] = {0.0f, 0.0f, 0.0f};
+
+                          // only temporary until collision detection/resolution is implemented
+                          if(m_positions[index].y < kEpsilon)
+                          {
+                              m_positions[index].y = 0.0f;
+                          }
+                      }
+                  });
 }
 
 void MassAggregateSystem::integrateVerlet(const real& dt) noexcept {}
