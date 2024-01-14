@@ -77,7 +77,6 @@ protected:
     void integrateRK4(const real& dt) noexcept;
 
 protected:
-
     // Point mass(es) data
     std::vector<real> m_masses;
     std::vector<vec3> m_positions;
@@ -87,7 +86,8 @@ protected:
     std::vector<real> m_inverse_masses;
     std::vector<vec3> m_accumulated_forces;
     std::vector<bool> m_is_fixed;
-    IntegrationMethod m_active_integration_method;
+
+    IntegrationMethod m_active_integration_method{IntegrationMethod::SemiImplicitEuler};
 
     // a list of springs to apply forces to the particles
     // maybe have a super class called force generators this will be subclassed by springs, winds, etc.

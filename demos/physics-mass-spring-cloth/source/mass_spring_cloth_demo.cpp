@@ -20,19 +20,23 @@ namespace sputnik::demos
 
 MassSpringClothDemoLayer::MassSpringClothDemoLayer(const std::string& name) : core::Layer{name}
 {
-    m_grid_size = {5.0f, 5.0f, 5.0f};
-    /*m_mass_spring_volume =
-        std::make_shared<::physics::mad::MassAggregateVolume>(m_grid_size.x, m_grid_size.y, m_grid_size.z);*/
-
-    m_cube_specification.mass       = 1.0f;
+    m_cube_specification.mass       = 0.75f;
     m_cube_specification.scale      = {2.0f, 1.0f, 1.0f};
     m_cube_specification.resolution = {20, 10, 10};
-    // m_cube_specification.scale      = {1.0f, 1.0f, 1.0f};
-    // m_cube_specification.resolution = {3, 3, 3};
+    // m_cube_specification.scale             = {1.0f, 1.0f, 1.0f};
+    // m_cube_specification.resolution        = {5, 5, 5};
+    m_cube_specification.center_position = {0.0f, 7.0f, 0.0f};
+    m_cube_specification.damping         = 0.005f;
+    m_cube_specification.spring_shear    = {.rest_length = 0.0f, .stiffness = 1000.0f};
+    m_cube_specification.spring_flexion  = {.rest_length = 0.0f, .stiffness = 1000.0f};
+
+    // structural springs are usually stiffer than shear,flexion springs
+    m_cube_specification.spring_structural = {.rest_length = 0.0f, .stiffness = 2000.0f};
+
     m_mass_spring_volume = std::make_shared<::physics::mad::MassAggregateVolume>(m_cube_specification);
-    m_structural_spring  = m_mass_spring_volume->getStructuralSpring();
-    m_shear_spring       = m_mass_spring_volume->getShearSpring();
-    m_bend_spring        = m_mass_spring_volume->getBendSpring();
+    m_structural_spring  = m_mass_spring_volume->getStructuralSprings();
+    m_shear_spring       = m_mass_spring_volume->getShearSprings();
+    m_bend_spring        = m_mass_spring_volume->getBendSprings();
 
     u64 instanced_buffer_size = m_cube_specification.resolution.x * m_cube_specification.resolution.y *
                                 m_cube_specification.resolution.z * 2 * sizeof(mat4);
@@ -82,26 +86,27 @@ void MassSpringClothDemoLayer::OnAttach()
     light.diffuse   = vec3(1.0f, 1.0f, 1.0f);
     light.specular  = vec3(1.0f, 1.0f, 1.0f);
 
-    ENGINE_INFO("Reading back the index...");
-    for(unsigned slice_idx = 0; slice_idx < m_cube_specification.resolution.z; ++slice_idx)
-    {
-        for(unsigned row_idx = 0; row_idx < m_cube_specification.resolution.y; ++row_idx)
-        {
-            for(unsigned col_idx = 0; col_idx < m_cube_specification.resolution.x; ++col_idx)
-            {
-                auto index = m_mass_spring_volume->getIndex(row_idx, col_idx, slice_idx);
-                ENGINE_INFO("Row: {}, Column: {}, Slide: {}, Particle index: {}", row_idx, col_idx, slice_idx, index);
-            }
-        }
-    }
+    // ENGINE_INFO("Reading back the index...");
+    // for(unsigned slice_idx = 0; slice_idx < m_cube_specification.resolution.z; ++slice_idx)
+    //{
+    //     for(unsigned row_idx = 0; row_idx < m_cube_specification.resolution.y; ++row_idx)
+    //     {
+    //         for(unsigned col_idx = 0; col_idx < m_cube_specification.resolution.x; ++col_idx)
+    //         {
+    //             auto index = m_mass_spring_volume->getIndex(row_idx, col_idx, slice_idx);
+    //             ENGINE_INFO("Row: {}, Column: {}, Slide: {}, Particle index: {}", row_idx, col_idx, slice_idx,
+    //             index);
+    //         }
+    //     }
+    // }
 
-    ENGINE_INFO("Reading back the local coordinates...");
-    size_t size = m_mass_spring_volume->getParticleCount();
-    for(size_t i = 0; i < size; ++i)
-    {
-        uvec3 coords = m_mass_spring_volume->getLocalCoordinates(i);
-        ENGINE_INFO("Row: {}, Column: {}, Slide: {}, Particle index: {}", coords.x, coords.y, coords.z, i);
-    }
+    // ENGINE_INFO("Reading back the local coordinates...");
+    // size_t size = m_mass_spring_volume->getParticleCount();
+    // for(size_t i = 0; i < size; ++i)
+    //{
+    //     uvec3 coords = m_mass_spring_volume->getLocalCoordinates(i);
+    //     ENGINE_INFO("Row: {}, Column: {}, Slide: {}, Particle index: {}", coords.x, coords.y, coords.z, i);
+    // }
 }
 
 void MassSpringClothDemoLayer::OnDetach() {}
@@ -163,41 +168,47 @@ void MassSpringClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
     std::vector<vec4> lines;
     if(m_render_structural_springs)
     {
-        for(const auto& pair : m_structural_spring.getMassPairs())
+        for(const auto& spring : m_structural_spring.getSprings())
         {
-            uvec3 coords     = m_mass_spring_volume->getLocalCoordinates(pair.first);
+            uvec3 coords     = m_mass_spring_volume->getLocalCoordinates(spring.mass_a_idx);
             vec3  position_a = m_mass_spring_volume->getPosition(coords.x, coords.y, coords.z);
-            coords           = m_mass_spring_volume->getLocalCoordinates(pair.second);
+            coords           = m_mass_spring_volume->getLocalCoordinates(spring.mass_b_idx);
             vec3 position_b  = m_mass_spring_volume->getPosition(coords.x, coords.y, coords.z);
             lines.push_back({position_a, 1.0f});
             lines.push_back({position_b, 1.0f});
         }
-        m_render_system->drawDebugLines(lines, {1.0f, 0.0f, 0.0f}, 5.0f);
+        if(!lines.empty())
+        {
+            m_render_system->drawDebugLines(lines, {1.0f, 0.0f, 0.0f}, 5.0f);
+        }
     }
 
     if(m_render_shear_springs)
     {
         lines.clear();
-        for(const auto& pair : m_shear_spring.getMassPairs())
+        for(const auto& pair : m_shear_spring.getSprings())
         {
-            uvec3 coords     = m_mass_spring_volume->getLocalCoordinates(pair.first);
+            uvec3 coords     = m_mass_spring_volume->getLocalCoordinates(pair.mass_a_idx);
             vec3  position_a = m_mass_spring_volume->getPosition(coords.x, coords.y, coords.z);
-            coords           = m_mass_spring_volume->getLocalCoordinates(pair.second);
+            coords           = m_mass_spring_volume->getLocalCoordinates(pair.mass_b_idx);
             vec3 position_b  = m_mass_spring_volume->getPosition(coords.x, coords.y, coords.z);
             lines.push_back(position_a);
             lines.push_back(position_b);
         }
-        m_render_system->drawDebugLines(lines, material_blue_shine.diffuse, 5.0f);
+        if(!lines.empty())
+        {
+            m_render_system->drawDebugLines(lines, material_blue_shine.diffuse, 5.0f);
+        }
     }
 
     if(m_render_bend_springs)
     {
         lines.clear();
-        for(const auto& pair : m_bend_spring.getMassPairs())
+        for(const auto& pair : m_bend_spring.getSprings())
         {
-            uvec3 coords     = m_mass_spring_volume->getLocalCoordinates(pair.first);
+            uvec3 coords     = m_mass_spring_volume->getLocalCoordinates(pair.mass_a_idx);
             vec3  position_a = m_mass_spring_volume->getPosition(coords.x, coords.y, coords.z);
-            coords           = m_mass_spring_volume->getLocalCoordinates(pair.second);
+            coords           = m_mass_spring_volume->getLocalCoordinates(pair.mass_b_idx);
             vec3 position_b  = m_mass_spring_volume->getPosition(coords.x, coords.y, coords.z);
             lines.push_back(position_a);
             lines.push_back(position_b);
@@ -207,6 +218,9 @@ void MassSpringClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
             m_render_system->drawDebugLines(lines, material_gold.diffuse, 5.0f);
         }
     }
+
+    // update the mass aggregate volume
+    m_mass_spring_volume->update(time_step.GetSeconds());
 
     // m_mass_spring_volume->update(time_step.GetSeconds());
     // m_mass_spring_volume->update(0.01f);

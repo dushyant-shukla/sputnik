@@ -5,108 +5,6 @@
 namespace physics::mad
 {
 
-MassAggregateVolume::MassAggregateVolume(const unsigned& rows, const unsigned& cols, const unsigned& slices)
-    : m_num_rows(rows)
-    , m_num_cols(cols)
-    , m_num_slices(slices)
-{
-    size_t grid_size = size_t(m_num_rows * m_num_cols * m_num_slices);
-    m_masses.resize(grid_size);
-    m_positions.resize(grid_size);
-    m_velocities.resize(grid_size);
-    m_accelerations.resize(grid_size);
-    m_damping_values.resize(grid_size);
-    m_inverse_masses.resize(grid_size);
-    m_accumulated_forces.resize(grid_size);
-    m_is_fixed.resize(grid_size);
-
-    float dx = 1.0f / static_cast<float>(m_num_rows - 1);
-    float dy = 1.0f / static_cast<float>(m_num_cols - 1);
-    float dz = 1.0f / static_cast<float>(m_num_slices - 1);
-
-    for(int slice_idx = 0; slice_idx < slices; ++slice_idx)
-    {
-        for(int row_idx = 0; row_idx < rows; ++row_idx)
-        {
-            for(int col_idx = 0; col_idx < cols; ++col_idx)
-            {
-                int index = getIndex(row_idx, col_idx, slice_idx);
-                ENGINE_INFO("Row: {}, Column: {}, Slide: {}, Particle index: {}", row_idx, col_idx, slice_idx, index);
-                m_positions[index] = vec3(dy * col_idx, dx * row_idx, dz * slice_idx);
-            }
-        }
-    }
-
-    // Setting springs
-    for(int slice_idx = 0; slice_idx < slices; ++slice_idx)
-    {
-        for(int row_idx = 0; row_idx < rows; ++row_idx)
-        {
-            for(int col_idx = 0; col_idx < cols; ++col_idx)
-            {
-                int index = getIndex(row_idx, col_idx, slice_idx);
-
-                // structural spring
-                {
-                    if(row_idx < rows - 1)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx + 1, col_idx, slice_idx);
-                        m_structural_spring.addMassPair(index, neighbour_index);
-                    }
-                    if(col_idx < cols - 1)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx, col_idx + 1, slice_idx);
-                        m_structural_spring.addMassPair(index, neighbour_index);
-                    }
-                    if(slice_idx < slices - 1)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx, col_idx, slice_idx + 1);
-                        m_structural_spring.addMassPair(index, neighbour_index);
-                    }
-                }
-
-                // shear spring
-                {
-                    if(row_idx < rows - 1 && col_idx < cols)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx + 1, col_idx, slice_idx);
-                        m_shear_spring.addMassPair(index, neighbour_index);
-                    }
-                    if(row_idx < rows && col_idx < cols - 1)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx, col_idx + 1, slice_idx);
-                        m_shear_spring.addMassPair(index, neighbour_index);
-                    }
-                    if(row_idx < rows - 1 && col_idx < cols - 1)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx + 1, col_idx + 1, slice_idx);
-                        m_shear_spring.addMassPair(index, neighbour_index);
-                    }
-                }
-
-                // bend spring
-                {
-                    if(row_idx < rows - 2)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx + 2, col_idx, slice_idx);
-                        m_bend_spring.addMassPair(index, neighbour_index);
-                    }
-                    if(col_idx < cols - 2)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx, col_idx + 2, slice_idx);
-                        m_bend_spring.addMassPair(index, neighbour_index);
-                    }
-                    if(slice_idx < slices - 2)
-                    {
-                        unsigned neighbour_index = getIndex(row_idx, col_idx, slice_idx + 2);
-                        m_bend_spring.addMassPair(index, neighbour_index);
-                    }
-                }
-            }
-        }
-    }
-}
-
 MassAggregateVolume::MassAggregateVolume(const MassAggregateBodySpecification& specification)
     : m_num_rows(specification.resolution.y)
     , m_num_cols(specification.resolution.x)
@@ -136,11 +34,16 @@ MassAggregateVolume::MassAggregateVolume(const MassAggregateBodySpecification& s
             for(int col_idx = 0; col_idx < m_num_cols; ++col_idx)
             {
                 unsigned index = getIndex(row_idx, col_idx, slice_idx);
-                ENGINE_INFO("Row: {}, Column: {}, Slide: {}, Particle index: {}", row_idx, col_idx, slice_idx, index);
+                // ENGINE_INFO("Row: {}, Column: {}, Slide: {}, Particle index: {}", row_idx, col_idx, slice_idx,
+                // index);
                 vec3 position(dy * col_idx, dx * row_idx, dz * slice_idx);
                 position += specification.center_position - half_scale;
                 m_positions[index] = position;
-                m_masses[index]    = specification.mass;
+                setMass(index, specification.mass);
+                // m_masses[index]         = specification.mass;
+                // m_accelerations[index]  = vec3(0.0f, -1.0f, 0.0f);
+                m_accelerations[index]  = specification.acceleration;
+                m_damping_values[index] = specification.damping;
             }
         }
     }
@@ -153,43 +56,67 @@ MassAggregateVolume::MassAggregateVolume(const MassAggregateBodySpecification& s
             for(int col_idx = 0; col_idx < m_num_cols; ++col_idx)
             {
                 unsigned index = getIndex(row_idx, col_idx, slice_idx);
-                ENGINE_INFO("Calculating  structural spring for: Row: {}, Column: {}, Slide: {}, Particle index: {}",
-                            row_idx,
-                            col_idx,
-                            slice_idx,
-                            index);
+                // ENGINE_INFO("Calculating  structural spring for: Row: {}, Column: {}, Slide: {}, Particle index: {}",
+                //             row_idx,
+                //             col_idx,
+                //             slice_idx,
+                //             index);
 
                 // structural spring
                 {
                     if(row_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx - 1, col_idx, slice_idx);
-                        m_structural_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_structural.stiffness};
+                        m_structural_springs.addSpring(spring);
                     }
                     if(col_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx - 1, slice_idx);
-                        m_structural_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_structural.stiffness};
+                        m_structural_springs.addSpring(spring);
                     }
                     if(slice_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx, slice_idx - 1);
-                        m_structural_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_structural.stiffness};
+                        m_structural_springs.addSpring(spring);
                     }
                     if(row_idx < (m_num_rows - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx + 1, col_idx, slice_idx);
-                        m_structural_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_structural.stiffness};
+                        m_structural_springs.addSpring(spring);
                     }
                     if(col_idx < (m_num_cols - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx + 1, slice_idx);
-                        m_structural_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_structural.stiffness};
+                        m_structural_springs.addSpring(spring);
                     }
                     if(slice_idx < (m_num_slices - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx, slice_idx + 1);
-                        m_structural_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_structural.stiffness};
+                        m_structural_springs.addSpring(spring);
                     }
                 }
 
@@ -198,116 +125,174 @@ MassAggregateVolume::MassAggregateVolume(const MassAggregateBodySpecification& s
                     if((row_idx - 2) >= 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx - 2, col_idx, slice_idx);
-                        m_bend_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_flexion.stiffness};
+                        m_flexion_springs.addSpring(spring);
                     }
                     if((col_idx - 2) >= 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx - 2, slice_idx);
-                        m_bend_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_flexion.stiffness};
+                        m_flexion_springs.addSpring(spring);
                     }
                     if((slice_idx - 2) >= 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx, slice_idx - 2);
-                        m_bend_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_flexion.stiffness};
+                        m_flexion_springs.addSpring(spring);
                     }
                     if((row_idx + 2) < m_num_rows)
                     {
                         unsigned neighbour_index = getIndex(row_idx + 2, col_idx, slice_idx);
-                        m_bend_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_flexion.stiffness};
+                        m_flexion_springs.addSpring(spring);
                     }
                     if((col_idx + 2) < m_num_cols)
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx + 2, slice_idx);
-                        m_bend_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_flexion.stiffness};
+                        m_flexion_springs.addSpring(spring);
                     }
                     if((slice_idx + 2) < m_num_slices)
                     {
                         unsigned neighbour_index = getIndex(row_idx, col_idx, slice_idx + 2);
-                        m_bend_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_flexion.stiffness};
+                        m_flexion_springs.addSpring(spring);
                     }
                 }
 
                 // shear springs
                 {
-
-                    // diagonal elements
-
-                    // r, c, s
-
-                    // r, c, s + 1 -> r -
-
-                    // reduce the problem to 2D
-                    // for [x,y]: [x-1, y-1], [x+1, y+1], [x-1, y+1], [x+1, y-1]
-
                     // diagonal elements in the same slice
-                    // diagonal elements in the same row
-                    // diagonal elements in the same column
-
-                    // diagonal elements in the same slice
+                    unsigned neighbour_index = -1;
                     if(row_idx > 0 && col_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx - 1, col_idx - 1, slice_idx);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                     if(row_idx < (m_num_rows - 1) && col_idx < (m_num_cols - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx + 1, col_idx + 1, slice_idx);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                     if(row_idx > 0 && col_idx < (m_num_cols - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx - 1, col_idx + 1, slice_idx);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                     if(row_idx < (m_num_rows - 1) && col_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx + 1, col_idx - 1, slice_idx);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
 
                     // diagonal elements in one slide before/after
                     if(row_idx > 0 && col_idx > 0 && slice_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx - 1, col_idx - 1, slice_idx - 1);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                     if(row_idx < (m_num_rows - 1) && col_idx < (m_num_cols - 1) && slice_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx + 1, col_idx + 1, slice_idx - 1);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                     if(row_idx > 0 && col_idx < (m_num_cols - 1) && slice_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx - 1, col_idx + 1, slice_idx - 1);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                     if(row_idx < (m_num_rows - 1) && col_idx > 0 && slice_idx > 0)
                     {
                         unsigned neighbour_index = getIndex(row_idx + 1, col_idx - 1, slice_idx - 1);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
-
 
                     // diagonal elements in one slide before/after
                     if(row_idx > 0 && col_idx > 0 && slice_idx < (m_num_slices - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx - 1, col_idx - 1, slice_idx + 1);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
-                    if (row_idx < (m_num_rows - 1) && col_idx < (m_num_cols - 1) && slice_idx < (m_num_slices - 1))
+                    if(row_idx < (m_num_rows - 1) && col_idx < (m_num_cols - 1) && slice_idx < (m_num_slices - 1))
                     {
-						unsigned neighbour_index = getIndex(row_idx + 1, col_idx + 1, slice_idx + 1);
-						m_shear_spring.addMassPair(index, neighbour_index);
-					}
-                    if (row_idx > 0 && col_idx < (m_num_cols - 1) && slice_idx < (m_num_slices - 1))
+                        unsigned neighbour_index = getIndex(row_idx + 1, col_idx + 1, slice_idx + 1);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
+                    }
+                    if(row_idx > 0 && col_idx < (m_num_cols - 1) && slice_idx < (m_num_slices - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx - 1, col_idx + 1, slice_idx + 1);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                     if(row_idx < (m_num_rows - 1) && col_idx > 0 && slice_idx < (m_num_slices - 1))
                     {
                         unsigned neighbour_index = getIndex(row_idx + 1, col_idx - 1, slice_idx + 1);
-                        m_shear_spring.addMassPair(index, neighbour_index);
+                        Spring   spring{.mass_a_idx      = index,
+                                        .mass_b_idx      = neighbour_index,
+                                        .rest_length     = (m_positions[index] - m_positions[neighbour_index]).length(),
+                                        .spring_constant = specification.spring_shear.stiffness};
+                        m_shear_springs.addSpring(spring);
                     }
                 }
             }
@@ -319,35 +304,35 @@ MassAggregateVolume::MassAggregateVolume(const MassAggregateBodySpecification& s
 
 void MassAggregateVolume::setStructuralSpring(const real& rest_length, const real& spring_constant) noexcept
 {
-    m_structural_spring.setRestLength(rest_length);
-    m_structural_spring.setSpringConstant(spring_constant);
+    // m_structural_spring.setRestLength(rest_length);
+    // m_structural_spring.setSpringConstant(spring_constant);
 }
 
 void MassAggregateVolume::setShearSpring(const real& rest_length, const real& spring_constant) noexcept
 {
-    m_shear_spring.setRestLength(rest_length);
-    m_shear_spring.setSpringConstant(spring_constant);
+    // m_shear_spring.setRestLength(rest_length);
+    // m_shear_spring.setSpringConstant(spring_constant);
 }
 
 void MassAggregateVolume::setBendSpring(const real& rest_length, const real& spring_constant) noexcept
 {
-    m_bend_spring.setRestLength(rest_length);
-    m_bend_spring.setSpringConstant(spring_constant);
+    // m_bend_spring.setRestLength(rest_length);
+    // m_bend_spring.setSpringConstant(spring_constant);
 }
 
-const SpringForceGenerator& MassAggregateVolume::getStructuralSpring() const noexcept
+const SpringForceGenerator& MassAggregateVolume::getStructuralSprings() const noexcept
 {
-    return m_structural_spring;
+    return m_structural_springs;
 }
 
-const SpringForceGenerator& MassAggregateVolume::getShearSpring() const noexcept
+const SpringForceGenerator& MassAggregateVolume::getShearSprings() const noexcept
 {
-    return m_shear_spring;
+    return m_shear_springs;
 }
 
-const SpringForceGenerator& MassAggregateVolume::getBendSpring() const noexcept
+const SpringForceGenerator& MassAggregateVolume::getBendSprings() const noexcept
 {
-    return m_bend_spring;
+    return m_flexion_springs;
 }
 
 unsigned MassAggregateVolume::getIndex(const int& row_idx, const int& col_idx, const int& slice_idx) const noexcept
@@ -430,7 +415,9 @@ vec3 MassAggregateVolume::getAccumulatedForce(const unsigned& row_idx,
 
 void MassAggregateVolume::updateInternalForces(const real& t, const real& dt) noexcept
 {
-    // update spring forces
+    m_structural_springs.addForce(this);
+    m_shear_springs.addForce(this);
+    m_flexion_springs.addForce(this);
 }
 
 } // namespace physics::mad

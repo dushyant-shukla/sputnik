@@ -10,19 +10,23 @@ namespace physics::mad
 using namespace ramanujan;
 using namespace ramanujan::experimental;
 
+struct SpringSpecification
+{
+    real rest_length;
+    real stiffness;
+};
+
 struct MassAggregateBodySpecification
 {
     vec3  scale{1, 1, 1};      // scale along x, y, z axis
     uvec3 resolution{1, 1, 1}; // particles count along x, y, z axis
-    real  mass;
-    real  damping; // viscosity maybe?
+    real  mass{1.0f};
+    real  damping{1.0f}; // viscosity maybe?
+    vec3  acceleration{0.0f, -9.8f, 0.0f};
 
-    real spring_stiffness_structural;
-    real spring_rest_length_structural;
-    real spring_stiffness_shear;
-    real spring_rest_length_shear;
-    real spring_stiffness_bend;
-    real spring_rest_length_bend;
+    SpringSpecification spring_structural;
+    SpringSpecification spring_shear;
+    SpringSpecification spring_flexion;
 
     vec3 center_position{0.0f};
     vec3 initial_velocity;
@@ -62,7 +66,6 @@ protected:
 class MassAggregateVolume : public MassAggregateSystem
 {
 public:
-    MassAggregateVolume(const unsigned& rows, const unsigned& cols, const unsigned& slices);
     MassAggregateVolume(const MassAggregateBodySpecification& specification);
 
     virtual ~MassAggregateVolume() = default;
@@ -70,9 +73,9 @@ public:
     void                        setStructuralSpring(const real& rest_length, const real& stiffness) noexcept;
     void                        setShearSpring(const real& rest_length, const real& stiffness) noexcept;
     void                        setBendSpring(const real& rest_length, const real& stiffness) noexcept;
-    const SpringForceGenerator& getStructuralSpring() const noexcept;
-    const SpringForceGenerator& getShearSpring() const noexcept;
-    const SpringForceGenerator& getBendSpring() const noexcept;
+    const SpringForceGenerator& getStructuralSprings() const noexcept;
+    const SpringForceGenerator& getShearSprings() const noexcept;
+    const SpringForceGenerator& getBendSprings() const noexcept;
 
     unsigned getIndex(const int& row_idx, const int& col_idx, const int& slice_idx) const noexcept;
     uvec3    getLocalCoordinates(const unsigned& idx) const noexcept;
@@ -89,9 +92,9 @@ public:
     virtual void updateInternalForces(const real& t, const real& dt) noexcept override;
 
 protected:
-    SpringForceGenerator m_structural_spring;
-    SpringForceGenerator m_shear_spring;
-    SpringForceGenerator m_bend_spring;
+    SpringForceGenerator m_structural_springs;
+    SpringForceGenerator m_shear_springs;
+    SpringForceGenerator m_flexion_springs;
 
     int m_num_rows;
     int m_num_cols;

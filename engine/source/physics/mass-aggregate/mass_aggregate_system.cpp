@@ -71,7 +71,9 @@ void MassAggregateSystem::setInverseMass(const unsigned int& index, const real& 
 
 void MassAggregateSystem::setMass(const unsigned int& index, const real& mass) noexcept
 {
-    m_masses[index] = mass;
+    assert(mass > kEpsilon);
+    m_masses[index]         = mass;
+    m_inverse_masses[index] = 1.0f / mass;
 }
 
 void MassAggregateSystem::setAccumulatedForce(const unsigned int& index, const vec3& force) noexcept
@@ -94,6 +96,10 @@ void MassAggregateSystem::addForce(const unsigned int& index, const vec3& force)
 
 void MassAggregateSystem::update(const real& dt) noexcept
 {
+    // update spring forces
+    updateInternalForces(0.0f, dt);
+
+    // integrate
     switch(m_active_integration_method)
     {
     case IntegrationMethod::ExplicitEuler:
@@ -111,6 +117,8 @@ void MassAggregateSystem::update(const real& dt) noexcept
     default:
         break;
     }
+
+    // collision detection/resolution
 }
 
 void MassAggregateSystem::setIntegrationMethod(const IntegrationMethod& method) noexcept
@@ -134,7 +142,7 @@ void MassAggregateSystem::integrateExplicitEuler(const real& dt) noexcept
     size_t num_particles = m_masses.size();
     for(size_t i = 0; i < num_particles; i++)
     {
-        if(m_inverse_masses[i] >= kEpsilon)
+        if(m_inverse_masses[i] <= kEpsilon)
         {
             continue;
         }
@@ -145,6 +153,10 @@ void MassAggregateSystem::integrateExplicitEuler(const real& dt) noexcept
         m_velocities[i] += total_acceleration * dt;
         m_velocities[i] *= std::pow(m_damping_values[i], dt);
         m_accumulated_forces[i] = {0.0f, 0.0f, 0.0f};
+        if(m_positions[i].y < kEpsilon)
+        {
+            m_positions[i].y = 0.0f;
+        }
     }
 }
 
@@ -153,7 +165,7 @@ void MassAggregateSystem::integrateSemiImplicitEuler(const real& dt) noexcept
     size_t num_particles = m_masses.size();
     for(size_t i = 0; i < num_particles; i++)
     {
-        if(m_inverse_masses[i] >= kEpsilon)
+        if(m_inverse_masses[i] <= kEpsilon)
         {
             continue;
         }
@@ -165,6 +177,10 @@ void MassAggregateSystem::integrateSemiImplicitEuler(const real& dt) noexcept
         m_velocities[i] *= std::pow(m_damping_values[i], dt);
         m_positions[i] += m_velocities[i] * (std::pow(m_damping_values[i], dt) - 1.0f) / std::log(m_damping_values[i]);
         m_accumulated_forces[i] = {0.0f, 0.0f, 0.0f};
+        if(m_positions[i].y < kEpsilon)
+        {
+            m_positions[i].y = 0.0f;
+        }
     }
 }
 
