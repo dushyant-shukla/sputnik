@@ -32,12 +32,12 @@ using namespace core::systems;
 using namespace sputnik::graphics::api;
 using namespace ::physics::mad;
 
-class MassSpringClothDemoLayer : public core::Layer
+class MassAggregateRopeDemoLayer : public core::Layer
 {
 
 public:
-    MassSpringClothDemoLayer(const std::string& name);
-    virtual ~MassSpringClothDemoLayer();
+    MassAggregateRopeDemoLayer(const std::string& name);
+    virtual ~MassAggregateRopeDemoLayer();
 
     virtual void OnAttach();
     virtual void OnDetach();
@@ -46,37 +46,35 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    std::shared_ptr<Model>               m_sphere;
-    RenderSystem*                        m_render_system;
-    vec3                                 m_grid_size;
-    MassAggregateBodySpecification       m_cube_specification;
-    std::shared_ptr<MassAggregateVolume> m_mass_spring_volume;
-    std::shared_ptr<OglBuffer>           m_instanced_buffer;
+    std::shared_ptr<Model>              m_sphere;
+    RenderSystem*                       m_render_system;
+    vec3                                m_grid_size;
+    MassAggregateBodySpecification      m_cube_specification;
+    std::shared_ptr<MassAggregateCurve> m_mass_spring_curve;
+    std::shared_ptr<OglBuffer>          m_instanced_buffer;
 
     bool                 m_render_particles          = true;
     bool                 m_render_structural_springs = false;
-    bool                 m_render_shear_springs      = false;
     bool                 m_render_bend_springs       = false;
     SpringForceGenerator m_structural_spring;
-    SpringForceGenerator m_shear_spring;
     SpringForceGenerator m_bend_spring;
 };
 
-class MassSpringClothDemo : public sputnik::main::Application
+class MassAggregateRopeDemo : public sputnik::main::Application
 {
 
 public:
-    MassSpringClothDemo(const std::string& name) : sputnik::main::Application(name)
+    MassAggregateRopeDemo(const std::string& name) : sputnik::main::Application(name)
     {
-        PushLayer(std::make_shared<MassSpringClothDemoLayer>(name));
+        PushLayer(std::make_shared<MassAggregateRopeDemoLayer>(name));
     }
 
-    ~MassSpringClothDemo() {}
+    ~MassAggregateRopeDemo() {}
 };
 
 } // namespace sputnik::demos
 
 sputnik::main::Application* sputnik::main::CreateApplication()
 {
-    return new sputnik::demos::MassSpringClothDemo("Mass Spring Cloth Demo");
+    return new sputnik::demos::MassAggregateRopeDemo("MAD Rope");
 }

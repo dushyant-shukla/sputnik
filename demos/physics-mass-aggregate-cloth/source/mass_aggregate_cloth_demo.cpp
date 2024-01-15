@@ -1,4 +1,4 @@
-#include "mass_spring_cloth_demo.h"
+#include "mass_aggregate_cloth_demo.h"
 
 // #include <graphics/api/renderer.h>
 // #include <graphics/glcore/uniform.h>
@@ -18,7 +18,7 @@
 namespace sputnik::demos
 {
 
-MassSpringClothDemoLayer::MassSpringClothDemoLayer(const std::string& name) : core::Layer{name}
+MassAggregateClothDemoLayer::MassAggregateClothDemoLayer(const std::string& name) : core::Layer{name}
 {
     m_cube_specification.mass       = 0.75f;
     m_cube_specification.scale      = {2.0f, 1.0f, 1.0f};
@@ -27,11 +27,11 @@ MassSpringClothDemoLayer::MassSpringClothDemoLayer(const std::string& name) : co
     // m_cube_specification.resolution        = {5, 5, 5};
     m_cube_specification.center_position = {0.0f, 7.0f, 0.0f};
     m_cube_specification.damping         = 0.005f;
-    m_cube_specification.spring_shear    = {.rest_length = 0.0f, .stiffness = 1000.0f};
-    m_cube_specification.spring_flexion  = {.rest_length = 0.0f, .stiffness = 1000.0f};
+    m_cube_specification.spring_shear    = {.stiffness_coefficient = 1000.0f, .damping_coefficient = 1.0f};
+    m_cube_specification.spring_flexion  = {.stiffness_coefficient = 1000.0f, .damping_coefficient = 1.0f};
 
     // structural springs are usually stiffer than shear,flexion springs
-    m_cube_specification.spring_structural = {.rest_length = 0.0f, .stiffness = 2000.0f};
+    m_cube_specification.spring_structural = {.stiffness_coefficient = 2000.0f, .damping_coefficient = 1.0f};
 
     m_mass_spring_volume = std::make_shared<::physics::mad::MassAggregateVolume>(m_cube_specification);
     m_structural_spring  = m_mass_spring_volume->getStructuralSprings();
@@ -74,9 +74,9 @@ MassSpringClothDemoLayer::MassSpringClothDemoLayer(const std::string& name) : co
           .divisor    = 1}});
 }
 
-MassSpringClothDemoLayer::~MassSpringClothDemoLayer() {}
+MassAggregateClothDemoLayer::~MassAggregateClothDemoLayer() {}
 
-void MassSpringClothDemoLayer::OnAttach()
+void MassAggregateClothDemoLayer::OnAttach()
 {
 
     m_render_system = core::systems::RenderSystem::getInstance();
@@ -109,9 +109,9 @@ void MassSpringClothDemoLayer::OnAttach()
     // }
 }
 
-void MassSpringClothDemoLayer::OnDetach() {}
+void MassAggregateClothDemoLayer::OnDetach() {}
 
-void MassSpringClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
+void MassAggregateClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
 
     if(time_step.GetSeconds() <= Constants::EPSILON)
@@ -227,9 +227,9 @@ void MassSpringClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
     // m_mass_spring_volume->update(0.001f);
 }
 
-void MassSpringClothDemoLayer::OnEvent() {}
+void MassAggregateClothDemoLayer::OnEvent() {}
 
-void MassSpringClothDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
+void MassAggregateClothDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
 {
     if(ImGui::Begin("Mass Spring Cloth Demo"))
     {

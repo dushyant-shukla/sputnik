@@ -23,7 +23,8 @@ struct Spring
     unsigned mass_a_idx;
     unsigned mass_b_idx;
     real     rest_length;
-    real     spring_constant;
+    real     stiffness_coefficient;
+    real     damping_coefficient;
 };
 
 struct SpringForceGenerator : public ForceGenerator

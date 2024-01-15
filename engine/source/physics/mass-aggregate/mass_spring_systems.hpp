@@ -12,8 +12,8 @@ using namespace ramanujan::experimental;
 
 struct SpringSpecification
 {
-    real rest_length;
-    real stiffness;
+    real stiffness_coefficient;
+    real damping_coefficient;
 };
 
 struct MassAggregateBodySpecification
@@ -37,12 +37,21 @@ struct MassAggregateBodySpecification
 class MassAggregateCurve : public MassAggregateSystem
 {
 public:
-    MassAggregateCurve(const unsigned& length);
+    MassAggregateCurve(const MassAggregateBodySpecification& specification);
+    virtual ~MassAggregateCurve() = default;
 
-    void setSpring(const real& rest_length, const real& stiffness) noexcept;
+    void                        setStructuralSpring(const SpringSpecification& spring_spec) noexcept;
+    void                        setFlexionSpring(const SpringSpecification& spring_spec) noexcept;
+    const SpringForceGenerator& getStructuralSprings() const noexcept;
+    const SpringForceGenerator& getFlexionSprings() const noexcept;
+
+    virtual void updateInternalForces(const real& t, const real& dt) noexcept;
 
 protected:
-    SpringForceGenerator m_spring;
+    SpringForceGenerator m_structural_springs;
+    SpringForceGenerator m_flexion_springs;
+
+    int m_num_masses;
 };
 
 class MassAggregateSurface : public MassAggregateSystem
@@ -70,9 +79,9 @@ public:
 
     virtual ~MassAggregateVolume() = default;
 
-    void                        setStructuralSpring(const real& rest_length, const real& stiffness) noexcept;
-    void                        setShearSpring(const real& rest_length, const real& stiffness) noexcept;
-    void                        setBendSpring(const real& rest_length, const real& stiffness) noexcept;
+    void                        setStructuralSpring(const SpringSpecification& spring_spec) noexcept;
+    void                        setShearSpring(const SpringSpecification& spring_spec) noexcept;
+    void                        setBendSpring(const SpringSpecification& spring_spec) noexcept;
     const SpringForceGenerator& getStructuralSprings() const noexcept;
     const SpringForceGenerator& getShearSprings() const noexcept;
     const SpringForceGenerator& getBendSprings() const noexcept;

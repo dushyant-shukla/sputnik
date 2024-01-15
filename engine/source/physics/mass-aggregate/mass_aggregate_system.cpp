@@ -193,7 +193,7 @@ void MassAggregateSystem::integrateSemiImplicitEuler(const real& dt) noexcept
                   indexes.end(),
                   [&](const auto& index)
                   {
-                      if(m_inverse_masses[index] > kEpsilon)
+                      if(m_inverse_masses[index] > kEpsilon && !m_is_fixed[index])
                       {
                           // https://gamedev.stackexchange.com/questions/169558/how-can-i-fix-my-velocity-damping-to-work-with-any-delta-frame-time
                           vec3 total_acceleration = m_accelerations[index];

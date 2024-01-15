@@ -1,6 +1,6 @@
 ------------------------------------------------------------- PROJECT BASIC-SCENE CONFIGURATION ------------------------------------------------------
 
-project "physics-mass-spring-cloth"
+project "physics-mad-cube"
 kind "WindowedApp"
 language "C++"
 characterset("MBCS")
