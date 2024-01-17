@@ -27,11 +27,11 @@ MassAggregateCubeDemoLayer::MassAggregateCubeDemoLayer(const std::string& name) 
     // m_cube_specification.resolution        = {5, 5, 5};
     m_cube_specification.center_position = {0.0f, 7.0f, 0.0f};
     m_cube_specification.damping         = 0.005f;
-    m_cube_specification.spring_shear    = {.stiffness_coefficient = 1000.0f, .damping_coefficient = 0.05f};
-    m_cube_specification.spring_flexion  = {.stiffness_coefficient = 1000.0f, .damping_coefficient = 0.05f};
+    m_cube_specification.spring_shear    = {.stiffness_coefficient = 1500.0f, .damping_coefficient = 0.5f};
+    m_cube_specification.spring_flexion  = {.stiffness_coefficient = 1500.0f, .damping_coefficient = 0.5f};
 
     // structural springs are usually stiffer than shear,flexion springs
-    m_cube_specification.spring_structural = {.stiffness_coefficient = 2000.0f, .damping_coefficient = 0.05f};
+    m_cube_specification.spring_structural = {.stiffness_coefficient = 2500.0f, .damping_coefficient = 0.5f};
 
     m_mass_spring_volume = std::make_shared<::physics::mad::MassAggregateVolume>(m_cube_specification);
     m_structural_spring  = m_mass_spring_volume->getStructuralSprings();

@@ -40,6 +40,7 @@ MassAggregateCurve::MassAggregateCurve(const MassAggregateBodySpecification& spe
     {
         for(int i = 0; i < m_num_masses; ++i)
         {
+            // structural spring
             if(i < (m_num_masses - 1))
             {
                 Spring spring{.mass_a_idx            = static_cast<unsigned>(i),
@@ -50,6 +51,7 @@ MassAggregateCurve::MassAggregateCurve(const MassAggregateBodySpecification& spe
                 m_structural_springs.addSpring(spring);
             }
 
+            // flexion spring
             if(i < (m_num_masses - 2))
             {
                 Spring spring{.mass_a_idx            = static_cast<unsigned>(i),
@@ -58,6 +60,17 @@ MassAggregateCurve::MassAggregateCurve(const MassAggregateBodySpecification& spe
                               .stiffness_coefficient = specification.spring_flexion.stiffness_coefficient,
                               .damping_coefficient   = specification.spring_flexion.damping_coefficient};
                 m_flexion_springs.addSpring(spring);
+            }
+
+            // torsion spring
+            if(i < (m_num_masses - 3))
+            {
+                Spring spring{.mass_a_idx            = static_cast<unsigned>(i),
+                              .mass_b_idx            = static_cast<unsigned>(i + 3),
+                              .rest_length           = (m_positions[i] - m_positions[i + 3]).length(),
+                              .stiffness_coefficient = specification.spring_torsion.stiffness_coefficient,
+                              .damping_coefficient   = specification.spring_torsion.damping_coefficient};
+                m_torsion_springs.addSpring(spring);
             }
         }
     }

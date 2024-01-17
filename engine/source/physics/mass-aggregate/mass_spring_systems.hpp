@@ -27,6 +27,7 @@ struct MassAggregateBodySpecification
     SpringSpecification spring_structural;
     SpringSpecification spring_shear;
     SpringSpecification spring_flexion;
+    SpringSpecification spring_torsion;
 
     vec3 center_position{0.0f};
     vec3 initial_velocity;
@@ -50,6 +51,7 @@ public:
 protected:
     SpringForceGenerator m_structural_springs;
     SpringForceGenerator m_flexion_springs;
+    SpringForceGenerator m_torsion_springs;
 
     int m_num_masses;
 };

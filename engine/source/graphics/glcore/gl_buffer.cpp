@@ -130,13 +130,13 @@ void OglBuffer::setData(void* data, u64 bytes)
     {
         glNamedBufferStorage(m_id, bytes, data, GL_DYNAMIC_STORAGE_BIT);
     }
-	else
-	{
-		glNamedBufferSubData(m_id, 0, bytes, data);
-	}
+    else
+    {
+        glNamedBufferSubData(m_id, 0, bytes, data);
+    }
     m_bytes = bytes;
     m_data  = data;
-    //glNamedBufferSubData(m_id, 0, bytes, data);
+    // glNamedBufferSubData(m_id, 0, bytes, data);
 }
 
 const u32& OglBuffer::getId() const

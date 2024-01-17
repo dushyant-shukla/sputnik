@@ -27,10 +27,18 @@
 namespace sputnik::demos
 {
 
+using namespace ramanujan::experimental;
 using namespace sputnik::physics;
 using namespace core::systems;
 using namespace sputnik::graphics::api;
 using namespace ::physics::mad;
+
+struct VertexData
+{
+    alignas(16) vec3 position;
+    alignas(16) vec3 normal;
+    alignas(8) vec2 uv;
+};
 
 class MassAggregateRopeDemoLayer : public core::Layer
 {
@@ -53,11 +61,22 @@ private:
     std::shared_ptr<MassAggregateCurve> m_mass_spring_curve;
     std::shared_ptr<OglBuffer>          m_instanced_buffer;
 
+    std::vector<vec3> m_positions;
+    std::vector<u32>  m_indices;
+    std::vector<vec3> m_normals;
+    std::vector<vec3> m_tangents;
+
     bool                 m_render_particles          = true;
     bool                 m_render_structural_springs = false;
     bool                 m_render_bend_springs       = false;
+    bool                 m_render_mesh               = false;
+    bool                 m_render_vertices           = false;
     SpringForceGenerator m_structural_spring;
     SpringForceGenerator m_bend_spring;
+
+    std::vector<VertexData>    m_vertices;
+    std::shared_ptr<OglBuffer> m_pvp_vertex_buffer;
+    std::shared_ptr<OglTexture2D> m_rope_diff_texture;
 };
 
 class MassAggregateRopeDemo : public sputnik::main::Application

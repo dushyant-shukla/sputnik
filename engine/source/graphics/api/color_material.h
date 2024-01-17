@@ -24,6 +24,11 @@ struct Material
     std::shared_ptr<OglTexture2D> spec_texture{nullptr};
 };
 
+static inline Material material_zero{.ambient   =  {0.0f, 0.0f, 0.0f},
+                                      .diffuse   = {0.0f, 0.0f, 0.0f},
+                                      .specular  = {0.0f, 0.0f, 0.0f},
+                                      .shininess =  0.0f};
+
 static inline Material material_white{.ambient   = {1.0f, 1.0f, 1.0f},
                                       .diffuse   = {1.0f, 1.0f, 1.0f},
                                       .specular  = {1.0f, 1.0f, 1.0f},
