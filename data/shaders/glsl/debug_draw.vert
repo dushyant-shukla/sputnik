@@ -16,7 +16,9 @@ layout(std140, binding = 0) uniform PerFrameData {
     vec3 camera_position;
 };
 
+uniform mat4 model;
+
 void main()
 {
-    gl_Position = projection * view * vec4(positions[gl_VertexID].position);
+    gl_Position = projection * view * model * vec4(positions[gl_VertexID].position);
 }

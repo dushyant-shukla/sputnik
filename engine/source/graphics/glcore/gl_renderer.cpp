@@ -521,6 +521,7 @@ void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices, const vec3& 
 
     m_debug_draw_program->bind();
     m_debug_draw_program->setFloat3("color", color);
+    m_debug_draw_program->setMat4("model", mat4());
 
     OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));
     vbo.bind(BufferBindTarget::ShaderStorageBuffer, 0);
@@ -530,6 +531,59 @@ void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices, const vec3& 
     m_debug_draw_program->unbind();
     m_vao->unbind();
     glDisable(GL_LINE_SMOOTH);
+    glLineWidth(1.0f);
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
+                                 const vec3&              color,
+                                 const mat4&              model,
+                                 const float&             line_width)
+{
+    glEnable(GL_DEPTH_TEST);
+    glLineWidth(line_width);
+    glEnable(GL_LINE_SMOOTH);
+    m_vao->bind();
+
+    m_debug_draw_program->bind();
+    m_debug_draw_program->setFloat3("color", color);
+    m_debug_draw_program->setMat4("model", model);
+
+    OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));
+    vbo.bind(BufferBindTarget::ShaderStorageBuffer, 0);
+
+    glDrawArrays(GL_LINES, 0, (GLsizei)vertices.size());
+
+    m_debug_draw_program->unbind();
+    m_vao->unbind();
+    glDisable(GL_LINE_SMOOTH);
+    glLineWidth(1.0f);
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
+                                 const vec3&              color,
+                                 const glm::mat4&         model,
+                                 const float&             line_width)
+{
+    glEnable(GL_DEPTH_TEST);
+    glLineWidth(line_width);
+    glEnable(GL_LINE_SMOOTH);
+    m_vao->bind();
+
+    m_debug_draw_program->bind();
+    m_debug_draw_program->setFloat3("color", color);
+    m_debug_draw_program->setMat4("model", model);
+
+    OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));
+    vbo.bind(BufferBindTarget::ShaderStorageBuffer, 0);
+
+    glDrawArrays(GL_LINES, 0, (GLsizei)vertices.size());
+
+    m_debug_draw_program->unbind();
+    m_vao->unbind();
+    glDisable(GL_LINE_SMOOTH);
+    glLineWidth(1.0f);
     glDisable(GL_DEPTH_TEST);
 }
 
@@ -541,6 +595,57 @@ void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices, const vec3&
 
     m_debug_draw_program->bind();
     m_debug_draw_program->setFloat3("color", color);
+    m_debug_draw_program->setMat4("model", mat4());
+
+    // https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
+    OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));
+    vbo.bind(BufferBindTarget::ShaderStorageBuffer, 0);
+
+    glDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size());
+
+    m_debug_draw_program->unbind();
+    m_vao->unbind();
+
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
+                                  const vec3&              color,
+                                  const mat4&              model,
+                                  const float&             point_size)
+{
+    glEnable(GL_DEPTH_TEST);
+    glPointSize(point_size);
+    m_vao->bind();
+
+    m_debug_draw_program->bind();
+    m_debug_draw_program->setFloat3("color", color);
+    m_debug_draw_program->setMat4("model", model);
+
+    // https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
+    OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));
+    vbo.bind(BufferBindTarget::ShaderStorageBuffer, 0);
+
+    glDrawArrays(GL_POINTS, 0, (GLsizei)vertices.size());
+
+    m_debug_draw_program->unbind();
+    m_vao->unbind();
+
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
+                                  const vec3&              color,
+                                  const glm::mat4&         model,
+                                  const float&             point_size)
+{
+    glEnable(GL_DEPTH_TEST);
+    glPointSize(point_size);
+    m_vao->bind();
+
+    m_debug_draw_program->bind();
+    m_debug_draw_program->setFloat3("color", color);
+    m_debug_draw_program->setMat4("model", model);
 
     // https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
     OglBuffer vbo((void*)vertices.data(), vertices.size() * sizeof(vec4));

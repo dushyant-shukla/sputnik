@@ -27,11 +27,11 @@ MassAggregateCubeDemoLayer::MassAggregateCubeDemoLayer(const std::string& name) 
     // m_cube_specification.resolution        = {5, 5, 5};
     m_cube_specification.center_position = {0.0f, 7.0f, 0.0f};
     m_cube_specification.damping         = 0.005f;
-    m_cube_specification.spring_shear    = {.stiffness_coefficient = 1500.0f, .damping_coefficient = 0.5f};
-    m_cube_specification.spring_flexion  = {.stiffness_coefficient = 1500.0f, .damping_coefficient = 0.5f};
+    m_cube_specification.spring_shear    = {.stiffness_coefficient = 3500.0f, .damping_coefficient = 0.5f};
+    m_cube_specification.spring_flexion  = {.stiffness_coefficient = 3500.0f, .damping_coefficient = 0.5f};
 
     // structural springs are usually stiffer than shear,flexion springs
-    m_cube_specification.spring_structural = {.stiffness_coefficient = 2500.0f, .damping_coefficient = 0.5f};
+    m_cube_specification.spring_structural = {.stiffness_coefficient = 5500.0f, .damping_coefficient = 0.5f};
 
     m_mass_spring_volume = std::make_shared<::physics::mad::MassAggregateVolume>(m_cube_specification);
     m_structural_spring  = m_mass_spring_volume->getStructuralSprings();
@@ -231,7 +231,7 @@ void MassAggregateCubeDemoLayer::OnEvent() {}
 
 void MassAggregateCubeDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
 {
-    if(ImGui::Begin("Mass Spring Cloth Demo"))
+    if(ImGui::Begin("Mass Spring Cube Demo"))
     {
         // ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
         //             1000.0f / ImGui::GetIO().Framerate,
@@ -246,6 +246,35 @@ void MassAggregateCubeDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
         sputnik::editor::Editor::drawWidgetCheckbox("Render Bend Springs", m_render_bend_springs, 90.0f, "#bend");
     }
     ImGui::End();
+
+    mat4 projection = m_render_system->getCameraProjection();
+    mat4 view       = m_render_system->getCameraView();
+    ImGuizmo::SetGizmoSizeClipSpace(0.075f);
+    mat4 model = {};
+    model      = model.translate(m_mass_spring_volume->getPosition(m_cube_specification.resolution.x / 2 - 1,
+                                                              m_cube_specification.resolution.y / 2 - 1,
+                                                              0));
+    ImGuizmo::Manipulate(&view.m[0],
+                         &projection.m[0],
+                         ImGuizmo::OPERATION::TRANSLATE,
+                         ImGuizmo::MODE::LOCAL,
+                         &model.m[0],
+                         nullptr,
+                         nullptr);
+    if(ImGuizmo::IsUsing())
+    {
+        u32 index = m_mass_spring_volume->getIndex(m_cube_specification.resolution.x / 2 - 1,
+                                                   m_cube_specification.resolution.y / 2 - 1,
+                                                   0);
+        m_mass_spring_volume->setPosition(index, {model.m[12], model.m[13], model.m[14]});
+
+        // We need to block camera update when we are using ImGuizmo
+        m_render_system->blockCameraUpdate();
+    }
+    else
+    {
+        m_render_system->blockCameraUpdate(false);
+    }
 }
 
 } // namespace sputnik::demos

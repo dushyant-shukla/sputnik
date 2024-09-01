@@ -10,6 +10,7 @@
 
 #include <vector.hpp>
 #include <matrix.hpp>
+#include <glm/glm.hpp>
 
 struct GLFWwindow;
 
@@ -94,7 +95,23 @@ public:
     void drawTrianglesInstanced(const u64& vertex_count, const u64& instance_count, const Material& material);
     void drawTrianglesIndexedInstanced(const u64& index_count, const u64& instance_count, const Material& material);
     void drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width = 2.5f);
+    void drawDebugLines(const std::vector<vec4>& vertices,
+                        const vec3&              color,
+                        const mat4&              model      = {},
+                        const float&             line_width = 2.5f);
+    void drawDebugLines(const std::vector<vec4>& vertices,
+                        const vec3&              color,
+                        const glm::mat4&         model      = glm::mat4(1.0f),
+                        const float&             line_width = 2.5f);
     void drawDebugPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size = 2.5f);
+    void drawDebugPoints(const std::vector<vec4>& vertices,
+                         const vec3&              color,
+                         const mat4&              model      = {},
+                         const float&             point_size = 2.5f);
+    void drawDebugPoints(const std::vector<vec4>& vertices,
+                         const vec3&              color,
+                         const glm::mat4&         model      = glm::mat4(1.0f),
+                         const float&             point_size = 2.5f);
 
 protected:
 private:

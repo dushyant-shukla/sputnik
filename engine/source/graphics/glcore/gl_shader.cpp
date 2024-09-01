@@ -2,6 +2,7 @@
 #include "gl_shader.h"
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace sputnik::graphics::gl
 {
@@ -43,12 +44,12 @@ const std::unordered_map<std::string, ShaderStageType> kStringToShaderStageType 
     {"tese", ShaderStageType::TessellationEvaluation},
     {"comp", ShaderStageType::Compute}};
 
-//const u32 ShaderStageBits::kVertexShaderBit                 = GL_VERTEX_SHADER_BIT;
-//const u32 ShaderStageBits::kFragmentShaderBit               = GL_FRAGMENT_SHADER_BIT;
-//const u32 ShaderStageBits::kGeometryShaderBit               = GL_GEOMETRY_SHADER_BIT;
-//const u32 ShaderStageBits::kTessellationControlShaderBit    = GL_TESS_CONTROL_SHADER_BIT;
-//const u32 ShaderStageBits::kTessellationEvaluationShaderBit = GL_TESS_EVALUATION_SHADER_BIT;
-//const u32 ShaderStageBits::kComputeShaderBit                = GL_COMPUTE_SHADER_BIT;
+// const u32 ShaderStageBits::kVertexShaderBit                 = GL_VERTEX_SHADER_BIT;
+// const u32 ShaderStageBits::kFragmentShaderBit               = GL_FRAGMENT_SHADER_BIT;
+// const u32 ShaderStageBits::kGeometryShaderBit               = GL_GEOMETRY_SHADER_BIT;
+// const u32 ShaderStageBits::kTessellationControlShaderBit    = GL_TESS_CONTROL_SHADER_BIT;
+// const u32 ShaderStageBits::kTessellationEvaluationShaderBit = GL_TESS_EVALUATION_SHADER_BIT;
+// const u32 ShaderStageBits::kComputeShaderBit                = GL_COMPUTE_SHADER_BIT;
 
 const std::unordered_map<u32, u32> kGlShaderTypeToGlShaderBit = {
     {GL_VERTEX_SHADER, GL_VERTEX_SHADER_BIT},
@@ -85,7 +86,7 @@ std::string readShaderSource(cstring shader_file)
         const auto include_shader_file = shader_source.substr(pos1 + 1, pos2 - pos1 - 1);
         // const auto include_shader_source = readShaderSource(include_shader_file.c_str());
         const auto include_shader_source = readShaderSource(("../../data/shaders/glsl/" + include_shader_file).c_str());
-        //const auto include_shader_source = readShaderSource(("../data/shaders/glsl/" + include_shader_file).c_str());
+        // const auto include_shader_source = readShaderSource(("../data/shaders/glsl/" + include_shader_file).c_str());
         shader_source.replace(pos, pos2 - pos + 1, include_shader_source);
     }
     return shader_source;
@@ -445,6 +446,12 @@ void OglShaderProgram::setMat3(const std::string& name, const mat3& value)
 {
     u32 uniform_id = getUniformId(name);
     glUniformMatrix3fv(uniform_id, 1, GL_FALSE, (float*)&value.m[0]);
+}
+
+void OglShaderProgram::setMat4(const std::string& name, const glm::mat4& value)
+{
+    u32 uniform_id = getUniformId(name);
+    glUniformMatrix4fv(uniform_id, 1, GL_FALSE, glm::value_ptr(value[0]));
 }
 
 OglShaderStage::OglShaderStage(cstring shader_file_path)

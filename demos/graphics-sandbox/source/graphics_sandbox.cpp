@@ -155,6 +155,7 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_cloth_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
 
     m_animated_model     = Model::LoadModel("../../data/assets/Woman.gltf");
+    //m_animated_model     = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
     m_diff_texture_woman = std::make_shared<OglTexture2D>("../../data/assets/Woman.png", false);
 
     // binding point of VertexData SSBO in blinn phong pvp program is 0

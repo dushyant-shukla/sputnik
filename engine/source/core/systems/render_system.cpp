@@ -224,9 +224,7 @@ void RenderSystem::drawTrianglesIndexed(const u64& index_count, const Material& 
     m_ogl_renderer->drawTrianglesIndexed(index_count, material, model);
 }
 
-void RenderSystem::drawTrianglesInstanced(const u64&      vertex_count,
-                                          const Material& material,
-                                          const u32&      instance_count)
+void RenderSystem::drawTrianglesInstanced(const u64& vertex_count, const Material& material, const u32& instance_count)
 {
     m_ogl_renderer->drawTrianglesInstanced(vertex_count, instance_count, material);
 }
@@ -246,6 +244,38 @@ void RenderSystem::drawDebugLines(const std::vector<vec4>& vertices, const vec3&
 void RenderSystem::drawDebugPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
 {
     m_ogl_renderer->drawDebugPoints(vertices, color, point_size);
+}
+
+void RenderSystem::drawDebugLines(const std::vector<vec4>& vertices,
+                                  const vec3&              color,
+                                  const mat4&              model,
+                                  const float&             line_width)
+{
+    m_ogl_renderer->drawDebugLines(vertices, color, model, line_width);
+}
+
+void RenderSystem::drawDebugLines(const std::vector<vec4>& vertices,
+                                  const vec3&              color,
+                                  const glm::mat4&         model,
+                                  const float&             line_width)
+{
+    m_ogl_renderer->drawDebugLines(vertices, color, model, line_width);
+}
+
+void RenderSystem::drawDebugPoints(const std::vector<vec4>& vertices,
+                                   const vec3&              color,
+                                   const mat4&              model,
+                                   const float&             point_size)
+{
+    m_ogl_renderer->drawDebugPoints(vertices, color, model, point_size);
+}
+
+void RenderSystem::drawDebugPoints(const std::vector<vec4>& vertices,
+                                   const vec3&              color,
+                                   const glm::mat4&         model,
+                                   const float&             point_size)
+{
+    m_ogl_renderer->drawDebugPoints(vertices, color, model, point_size);
 }
 
 } // namespace sputnik::core::systems

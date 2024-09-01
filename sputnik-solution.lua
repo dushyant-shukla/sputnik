@@ -21,6 +21,7 @@ externals["imgui"]      = "$(SolutionDir)engine/externals/imgui"
 externals["spdlog"]     = "$(SolutionDir)engine/externals/spdlog"
 externals["imguizmo"]   = "$(SolutionDir)engine/externals/imguizmo"
 externals["glfw"]       = "$(SolutionDir)engine/externals/glfw"
+externals["glm"]       = "$(SolutionDir)engine/externals/glm"
 
 include_dir              = {}
 include_dir["glad"]      = "%{externals.glad}/include"
@@ -31,6 +32,7 @@ include_dir["imgui"]     = "%{externals.imgui}"
 include_dir["spdlog"]    = "%{externals.spdlog}/include"
 include_dir["imguizmo"]  = "%{externals.imguizmo}"
 include_dir["glfw"]      = "%{externals.glfw}/include"
+include_dir["glm"]       = "%{externals.glm}"
 
 static_libs           = {}
 static_libs["opengl"] = "opengl32.lib"
@@ -98,6 +100,7 @@ include "demos/physics-mass-spring-cube/physics-mass-spring-cube.lua"
 include "demos/physics-mass-aggregate-rope/physics-mass-aggregate-rope.lua"
 include "demos/physics-mass-aggregate-cloth/physics-mass-aggregate-cloth.lua"
 include "demos/physics-mass-aggregate-cube/physics-mass-aggregate-cube.lua"
+include "demos/physics-sandbox/physics-sandbox.lua"
 -- include "demos/physics-mass-spring-rope/physics-mass-spring-rope.lua"
 -- include "demos/physics-mass-aggregate-rope/physics-mass-aggregate-rope.lua"
 group ""

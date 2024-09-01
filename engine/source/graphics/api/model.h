@@ -34,7 +34,9 @@ public:
 
     std::shared_ptr<OglVertexArray> getVertexArray() const;
 
-protected:
+    const std::vector<ramanujan::Vector3>& getPositions();
+    const std::vector<unsigned int>&       getIndices();
+
 protected:
     // Write now we expect a single mesh per model
     std::vector<Mesh> m_meshes;

@@ -60,8 +60,8 @@ Window::Window(const WindowSpecification& specification)
 
     // Windowed fullscreen
     // int           count;
-    // GLFWmonitor** monitors = glfwGetMonitors(&count);
-    // cstring monitor1_name = glfwGetMonitorName(monitors[0]);
+    // GLFWmonitor** monitors      = glfwGetMonitors(&count);
+    // cstring       monitor1_name = glfwGetMonitorName(monitors[0]);
     // std::cout << monitor1_name << std::endl;
     // cstring monitor2_name = glfwGetMonitorName(monitors[1]);
     // std::cout << monitor2_name << std::endl;

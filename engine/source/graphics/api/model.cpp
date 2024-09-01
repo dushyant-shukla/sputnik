@@ -57,12 +57,23 @@ std::shared_ptr<Model> Model::LoadModel(const std::string& path)
     auto        model     = std::make_shared<Model>();
     cgltf_data* gltf_data = sputnik::gltf::GltfLoader::LoadFile(path.c_str());
     model->m_meshes       = sputnik::gltf::GltfLoader::LoadMeshes(gltf_data);
+    sputnik::gltf::GltfLoader::FreeFile(gltf_data);
     return model;
 }
 
 std::shared_ptr<OglVertexArray> Model::getVertexArray() const
 {
     return m_meshes[0].getVertexArray();
+}
+
+const std::vector<ramanujan::Vector3>& Model::getPositions()
+{
+    return m_meshes[0].GetPosition();
+}
+
+const std::vector<unsigned int>& Model::getIndices()
+{
+    return m_meshes[0].GetIndices();
 }
 
 } // namespace sputnik::graphics::api

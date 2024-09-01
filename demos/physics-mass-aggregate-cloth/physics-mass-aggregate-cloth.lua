@@ -36,7 +36,8 @@ externalincludedirs
   "%{include_dir.cgltf}",
   "%{include_dir.imgui}",
   "%{include_dir.spdlog}",
-  "%{include_dir.imguizmo}"
+  "%{include_dir.imguizmo}",
+  "%{include_dir.glm}",
 }
 
 links

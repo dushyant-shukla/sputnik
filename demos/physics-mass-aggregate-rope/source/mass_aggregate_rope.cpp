@@ -264,11 +264,12 @@ void MassAggregateRopeDemoLayer::OnUpdate(const core::TimeStep& time_step)
                     // vec3  pos   = (position_a + 0.025f * right * std::cos(angle) + 0.025f * forward *
                     // std::sin(angle)); m_positions.push_back(pos);
                 }
-
+                // float      radius     = 0.025f;
+                float      radius     = 0.040f;
                 float      t          = (float)j / (float)strips;
                 float      s          = i * strips + j / float(num_vertices * strips);
                 float      angle      = t * 2.0f * 3.14f;
-                vec3       pos_offset = 0.025f * right * std::cos(angle) + 0.025f * forward * std::sin(angle);
+                vec3       pos_offset = radius * right * std::cos(angle) + radius * forward * std::sin(angle);
                 vec3       pos        = (position_a + pos_offset);
                 VertexData vertex{};
                 vertex.position = pos;
@@ -323,9 +324,9 @@ void MassAggregateRopeDemoLayer::OnUpdate(const core::TimeStep& time_step)
             m_pvp_vertex_buffer->bind(BufferBindTarget::ShaderStorageBuffer, 0);
 
             mat4     model{};
-            Material material     = material_gold;
-            material.shader_name  = "blinn_phong_pvp";
-            material.diff_texture = m_rope_diff_texture;
+            Material material    = material_ruby;
+            material.shader_name = "blinn_phong_pvp";
+            // material.diff_texture = m_rope_diff_texture;
 
             m_render_system->drawTriangles(tube_vertices.size(), material, model);
 
@@ -344,7 +345,7 @@ void MassAggregateRopeDemoLayer::OnEvent() {}
 
 void MassAggregateRopeDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
 {
-    if(ImGui::Begin("Mass Spring Cloth Demo"))
+    if(ImGui::Begin("Mass Spring Rope Demo"))
     {
         // ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
         //             1000.0f / ImGui::GetIO().Framerate,

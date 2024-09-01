@@ -5,6 +5,8 @@
 #include <vector.hpp>
 #include <matrix.hpp>
 
+#include <glm/glm.hpp>
+
 namespace sputnik::graphics::gl
 {
 
@@ -139,6 +141,8 @@ public:
     virtual void setFloat4(const std::string& name, const vec4& value);
     virtual void setMat4(const std::string& name, const mat4& value);
     virtual void setMat3(const std::string& name, const mat3& value);
+
+    virtual void setMat4(const std::string& name, const glm::mat4& value);
 
 protected:
     OglShaderProgram(const OglShaderProgram& other)      = delete;
