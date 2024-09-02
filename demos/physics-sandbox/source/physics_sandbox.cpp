@@ -1,6 +1,7 @@
 #include "physics_sandbox.hpp"
 #include "phx/math_utils.hpp"
 #include "phx/geometry_queries.hpp"
+#include "phx/phx_utils.hpp"
 
 #include <editor/editor.hpp>
 #include <glm/glm.hpp>
@@ -23,31 +24,54 @@ PhysicsSandboxDemoLayer::PhysicsSandboxDemoLayer(const std::string& name) : core
     light.diffuse  = vec3(1.0f, 1.0f, 1.0f);
     light.specular = vec3(1.0f, 1.0f, 1.0f);
 
-    m_suzanne = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
-
+    m_suzanne            = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
     const auto& vertices = m_suzanne->getPositions();
     const auto& indices  = m_suzanne->getIndices();
+
+    // setupDeformableBody();
 
     // glm::mat4 model = glm::mat4(1.0f);
     // model           = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     // model           = glm::scale(model, glm::vec3(2.0f));
     //  model           = glm::mat4(1.0f);
-    m_triangle_mesh =
-        std::make_shared<phx::TriangleMesh>(static_cast<uint32_t>(indices.size() / 3)); // 3 indices per triangle
-    for(uint32_t i = 0; i < indices.size(); i += 3)
-    {
-        uint32_t      index = indices[i];
-        phx::Triangle triangle{.v0 = glm::vec3(vertices[index].x, vertices[index].y, vertices[index].z),
-                               .v1 = glm::vec3(vertices[index + 1].x, vertices[index + 1].y, vertices[index + 1].z),
-                               .v2 = glm::vec3(vertices[index + 2].x, vertices[index + 2].y, vertices[index + 2].z)};
-        triangle.calculateCentroid();
-        m_triangle_mesh->addTriangle(triangle);
-    }
-    m_triangle_mesh->buildAccelerationStructure();
 
-    const auto& bvh       = m_triangle_mesh->getBvh();
-    const auto& root_aabb = bvh->getNodes()[0].aabb;
-    generate3DGrid(m_grid_points, root_aabb.min, root_aabb.max, glm::vec3(0.075f));
+    // m_triangle_mesh =
+    //     std::make_shared<phx::PhxTriangleMesh>(static_cast<uint32_t>(indices.size() / 3)); // 3 indices per triangle
+    // for(uint32_t i = 0; i < indices.size(); i += 3)
+    //{
+    //     uint32_t         index = indices[i];
+    //     phx::PhxTriangle triangle{.a = glm::vec3(vertices[index].x, vertices[index].y, vertices[index].z),
+    //                               .b = glm::vec3(vertices[index + 1].x, vertices[index + 1].y, vertices[index +
+    //                               1].z), .c = glm::vec3(vertices[index + 2].x, vertices[index + 2].y, vertices[index
+    //                               + 2].z)};
+    //     triangle.calculateCentroid();
+    //     m_triangle_mesh->addTriangle(triangle);
+    // }
+    // m_triangle_mesh->buildAccelerationStructure();
+
+    // const auto& bvh       = m_triangle_mesh->getBvh();
+    // const auto& root_aabb = bvh->getNodes()[0].aabb;
+    // generate3DGrid(m_grid_points, root_aabb.min, root_aabb.max, glm::vec3(0.075f));
+
+    phx::mad::MassAggregateBodySpec spec{.mass                       = 0.75f,
+                                         .initial_velocity           = {},
+                                         .acceleration               = {},
+                                         .damping                    = 0.0f,
+                                         .randomize_initial_velocity = false,
+                                         .step                       = PhxVec3(0.075f),
+                                         .structural_spring_coeffs   = {},
+                                         .shear_spring_coeffs        = {},
+                                         .flexion_spring_coeffs      = {}};
+
+    PhxVec3Array phx_vertices;
+    for(const auto& vertex : vertices)
+    {
+        phx_vertices.emplace_back(vertex.x, vertex.y, vertex.z);
+    }
+
+    m_triangle_mesh         = phx::phxCookTriangleMesh(phx_vertices, indices);
+    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec);
+    m_deformable_body       = std::make_shared<phx::mad::DeformableBody>(m_triangle_mesh, m_aggregate_mass_volume);
 
     APPLICATION_INFO("Number of triangles: {}", static_cast<uint32_t>(indices.size() / 3));
     APPLICATION_INFO("Triangle mesh has been built. BVH initialized.");
@@ -114,10 +138,18 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     {
         // m_draw_mesh_grid_points = false;
         std::vector<vec4> rml_grid_points;
-        std::for_each(m_grid_points.begin(),
-                      m_grid_points.end(),
-                      [&rml_grid_points](const glm::vec3& point)
-                      { rml_grid_points.emplace_back(point.x, point.y, point.z, 1.0f); });
+
+        // std::for_each(m_grid_points.begin(),
+        //               m_grid_points.end(),
+        //               [&rml_grid_points](const glm::vec3& point)
+        //               { rml_grid_points.emplace_back(point.x, point.y, point.z, 1.0f); });
+
+        PhxSize count = m_aggregate_mass_volume->getParticleCount();
+        for(PhxSize i = 0; i < count; i++)
+        {
+            PhxVec3 position = m_aggregate_mass_volume->getPosition(PhxIndex(i));
+            rml_grid_points.emplace_back(position.x, position.y, position.z, 1.0f);
+        }
         m_render_system->drawDebugPoints(rml_grid_points, {1.0f, 0.0f, 0.0f}, model, 5.0f);
     }
 
@@ -125,22 +157,95 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     if(m_draw_mesh_grid_points)
     {
         // m_draw_grid_points = false;
-        if(!m_point_positions.empty())
+        // if(!m_point_positions.empty())
+        //{
+        //    std::vector<vec4> rml_point_positions;
+        //    std::for_each(m_point_positions.begin(),
+        //                  m_point_positions.end(),
+        //                  [&rml_point_positions](const glm::vec3& point)
+        //                  { rml_point_positions.emplace_back(point.x, point.y, point.z, 1.0f); });
+        //    m_render_system->drawDebugPoints(rml_point_positions, {0.0f, 0.0f, 1.0f}, model, 5.0f);
+        //}
+
+        std::vector<vec4> rml_point_positions;
+        PhxSize           count = m_aggregate_mass_volume->getParticleCount();
+        for(PhxSize i = 0; i < count; i++)
         {
-            std::vector<vec4> rml_point_positions;
-            std::for_each(m_point_positions.begin(),
-                          m_point_positions.end(),
-                          [&rml_point_positions](const glm::vec3& point)
-                          { rml_point_positions.emplace_back(point.x, point.y, point.z, 1.0f); });
-            m_render_system->drawDebugPoints(rml_point_positions, {0.0f, 0.0f, 1.0f}, model, 5.0f);
+            if(m_aggregate_mass_volume->getIsValid(PhxIndex(i)))
+            {
+                PhxVec3 position = m_aggregate_mass_volume->getPosition(PhxIndex(i));
+                rml_point_positions.emplace_back(position.x, position.y, position.z, 1.0f);
+            }
+        }
+        m_render_system->drawDebugPoints(rml_point_positions, {0.0f, 0.0f, 1.0f}, model, 5.0f);
+    }
+
+    std::vector<vec4> lines;
+    if(m_render_structural_springs)
+    {
+        const auto& structural_springs = m_aggregate_mass_volume->getStructuralSprings();
+        for(const auto& spring : structural_springs)
+        {
+            PhxUvec3 coords     = m_aggregate_mass_volume->getLocalCoordinates(spring.mass_a_idx);
+            PhxVec3  position_a = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            coords              = m_aggregate_mass_volume->getLocalCoordinates(spring.mass_b_idx);
+            PhxVec3 position_b  = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            lines.push_back({position_a.x, position_a.y, position_a.z, 1.0f});
+            lines.push_back({position_b.x, position_b.y, position_b.z, 1.0f});
+        }
+        if(!lines.empty())
+        {
+            m_render_system->drawDebugLines(lines, material_emerald.diffuse, 5.0f);
         }
     }
 
-    ////// ray triangle intersection
-    glm::vec3     v0 = glm::vec3(0.0f, 5.0f, 0.0f);
-    glm::vec3     v1 = glm::vec3(-1.0f, 3.0f, 0.0f);
-    glm::vec3     v2 = glm::vec3(1.0f, 3.0f, 0.0f);
-    phx::Triangle triangle{v0, v1, v2};
+    if(m_render_shear_springs)
+    {
+        lines.clear();
+        const auto& shear_spring = m_aggregate_mass_volume->getShearSprings();
+        for(const auto& pair : shear_spring)
+        {
+            PhxUvec3 coords     = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_a_idx);
+            PhxVec3  position_a = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            coords              = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_b_idx);
+            PhxVec3 position_b  = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            lines.push_back({position_a.x, position_a.y, position_a.z, 1.0f});
+            lines.push_back({position_b.x, position_b.y, position_b.z, 1.0f});
+        }
+        if(!lines.empty())
+        {
+            m_render_system->drawDebugLines(lines, material_blue_shine.diffuse, 5.0f);
+        }
+    }
+
+    if(m_render_bend_springs)
+    {
+        lines.clear();
+        const auto& bend_springs = m_aggregate_mass_volume->getFlexionSprings();
+        for(const auto& pair : bend_springs)
+        {
+            PhxUvec3 coords     = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_a_idx);
+            PhxVec3  position_a = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            coords              = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_b_idx);
+            PhxVec3 position_b  = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            lines.push_back({position_a.x, position_a.y, position_a.z, 1.0f});
+            lines.push_back({position_b.x, position_b.y, position_b.z, 1.0f});
+        }
+        if(!lines.empty())
+        {
+            m_render_system->drawDebugLines(lines, material_gold.diffuse, 5.0f);
+        }
+    }
+
+    setupRaycastTests();
+}
+
+void PhysicsSandboxDemoLayer::setupRaycastTests()
+{
+    glm::vec3        v0 = glm::vec3(0.0f, 5.0f, 0.0f);
+    glm::vec3        v1 = glm::vec3(-1.0f, 3.0f, 0.0f);
+    glm::vec3        v2 = glm::vec3(1.0f, 3.0f, 0.0f);
+    phx::PhxTriangle triangle{v0, v1, v2};
     triangle.calculateCentroid();
     {
 
@@ -153,9 +258,9 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         lines.emplace_back(v0.x, v0.y, v0.z, 1.0f);
         m_render_system->drawDebugLines(lines, {1.0f, 0.0f, 0.0f}, mat4{}, 5.0f);
 
-        phx::Ray ray  = {};
-        ray.origin    = glm::vec3(0.0f, 4.0f, 1.0f);
-        ray.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+        phx::PhxRay ray = {};
+        ray.origin      = glm::vec3(0.0f, 4.0f, 1.0f);
+        ray.direction   = glm::vec3(0.0f, 0.0f, -1.0f);
 
         std::vector<vec4> ray_line;
         ray_line.emplace_back(ray.origin.x, ray.origin.y, ray.origin.z, 1.0f);
@@ -164,7 +269,7 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
                               ray.origin.z + ray.direction.z * 2.0f,
                               1.0f);
 
-        phx::RayCastResult result = {};
+        phx::PhxRaycastResult result = {};
         if(phx::raycastTriangle(ray, triangle, result))
         {
             m_render_system->drawDebugLines(ray_line, {0.0f, 1.0f, 0.0f}, mat4{}, 5.0f);
@@ -225,6 +330,23 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     }
 }
 
+void PhysicsSandboxDemoLayer::setupDeformableBody()
+{
+    // const auto& vertices = m_suzanne->getPositions();
+    // const auto& indices  = m_suzanne->getIndices();
+    // m_deformable_body    = std::make_shared<phx::mad::DeformableBody>(static_cast<uint32_t>(indices.size() / 3));
+    // for(uint32_t i = 0; i < indices.size(); i += 3)
+    //{
+    //     uint32_t      index = indices[i];
+    //     phx::PhxTriangle triangle{.a = glm::vec3(vertices[index].x, vertices[index].y, vertices[index].z),
+    //                            .b = glm::vec3(vertices[index + 1].x, vertices[index + 1].y, vertices[index + 1].z),
+    //                            .c = glm::vec3(vertices[index + 2].x, vertices[index + 2].y, vertices[index + 2].z)};
+    //     triangle.calculateCentroid();
+    //     m_deformable_body->addTriangle(triangle);
+    // }
+    // m_deformable_body->setup();
+}
+
 void PhysicsSandboxDemoLayer::OnEvent() {}
 
 void PhysicsSandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
@@ -236,11 +358,14 @@ void PhysicsSandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
         Editor::drawWidgetCheckbox("Render Wireframe", m_draw_wireframe, 90.0f, "#polygon_mode");
         Editor::drawWidgetCheckbox("Render 3D Grid", m_draw_grid_points, 90.0f, "#3d_grid");
         Editor::drawWidgetCheckbox("Render Mesh Grid Points", m_draw_mesh_grid_points, 90.0f, "#mesh_grid_points");
+        Editor::drawWidgetCheckbox("Render Structural Springs", m_render_structural_springs, 90.0f, "#structural");
+        Editor::drawWidgetCheckbox("Render Shear Springs", m_render_shear_springs, 90.0f, "#shear");
+        Editor::drawWidgetCheckbox("Render Bend Springs", m_render_bend_springs, 90.0f, "#bend");
     }
     ImGui::End();
 }
 
-void PhysicsSandboxDemoLayer::drawAABB(const phx::AABB& aabb, const mat4& model)
+void PhysicsSandboxDemoLayer::drawAABB(const phx::PhxAABB& aabb, const mat4& model)
 {
     glm::vec3 aabb_min = aabb.min;
     glm::vec3 aabb_max = aabb.max;
@@ -300,9 +425,9 @@ void PhysicsSandboxDemoLayer::generate3DGrid(std::vector<glm::vec3>& out_grid_po
             for(float z = min.z; z <= max.z; z += step.z)
             {
                 ++i;
-                glm::vec3 random_direction = phx::generateRandomUnitVector();
-                phx::Ray  ray              = {};
-                ray.origin                 = glm::vec3(x, y, z);
+                glm::vec3   random_direction = phx::phxGenerateRandomUnitVector();
+                phx::PhxRay ray              = {};
+                ray.origin                   = glm::vec3(x, y, z);
                 // ray.direction              = glm::normalize(random_direction);
                 ray.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 
@@ -317,8 +442,8 @@ void PhysicsSandboxDemoLayer::generate3DGrid(std::vector<glm::vec3>& out_grid_po
 
                 // if(!one_ray_added && i == 5445)
                 {
-                    std::vector<phx::RayCastResult> results;
-                    if(phx::raycastTriangleMesh(ray, *m_triangle_mesh.get(), results, phx::QueryMode::AllHits))
+                    std::vector<phx::PhxRaycastResult> results;
+                    if(phx::phxRaycast(ray, *m_triangle_mesh.get(), results, phx::PhxQueryMode::AllHits))
                     {
                         if(results.size() % 2 != 0) // Odd number of hits
                         {
@@ -343,6 +468,11 @@ void PhysicsSandboxDemoLayer::generate3DGrid(std::vector<glm::vec3>& out_grid_po
 
     APPLICATION_INFO("Raytrace result: candidate points: {}", i);
     APPLICATION_INFO("Raytrace result: mesh points: {}", m_point_positions.size());
+
+    // PhxInt num_x = static_cast<PhxInt>((max.x - min.x) / step.x);
+    // PhxInt num_y = static_cast<PhxInt>((max.y - min.y) / step.y);
+    // PhxInt num_z = static_cast<PhxInt>((max.z - min.z) / step.z);
+    // APPLICATION_INFO("Raytrace result: calculated candidate points: {}", num_x * num_y * num_z);
 }
 
 } // namespace sputnik::demos

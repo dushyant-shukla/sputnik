@@ -6,29 +6,29 @@
 namespace phx
 {
 
-Plane fromTriangle(const Triangle& t)
+PhxPlane fromTriangle(const PhxTriangle& t)
 {
-    Plane result;
-    result.normal   = glm::normalize(glm::cross(t.v1 - t.v0, t.v2 - t.v0));
-    result.distance = glm::dot(result.normal, t.v0);
+    PhxPlane result;
+    result.normal   = glm::normalize(glm::cross(t.b - t.a, t.c - t.a));
+    result.distance = glm::dot(result.normal, t.a);
     return result;
 }
 
-bool raycastTriangle(const Ray& ray, const Triangle& triangle, RayCastResult& out_result)
+bool raycastTriangle(const PhxRay& ray, const PhxTriangle& triangle, PhxRaycastResult& out_result)
 {
-    glm::vec3 edge1 = triangle.v1 - triangle.v0;
-    glm::vec3 edge2 = triangle.v2 - triangle.v0;
+    glm::vec3 edge1 = triangle.b - triangle.a;
+    glm::vec3 edge2 = triangle.c - triangle.a;
 
     glm::vec3 ray_cross_e2 = glm::cross(ray.direction, edge2);
     float     det          = glm::dot(edge1, ray_cross_e2);
 
-    if(det > -kEpsilon && det < kEpsilon)
+    if(det > -kPhxEpsilon && det < kPhxEpsilon)
     {
         return false; // This ray is parallel to this triangle.
     }
 
     float     inv_det = 1.0f / det;
-    glm::vec3 s       = ray.origin - triangle.v0;
+    glm::vec3 s       = ray.origin - triangle.a;
     float     u       = inv_det * glm::dot(s, ray_cross_e2);
     if(u < 0.0f || u > 1.0f)
     {
@@ -44,7 +44,7 @@ bool raycastTriangle(const Ray& ray, const Triangle& triangle, RayCastResult& ou
 
     // Determine where the intersection point is on the line.
     float t = inv_det * glm::dot(edge2, s_cross_e1);
-    if(t < kEpsilon)
+    if(t < kPhxEpsilon)
     {
         return false;
     }
@@ -64,19 +64,19 @@ glm::vec3 project(const glm::vec3& length, const glm::vec3& direction)
     return direction * (dot / mag_sq);
 }
 
-glm::vec3 barycentric(const Point& point, const Triangle& triangle)
+glm::vec3 barycentric(const PhxPoint& point, const PhxTriangle& triangle)
 {
     // return glm::vec3();
 
-    glm::vec3 ap = point - triangle.v0;
-    glm::vec3 bp = point - triangle.v1;
-    glm::vec3 cp = point - triangle.v2;
+    glm::vec3 ap = point - triangle.a;
+    glm::vec3 bp = point - triangle.b;
+    glm::vec3 cp = point - triangle.c;
 
-    glm::vec3 ab = triangle.v1 - triangle.v0;
-    glm::vec3 ac = triangle.v2 - triangle.v0;
-    glm::vec3 bc = triangle.v2 - triangle.v1;
-    glm::vec3 cb = triangle.v1 - triangle.v2;
-    glm::vec3 ca = triangle.v0 - triangle.v2;
+    glm::vec3 ab = triangle.b - triangle.a;
+    glm::vec3 ac = triangle.c - triangle.a;
+    glm::vec3 bc = triangle.c - triangle.b;
+    glm::vec3 cb = triangle.b - triangle.c;
+    glm::vec3 ca = triangle.a - triangle.c;
 
     glm::vec3 v = ab - project(ab, cb);
     float     a = 1.0f - (glm::dot(v, ap) / glm::dot(v, ab));
@@ -108,7 +108,7 @@ glm::vec3 barycentric(const Point& point, const Triangle& triangle)
     return glm::vec3(a, b, c);
 }
 
-bool Raycast(const Plane& plane, const Ray& ray, RayCastResult outResult)
+bool Raycast(const PhxPlane& plane, const PhxRay& ray, PhxRaycastResult outResult)
 {
     // ResetRaycastResult(outResult);
 
@@ -141,18 +141,18 @@ bool Raycast(const Plane& plane, const Ray& ray, RayCastResult outResult)
     return false;
 }
 
-bool raycastTriangleBarycentric(const Ray& ray, const Triangle& triangle, RayCastResult& out_result)
+bool raycastTriangleBarycentric(const PhxRay& ray, const PhxTriangle& triangle, PhxRaycastResult& out_result)
 {
-    Plane plane = fromTriangle(triangle);
+    PhxPlane plane = fromTriangle(triangle);
 
-    RayCastResult planeResult;
+    PhxRaycastResult planeResult;
     if(!Raycast(plane, ray, planeResult))
     {
         return false;
     }
     float t = planeResult.t;
 
-    Point result = ray.origin + ray.direction * t;
+    PhxPoint result = ray.origin + ray.direction * t;
 
     glm::vec3 bc = barycentric(result, triangle);
     if(bc.x >= 0.0f && bc.x <= 1.0f && bc.y >= 0.0f && bc.y <= 1.0f && bc.z >= 0.0f && bc.z <= 1.0f)
@@ -184,19 +184,19 @@ bool raycastTriangleBarycentric(const Ray& ray, const Triangle& triangle, RayCas
     return false;
 }
 
-bool raycastAABB(const Ray& ray, const AABB& aabb, std::vector<RayCastResult>& out_results)
+bool raycastAABB(const PhxRay& ray, const PhxAABB& aabb, std::vector<PhxRaycastResult>& out_results)
 {
     glm::vec3 min = aabb.min;
     glm::vec3 max = aabb.max;
 
-    float tx_min = (min.x - ray.origin.x) / (CMP_FLOAT_EQ(ray.direction.x, 0.0f) ? kEpsilon : ray.direction.x);
-    float tx_max = (max.x - ray.origin.x) / (CMP_FLOAT_EQ(ray.direction.x, 0.0f) ? kEpsilon : ray.direction.x);
+    float tx_min = (min.x - ray.origin.x) / (CMP_FLOAT_EQ(ray.direction.x, 0.0f) ? kPhxEpsilon : ray.direction.x);
+    float tx_max = (max.x - ray.origin.x) / (CMP_FLOAT_EQ(ray.direction.x, 0.0f) ? kPhxEpsilon : ray.direction.x);
 
-    float ty_min = (min.y - ray.origin.y) / (CMP_FLOAT_EQ(ray.direction.y, 0.0f) ? kEpsilon : ray.direction.y);
-    float ty_max = (max.y - ray.origin.y) / (CMP_FLOAT_EQ(ray.direction.y, 0.0f) ? kEpsilon : ray.direction.y);
+    float ty_min = (min.y - ray.origin.y) / (CMP_FLOAT_EQ(ray.direction.y, 0.0f) ? kPhxEpsilon : ray.direction.y);
+    float ty_max = (max.y - ray.origin.y) / (CMP_FLOAT_EQ(ray.direction.y, 0.0f) ? kPhxEpsilon : ray.direction.y);
 
-    float tz_min = (min.z - ray.origin.z) / (CMP_FLOAT_EQ(ray.direction.z, 0.0f) ? kEpsilon : ray.direction.z);
-    float tz_max = (max.z - ray.origin.z) / (CMP_FLOAT_EQ(ray.direction.z, 0.0f) ? kEpsilon : ray.direction.z);
+    float tz_min = (min.z - ray.origin.z) / (CMP_FLOAT_EQ(ray.direction.z, 0.0f) ? kPhxEpsilon : ray.direction.z);
+    float tz_max = (max.z - ray.origin.z) / (CMP_FLOAT_EQ(ray.direction.z, 0.0f) ? kPhxEpsilon : ray.direction.z);
 
     float t_min = std::max(std::max(std::min(tx_min, tx_max), std::min(ty_min, ty_max)), std::min(tz_min, tz_max));
     float t_max = std::min(std::min(std::max(tx_min, tx_max), std::max(ty_min, ty_max)), std::max(tz_min, tz_max));
@@ -208,7 +208,7 @@ bool raycastAABB(const Ray& ray, const AABB& aabb, std::vector<RayCastResult>& o
         return false;
     }
 
-    RayCastResult result;
+    PhxRaycastResult result;
     result.hit = true;
     result.t   = t_min;
 
@@ -242,7 +242,7 @@ bool raycastAABB(const Ray& ray, const AABB& aabb, std::vector<RayCastResult>& o
     return true;
 }
 
-static bool isUnique(const std::vector<RayCastResult>& results, const RayCastResult& result)
+static bool isUnique(const std::vector<PhxRaycastResult>& results, const PhxRaycastResult& result)
 {
     for(const auto& r : results)
     {
@@ -259,10 +259,10 @@ static bool isUnique(const std::vector<RayCastResult>& results, const RayCastRes
     return true;
 }
 
-bool raycastTriangleMesh(const Ray&                  ray,
-                         const TriangleMesh&         triangle_mesh,
-                         std::vector<RayCastResult>& out_results,
-                         const QueryMode&            query_mode)
+bool phxRaycast(const PhxRay&                  ray,
+                const PhxTriangleMesh&         triangle_mesh,
+                std::vector<PhxRaycastResult>& out_results,
+                const PhxQueryMode&               query_mode)
 {
     const auto& bvh               = triangle_mesh.getBvh();
     const auto& bvh_nodes         = bvh->getNodes();
@@ -270,48 +270,48 @@ bool raycastTriangleMesh(const Ray&                  ray,
     const auto& triangles         = triangle_mesh.getTriangles();
     bool        hit_found         = false;
 
-    std::stack<BvhNode> nodes_to_visit;
+    std::stack<PhxBvhNode> nodes_to_visit;
     nodes_to_visit.push(bvh_nodes[0]);
 
     while(!nodes_to_visit.empty())
     {
-        BvhNode node = nodes_to_visit.top();
+        PhxBvhNode node = nodes_to_visit.top();
         nodes_to_visit.pop();
 
         if(node.isLeaf())
         {
             for(uint32_t i = node.idx; i < node.idx + node.num_primitives; ++i)
             {
-                const auto&   triangle       = triangles[primitive_indices[i]];
-                RayCastResult raycast_result = {};
+                const auto&      triangle       = triangles[primitive_indices[i]];
+                PhxRaycastResult raycast_result = {};
                 if(raycastTriangle(ray, triangle, raycast_result))
                 // if(raycastTriangleBarycentric(ray, triangle, raycast_result))
                 {
                     APPLICATION_INFO("Ray intersection detected: Triangle idx: {}", primitive_indices[i]);
                     APPLICATION_INFO("Ray intersection detected: Triangle: [({}, {}, {}), ({}, {}, {}), ({}, {}, {})]",
-                                     triangle.v0.x,
-                                     triangle.v0.y,
-                                     triangle.v0.z,
-                                     triangle.v1.x,
-                                     triangle.v1.y,
-                                     triangle.v1.z,
-                                     triangle.v2.x,
-                                     triangle.v2.y,
-                                     triangle.v2.z);
+                                     triangle.a.x,
+                                     triangle.a.y,
+                                     triangle.a.z,
+                                     triangle.b.x,
+                                     triangle.b.y,
+                                     triangle.b.z,
+                                     triangle.c.x,
+                                     triangle.c.y,
+                                     triangle.c.z);
                     APPLICATION_INFO("Ray intersection detected: Intersection Point: {}, {}, {}",
                                      raycast_result.point.x,
                                      raycast_result.point.y,
                                      raycast_result.point.z);
                     APPLICATION_INFO("Ray intersection detected: Intersection t: {}", raycast_result.t);
                     hit_found = true;
-                    if(query_mode == QueryMode::AnyHit)
+                    if(query_mode == PhxQueryMode::AnyHit)
                     {
                         // If we are looking for the any hit, we can return early.
                         out_results.push_back(raycast_result);
                         // return hit_found;
                         break;
                     }
-                    else if(query_mode == QueryMode::ClosestHit)
+                    else if(query_mode == PhxQueryMode::ClosestHit)
                     {
                         if(out_results.empty())
                         {
@@ -341,12 +341,12 @@ bool raycastTriangleMesh(const Ray&                  ray,
         else
         {
             // Push the child nodes to the stack, only if the ray intersects the AABB of the child nodes.
-            std::vector<phx::RayCastResult> results_1;
+            std::vector<phx::PhxRaycastResult> results_1;
             if(raycastAABB(ray, bvh_nodes[static_cast<size_t>(node.idx)].aabb, results_1))
             {
                 nodes_to_visit.push(bvh_nodes[static_cast<size_t>(node.idx)]); // Left child
             }
-            std::vector<phx::RayCastResult> results_2;
+            std::vector<phx::PhxRaycastResult> results_2;
             if(raycastAABB(ray, bvh_nodes[static_cast<size_t>(node.idx) + 1].aabb, results_2))
             {
                 nodes_to_visit.push(bvh_nodes[static_cast<size_t>(node.idx) + 1]); // Right child

@@ -9,7 +9,7 @@ namespace phx
  * @brief Scene query mode
  * // Todo:: AnyHit is not supported yet.
  */
-enum class QueryMode
+enum class PhxQueryMode
 {
     /*
      * ClosestHit: The closest intersection along the ray is returned.
@@ -27,23 +27,23 @@ enum class QueryMode
     AllHits
 };
 
-bool Raycast(const Plane& plane, const Ray& ray, RayCastResult outResult);
+bool Raycast(const PhxPlane& plane, const PhxRay& ray, PhxRaycastResult outResult);
 
-Plane fromTriangle(const Triangle& t);
+PhxPlane fromTriangle(const PhxTriangle& t);
 
-bool raycastTriangle(const Ray& ray, const Triangle& triangle, RayCastResult& out_results);
+bool raycastTriangle(const PhxRay& ray, const PhxTriangle& triangle, PhxRaycastResult& out_results);
 
-glm::vec3 barycentric(const Point& point, const Triangle& triangle);
+glm::vec3 barycentric(const PhxPoint& point, const PhxTriangle& triangle);
 
 glm::vec3 project(const glm::vec3& length, const glm::vec3& direction);
 
-bool raycastTriangleBarycentric(const Ray& ray, const Triangle& triangle, RayCastResult& out_results);
+bool raycastTriangleBarycentric(const PhxRay& ray, const PhxTriangle& triangle, PhxRaycastResult& out_results);
 
-bool raycastAABB(const Ray& ray, const AABB& aabb, std::vector<RayCastResult>& out_results);
+bool raycastAABB(const PhxRay& ray, const PhxAABB& aabb, std::vector<PhxRaycastResult>& out_results);
 
-bool raycastTriangleMesh(const Ray&                  ray,
-                         const TriangleMesh&         triangle_mesh,
-                         std::vector<RayCastResult>& out_results,
-                         const QueryMode&            query_mode = QueryMode::ClosestHit);
+bool phxRaycast(const PhxRay&                  ray,
+                         const PhxTriangleMesh&         triangle_mesh,
+                         std::vector<PhxRaycastResult>& out_results,
+                         const PhxQueryMode&            query_mode = PhxQueryMode::ClosestHit);
 
 } // namespace phx

@@ -6,34 +6,34 @@
 namespace phx
 {
 
-TriangleMesh::TriangleMesh(const uint32_t& num_primitives)
+PhxTriangleMesh::PhxTriangleMesh(const uint32_t& num_primitives)
 {
     // m_triangles.resize(num_primitives);
     //  m_indices.resize(num_primitives);
-    m_bvh = std::make_shared<Bvh>(num_primitives);
+    m_bvh = std::make_shared<PhxBvh>(num_primitives);
 }
 
-void TriangleMesh::addTriangle(const Triangle& triangle)
+void PhxTriangleMesh::addTriangle(const PhxTriangle& triangle)
 {
     m_triangles.emplace_back(triangle);
 }
 
-void TriangleMesh::buildAccelerationStructure()
+void PhxTriangleMesh::buildAccelerationStructure()
 {
     m_bvh->build(m_triangles);
 }
 
-const std::shared_ptr<Bvh>& TriangleMesh::getBvh() const noexcept
+const std::shared_ptr<PhxBvh>& PhxTriangleMesh::getBvh() const noexcept
 {
     return m_bvh;
 }
 
-const std::vector<Triangle>& TriangleMesh::getTriangles() const noexcept
+const std::vector<PhxTriangle>& PhxTriangleMesh::getTriangles() const noexcept
 {
     return m_triangles;
 }
 
-Bvh::Bvh(const uint32_t& num_primitives) noexcept
+PhxBvh::PhxBvh(const uint32_t& num_primitives) noexcept
 {
     // A binary tree has 2n - 1 nodes where n is the number of leaf nodes.
     m_nodes.resize(static_cast<size_t>(num_primitives) * 2 - 1);
@@ -46,7 +46,7 @@ Bvh::Bvh(const uint32_t& num_primitives) noexcept
     }
 }
 
-void Bvh::build(const std::vector<Triangle>& triangles) noexcept
+void PhxBvh::build(const PhxArray<PhxTriangle>& triangles) noexcept
 {
     auto& root_node          = m_nodes[m_root_node_idx];
     root_node.idx            = 0;
@@ -57,31 +57,31 @@ void Bvh::build(const std::vector<Triangle>& triangles) noexcept
     subdivide(m_root_node_idx, triangles);
 }
 
-const std::vector<BvhNode>& Bvh::getNodes() const noexcept
+const PhxArray<PhxBvhNode>& PhxBvh::getNodes() const noexcept
 {
     return m_nodes;
 }
 
-const std::vector<uint32_t>& Bvh::getPrimitiveIndices() const noexcept
+const PhxIndexArray& PhxBvh::getPrimitiveIndices() const noexcept
 {
     return m_primitive_indices;
 }
 
-void Bvh::updateBounds(const uint32_t& node_idx, const std::vector<Triangle>& triangles)
+void PhxBvh::updateBounds(const PhxIndex& node_idx, const PhxArray<PhxTriangle>& triangles)
 {
     auto& node    = m_nodes[node_idx];
-    node.aabb.min = glm::vec3(kFloatMax);
-    node.aabb.max = glm::vec3(-kFloatMax);
+    node.aabb.min = glm::vec3(kPhxFloatMax);
+    node.aabb.max = glm::vec3(-kPhxFloatMax);
 
     for(uint32_t first = node.idx, i = 0; i < node.num_primitives; ++i)
     {
         const auto& triangle = triangles[m_primitive_indices[first + i]];
-        node.aabb.min        = min(node.aabb.min, min(triangle.v0, min(triangle.v1, triangle.v2)));
-        node.aabb.max        = max(node.aabb.max, max(triangle.v0, max(triangle.v1, triangle.v2)));
+        node.aabb.min        = phxMin(node.aabb.min, phxMin(triangle.a, phxMin(triangle.b, triangle.c)));
+        node.aabb.max        = phxMax(node.aabb.max, phxMax(triangle.a, phxMax(triangle.b, triangle.c)));
     }
 }
 
-void Bvh::subdivide(const uint32_t& node_idx, const std::vector<Triangle>& triangles) noexcept
+void PhxBvh::subdivide(const PhxIndex& node_idx, const PhxArray<PhxTriangle>& triangles) noexcept
 {
     auto& node = m_nodes[node_idx];
     if(node.num_primitives <= 2)

@@ -13,59 +13,59 @@
 namespace phx
 {
 
-using Point = glm::vec3;
+using PhxPoint = PhxVec3;
 
-struct AABB
+struct PhxAABB
 {
-    glm::vec3 min;
-    glm::vec3 max;
+    PhxVec3 min;
+    PhxVec3 max;
 };
 
-struct Triangle
+struct PhxTriangle
 {
-    glm::vec3 v0;
-    glm::vec3 v1;
-    glm::vec3 v2;
-    glm::vec3 centroid;
+    PhxPoint a;
+    PhxPoint b;
+    PhxPoint c;
+    PhxPoint centroid;
 
-    inline void calculateCentroid() { centroid = (v0 + v1 + v2) * 0.333333f; }
+    inline void calculateCentroid() { centroid = (a + b + c) * 0.333333f; }
 };
 
-struct Plane
+struct PhxPlane
 {
-    glm::vec3 normal;
-    float     distance;
+    PhxVec3 normal;
+    PhxReal distance;
 
-    inline Plane() : normal(1.0f, 0.0f, 0.0f), distance(0.0f) {}
-    inline Plane(const glm::vec3& n, float d) : normal(n), distance(d) {}
+    inline PhxPlane() : normal(1.0f, 0.0f, 0.0f), distance(0.0f) {}
+    inline PhxPlane(const PhxVec3& n, const PhxReal& d) : normal(n), distance(d) {}
 };
 
-struct Ray
+struct PhxRay
 {
-    glm::vec3 origin;
-    glm::vec3 direction;
-    float     t = kFloatMax; // Max because we want to find the closest intersection.
+    PhxPoint origin;
+    PhxVec3  direction;
+    PhxReal  t = kPhxFloatMax; // Max because we want to find the closest intersection.
 };
 
-struct RayCastResult
+struct PhxRaycastResult
 {
-    bool      hit = false;
-    float     t   = kFloatMax;
-    glm::vec3 point{0.0f};
+    PhxBool   hit = false;
+    PhxReal   t   = kPhxFloatMax;
+    PhxPoint  point{0.0f};
     glm::vec3 normal{0.0f, 0.0f, 1.0f};
 
     inline void reset()
     {
         hit    = false;
-        t      = kFloatMax;
+        t      = kPhxFloatMax;
         point  = glm::vec3(0.0f);
         normal = glm::vec3(0.0f, 0.0f, 1.0f);
     }
 };
 
-struct BvhNode
+struct PhxBvhNode
 {
-    AABB     aabb;
+    PhxAABB  aabb;
     uint32_t num_primitives; // number of primitives in this node. Zero if it is not a leaf node.
 
     // For a leaf node, idx is the index to the fist primitive in the primitive array
@@ -75,49 +75,49 @@ struct BvhNode
     inline bool isLeaf() const { return num_primitives > 0; }
 };
 
-class Bvh
+class PhxBvh
 {
 public:
-    Bvh(const uint32_t& num_primitives) noexcept;
+    PhxBvh(const uint32_t& num_primitives) noexcept;
 
-    void build(const std::vector<Triangle>& triangles) noexcept;
+    void build(const PhxArray<PhxTriangle>& triangles) noexcept;
 
-    const std::vector<BvhNode>& getNodes() const noexcept;
+    const PhxArray<PhxBvhNode>& getNodes() const noexcept;
 
-    const std::vector<uint32_t>& getPrimitiveIndices() const noexcept;
-
-private:
-    void updateBounds(const uint32_t& node_idx, const std::vector<Triangle>& triangles);
-    void subdivide(const uint32_t& node_idx, const std::vector<Triangle>& triangles) noexcept;
+    const PhxIndexArray& getPrimitiveIndices() const noexcept;
 
 private:
-    std::vector<BvhNode>  m_nodes;
-    std::vector<uint32_t> m_primitive_indices; // Indices to the primitives in the triangle mesh.
-    uint32_t              m_nodes_used    = 1;
-    uint32_t              m_root_node_idx = 0;
+    void updateBounds(const PhxIndex& node_idx, const PhxArray<PhxTriangle>& triangles);
+    void subdivide(const PhxIndex& node_idx, const PhxArray<PhxTriangle>& triangles) noexcept;
+
+private:
+    PhxArray<PhxBvhNode> m_nodes;
+    PhxArray<uint32_t>   m_primitive_indices; // Indices to the primitives in the triangle mesh.
+    uint32_t             m_nodes_used    = 1;
+    uint32_t             m_root_node_idx = 0;
 };
 
 class BvhInstance
 {
 };
 
-class TriangleMesh
+class PhxTriangleMesh
 {
 public:
-    TriangleMesh(const uint32_t& num_primitives);
+    PhxTriangleMesh(const uint32_t& num_primitives);
 
-    void addTriangle(const Triangle& triangle);
+    void addTriangle(const PhxTriangle& triangle);
 
     void buildAccelerationStructure();
 
-    const std::shared_ptr<Bvh>& getBvh() const noexcept;
+    const std::shared_ptr<PhxBvh>& getBvh() const noexcept;
 
-    const std::vector<Triangle>& getTriangles() const noexcept;
+    const PhxArray<PhxTriangle>& getTriangles() const noexcept;
 
 private:
-    std::vector<Triangle> m_triangles;
-    // std::vector<uint32_t> m_indices; // Indices to the triangles in the triangle mesh.
-    std::shared_ptr<Bvh> m_bvh;
+    PhxArray<PhxTriangle> m_triangles;
+    // PhxArray<uint32_t> m_indices; // Indices to the triangles in the triangle mesh.
+    std::shared_ptr<PhxBvh> m_bvh;
 };
 
 } // namespace phx

@@ -12,6 +12,7 @@
 #include <core/systems/render_system.h>
 
 #include "phx/geometry.hpp"
+#include "phx/mad/deformable_body.hpp"
 
 namespace sputnik::demos
 {
@@ -33,12 +34,16 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    void drawAABB(const phx::AABB& aabb, const mat4& model);
+    void drawAABB(const phx::PhxAABB& aabb, const mat4& model);
 
     void generate3DGrid(std::vector<glm::vec3>& out_grid_points,
                         const glm::vec3&        min,
                         const glm::vec3&        max,
                         const glm::vec3&        step);
+
+    void setupRaycastTests();
+
+    void setupDeformableBody();
 
 private:
     // Rendering stuff
@@ -46,14 +51,16 @@ private:
     RenderSystem*          m_render_system{nullptr};
 
     // Physics stuff
-    std::shared_ptr<phx::TriangleMesh> m_triangle_mesh;
-    std::vector<float>                 m_point_masses;
-    std::vector<glm::vec3>             m_point_positions;
-    std::vector<glm::vec3>             m_point_velocities;
-    std::vector<glm::vec3>             m_point_accelerations;
-    std::vector<float>                 m_point_damping_values;
-    std::vector<float>                 m_point_inverse_masses;
-    std::vector<glm::vec3>             m_point_accumulated_forces;
+    std::shared_ptr<phx::mad::DeformableBody>      m_deformable_body;
+    std::shared_ptr<phx::PhxTriangleMesh>          m_triangle_mesh;
+    std::shared_ptr<phx::mad::MassAggregateVolume> m_aggregate_mass_volume;
+    std::vector<float>                             m_point_masses;
+    std::vector<glm::vec3>                         m_point_positions;
+    std::vector<glm::vec3>                         m_point_velocities;
+    std::vector<glm::vec3>                         m_point_accelerations;
+    std::vector<float>                             m_point_damping_values;
+    std::vector<float>                             m_point_inverse_masses;
+    std::vector<glm::vec3>                         m_point_accumulated_forces;
 
     // Debug stuff
     bool                   m_draw_bvh{false};
@@ -61,6 +68,9 @@ private:
     bool                   m_disable_mesh_rendering{false};
     bool                   m_draw_grid_points{false};
     bool                   m_draw_mesh_grid_points{false};
+    bool                   m_render_structural_springs{false};
+    bool                   m_render_shear_springs{false};
+    bool                   m_render_bend_springs{false};
     std::vector<glm::vec3> m_grid_points;
 
     std::vector<vec4> m_mesh_intersection_rays;
