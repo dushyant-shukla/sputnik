@@ -106,6 +106,8 @@ class PhxTriangleMesh
 public:
     PhxTriangleMesh(const uint32_t& num_primitives);
 
+    PhxTriangleMesh(const PhxVec3Array& input_vertices, const PhxIndexArray& input_indices);
+
     void addTriangle(const PhxTriangle& triangle);
 
     void buildAccelerationStructure();
@@ -114,10 +116,15 @@ public:
 
     const PhxArray<PhxTriangle>& getTriangles() const noexcept;
 
+    void fetchVertices(PhxVec3Array& vertices) const noexcept;
+
+    const PhxIndexArray& getIndices() const noexcept;
+
 private:
-    PhxArray<PhxTriangle> m_triangles;
-    // PhxArray<uint32_t> m_indices; // Indices to the triangles in the triangle mesh.
+    PhxArray<PhxTriangle>   m_triangles;
+    PhxIndexArray           m_indices; // Indices to the triangles in the triangle mesh.
     std::shared_ptr<PhxBvh> m_bvh;
+    PhxSize                 m_num_vertices;
 };
 
 } // namespace phx

@@ -15,10 +15,14 @@ void SpringForceGenerator::updateForces(MassAggregateBody* const owning_body) no
             const auto& velocity_a = owning_body->getVelocities()[spring.mass_a_idx];
             const auto& velocity_b = owning_body->getVelocities()[spring.mass_b_idx];
 
-            auto       distance_vector       = position_a - position_b;
-            const auto current_spring_length = phx_magnitude(distance_vector);
-            const auto force_direction       = phx_normalize(distance_vector);
-            const auto delta_length          = current_spring_length - spring.rest_length;
+            auto distance_vector       = position_a - position_b;
+            auto current_spring_length = phx_magnitude(distance_vector);
+            // if(current_spring_length < (0.75f * spring.rest_length))
+            //{
+            //     current_spring_length = 0.75f * spring.rest_length;
+            // }
+            const auto force_direction = phx_normalize(distance_vector);
+            const auto delta_length    = current_spring_length - spring.rest_length;
 
             const auto spring_force = -spring.ks * delta_length * force_direction;
             const auto damping_force =

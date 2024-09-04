@@ -40,6 +40,11 @@ void DeformableBody::setup() noexcept
     const auto& root_aabb = bvh->getNodes()[0].aabb;
 }
 
+void DeformableBody::updateInternalForces(const double& total_time, const double& step_size) noexcept
+{
+    m_body->updateInternalForces(static_cast<PhxReal>(total_time), static_cast<PhxReal>(step_size));
+}
+
 // void DeformableBody::buildAccelerationStructure()
 //{
 //     m_mesh->buildAccelerationStructure();

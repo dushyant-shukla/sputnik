@@ -27,6 +27,7 @@ struct MassAggregateBodySpec
 
     PhxVec3 extent;
     PhxVec3 step;
+    PhxUint nearest_neighbors = 10;
 
     SpringCoefficient structural_spring_coeffs;
     SpringCoefficient shear_spring_coeffs;
@@ -81,6 +82,7 @@ public:
     void registerForceGenerator(const std::function<void(MassAggregateBody* const)>& force_generator) noexcept;
 
     void updateForces() noexcept;
+    void updateInternalForces(const PhxReal& total_time, const PhxReal& step_size) noexcept;
 
 protected:
     PhxRealArray m_masses;

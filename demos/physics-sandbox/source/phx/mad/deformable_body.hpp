@@ -28,6 +28,8 @@ public:
 
     // void buildAccelerationStructure();
 
+    void updateInternalForces(const double& total_time, const double& step_size) noexcept;
+
 private:
     std::shared_ptr<PhxTriangleMesh>   m_mesh;
     std::shared_ptr<MassAggregateBody> m_body;

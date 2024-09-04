@@ -231,7 +231,6 @@ void Mesh::draw(const Material& material, const mat4& model)
     m_vertex_array->unbind();
 }
 
-
 void Mesh::drawInstanced(const Material& material, const u32& num_instances)
 {
     auto render_system = sputnik::core::systems::RenderSystem::getInstance();
@@ -246,7 +245,6 @@ void Mesh::drawInstanced(const Material& material, const u32& num_instances)
     }
     m_vertex_array->unbind();
 }
-
 
 void Mesh::DrawInstanced(unsigned int num_instances)
 {
@@ -327,6 +325,16 @@ void Mesh::initializeGpuBuffers()
 std::shared_ptr<OglVertexArray> Mesh::getVertexArray() const
 {
     return m_vertex_array;
+}
+
+void Mesh::updatePositionBuffer(void* data, const u64& byte)
+{
+    m_position_buffer->setData(data, byte);
+}
+
+void Mesh::updateNormalBuffer(void* data, const u64& byte)
+{
+    m_normal_buffer->setData(data, byte);
 }
 
 } // namespace sputnik::graphics::core

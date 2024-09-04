@@ -17,6 +17,12 @@ phxCookMassAggregateVolume(const std::shared_ptr<PhxTriangleMesh>& input_mesh,
                            const PhxBool&                          randomize_sampling_direction = false,
                            const PhxVec3&                          sampling_direction           = {1.0f, 0.0f, 0.0f});
 
+std::shared_ptr<mad::MassAggregateVolume>
+phxCookMassAggregateVolumeNearestNeighbor(const std::shared_ptr<PhxTriangleMesh>& input_mesh,
+                           const mad::MassAggregateBodySpec&       spec,
+                           const PhxBool&                          randomize_sampling_direction = false,
+                           const PhxVec3&                          sampling_direction           = {1.0f, 0.0f, 0.0f});
+
 } // namespace phx
 
 #endif // !PHX_UTILS_HPP

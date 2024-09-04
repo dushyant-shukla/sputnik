@@ -35,7 +35,11 @@ public:
     std::shared_ptr<OglVertexArray> getVertexArray() const;
 
     const std::vector<ramanujan::Vector3>& getPositions();
+    const std::vector<ramanujan::Vector3>& getNormals();
     const std::vector<unsigned int>&       getIndices();
+
+    void updatePositionBuffer(void* data, const u64& byte);
+    void updateNormalBuffer(void* data, const u64& byte);
 
 protected:
     // Write now we expect a single mesh per model

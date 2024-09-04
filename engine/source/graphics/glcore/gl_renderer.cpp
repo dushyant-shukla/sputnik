@@ -301,12 +301,12 @@ void OglRenderer::renderEditorGrid()
     m_vao->bind();
     m_grid_program->bind();
     glEnable(GL_BLEND);
-    // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     //  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // black lines
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA); // This gives best results - white lines
     // (GLenum mode, GLint first, GLsizei count, GLsizei instancecount, GLuint baseinstance)
     glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6, 1, 0);
-    // glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     m_grid_program->unbind();
     m_vao->unbind();

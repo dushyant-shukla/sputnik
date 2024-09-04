@@ -10,7 +10,7 @@ static constexpr float kPhxFloatMax = std::numeric_limits<float>::max();
 static constexpr float kPhxFloatMin = std::numeric_limits<float>::min();
 static constexpr float kPhxPi       = 3.14159265358979323846f;
 
-#define CMP_FLOAT_EQ(a, b) (std::abs((a) - (b)) <= kPhxEpsilon * std::max(1.0f, std::max(std::abs(a), std::abs(b))))
+#define CMP_FLOAT_EQ(a, b) (std::abs((a) - (b)) <= phx::kPhxEpsilon * std::max(1.0f, std::max(std::abs(a), std::abs(b))))
 
 PhxVec3 phxMin(const PhxVec3& a, const PhxVec3& b);
 PhxVec3 phxMax(const PhxVec3& a, const PhxVec3& b);

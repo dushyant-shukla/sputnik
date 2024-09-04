@@ -59,15 +59,17 @@ Window::Window(const WindowSpecification& specification)
     //}
 
     // Windowed fullscreen
-    // int           count;
-    // GLFWmonitor** monitors      = glfwGetMonitors(&count);
-    // cstring       monitor1_name = glfwGetMonitorName(monitors[0]);
-    // std::cout << monitor1_name << std::endl;
-    // cstring monitor2_name = glfwGetMonitorName(monitors[1]);
-    // std::cout << monitor2_name << std::endl;
-    // const GLFWvidmode* mode = glfwGetVideoMode(monitors[0]);
-    // m_window_handle = glfwCreateWindow(mode->width, mode->height, specification.m_title.c_str(), monitors[0],
-    // nullptr);
+    //{
+    //    int           count;
+    //    GLFWmonitor** monitors      = glfwGetMonitors(&count);
+    //    cstring       monitor1_name = glfwGetMonitorName(monitors[0]);
+    //    std::cout << monitor1_name << std::endl;
+    //    cstring monitor2_name = glfwGetMonitorName(monitors[1]);
+    //    std::cout << monitor2_name << std::endl;
+    //    const GLFWvidmode* mode = glfwGetVideoMode(monitors[1]);
+    //    m_window_handle =
+    //        glfwCreateWindow(mode->width, mode->height, specification.m_title.c_str(), monitors[1], nullptr);
+    //}
 
     GLFWimage images[1]{};
     images[0].pixels = stbi_load("..\\..\\data\\icons\\app_icon.png", &images[0].width, &images[0].height, 0, 4);

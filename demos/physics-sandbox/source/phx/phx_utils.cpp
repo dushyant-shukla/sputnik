@@ -9,18 +9,29 @@ namespace phx
 std::shared_ptr<PhxTriangleMesh> phxCookTriangleMesh(const PhxVec3Array&  input_vertices,
                                                      const PhxIndexArray& input_indices)
 {
-    auto mesh = std::make_shared<phx::PhxTriangleMesh>(static_cast<uint32_t>(input_indices.size() / 3));
-    for(PhxIndex i = 0; i < input_indices.size(); i += 3)
-    {
-        PhxIndex         index = input_indices[i];
-        phx::PhxTriangle triangle{
-            .a = glm::vec3(input_vertices[index].x, input_vertices[index].y, input_vertices[index].z),
-            .b = glm::vec3(input_vertices[index + 1].x, input_vertices[index + 1].y, input_vertices[index + 1].z),
-            .c = glm::vec3(input_vertices[index + 2].x, input_vertices[index + 2].y, input_vertices[index + 2].z)};
-        triangle.calculateCentroid();
-        mesh->addTriangle(triangle);
-    }
-    mesh->buildAccelerationStructure();
+    // auto mesh = std::make_shared<phx::PhxTriangleMesh>(static_cast<uint32_t>(input_indices.size() / 3));
+    // for(PhxSize i = 0; i < input_indices.size(); i += 3)
+    //{
+    //     // PhxIndex         index = input_indices[i];
+    //     // phx::PhxTriangle triangle{
+    //     //     .a = glm::vec3(input_vertices[index].x, input_vertices[index].y, input_vertices[index].z),
+    //     //     .b = glm::vec3(input_vertices[index + 1].x, input_vertices[index + 1].y, input_vertices[index + 1].z),
+    //     //     .c = glm::vec3(input_vertices[index + 2].x, input_vertices[index + 2].y, input_vertices[index +
+    //     2].z)};
+
+    //    PhxIndex         i0 = input_indices[i];
+    //    PhxIndex         i1 = input_indices[i + 1];
+    //    PhxIndex         i2 = input_indices[i + 2];
+    //    phx::PhxTriangle triangle{.a = glm::vec3(input_vertices[i0].x, input_vertices[i0].y, input_vertices[i0].z),
+    //                              .b = glm::vec3(input_vertices[i1].x, input_vertices[i1].y, input_vertices[i1].z),
+    //                              .c = glm::vec3(input_vertices[i2].x, input_vertices[i2].y, input_vertices[i2].z)};
+    //    triangle.calculateCentroid();
+    //    mesh->addTriangle(triangle);
+    //}
+    // mesh->buildAccelerationStructure();
+    // return mesh;
+
+    auto mesh = std::make_shared<phx::PhxTriangleMesh>(input_vertices, input_indices);
     return mesh;
 }
 
@@ -30,11 +41,11 @@ static mad::PhxSpring phxCreateSpring(const PhxIndex& mass_a,
                                       const PhxReal&  stiffness,
                                       const PhxReal&  damping)
 {
-    mad::PhxSpring spring{.mass_a_idx      = mass_a,
-                          .mass_b_idx      = mass_b,
-                          .rest_length     = rest_length,
-                          .ks = stiffness,
-                          .kd   = damping};
+    mad::PhxSpring spring{.mass_a_idx  = mass_a,
+                          .mass_b_idx  = mass_b,
+                          .rest_length = rest_length,
+                          .ks          = stiffness,
+                          .kd          = damping};
     return spring;
 }
 
@@ -509,9 +520,171 @@ std::shared_ptr<mad::MassAggregateVolume> phxCookMassAggregateVolume(const std::
         }
     }
 
-    APPLICATION_INFO("Mass Aggregate Body Result: candidate points: {}", candidate_points);
-    APPLICATION_INFO("Mass Aggregate Body Result: mesh points: {}", mesh_points);
+    // APPLICATION_INFO("Mass Aggregate Body Result: candidate points: {}", candidate_points);
+    // APPLICATION_INFO("Mass Aggregate Body Result: mesh points: {}", mesh_points);
 
+    return body;
+}
+
+struct Point
+{
+    float x;
+    float y;
+    float z;
+};
+
+std::shared_ptr<mad::MassAggregateVolume>
+phxCookMassAggregateVolumeNearestNeighbor(const std::shared_ptr<PhxTriangleMesh>& input_mesh,
+                                          const mad::MassAggregateBodySpec&       spec,
+                                          const PhxBool&                          randomize_sampling_direction,
+                                          const PhxVec3&                          sampling_direction)
+{
+    PhxAABB root_aabb  = input_mesh->getBvh()->getNodes()[0].aabb;
+    PhxVec3 min_bounds = root_aabb.min;
+    PhxVec3 max_bounds = root_aabb.max;
+
+    PhxInt num_rows = 0;
+    for(float x = min_bounds.x; x <= max_bounds.x; x += spec.step.x)
+    {
+        ++num_rows;
+    }
+
+    PhxInt num_cols = 0;
+    for(float y = min_bounds.y; y <= max_bounds.y; y += spec.step.y)
+    {
+        ++num_cols;
+    }
+
+    PhxInt num_slices = 0;
+    for(float z = min_bounds.z; z <= max_bounds.z; z += spec.step.z)
+    {
+        ++num_slices;
+    }
+
+    PhxUint candidate_points = num_rows * num_cols * num_slices;
+    PhxUint mesh_points      = 0;
+
+    std::shared_ptr<mad::MassAggregateVolume> body =
+        std::make_shared<mad::MassAggregateVolume>(candidate_points, num_rows, num_cols, num_slices, spec);
+
+    // Find the points that are inside the mesh
+    {
+        PhxInt i = 0;
+        for(float x = min_bounds.x; x <= max_bounds.x; x += spec.step.x, ++i)
+        {
+            PhxInt j = 0;
+            for(float y = min_bounds.y; y <= max_bounds.y; y += spec.step.y, ++j)
+            {
+                PhxInt k = 0;
+                for(float z = min_bounds.z; z <= max_bounds.z; z += spec.step.z, ++k)
+                {
+                    PhxRay ray = {};
+                    ray.origin = PhxVec3(x, y, z);
+
+                    if(randomize_sampling_direction)
+                    {
+                        ray.direction = phxGenerateRandomUnitVector();
+                    }
+                    else
+                    {
+                        ray.direction = sampling_direction;
+                    }
+
+                    PhxArray<phx::PhxRaycastResult> results;
+                    PhxIndex                        mass_index = body->getIndex(i, j, k);
+                    if(phxRaycast(ray, *input_mesh.get(), results, phx::PhxQueryMode::AllHits) &&
+                       (results.size() % 2 != 0))
+                    {
+                        ++mesh_points;
+                        body->setPosition(mass_index, PhxVec3(x, y, z));
+                        body->setAcceleration(mass_index, spec.acceleration);
+                        body->setMass(mass_index, spec.mass);
+                        body->setDamping(mass_index, spec.damping);
+                        body->setIsValid(mass_index, true);
+
+                        if(spec.randomize_initial_velocity)
+                        {
+                            // Todo:: Maybe randomize the magnitude of the velocity also
+                            body->setVelocity(mass_index, phxGenerateRandomUnitVector() * spec.initial_velocity);
+                        }
+                        else
+                        {
+                            body->setVelocity(mass_index, spec.initial_velocity);
+                        }
+                    }
+                    else
+                    {
+                        body->setIsValid(mass_index, false);
+                        body->setPosition(mass_index, PhxVec3(x, y, z));
+                    }
+                }
+            }
+        }
+    }
+
+    PhxIndex num_springs = 0;
+    struct PointDistance
+    {
+        PhxIndex point_index;
+        PhxReal  distance;
+    };
+    for(PhxIndex current_idx = 0; current_idx < candidate_points; ++current_idx)
+    {
+        if(body->getIsValid(current_idx))
+        {
+            PhxVec3                 current_position = body->getPosition(current_idx);
+            PhxArray<PointDistance> distances;
+
+            for(PhxIndex neighbor_index = 0; neighbor_index < candidate_points; neighbor_index++)
+            {
+                if(current_idx == neighbor_index || !body->getIsValid(neighbor_index))
+                {
+                    // Skip the current point and the points that are not valid
+                    continue;
+                }
+
+                PhxVec3 neighbor_position = body->getPosition(neighbor_index);
+
+                distances.push_back({neighbor_index, phx_magnitude_sq(current_position - neighbor_position)});
+            }
+
+            if(!distances.empty())
+            {
+                std::sort(distances.begin(),
+                          distances.end(),
+                          [](const PointDistance& a, const PointDistance& b) { return a.distance < b.distance; });
+
+                const PhxIndex neighbor_count = static_cast<PhxIndex>(distances.size());
+                const PhxIndex max_neighbors =
+                    neighbor_count < spec.nearest_neighbors ? neighbor_count : spec.nearest_neighbors;
+
+                for(PhxIndex k = 0; k < max_neighbors; ++k)
+                {
+                    PhxIndex neighbor_idx = distances[k].point_index;
+
+                    phx::PhxRay ray = {};
+                    ray.origin      = current_position;
+                    ray.direction   = phx_normalize(body->getPosition(neighbor_idx) - current_position);
+                    PhxArray<phx::PhxRaycastResult> results;
+                    if(phxRaycast(ray, *input_mesh.get(), results, phx::PhxQueryMode::ClosestHit); !results.empty())
+                    {
+                        if(distances[k].distance <= phx_distance(current_position, results[0].point))
+                        {
+                            PhxReal rest_length =
+                                phx_length(body->getPosition(current_idx) - body->getPosition(neighbor_idx));
+                            body->addStructuralSpring(phxCreateSpring(current_idx,
+                                                                      neighbor_idx,
+                                                                      rest_length,
+                                                                      spec.structural_spring_coeffs.ks,
+                                                                      spec.structural_spring_coeffs.kd));
+                            ++num_springs;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // APPLICATION_INFO("Mass Aggregate Body Result: Num springs: {}", num_springs);
     return body;
 }
 

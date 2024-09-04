@@ -63,6 +63,9 @@ public:
 
     std::shared_ptr<OglVertexArray> getVertexArray() const;
 
+    void updatePositionBuffer(void* data, const u64& byte);
+    void updateNormalBuffer(void* data, const u64& byte);
+
 protected:
     // cpu data
     std::vector<ramanujan::Vector3>  m_position;

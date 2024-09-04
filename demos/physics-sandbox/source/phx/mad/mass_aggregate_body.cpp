@@ -196,6 +196,14 @@ void MassAggregateBody::updateForces() noexcept
     // }
 }
 
+void MassAggregateBody::updateInternalForces(const PhxReal& total_time, const PhxReal& step_size) noexcept
+{
+    for(const auto& force_generator : m_force_generators)
+    {
+        force_generator(this);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -217,6 +225,13 @@ MassAggregateVolume::MassAggregateVolume(const PhxUint&               total_coun
     m_shear_spring_generator      = std::make_shared<SpringForceGenerator>();
     m_flexion_spring_generator    = std::make_shared<SpringForceGenerator>();
     // m_torsion_spring_generator    = std::make_shared<SpringForceGenerator>();
+
+    registerForceGenerator(
+        std::bind(&SpringForceGenerator::updateForces, m_structural_spring_generator.get(), std::placeholders::_1));
+    registerForceGenerator(
+        std::bind(&SpringForceGenerator::updateForces, m_shear_spring_generator.get(), std::placeholders::_1));
+    registerForceGenerator(
+        std::bind(&SpringForceGenerator::updateForces, m_flexion_spring_generator.get(), std::placeholders::_1));
 }
 
 // std::shared_ptr<SpringForceGenerator> MassAggregateVolume::getTorsionSpring() noexcept

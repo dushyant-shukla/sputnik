@@ -287,22 +287,22 @@ bool phxRaycast(const PhxRay&                  ray,
                 if(raycastTriangle(ray, triangle, raycast_result))
                 // if(raycastTriangleBarycentric(ray, triangle, raycast_result))
                 {
-                    APPLICATION_INFO("Ray intersection detected: Triangle idx: {}", primitive_indices[i]);
-                    APPLICATION_INFO("Ray intersection detected: Triangle: [({}, {}, {}), ({}, {}, {}), ({}, {}, {})]",
-                                     triangle.a.x,
-                                     triangle.a.y,
-                                     triangle.a.z,
-                                     triangle.b.x,
-                                     triangle.b.y,
-                                     triangle.b.z,
-                                     triangle.c.x,
-                                     triangle.c.y,
-                                     triangle.c.z);
-                    APPLICATION_INFO("Ray intersection detected: Intersection Point: {}, {}, {}",
-                                     raycast_result.point.x,
-                                     raycast_result.point.y,
-                                     raycast_result.point.z);
-                    APPLICATION_INFO("Ray intersection detected: Intersection t: {}", raycast_result.t);
+                    //APPLICATION_INFO("Ray intersection detected: Triangle idx: {}", primitive_indices[i]);
+                    //APPLICATION_INFO("Ray intersection detected: Triangle: [({}, {}, {}), ({}, {}, {}), ({}, {}, {})]",
+                    //                 triangle.a.x,
+                    //                 triangle.a.y,
+                    //                 triangle.a.z,
+                    //                 triangle.b.x,
+                    //                 triangle.b.y,
+                    //                 triangle.b.z,
+                    //                 triangle.c.x,
+                    //                 triangle.c.y,
+                    //                 triangle.c.z);
+                    //APPLICATION_INFO("Ray intersection detected: Intersection Point: {}, {}, {}",
+                    //                 raycast_result.point.x,
+                    //                 raycast_result.point.y,
+                    //                 raycast_result.point.z);
+                    //APPLICATION_INFO("Ray intersection detected: Intersection t: {}", raycast_result.t);
                     hit_found = true;
                     if(query_mode == PhxQueryMode::AnyHit)
                     {

@@ -71,9 +71,24 @@ const std::vector<ramanujan::Vector3>& Model::getPositions()
     return m_meshes[0].GetPosition();
 }
 
+const std::vector<ramanujan::Vector3>& Model::getNormals()
+{
+    return m_meshes[0].GetNormal();
+}
+
 const std::vector<unsigned int>& Model::getIndices()
 {
     return m_meshes[0].GetIndices();
+}
+
+void Model::updatePositionBuffer(void* data, const u64& byte)
+{
+    m_meshes[0].updatePositionBuffer(data, byte);
+}
+
+void Model::updateNormalBuffer(void* data, const u64& byte)
+{
+    m_meshes[0].updateNormalBuffer(data, byte);
 }
 
 } // namespace sputnik::graphics::api
