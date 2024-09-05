@@ -204,6 +204,33 @@ void MassAggregateBody::updateInternalForces(const PhxReal& total_time, const Ph
     }
 }
 
+void MassAggregateBody::updateSurfaceParticleIndex() noexcept
+{
+    m_surface_particle_idx = static_cast<PhxIndex>(m_positions.size());
+}
+
+const PhxIndex& MassAggregateBody::getSurfacePaticleIndex() const noexcept
+{
+    return m_surface_particle_idx;
+}
+
+PhxIndex MassAggregateBody::addSurfaceParticle(const PhxVec3& position) noexcept
+{
+    // m_surface_particle_idx = static_cast<PhxIndex>(m_positions.size());
+
+    m_masses.emplace_back(m_spec.mass);
+    m_positions.emplace_back(position);
+    m_velocities.emplace_back(PhxVec3{0.0f, 0.0f, 0.0f});
+    m_accelerations.emplace_back(m_spec.acceleration);
+    m_damping_values.emplace_back(m_spec.damping);
+    m_inverse_masses.emplace_back(1.0f / m_spec.mass);
+    m_accumulated_forces.emplace_back(PhxVec3{0.0f, 0.0f, 0.0f});
+    m_is_fixed_values.emplace_back(false);
+    m_is_valid_values.emplace_back(false);
+
+    return static_cast<PhxIndex>(m_positions.size() - 1);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -224,6 +251,8 @@ MassAggregateVolume::MassAggregateVolume(const PhxUint&               total_coun
     m_structural_spring_generator = std::make_shared<SpringForceGenerator>();
     m_shear_spring_generator      = std::make_shared<SpringForceGenerator>();
     m_flexion_spring_generator    = std::make_shared<SpringForceGenerator>();
+    m_surface_spring_generator    = std::make_shared<SpringForceGenerator>();
+    m_internal_spring_generator   = std::make_shared<SpringForceGenerator>();
     // m_torsion_spring_generator    = std::make_shared<SpringForceGenerator>();
 
     registerForceGenerator(
@@ -232,6 +261,10 @@ MassAggregateVolume::MassAggregateVolume(const PhxUint&               total_coun
         std::bind(&SpringForceGenerator::updateForces, m_shear_spring_generator.get(), std::placeholders::_1));
     registerForceGenerator(
         std::bind(&SpringForceGenerator::updateForces, m_flexion_spring_generator.get(), std::placeholders::_1));
+    registerForceGenerator(
+        std::bind(&SpringForceGenerator::updateForces, m_surface_spring_generator.get(), std::placeholders::_1));
+    registerForceGenerator(
+        std::bind(&SpringForceGenerator::updateForces, m_internal_spring_generator.get(), std::placeholders::_1));
 }
 
 // std::shared_ptr<SpringForceGenerator> MassAggregateVolume::getTorsionSpring() noexcept
@@ -389,6 +422,16 @@ void MassAggregateVolume::addFlexionSpring(const PhxSpring& spring) noexcept
     m_flexion_spring_generator->addSpring(spring);
 }
 
+void MassAggregateVolume::addSurfaceSpring(const PhxSpring& spring) noexcept
+{
+    m_surface_spring_generator->addSpring(spring);
+}
+
+void MassAggregateVolume::addInternalSpring(const PhxSpring& spring) noexcept
+{
+    m_internal_spring_generator->addSpring(spring);
+}
+
 const PhxArray<PhxSpring>& MassAggregateVolume::getStructuralSprings() const noexcept
 {
     return m_structural_spring_generator->getSprings();
@@ -402,6 +445,16 @@ const PhxArray<PhxSpring>& MassAggregateVolume::getShearSprings() const noexcept
 const PhxArray<PhxSpring>& MassAggregateVolume::getFlexionSprings() const noexcept
 {
     return m_flexion_spring_generator->getSprings();
+}
+
+const PhxArray<PhxSpring>& MassAggregateVolume::getSurfaceSprings() const noexcept
+{
+    return m_surface_spring_generator->getSprings();
+}
+
+const PhxArray<PhxSpring>& MassAggregateVolume::getInternalSprings() const noexcept
+{
+    return m_internal_spring_generator->getSprings();
 }
 
 } // namespace phx::mad

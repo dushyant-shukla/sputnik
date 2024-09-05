@@ -30,23 +30,23 @@ PhxTriangleMesh::PhxTriangleMesh(const PhxVec3Array& input_vertices, const PhxIn
         m_triangles.emplace_back(triangle);
     }
 
-    for(PhxSize i = 0; i < input_indices.size(); i += 3)
-    {
-        // PhxIndex         index = input_indices[i];
-        // phx::PhxTriangle triangle{
-        //     .a = glm::vec3(input_vertices[index].x, input_vertices[index].y, input_vertices[index].z),
-        //     .b = glm::vec3(input_vertices[index + 1].x, input_vertices[index + 1].y, input_vertices[index + 1].z),
-        //     .c = glm::vec3(input_vertices[index + 2].x, input_vertices[index + 2].y, input_vertices[index + 2].z)};
+    // for(PhxSize i = 0; i < input_indices.size(); i += 3)
+    //{
+    //  PhxIndex         index = input_indices[i];
+    //  phx::PhxTriangle triangle{
+    //      .a = glm::vec3(input_vertices[index].x, input_vertices[index].y, input_vertices[index].z),
+    //      .b = glm::vec3(input_vertices[index + 1].x, input_vertices[index + 1].y, input_vertices[index + 1].z),
+    //      .c = glm::vec3(input_vertices[index + 2].x, input_vertices[index + 2].y, input_vertices[index + 2].z)};
 
-        // PhxIndex         i0 = input_indices[i];
-        // PhxIndex         i1 = input_indices[i + 1];
-        // PhxIndex         i2 = input_indices[i + 2];
-        // phx::PhxTriangle triangle{.a = glm::vec3(input_vertices[i0].x, input_vertices[i0].y, input_vertices[i0].z),
-        //                           .b = glm::vec3(input_vertices[i1].x, input_vertices[i1].y, input_vertices[i1].z),
-        //                           .c = glm::vec3(input_vertices[i2].x, input_vertices[i2].y, input_vertices[i2].z)};
-        // triangle.calculateCentroid();
-        // mesh->addTriangle(triangle);
-    }
+    // PhxIndex         i0 = input_indices[i];
+    // PhxIndex         i1 = input_indices[i + 1];
+    // PhxIndex         i2 = input_indices[i + 2];
+    // phx::PhxTriangle triangle{.a = glm::vec3(input_vertices[i0].x, input_vertices[i0].y, input_vertices[i0].z),
+    //                           .b = glm::vec3(input_vertices[i1].x, input_vertices[i1].y, input_vertices[i1].z),
+    //                           .c = glm::vec3(input_vertices[i2].x, input_vertices[i2].y, input_vertices[i2].z)};
+    // triangle.calculateCentroid();
+    // mesh->addTriangle(triangle);
+    //}
 
     m_bvh = std::make_shared<PhxBvh>(static_cast<uint32_t>(input_indices.size() / 3));
     buildAccelerationStructure();
@@ -68,6 +68,11 @@ const std::shared_ptr<PhxBvh>& PhxTriangleMesh::getBvh() const noexcept
 }
 
 const std::vector<PhxTriangle>& PhxTriangleMesh::getTriangles() const noexcept
+{
+    return m_triangles;
+}
+
+std::vector<PhxTriangle>& PhxTriangleMesh::getTriangles() noexcept
 {
     return m_triangles;
 }
@@ -139,6 +144,29 @@ void PhxTriangleMesh::fetchVertices(PhxVec3Array& vertices) const noexcept
 const PhxIndexArray& PhxTriangleMesh::getIndices() const noexcept
 {
     return m_indices;
+}
+
+void PhxTriangleMesh::updateTriangles(const PhxVec3Array& vertices)
+{
+    PhxIndex triangle_index = 0;
+    for(size_t i = 0; i < m_indices.size(); i += 3)
+    {
+        // PhxTriangle triangle;
+        // triangle.a = input_vertices[input_indices[i]];
+        // triangle.b = input_vertices[input_indices[i + 1]];
+        // triangle.c = input_vertices[input_indices[i + 2]];
+        // triangle.calculateCentroid();
+        // m_triangles.emplace_back(triangle);
+
+        m_triangles[triangle_index].a = vertices[m_indices[i]];
+        m_triangles[triangle_index].b = vertices[m_indices[i + 1]];
+        m_triangles[triangle_index].c = vertices[m_indices[i + 2]];
+        m_triangles[triangle_index].calculateCentroid();
+
+        ++triangle_index;
+    }
+
+    // Todo:: Update the BVH.
 }
 
 PhxBvh::PhxBvh(const uint32_t& num_primitives) noexcept
@@ -265,6 +293,29 @@ void PhxBvh::subdivide(const PhxIndex& node_idx, const PhxArray<PhxTriangle>& tr
     // Recursively subdivide the left and right child nodes.
     subdivide(left_child_idx, triangles);
     subdivide(right_child_idx, triangles);
+}
+
+PhxReal phxCalculateArea(const PhxTriangle& triangle)
+{
+    PhxVec3 u    = triangle.b - triangle.a;
+    PhxVec3 v    = triangle.c - triangle.a;
+    PhxVec3 w    = glm::cross(u, v);
+    PhxReal area = 0.5f * phx_magnitude(w);
+    return area;
+}
+
+PhxVec3 phxCalculateCentroid(const PhxTriangle& triangle)
+{
+    PhxVec3 centroid = (triangle.a + triangle.b + triangle.c) * 0.333333f;
+    return centroid;
+}
+
+PhxVec3 phxCalculateNormal(const PhxTriangle& triangle)
+{
+    PhxVec3 u = triangle.b - triangle.a;
+    PhxVec3 v = triangle.c - triangle.a;
+    PhxVec3 n = glm::cross(u, v);
+    return phx_normalize(n);
 }
 
 } // namespace phx

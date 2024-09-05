@@ -28,6 +28,7 @@ public:
 
     // void buildAccelerationStructure();
 
+    void update(const double& total_time, const double& step_size) noexcept;
     void updateInternalForces(const double& total_time, const double& step_size) noexcept;
 
 private:

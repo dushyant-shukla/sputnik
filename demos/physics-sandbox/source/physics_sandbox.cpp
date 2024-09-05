@@ -23,14 +23,15 @@ PhysicsSandboxDemoLayer::PhysicsSandboxDemoLayer(const std::string& name) : core
     m_render_system = RenderSystem::getInstance();
 
     // Setup lihgt
-    auto& light    = m_render_system->getLight();
-    light.position = vec3(0.0f, 5.0f, 5.0f);
+    auto& light = m_render_system->getLight();
+    // light.position = vec3(0.0f, 5.0f, 5.0f);
+    light.position = vec3(0.0f, -115.0f, -85.0f);
     light.ambient  = vec3(1.0f, 1.0f, 1.0f);
     light.diffuse  = vec3(1.0f, 1.0f, 1.0f);
     light.specular = vec3(1.0f, 1.0f, 1.0f);
 
-    setupTorus();
-    // setupSuzanne();
+    // setupTorus();
+    setupSuzanne();
 }
 
 PhysicsSandboxDemoLayer::~PhysicsSandboxDemoLayer() {}
@@ -38,9 +39,27 @@ PhysicsSandboxDemoLayer::~PhysicsSandboxDemoLayer() {}
 void PhysicsSandboxDemoLayer::setupTorus()
 {
     m_suzanne = Model::LoadModel("../../data/assets/torus.glb");
+    // m_suzanne = Model::LoadModel("../../data/assets/cute_triceratops.glb");
+    //  m_suzanne = Model::LoadModel("../../data/assets/low_poly_rubiks_cube/game_ready_low_poly_rubiks_cube.glb");
+    // m_cloth_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/Material.001_baseColor.png", false);
 
     const auto& vertices = m_suzanne->getPositions();
     const auto& indices  = m_suzanne->getIndices();
+
+    // phx::mad::MassAggregateBodySpec spec{
+    //     .mass                       = 1.0f,
+    //     .initial_velocity           = {},
+    //     .acceleration               = {0.0f, -9.8f, 0.0f},
+    //     .damping                    = 0.9f,
+    //     .randomize_initial_velocity = false,
+    //     .step                       = PhxVec3(0.075f),
+    //     .nearest_neighbors          = 5,
+    //     .structural_spring_coeffs   = {.ks = 2750.0f, .kd = 0.0001f},
+    //     .shear_spring_coeffs        = {.ks = 2750.0f, .kd = 0.0001f},
+    //     .flexion_spring_coeffs      = {.ks = 2250.0f, .kd = 0.0001f},
+    //     .surface_spring_coeffs      = {.ks = 750.0f, .kd = 0.0001f},
+    //     .internal_spring_coeffs     = {.ks = 750.0f, .kd = 0.0001f},
+    // };
 
     phx::mad::MassAggregateBodySpec spec{
         .mass                       = 1.0f,
@@ -53,6 +72,8 @@ void PhysicsSandboxDemoLayer::setupTorus()
         .structural_spring_coeffs   = {.ks = 1500.0f, .kd = 0.0001f},
         .shear_spring_coeffs        = {.ks = 1500.0f, .kd = 0.0001f},
         .flexion_spring_coeffs      = {.ks = 1500.0f, .kd = 0.0001f},
+        .surface_spring_coeffs      = {.ks = 1500.0f, .kd = 0.0001f},
+        .internal_spring_coeffs     = {.ks = 750.0f, .kd = 0.0001f},
     };
 
     const float height = 5.0f;
@@ -60,7 +81,7 @@ void PhysicsSandboxDemoLayer::setupTorus()
     // rml model matrix
     m_suzanne_model_mat = m_suzanne_model_mat.translate({0.0f, height, 0.0f});
     m_suzanne_model_mat = m_suzanne_model_mat.rotate({1.0, 0.0, 0.0}, -90.0f * kDegToRad);
-    m_suzanne_model_mat = m_suzanne_model_mat.scale({1.0f});
+    m_suzanne_model_mat = m_suzanne_model_mat.scale({0.5f});
 
     // glm model matrix
     m_suzanne_model_mat_glm = glm::mat4(1.0f);
@@ -122,7 +143,7 @@ void PhysicsSandboxDemoLayer::setupTorus()
 void PhysicsSandboxDemoLayer::setupSuzanne()
 {
     // m_suzanne = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
-    // m_suzanne = Model::LoadModel("../../data/assets/rock.gltf");
+    //  m_suzanne = Model::LoadModel("../../data/assets/rock.gltf");
     m_suzanne = Model::LoadModel("../../data/assets/Box.glb");
 
     const auto& vertices = m_suzanne->getPositions();
@@ -139,6 +160,8 @@ void PhysicsSandboxDemoLayer::setupSuzanne()
         .structural_spring_coeffs   = {.ks = 2500.0f, .kd = 0.001f},
         .shear_spring_coeffs        = {.ks = 2500.0f, .kd = 0.001f},
         .flexion_spring_coeffs      = {.ks = 2500.0f, .kd = 0.001f},
+        .surface_spring_coeffs      = {.ks = 50.0f, .kd = 0.0001f},
+        .internal_spring_coeffs     = {.ks = 50.0f, .kd = 0.0001f},
     };
 
     const float height = 5.0f;
@@ -218,6 +241,9 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         Material material    = material_white;
         material.shader_name = "blinn_phong";
 
+        Material material_cloth;
+        material_cloth.diff_texture = m_cloth_diff_texture;
+
         PhxVec3Array input_vertices;
         m_triangle_mesh->fetchVertices(input_vertices);
         m_suzanne->updatePositionBuffer((void*)input_vertices.data(), sizeof(PhxVec3) * input_vertices.size());
@@ -246,6 +272,7 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
         PhxVec3Array updated_normals;
 
+        // m_suzanne->draw(material_cloth, {});
         m_suzanne->draw(material, {});
     }
 
@@ -308,8 +335,10 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     if(m_draw_grid_points)
     {
         std::vector<vec4> rml_grid_points;
-        PhxSize           count = m_aggregate_mass_volume->getParticleCount();
-        for(PhxSize i = 0; i < count; i++)
+        PhxSize           count             = m_aggregate_mass_volume->getParticleCount();
+        PhxIndex          surface_point_idx = m_aggregate_mass_volume->getSurfacePaticleIndex();
+        // for(PhxSize i = 0; i < count; i++)
+        for(PhxSize i = 0; i < surface_point_idx; i++)
         {
             if(!m_aggregate_mass_volume->getIsValid(PhxIndex(i)))
             {
@@ -327,8 +356,10 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     if(m_draw_mesh_grid_points)
     {
         std::vector<vec4> rml_point_positions;
-        PhxSize           count = m_aggregate_mass_volume->getParticleCount();
-        for(PhxSize i = 0; i < count; i++)
+        PhxSize           count             = m_aggregate_mass_volume->getParticleCount();
+        PhxIndex          surface_point_idx = m_aggregate_mass_volume->getSurfacePaticleIndex();
+        // for(PhxSize i = 0; i < count; i++)
+        for(PhxSize i = 0; i < surface_point_idx; i++)
         {
             if(m_aggregate_mass_volume->getIsValid(PhxIndex(i)))
             {
@@ -339,6 +370,25 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         if(!rml_point_positions.empty())
         {
             m_render_system->drawDebugPoints(rml_point_positions, {0.0f, 0.0f, 1.0f}, mat4{}, 5.0f);
+        }
+    }
+
+    if(m_render_surface_points)
+    {
+        std::vector<vec4> rml_point_positions;
+        PhxSize           count             = m_aggregate_mass_volume->getParticleCount();
+        PhxIndex          surface_point_idx = m_aggregate_mass_volume->getSurfacePaticleIndex();
+        for(PhxSize i = surface_point_idx; i < count; i++)
+        {
+            if(m_aggregate_mass_volume->getIsValid(PhxIndex(i)))
+            {
+                PhxVec3 position = m_aggregate_mass_volume->getPosition(PhxIndex(i));
+                rml_point_positions.emplace_back(position.x, position.y, position.z, 1.0f);
+            }
+        }
+        if(!rml_point_positions.empty())
+        {
+            m_render_system->drawDebugPoints(rml_point_positions, material_ruby.diffuse, mat4{}, 7.5f);
         }
     }
 
@@ -399,6 +449,46 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         }
     }
 
+    if(m_render_surface_springs)
+    {
+        lines.clear();
+        const auto& surface_springs = m_aggregate_mass_volume->getSurfaceSprings();
+
+        for(const auto& pair : surface_springs)
+        {
+            PhxUvec3 coords     = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_a_idx);
+            PhxVec3  position_a = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            coords              = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_b_idx);
+            PhxVec3 position_b  = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            lines.push_back({position_a.x, position_a.y, position_a.z, 1.0f});
+            lines.push_back({position_b.x, position_b.y, position_b.z, 1.0f});
+        }
+
+        if(!lines.empty())
+        {
+            m_render_system->drawDebugLines(lines, material_silver.diffuse, 5.0f);
+        }
+    }
+
+    if(m_render_internal_springs)
+    {
+        lines.clear();
+        const auto& internal_springs = m_aggregate_mass_volume->getInternalSprings();
+        for(const auto& pair : internal_springs)
+        {
+            PhxUvec3 coords     = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_a_idx);
+            PhxVec3  position_a = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            coords              = m_aggregate_mass_volume->getLocalCoordinates(pair.mass_b_idx);
+            PhxVec3 position_b  = m_aggregate_mass_volume->getPosition(coords.x, coords.y, coords.z);
+            lines.push_back({position_a.x, position_a.y, position_a.z, 1.0f});
+            lines.push_back({position_b.x, position_b.y, position_b.z, 1.0f});
+        }
+        if(!lines.empty())
+        {
+            m_render_system->drawDebugLines(lines, {1.0f, 0.0f, 0.0f}, 5.0f);
+        }
+    }
+
     setupRaycastTests();
 }
 
@@ -445,7 +535,7 @@ void PhysicsSandboxDemoLayer::setupRaycastTests()
 
 void PhysicsSandboxDemoLayer::simulatePhysics(const double& total_time, const double& step_size)
 {
-    m_deformable_body->updateInternalForces(total_time, step_size);
+    m_deformable_body->update(total_time, step_size);
     // integrateExplicitEuler(total_time, step_size);
     integrateSemiImplicitEuler(total_time, step_size);
 }
@@ -563,9 +653,12 @@ void PhysicsSandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
         Editor::drawWidgetCheckbox("Render Wireframe", m_draw_wireframe, 90.0f, "#polygon_mode");
         Editor::drawWidgetCheckbox("Render 3D Grid", m_draw_grid_points, 90.0f, "#3d_grid");
         Editor::drawWidgetCheckbox("Render Mesh Grid Points", m_draw_mesh_grid_points, 90.0f, "#mesh_grid_points");
+        Editor::drawWidgetCheckbox("Render Surface Points", m_render_surface_points, 90.0f, "#surface_points");
         Editor::drawWidgetCheckbox("Render Structural Springs", m_render_structural_springs, 90.0f, "#structural");
         Editor::drawWidgetCheckbox("Render Shear Springs", m_render_shear_springs, 90.0f, "#shear");
         Editor::drawWidgetCheckbox("Render Bend Springs", m_render_bend_springs, 90.0f, "#bend");
+        Editor::drawWidgetCheckbox("Render Surface Springs", m_render_surface_springs, 90.0f, "#surface_springs");
+        Editor::drawWidgetCheckbox("Render Internal Springs", m_render_internal_springs, 90.0f, "#internal_springs");
     }
     ImGui::End();
 }

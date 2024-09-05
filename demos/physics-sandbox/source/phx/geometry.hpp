@@ -23,13 +23,17 @@ struct PhxAABB
 
 struct PhxTriangle
 {
-    PhxPoint a;
-    PhxPoint b;
-    PhxPoint c;
-    PhxPoint centroid;
-
+    PhxPoint    a;
+    PhxPoint    b;
+    PhxPoint    c;
+    PhxPoint    centroid;
+    PhxReal     area;
     inline void calculateCentroid() { centroid = (a + b + c) * 0.333333f; }
 };
+
+PhxReal phxCalculateArea(const PhxTriangle& triangle);
+PhxVec3 phxCalculateCentroid(const PhxTriangle& triangle);
+PhxVec3 phxCalculateNormal(const PhxTriangle& triangle);
 
 struct PhxPlane
 {
@@ -116,9 +120,13 @@ public:
 
     const PhxArray<PhxTriangle>& getTriangles() const noexcept;
 
+    PhxArray<PhxTriangle>& getTriangles() noexcept;
+
     void fetchVertices(PhxVec3Array& vertices) const noexcept;
 
     const PhxIndexArray& getIndices() const noexcept;
+
+    void updateTriangles(const PhxVec3Array& vertices);
 
 private:
     PhxArray<PhxTriangle>   m_triangles;

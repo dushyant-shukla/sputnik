@@ -49,6 +49,7 @@ private:
 private:
     // Rendering stuff
     std::shared_ptr<Model>          m_suzanne;
+    std::shared_ptr<OglTexture2D>   m_cloth_diff_texture;
     std::shared_ptr<Model>          m_box;
     RenderSystem*                   m_render_system{nullptr};
     ramanujan::experimental::mat4   m_suzanne_model_mat{};
@@ -83,9 +84,12 @@ private:
     bool                   m_draw_mesh{false};
     bool                   m_draw_grid_points{false};
     bool                   m_draw_mesh_grid_points{false};
+    bool                   m_render_surface_points{false};
     bool                   m_render_structural_springs{false};
     bool                   m_render_shear_springs{false};
     bool                   m_render_bend_springs{false};
+    bool                   m_render_surface_springs{false};
+    bool                   m_render_internal_springs{false};
     std::vector<glm::vec3> m_grid_points;
 
     std::vector<vec4> m_mesh_intersection_rays;

@@ -33,6 +33,8 @@ struct MassAggregateBodySpec
     SpringCoefficient shear_spring_coeffs;
     SpringCoefficient flexion_spring_coeffs;
     SpringCoefficient torsion_spring_coeffs;
+    SpringCoefficient surface_spring_coeffs;
+    SpringCoefficient internal_spring_coeffs;
 };
 
 class MassAggregateBody
@@ -84,6 +86,11 @@ public:
     void updateForces() noexcept;
     void updateInternalForces(const PhxReal& total_time, const PhxReal& step_size) noexcept;
 
+    void                          updateSurfaceParticleIndex() noexcept;
+    [[nodiscard]] const PhxIndex& getSurfacePaticleIndex() const noexcept;
+
+    [[nodiscard]] PhxIndex addSurfaceParticle(const PhxVec3& position) noexcept;
+
 protected:
     PhxRealArray m_masses;
     PhxVec3Array m_positions;
@@ -94,6 +101,8 @@ protected:
     PhxVec3Array m_accumulated_forces;
     PhxBoolArray m_is_fixed_values;
     PhxBoolArray m_is_valid_values;
+
+    PhxIndex m_surface_particle_idx = 0;
 
     using ForceGeneratorList = std::vector<std::function<void(MassAggregateBody* const)>>;
     ForceGeneratorList m_force_generators;
@@ -159,10 +168,15 @@ public:
     void addStructuralSpring(const PhxSpring& spring) noexcept;
     void addShearSpring(const PhxSpring& spring) noexcept;
     void addFlexionSpring(const PhxSpring& spring) noexcept;
+    void addSurfaceSpring(const PhxSpring& spring) noexcept;
+    void addInternalSpring(const PhxSpring& spring) noexcept;
 
     [[nodiscard]] const PhxArray<PhxSpring>& getStructuralSprings() const noexcept;
     [[nodiscard]] const PhxArray<PhxSpring>& getShearSprings() const noexcept;
     [[nodiscard]] const PhxArray<PhxSpring>& getFlexionSprings() const noexcept;
+    [[nodiscard]] const PhxArray<PhxSpring>& getSurfaceSprings() const noexcept;
+    [[nodiscard]] const PhxArray<PhxSpring>& getInternalSprings() const noexcept;
+
 
 private:
     // SpringCoefficient m_structural_spring;
@@ -171,6 +185,8 @@ private:
     std::shared_ptr<SpringForceGenerator> m_structural_spring_generator;
     std::shared_ptr<SpringForceGenerator> m_shear_spring_generator;
     std::shared_ptr<SpringForceGenerator> m_flexion_spring_generator;
+    std::shared_ptr<SpringForceGenerator> m_surface_spring_generator;
+    std::shared_ptr<SpringForceGenerator> m_internal_spring_generator;
     // std::shared_ptr<SpringForceGenerator> m_torsion_spring_generator;
 
     PhxInt m_num_rows   = 0;

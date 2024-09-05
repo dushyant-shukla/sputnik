@@ -520,8 +520,132 @@ std::shared_ptr<mad::MassAggregateVolume> phxCookMassAggregateVolume(const std::
         }
     }
 
+    // Add surface particles
+    APPLICATION_INFO("Surface particle index: {}", body->getSurfacePaticleIndex());
+    body->updateSurfaceParticleIndex();
+    APPLICATION_INFO("Surface particle index post update: {}", body->getSurfacePaticleIndex());
+
+    PhxVec3Array vertices;
+    input_mesh->fetchVertices(vertices);
+
+    for(PhxSize i = 0; i < vertices.size(); i++)
+    {
+        PhxIndex new_idx = body->addSurfaceParticle(vertices[i]);
+        // APPLICATION_INFO("New particle index: {}", new_idx);
+        body->setAcceleration(new_idx, spec.acceleration);
+        body->setMass(new_idx, spec.mass);
+        body->setDamping(new_idx, spec.damping);
+        body->setIsValid(new_idx, true);
+        body->setIsFixed(new_idx, false);
+    }
+
+    const auto& surface_point_index = body->getSurfacePaticleIndex();
+    const auto& mesh_indices        = input_mesh->getIndices();
+
+    // const auto& edges               = phxExtractEdges(mesh_indices);
+    // for(const auto& edge : edges)
+    //{
+    //     PhxIndex index1      = surface_point_index + mesh_indices[edge.first];
+    //     PhxIndex index2      = surface_point_index + mesh_indices[edge.second];
+    //     PhxReal  rest_length = phx_length(body->getPosition(index1) - body->getPosition(index2));
+    //     body->addSurfaceSpring(phxCreateSpring(index1,
+    //                                            index2,
+    //                                            rest_length,
+    //                                            spec.structural_spring_coeffs.ks,
+    //                                            spec.structural_spring_coeffs.kd));
+    // }
+
+    const auto&                                                 triangles     = input_mesh->getTriangles();
+    std::unordered_set<std::pair<PhxIndex, PhxIndex>, EdgeHash> edges         = {};
+    auto                                                        spring_coeffs = spec.surface_spring_coeffs;
+    for(size_t i = 0; i < mesh_indices.size(); i += 3)
+    {
+        PhxIndex i0 = surface_point_index + mesh_indices[i];
+        PhxIndex i1 = surface_point_index + mesh_indices[i + 1];
+        PhxIndex i2 = surface_point_index + mesh_indices[i + 2];
+
+        Edge edge1 = {std::min(i0, i1), std::max(i0, i1)};
+        if(!edges.contains(edge1))
+        {
+            PhxReal rest_length = phx_length(body->getPosition(i0) - body->getPosition(i1));
+            body->addSurfaceSpring(phxCreateSpring(i0, i1, rest_length, spring_coeffs.ks, spring_coeffs.kd));
+            edges.insert(edge1);
+        }
+
+        Edge edge2 = {std::min(i1, i2), std::max(i1, i2)};
+        if(!edges.contains(edge2))
+        {
+            PhxReal rest_length = phx_length(body->getPosition(i1) - body->getPosition(i2));
+            body->addSurfaceSpring(phxCreateSpring(i1, i2, rest_length, spring_coeffs.ks, spring_coeffs.kd));
+            edges.insert(edge2);
+        }
+
+        Edge edge3 = {std::min(i2, i0), std::max(i2, i0)};
+        if(!edges.contains(edge3))
+        {
+            PhxReal rest_length = phx_length(body->getPosition(i2) - body->getPosition(i0));
+            body->addSurfaceSpring(phxCreateSpring(i2, i0, rest_length, spring_coeffs.ks, spring_coeffs.kd));
+            edges.insert(edge3);
+        }
+    }
+
+    spring_coeffs              = spec.internal_spring_coeffs;
+    const PhxSize total_points = body->getParticleCount();
+    for(PhxIndex surface_idx = surface_point_index; surface_idx < total_points; ++surface_idx)
+    {
+        if(body->getIsValid(surface_idx))
+        {
+            PhxVec3                 current_position = body->getPosition(surface_idx);
+            PhxArray<PointDistance> distances;
+
+            // search for closest internal points
+            for(PhxIndex neighbor_index = 0; neighbor_index < surface_point_index; neighbor_index++)
+            {
+                if(/*surface_idx == neighbor_index || */ !body->getIsValid(neighbor_index))
+                {
+                    // Skip the current point and the points that are not valid
+                    continue;
+                }
+
+                PhxVec3 neighbor_position = body->getPosition(neighbor_index);
+
+                distances.push_back({neighbor_index, phx_magnitude_sq(current_position - neighbor_position)});
+            }
+
+            if(!distances.empty())
+            {
+                std::sort(distances.begin(),
+                          distances.end(),
+                          [](const PointDistance& a, const PointDistance& b) { return a.distance < b.distance; });
+
+                const PhxIndex neighbor_count = static_cast<PhxIndex>(distances.size());
+                const PhxIndex max_neighbors =
+                    neighbor_count < spec.nearest_neighbors ? neighbor_count : spec.nearest_neighbors;
+
+                for(PhxIndex k = 0; k < max_neighbors; ++k)
+                {
+                    PhxIndex neighbor_idx = distances[k].point_index;
+
+                    body->addInternalSpring(phxCreateSpring(surface_idx,
+                                                            neighbor_idx,
+                                                            sqrtf(distances[k].distance),
+                                                            spring_coeffs.ks,
+                                                            spring_coeffs.kd));
+                }
+            }
+        }
+    }
+
     // APPLICATION_INFO("Mass Aggregate Body Result: candidate points: {}", candidate_points);
     // APPLICATION_INFO("Mass Aggregate Body Result: mesh points: {}", mesh_points);
+
+    //const PhxIndex num_particles  = body->getParticleCount();
+    //const PhxReal  particles_mass = spec.mass / num_particles;
+
+    //for(PhxIndex i = 0; i < num_particles; ++i)
+    //{
+    //    body->setMass(i, particles_mass);
+    //}
 
     return body;
 }
@@ -623,11 +747,6 @@ phxCookMassAggregateVolumeNearestNeighbor(const std::shared_ptr<PhxTriangleMesh>
     }
 
     PhxIndex num_springs = 0;
-    struct PointDistance
-    {
-        PhxIndex point_index;
-        PhxReal  distance;
-    };
     for(PhxIndex current_idx = 0; current_idx < candidate_points; ++current_idx)
     {
         if(body->getIsValid(current_idx))
@@ -686,6 +805,30 @@ phxCookMassAggregateVolumeNearestNeighbor(const std::shared_ptr<PhxTriangleMesh>
     }
     // APPLICATION_INFO("Mass Aggregate Body Result: Num springs: {}", num_springs);
     return body;
+}
+
+std::size_t EdgeHash::operator()(const Edge& edge) const
+{
+    return std::hash<PhxIndex>{}(edge.first) ^ std::hash<PhxIndex>{}(edge.second);
+}
+
+std::unordered_set<std::pair<PhxIndex, PhxIndex>, EdgeHash> phxExtractEdges(const PhxIndexArray& indices)
+{
+    std::unordered_set<std::pair<PhxIndex, PhxIndex>, EdgeHash> edges;
+
+    for(PhxSize i = 0; i < indices.size(); ++i)
+    {
+        PhxIndex i0 = indices[i];
+        PhxIndex i1 = indices[i + 1];
+        PhxIndex i2 = indices[i + 2];
+
+        // add edges in a consistent order (smallest vertex first)
+        edges.insert({std::min(i0, i1), std::max(i0, i1)});
+        edges.insert({std::min(i1, i2), std::max(i1, i2)});
+        edges.insert({std::min(i2, i0), std::max(i2, i0)});
+    }
+
+    return edges;
 }
 
 } // namespace phx
