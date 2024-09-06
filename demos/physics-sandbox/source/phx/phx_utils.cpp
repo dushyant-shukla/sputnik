@@ -639,13 +639,14 @@ std::shared_ptr<mad::MassAggregateVolume> phxCookMassAggregateVolume(const std::
     // APPLICATION_INFO("Mass Aggregate Body Result: candidate points: {}", candidate_points);
     // APPLICATION_INFO("Mass Aggregate Body Result: mesh points: {}", mesh_points);
 
-    //const PhxIndex num_particles  = body->getParticleCount();
-    //const PhxReal  particles_mass = spec.mass / num_particles;
+    const PhxIndex num_particles  = static_cast<PhxIndex>(body->getParticleCount());
+    const PhxReal  particles_mass = spec.mass / num_particles;
+    APPLICATION_INFO("Particles: {}, Mass: {}", num_particles, particles_mass);
 
-    //for(PhxIndex i = 0; i < num_particles; ++i)
-    //{
-    //    body->setMass(i, particles_mass);
-    //}
+    for(PhxIndex i = 0; i < num_particles; ++i)
+    {
+        body->setMass(i, particles_mass);
+    }
 
     return body;
 }

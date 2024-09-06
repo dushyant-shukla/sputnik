@@ -31,6 +31,9 @@ public:
     void update(const double& total_time, const double& step_size) noexcept;
     void updateInternalForces(const double& total_time, const double& step_size) noexcept;
 
+protected:
+    void satisfyConstraints(const PhxUint& iteration_count) noexcept;
+
 private:
     std::shared_ptr<PhxTriangleMesh>   m_mesh;
     std::shared_ptr<MassAggregateBody> m_body;

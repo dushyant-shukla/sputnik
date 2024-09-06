@@ -40,11 +40,14 @@ private:
     void simulatePhysics(const double& total_time, const double& step_size);
     void integrateExplicitEuler(const double& total_time, const double& step_size);
     void integrateSemiImplicitEuler(const double& total_time, const double& step_size);
+    void integrateImplicitEuler(const double& total_time, const double& step_size);
+    void integrateVerlet(const double& total_time, const double& step_size);
 
     void resetSimulation();
 
     void setupTorus();
     void setupSuzanne();
+    void setupToy();
 
 private:
     // Rendering stuff
@@ -90,6 +93,7 @@ private:
     bool                   m_render_bend_springs{false};
     bool                   m_render_surface_springs{false};
     bool                   m_render_internal_springs{false};
+    bool                   m_snap_to_ground{false};
     std::vector<glm::vec3> m_grid_points;
 
     std::vector<vec4> m_mesh_intersection_rays;

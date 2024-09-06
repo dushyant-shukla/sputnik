@@ -31,7 +31,8 @@ PhysicsSandboxDemoLayer::PhysicsSandboxDemoLayer(const std::string& name) : core
     light.specular = vec3(1.0f, 1.0f, 1.0f);
 
     // setupTorus();
-    setupSuzanne();
+    // setupSuzanne();
+    setupToy();
 }
 
 PhysicsSandboxDemoLayer::~PhysicsSandboxDemoLayer() {}
@@ -61,19 +62,34 @@ void PhysicsSandboxDemoLayer::setupTorus()
     //     .internal_spring_coeffs     = {.ks = 750.0f, .kd = 0.0001f},
     // };
 
+    // phx::mad::MassAggregateBodySpec spec{
+    //     .mass                       = 1.0f,
+    //     .initial_velocity           = {},
+    //     .acceleration               = {0.0f, -9.8f, 0.0f},
+    //     .damping                    = 0.9f,
+    //     .randomize_initial_velocity = false,
+    //     .step                       = PhxVec3(0.075f),
+    //     .nearest_neighbors          = 5,
+    //     .structural_spring_coeffs   = {.ks = 1500.0f, .kd = 0.0001f},
+    //     .shear_spring_coeffs        = {.ks = 1500.0f, .kd = 0.0001f},
+    //     .flexion_spring_coeffs      = {.ks = 1500.0f, .kd = 0.0001f},
+    //     .surface_spring_coeffs      = {.ks = 1500.0f, .kd = 0.0001f},
+    //     .internal_spring_coeffs     = {.ks = 750.0f, .kd = 0.0001f},
+    // };
+
     phx::mad::MassAggregateBodySpec spec{
-        .mass                       = 1.0f,
+        .mass                       = 750.0f,
         .initial_velocity           = {},
         .acceleration               = {0.0f, -9.8f, 0.0f},
-        .damping                    = 0.9f,
+        .damping                    = 0.90f,
         .randomize_initial_velocity = false,
-        .step                       = PhxVec3(0.075f),
+        .step                       = PhxVec3(0.080f),
         .nearest_neighbors          = 5,
-        .structural_spring_coeffs   = {.ks = 1500.0f, .kd = 0.0001f},
-        .shear_spring_coeffs        = {.ks = 1500.0f, .kd = 0.0001f},
-        .flexion_spring_coeffs      = {.ks = 1500.0f, .kd = 0.0001f},
-        .surface_spring_coeffs      = {.ks = 1500.0f, .kd = 0.0001f},
-        .internal_spring_coeffs     = {.ks = 750.0f, .kd = 0.0001f},
+        .structural_spring_coeffs   = {.ks = 250.0f, .kd = 0.000005f},
+        .shear_spring_coeffs        = {.ks = 225.0f, .kd = 0.000005f},
+        .flexion_spring_coeffs      = {.ks = 225.0f, .kd = 0.000005f},
+        .surface_spring_coeffs      = {.ks = 0.125f, .kd = 0.000005f},
+        .internal_spring_coeffs     = {.ks = 0.125f, .kd = 0.000005f},
     };
 
     const float height = 5.0f;
@@ -107,7 +123,7 @@ void PhysicsSandboxDemoLayer::setupTorus()
 
     // torus
     start                   = std::chrono::system_clock::now();
-    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec, false, {0.0f, 1.0f, 0.0f});
+    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec, true, {0.0f, 1.0f, 0.0f});
     finish                  = std::chrono::system_clock::now();
     elapsed_seconds         = finish - start;
     ms                      = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
@@ -143,25 +159,25 @@ void PhysicsSandboxDemoLayer::setupTorus()
 void PhysicsSandboxDemoLayer::setupSuzanne()
 {
     // m_suzanne = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
-    //  m_suzanne = Model::LoadModel("../../data/assets/rock.gltf");
+    // m_suzanne = Model::LoadModel("../../data/assets/rock.gltf");
     m_suzanne = Model::LoadModel("../../data/assets/Box.glb");
 
     const auto& vertices = m_suzanne->getPositions();
     const auto& indices  = m_suzanne->getIndices();
 
     phx::mad::MassAggregateBodySpec spec{
-        .mass                       = 1.0f,
+        .mass                       = 250.0f,
         .initial_velocity           = {},
         .acceleration               = {0.0f, -9.8f, 0.0f},
-        .damping                    = 0.9f,
+        .damping                    = 0.90f,
         .randomize_initial_velocity = false,
-        .step                       = PhxVec3(0.065f),
+        .step                       = PhxVec3(0.080f),
         .nearest_neighbors          = 5,
-        .structural_spring_coeffs   = {.ks = 2500.0f, .kd = 0.001f},
-        .shear_spring_coeffs        = {.ks = 2500.0f, .kd = 0.001f},
-        .flexion_spring_coeffs      = {.ks = 2500.0f, .kd = 0.001f},
-        .surface_spring_coeffs      = {.ks = 50.0f, .kd = 0.0001f},
-        .internal_spring_coeffs     = {.ks = 50.0f, .kd = 0.0001f},
+        .structural_spring_coeffs   = {.ks = 250.0f, .kd = 0.000005f},
+        .shear_spring_coeffs        = {.ks = 225.0f, .kd = 0.000005f},
+        .flexion_spring_coeffs      = {.ks = 225.0f, .kd = 0.000005f},
+        .surface_spring_coeffs      = {.ks = 0.125f, .kd = 0.000005f},
+        .internal_spring_coeffs     = {.ks = 0.125f, .kd = 0.000005f},
     };
 
     const float height = 5.0f;
@@ -195,7 +211,7 @@ void PhysicsSandboxDemoLayer::setupSuzanne()
 
     // suzanne
     start                   = std::chrono::system_clock::now();
-    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec, false, {1.0f, 0.0f, 0.0f});
+    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec, true, {1.0f, 0.0f, 0.0f});
     // m_aggregate_mass_volume =
     //    phx::phxCookMassAggregateVolumeNearestNeighbor(m_triangle_mesh, spec, false, {1.0f, 0.0f, 0.0f});
     finish          = std::chrono::system_clock::now();
@@ -208,6 +224,75 @@ void PhysicsSandboxDemoLayer::setupSuzanne()
 
     APPLICATION_INFO("Number of triangles processed: {}", static_cast<uint32_t>(indices.size() / 3));
     // APPLICATION_INFO("Triangle mesh has been built. BVH initialized.");
+}
+
+void PhysicsSandboxDemoLayer::setupToy()
+{
+    //m_suzanne            = Model::LoadModel("../../data/assets/kuma_plushie.glb");
+    m_suzanne            = Model::LoadModel("../../data/assets/kuma_plushie/scene.gltf");
+    m_cloth_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/kuma_plushie/textures/bake_baseColor.png", false);
+
+    const auto& vertices = m_suzanne->getPositions();
+    const auto& indices  = m_suzanne->getIndices();
+
+    phx::mad::MassAggregateBodySpec spec{
+        .mass                       = 750.0f,
+        .initial_velocity           = {},
+        .acceleration               = {0.0f, -9.8f, 0.0f},
+        .damping                    = 0.90f,
+        .randomize_initial_velocity = false,
+        .step                       = PhxVec3(0.065f),
+        .nearest_neighbors          = 5,
+        .structural_spring_coeffs   = {.ks = 250.0f, .kd = 0.0005f},
+        .shear_spring_coeffs        = {.ks = 250.0f, .kd = 0.0005f},
+        .flexion_spring_coeffs      = {.ks = 250.0f, .kd = 0.0005f},
+        .surface_spring_coeffs      = {.ks = 0.125f, .kd = 0.000005f},
+        .internal_spring_coeffs     = {.ks = 0.125f, .kd = 0.000005f},
+    };
+
+    const float height = 5.0f;
+
+    // rml model matrix
+    m_suzanne_model_mat = m_suzanne_model_mat.translate({0.0f, height, 0.0f});
+    m_suzanne_model_mat = m_suzanne_model_mat.rotate({1.0, 0.0, 0.0}, 45.0f * kDegToRad);
+    m_suzanne_model_mat = m_suzanne_model_mat.scale({0.25f});
+
+    // glm model matrix
+    m_suzanne_model_mat_glm = glm::mat4(1.0f);
+    m_suzanne_model_mat_glm = glm::translate(m_suzanne_model_mat_glm, glm::vec3(0.0f, height, 0.0f));
+    m_suzanne_model_mat_glm = glm::rotate(m_suzanne_model_mat_glm, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    m_suzanne_model_mat_glm = glm::scale(m_suzanne_model_mat_glm, glm::vec3(0.25f));
+
+    PhxVec3Array phx_vertices;
+    for(const auto& vertex : vertices)
+    {
+        PhxVec3 phx_vertex = m_suzanne_model_mat_glm * PhxVec4{vertex.x, vertex.y, vertex.z, 1.0f};
+        m_initial_mesh_vertices.emplace_back(phx_vertex);
+        phx_vertices.emplace_back(phx_vertex.x, phx_vertex.y, phx_vertex.z);
+    }
+
+    auto start                                    = std::chrono::system_clock::now();
+    m_triangle_mesh                               = phx::phxCookTriangleMesh(phx_vertices, indices);
+    m_triangle_mesh_copy                          = m_triangle_mesh_copy;
+    auto                          finish          = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = finish - start;
+    auto                          ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+    APPLICATION_INFO("Time for cooking triangle mesh: {} seconds | {} ms", elapsed_seconds, ms);
+
+    // torus
+    start                   = std::chrono::system_clock::now();
+    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec, false, {0.0f, 1.0f, 0.0f});
+    finish                  = std::chrono::system_clock::now();
+    elapsed_seconds         = finish - start;
+    ms                      = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+    APPLICATION_INFO("Time for cooking mass aggregate body: {} seconds | {} ms", elapsed_seconds, ms);
+    // m_aggregate_mass_volume =
+    //     phx::phxCookMassAggregateVolumeNearestNeighbor(m_triangle_mesh, spec, false, {0.0f, 1.0f, 0.0f});
+
+    m_aggregate_mass_volume_copy = m_aggregate_mass_volume;
+    m_deformable_body            = std::make_shared<phx::mad::DeformableBody>(m_triangle_mesh, m_aggregate_mass_volume);
+
+    APPLICATION_INFO("Number of triangles processed: {}", static_cast<uint32_t>(indices.size() / 3));
 }
 
 void PhysicsSandboxDemoLayer::OnAttach() {}
@@ -273,7 +358,7 @@ void PhysicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         PhxVec3Array updated_normals;
 
         // m_suzanne->draw(material_cloth, {});
-        m_suzanne->draw(material, {});
+        m_suzanne->draw(material_cloth, {});
     }
 
     if(m_draw_wireframe)
@@ -538,6 +623,7 @@ void PhysicsSandboxDemoLayer::simulatePhysics(const double& total_time, const do
     m_deformable_body->update(total_time, step_size);
     // integrateExplicitEuler(total_time, step_size);
     integrateSemiImplicitEuler(total_time, step_size);
+    // integrateVerlet(total_time, step_size);
 }
 
 void PhysicsSandboxDemoLayer::integrateExplicitEuler(const double& total_time, const double& step_size)
@@ -574,6 +660,18 @@ void PhysicsSandboxDemoLayer::integrateExplicitEuler(const double& total_time, c
                     // APPLICATION_INFO("Particle[{}] Position: [{},{},{}]", i, position.x, position.y, position.z);
                     position.y = old_position.y;
                 }
+                if(m_snap_to_ground)
+                {
+                    if(phx_abs(position.x) < 0.5f)
+                    {
+                        position.y = position.y * 0.5f;
+                    }
+                    // APPLICATION_INFO("Particle [{}] Snapped Position: [{},{},{}]",
+                    //                  i,
+                    //                  position.x,
+                    //                  position.y,
+                    //                  position.z);
+                }
                 m_aggregate_mass_volume->setPosition(PhxIndex(i), position);
             }
         });
@@ -602,9 +700,9 @@ void PhysicsSandboxDemoLayer::integrateSemiImplicitEuler(const double& total_tim
                           velocity += total_acceleration * (float)step_size;
                           // velocity *= std::pow(m_aggregate_mass_volume->getDampingValue(PhxIndex(i)), step_size);
                           velocity *= m_aggregate_mass_volume->getDampingValue(PhxIndex(i));
-                          // if(phx_magnitude_sq(velocity) > 100.0f)
+                          // if(phx_magnitude_sq(velocity) > 49.0f)
                           //{
-                          //     velocity = phx_normalize(velocity) * 10.0f;
+                          //     velocity = phx_normalize(velocity) * 7.0f;
                           // }
                           PhxVec3 position = m_aggregate_mass_volume->getPosition(PhxIndex(i));
                           // position += velocity *
@@ -621,7 +719,47 @@ void PhysicsSandboxDemoLayer::integrateSemiImplicitEuler(const double& total_tim
                               // position.z);
                               position.y = old_position.y;
                           }
+                          if(m_snap_to_ground)
+                          {
+                              // position.y = position.y * 0.75f;
+                              position.y = position.y * 0.50f;
+                              // APPLICATION_INFO("Particle [{}] Snapped Position: [{},{},{}]",
+                              //                  i,
+                              //                  position.x,
+                              //                  position.y,
+                              //                  position.z);
+                          }
                           m_aggregate_mass_volume->setPosition(PhxIndex(i), position);
+                      }
+                  });
+}
+
+void PhysicsSandboxDemoLayer::integrateImplicitEuler(const double& total_time, const double& step_size) {}
+
+void PhysicsSandboxDemoLayer::integrateVerlet(const double& total_time, const double& step_size)
+{
+    PhxSize                num_particles = m_aggregate_mass_volume->getParticleCount();
+    std::ranges::iota_view indexes((size_t)0, num_particles);
+    std::for_each(std::execution::par_unseq,
+                  indexes.begin(),
+                  indexes.end(),
+                  [&](const auto& i)
+                  {
+                      PhxBool is_fixed      = m_aggregate_mass_volume->getIsFixed(PhxIndex(i));
+                      PhxBool is_valid      = m_aggregate_mass_volume->getIsValid(PhxIndex(i));
+                      PhxBool is_mass_valid = m_aggregate_mass_volume->getInverseMass(PhxIndex(i)) > phx::kPhxEpsilon;
+                      if(!is_fixed && is_valid && is_mass_valid)
+                      {
+                          PhxVec3 position      = m_aggregate_mass_volume->getPosition(PhxIndex(i));
+                          PhxVec3 temp_position = position;
+                          PhxVec3 prev_position = m_aggregate_mass_volume->getPrevPosition(PhxIndex(i));
+
+                          PhxVec3 new_position = position + (position - prev_position) * (1.0f - 0.01f) +
+                                                 m_aggregate_mass_volume->getAcceleration(PhxIndex(i)) *
+                                                     (float)step_size * (float)step_size;
+                          m_aggregate_mass_volume->setPrevPosition(PhxIndex(i), temp_position);
+                          m_aggregate_mass_volume->setPosition(PhxIndex(i), new_position);
+                          m_aggregate_mass_volume->setAccumulatedForce(PhxIndex(i), {0.0f, 0.0f, 0.0f});
                       }
                   });
 }
@@ -659,6 +797,7 @@ void PhysicsSandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_step)
         Editor::drawWidgetCheckbox("Render Bend Springs", m_render_bend_springs, 90.0f, "#bend");
         Editor::drawWidgetCheckbox("Render Surface Springs", m_render_surface_springs, 90.0f, "#surface_springs");
         Editor::drawWidgetCheckbox("Render Internal Springs", m_render_internal_springs, 90.0f, "#internal_springs");
+        Editor::drawWidgetCheckbox("Snap to Ground", m_snap_to_ground, 90.0f, "#snap_to_ground");
     }
     ImGui::End();
 }

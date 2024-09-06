@@ -14,6 +14,7 @@ MassAggregateBody::MassAggregateBody(const PhxUint& count, const MassAggregateBo
 {
     m_masses.resize(count);
     m_positions.resize(count);
+    m_prev_positions.resize(count);
     m_velocities.resize(count);
     m_accelerations.resize(count);
     m_damping_values.resize(count);
@@ -36,6 +37,11 @@ const PhxRealArray& MassAggregateBody::getMasses() const noexcept
 const PhxVec3Array& MassAggregateBody::getPositions() const noexcept
 {
     return m_positions;
+}
+
+const PhxVec3Array& MassAggregateBody::getPrevPositions() const noexcept
+{
+    return m_prev_positions;
 }
 
 const PhxVec3Array& MassAggregateBody::getVelocities() const noexcept
@@ -76,6 +82,11 @@ const PhxBoolArray& MassAggregateBody::getIsValidValues() const noexcept
 const PhxVec3& MassAggregateBody::getPosition(const PhxIndex& index) const noexcept
 {
     return m_positions[index];
+}
+
+const PhxVec3& MassAggregateBody::getPrevPosition(const PhxIndex& index) const noexcept
+{
+    return m_prev_positions[index];
 }
 
 const PhxVec3& MassAggregateBody::getVelocity(const PhxIndex& index) const noexcept
@@ -121,6 +132,11 @@ PhxBool MassAggregateBody::getIsValid(const PhxIndex& index) const noexcept
 void MassAggregateBody::setPosition(const PhxIndex& index, const PhxVec3& position) noexcept
 {
     m_positions[index] = position;
+}
+
+void MassAggregateBody::setPrevPosition(const PhxIndex& index, const PhxVec3& position) noexcept
+{
+    m_prev_positions[index] = position;
 }
 
 void MassAggregateBody::setVelocity(const PhxIndex& index, const PhxVec3& velocity) noexcept
@@ -220,6 +236,7 @@ PhxIndex MassAggregateBody::addSurfaceParticle(const PhxVec3& position) noexcept
 
     m_masses.emplace_back(m_spec.mass);
     m_positions.emplace_back(position);
+    m_prev_positions.emplace_back(position);
     m_velocities.emplace_back(PhxVec3{0.0f, 0.0f, 0.0f});
     m_accelerations.emplace_back(m_spec.acceleration);
     m_damping_values.emplace_back(m_spec.damping);
@@ -295,6 +312,14 @@ const PhxVec3& MassAggregateVolume::getPosition(const PhxIndex& row_idx,
 {
     PhxIndex index = getIndex(row_idx, col_idx, slice_idx);
     return m_positions[index];
+}
+
+const PhxVec3& MassAggregateVolume::getPrevPosition(const PhxIndex& row_idx,
+                                                    const PhxIndex& col_idx,
+                                                    const PhxIndex& slice_idx) const noexcept
+{
+    PhxIndex index = getIndex(row_idx, col_idx, slice_idx);
+    return m_prev_positions[index];
 }
 
 const PhxVec3& MassAggregateVolume::getVelocity(const PhxIndex& row_idx,

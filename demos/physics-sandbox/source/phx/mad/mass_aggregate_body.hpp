@@ -50,6 +50,7 @@ public:
 
     [[nodiscard]] const PhxRealArray& getMasses() const noexcept;
     [[nodiscard]] const PhxVec3Array& getPositions() const noexcept;
+    [[nodiscard]] const PhxVec3Array& getPrevPositions() const noexcept;
     [[nodiscard]] const PhxVec3Array& getVelocities() const noexcept;
     [[nodiscard]] const PhxVec3Array& getAccelerations() const noexcept;
     [[nodiscard]] const PhxRealArray& getDampingValues() const noexcept;
@@ -59,6 +60,7 @@ public:
     [[nodiscard]] const PhxBoolArray& getIsValidValues() const noexcept;
 
     [[nodiscard]] const PhxVec3& getPosition(const PhxIndex& index) const noexcept;
+    [[nodiscard]] const PhxVec3& getPrevPosition(const PhxIndex& index) const noexcept;
     [[nodiscard]] const PhxVec3& getVelocity(const PhxIndex& index) const noexcept;
     [[nodiscard]] const PhxVec3& getAcceleration(const PhxIndex& index) const noexcept;
     [[nodiscard]] const PhxReal& getDampingValue(const PhxIndex& index) const noexcept;
@@ -69,6 +71,7 @@ public:
     [[nodiscard]] PhxBool        getIsValid(const PhxIndex& index) const noexcept;
 
     void setPosition(const PhxIndex& index, const PhxVec3& position) noexcept;
+    void setPrevPosition(const PhxIndex& index, const PhxVec3& position) noexcept;
     void setVelocity(const PhxIndex& index, const PhxVec3& velocity) noexcept;
     void setAcceleration(const PhxIndex& index, const PhxVec3& acceleration) noexcept;
     void setDamping(const PhxIndex& index, const PhxReal& damping) noexcept;
@@ -94,6 +97,7 @@ public:
 protected:
     PhxRealArray m_masses;
     PhxVec3Array m_positions;
+    PhxVec3Array m_prev_positions;
     PhxVec3Array m_velocities;
     PhxVec3Array m_accelerations;
     PhxRealArray m_damping_values;
@@ -130,6 +134,10 @@ public:
     using MassAggregateBody::getPosition;
     [[nodiscard]] const PhxVec3&
     getPosition(const PhxIndex& row_idx, const PhxIndex& col_idx, const PhxIndex& slice_idx) const noexcept;
+
+    using MassAggregateBody::getPrevPosition;
+    [[nodiscard]] const PhxVec3&
+    getPrevPosition(const PhxIndex& row_idx, const PhxIndex& col_idx, const PhxIndex& slice_idx) const noexcept;
 
     using MassAggregateBody::getVelocity;
     [[nodiscard]] const PhxVec3&
@@ -176,7 +184,6 @@ public:
     [[nodiscard]] const PhxArray<PhxSpring>& getFlexionSprings() const noexcept;
     [[nodiscard]] const PhxArray<PhxSpring>& getSurfaceSprings() const noexcept;
     [[nodiscard]] const PhxArray<PhxSpring>& getInternalSprings() const noexcept;
-
 
 private:
     // SpringCoefficient m_structural_spring;

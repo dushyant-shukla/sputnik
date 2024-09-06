@@ -14,7 +14,8 @@ public:
     ForceGenerator() noexcept          = default;
     virtual ~ForceGenerator() noexcept = default;
 
-    virtual void updateForces(MassAggregateBody* const owning_system) noexcept = 0;
+    virtual void updateForces(MassAggregateBody* const owning_system) noexcept             = 0;
+    virtual void updateSatisfyConstraints(MassAggregateBody* const owning_system) noexcept = 0;
 };
 
 struct PhxSpring
@@ -33,6 +34,7 @@ public:
     virtual ~SpringForceGenerator() noexcept = default;
 
     virtual void               updateForces(MassAggregateBody* const owning_system) noexcept override;
+    virtual void               updateSatisfyConstraints(MassAggregateBody* const owning_system) noexcept override;
     void                       addSpring(const PhxSpring& spring) noexcept;
     const PhxArray<PhxSpring>& getSprings() const noexcept;
 

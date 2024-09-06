@@ -81,9 +81,9 @@ void DeformableBody::update(const double& total_time, const double& step_size) n
             PhxIndex i1 = surface_particle_idx + indices[index + 1];
             PhxIndex i2 = surface_particle_idx + indices[index + 2];
 
-            m_body->addForce(i0, force);
-            m_body->addForce(i1, force);
-            m_body->addForce(i2, force);
+            //m_body->addForce(i0, force);
+            //m_body->addForce(i1, force);
+            //m_body->addForce(i2, force);
         }
 
         ++triangle_idx;
@@ -94,6 +94,8 @@ void DeformableBody::updateInternalForces(const double& total_time, const double
 {
     m_body->updateInternalForces(static_cast<PhxReal>(total_time), static_cast<PhxReal>(step_size));
 }
+
+void DeformableBody::satisfyConstraints(const PhxUint& iteration_count) noexcept {}
 
 // void DeformableBody::buildAccelerationStructure()
 //{
