@@ -1,5 +1,5 @@
 #include "phx_utils.hpp"
-#include "geometry_queries.hpp"
+#include "phx_geometry_queries.hpp"
 
 #include "core/logging/logging_core.h"
 

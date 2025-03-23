@@ -22,7 +22,7 @@ const u32 BufferUsageFlagBits::kMapPersistentBit  = GL_MAP_PERSISTENT_BIT;
 const u32 BufferUsageFlagBits::kMapCoherentBit    = GL_MAP_COHERENT_BIT;
 const u32 BufferUsageFlagBits::kClientStorageBit  = GL_CLIENT_STORAGE_BIT;
 
-u32 getOglBufferBindTarget(const BufferBindTarget& bind_target)
+static u32 getOglBufferBindTarget(const BufferBindTarget& bind_target)
 {
     switch(bind_target)
     {

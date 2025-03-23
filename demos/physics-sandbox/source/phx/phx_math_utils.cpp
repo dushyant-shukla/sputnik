@@ -1,4 +1,4 @@
-#include "math_utils.hpp"
+#include "phx_math_utils.hpp"
 
 #include <random>
 #include <cmath>
@@ -37,18 +37,18 @@ PhxVec3 phxGenerateRandomUnitVector()
     result.z = cos(phi);
 
     // return result;
-    return purtubate(result);
+    return phxPerturbate(result);
 }
 
-PhxVec3 purtubate(const PhxVec3& v, const float& epsilon)
+PhxVec3 phxPerturbate(const PhxVec3& v, const float& epsilon)
 {
     PhxVec3 result = v;
 
     std::random_device rd; // Non deterministic generator. Will be used to obtain a seed for the random number engine.
     std::mt19937       gen(rd()); // Seeding the Mersenne Twister generator
-    std::uniform_real_distribution<float> dis(
-        -epsilon,
-        epsilon); // Generating a uniform distribution between -epsilon and epsilon
+
+    // Generating a uniform distribution between -epsilon and epsilon
+    std::uniform_real_distribution<float> dis(-epsilon, epsilon);
 
     result.x += dis(gen);
     result.y += dis(gen);

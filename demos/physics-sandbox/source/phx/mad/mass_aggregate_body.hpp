@@ -2,7 +2,7 @@
 #define PHX_MAD_MASS_AGGREGATE_SYSTEM_HPP
 
 #include "../phx_core.hpp"
-#include "../geometry.hpp"
+#include "../phx_geometry.hpp"
 #include "force_generator.hpp"
 
 #include <functional>

@@ -2,8 +2,8 @@
 #define PHX_DEFORMABLE_BODY_HPP
 
 #include "../phx_types.hpp"
-#include "../geometry.hpp"
-#include "../geometry_queries.hpp"
+#include "../phx_geometry.hpp"
+#include "../phx_geometry_queries.hpp"
 #include "mass_aggregate_body.hpp"
 
 #include <memory>

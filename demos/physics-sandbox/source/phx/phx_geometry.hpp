@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math_utils.hpp"
+#include "phx_math_utils.hpp"
 
 #include <vector>
 #include <memory>
@@ -23,12 +23,12 @@ struct PhxAABB
 
 struct PhxTriangle
 {
-    PhxPoint    a;
-    PhxPoint    b;
-    PhxPoint    c;
-    PhxPoint    centroid;
-    PhxReal     area;
-    inline void calculateCentroid() { centroid = (a + b + c) * 0.333333f; }
+    PhxPoint a;
+    PhxPoint b;
+    PhxPoint c;
+    PhxPoint centroid;
+    PhxReal  area;
+    // inline void calculateCentroid() { centroid = (a + b + c) * 0.333333f; }
 };
 
 PhxReal phxCalculateArea(const PhxTriangle& triangle);

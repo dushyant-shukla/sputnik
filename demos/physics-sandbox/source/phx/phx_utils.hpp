@@ -1,7 +1,7 @@
 #ifndef PHX_UTILS_HPP
 #define PHX_UTILS_HPP
 
-#include "geometry.hpp"
+#include "phx_geometry.hpp"
 #include "phx_core.hpp"
 #include "mad/deformable_body.hpp"
 

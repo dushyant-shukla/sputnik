@@ -18,7 +18,7 @@ PhxVec3 phxMax(const PhxVec3& a, const PhxVec3& b);
 
 PhxVec3 phxGenerateRandomUnitVector();
 
-PhxVec3 purtubate(const PhxVec3& v, const float& epsilon = kPhxEpsilon);
+PhxVec3 phxPerturbate(const PhxVec3& v, const float& epsilon = kPhxEpsilon);
 
 // clang-format off
 

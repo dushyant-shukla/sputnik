@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometry.hpp"
+#include "phx_geometry.hpp"
 
 namespace phx
 {
@@ -42,8 +42,8 @@ bool raycastTriangleBarycentric(const PhxRay& ray, const PhxTriangle& triangle, 
 bool raycastAABB(const PhxRay& ray, const PhxAABB& aabb, std::vector<PhxRaycastResult>& out_results);
 
 bool phxRaycast(const PhxRay&                  ray,
-                         const PhxTriangleMesh&         triangle_mesh,
-                         std::vector<PhxRaycastResult>& out_results,
-                         const PhxQueryMode&            query_mode = PhxQueryMode::ClosestHit);
+                const PhxTriangleMesh&         triangle_mesh,
+                std::vector<PhxRaycastResult>& out_results,
+                const PhxQueryMode&            query_mode = PhxQueryMode::ClosestHit);
 
 } // namespace phx

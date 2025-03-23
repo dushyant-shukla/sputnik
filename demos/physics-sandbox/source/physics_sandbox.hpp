@@ -10,8 +10,9 @@
 #include <graphics/glcore/gl_texture.h>
 #include <graphics/api/light.h>
 #include <core/systems/render_system.h>
+#include "physics_rb_sandbox.hpp"
 
-#include "phx/geometry.hpp"
+#include "phx/phx_geometry.hpp"
 #include "phx/mad/deformable_body.hpp"
 
 namespace sputnik::demos
@@ -104,7 +105,8 @@ class PhysicsSandboxDemo : public sputnik::main::Application
 public:
     PhysicsSandboxDemo(const std::string& name) : sputnik::main::Application(name)
     {
-        PushLayer(std::make_shared<PhysicsSandboxDemoLayer>(name));
+        // PushLayer(std::make_shared<PhysicsSandboxDemoLayer>(name));
+        PushLayer(std::make_shared<PhysicsRigidBodySandboxDemoLayer>(name));
     }
 
     ~PhysicsSandboxDemo() {}

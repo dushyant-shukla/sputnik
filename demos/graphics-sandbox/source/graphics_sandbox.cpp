@@ -163,7 +163,10 @@ void GraphicsSandboxDemoLayer::OnAttach()
     m_pvp_vertex_buffer->bind(BufferBindTarget::ShaderStorageBuffer, 0);
 }
 
-void GraphicsSandboxDemoLayer::OnDetach() {}
+void GraphicsSandboxDemoLayer::OnDetach()
+{
+    m_pvp_vertex_buffer->unbind();
+}
 
 void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {

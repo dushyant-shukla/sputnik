@@ -1,6 +1,6 @@
 #include "force_generator.hpp"
 #include "mass_aggregate_body.hpp"
-#include "../math_utils.hpp"
+#include "../phx_math_utils.hpp"
 
 namespace phx::mad
 {
@@ -27,16 +27,6 @@ void SpringForceGenerator::updateForces(MassAggregateBody* const owning_body) no
                 current_spring_length = spring.rest_length * 0.8f;
             }
 
-            // if(current_spring_length > (spring.rest_length + (0.5f * spring.rest_length)))
-            //{
-            //     // current_spring_length = 0.05f * spring.rest_length;
-            //     current_spring_length = spring.rest_length;
-            // }
-            // if(current_spring_length < (0.5f * spring.rest_length))
-            //{
-            //     // current_spring_length = 0.05f * spring.rest_length;
-            //     current_spring_length = spring.rest_length;
-            // }
             const auto force_direction = phx_normalize(distance_vector);
             const auto delta_length    = current_spring_length - spring.rest_length;
 
@@ -44,10 +34,7 @@ void SpringForceGenerator::updateForces(MassAggregateBody* const owning_body) no
             const auto damping_force =
                 -spring.kd * phx_dot((velocity_a - velocity_b), force_direction) * force_direction;
 
-            // const auto damping_force = -spring.kd * (velocity_b - velocity_a) * 0.01f;
-
-            // const auto force_a = spring_force + damping_force;
-            const auto force_a = spring_force;
+            const auto force_a = spring_force + damping_force;
             const auto force_b = -1.0f * force_a;
             owning_body->addForce(spring.mass_a_idx, force_a);
             owning_body->addForce(spring.mass_b_idx, force_b);

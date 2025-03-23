@@ -1,6 +1,6 @@
 #include "physics_sandbox.hpp"
-#include "phx/math_utils.hpp"
-#include "phx/geometry_queries.hpp"
+#include "phx/phx_math_utils.hpp"
+#include "phx/phx_geometry_queries.hpp"
 #include "phx/phx_utils.hpp"
 
 #include <editor/editor.hpp>
@@ -31,8 +31,8 @@ PhysicsSandboxDemoLayer::PhysicsSandboxDemoLayer(const std::string& name) : core
     light.specular = vec3(1.0f, 1.0f, 1.0f);
 
     // setupTorus();
-    // setupSuzanne();
-    setupToy();
+     setupSuzanne();
+    //setupToy();
 }
 
 PhysicsSandboxDemoLayer::~PhysicsSandboxDemoLayer() {}
@@ -158,9 +158,9 @@ void PhysicsSandboxDemoLayer::setupTorus()
 
 void PhysicsSandboxDemoLayer::setupSuzanne()
 {
-    // m_suzanne = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
-    // m_suzanne = Model::LoadModel("../../data/assets/rock.gltf");
-    m_suzanne = Model::LoadModel("../../data/assets/Box.glb");
+     //m_suzanne = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
+     m_suzanne = Model::LoadModel("../../data/assets/rock.gltf");
+    //m_suzanne = Model::LoadModel("../../data/assets/Box.glb");
 
     const auto& vertices = m_suzanne->getPositions();
     const auto& indices  = m_suzanne->getIndices();
@@ -228,9 +228,10 @@ void PhysicsSandboxDemoLayer::setupSuzanne()
 
 void PhysicsSandboxDemoLayer::setupToy()
 {
-    //m_suzanne            = Model::LoadModel("../../data/assets/kuma_plushie.glb");
-    m_suzanne            = Model::LoadModel("../../data/assets/kuma_plushie/scene.gltf");
-    m_cloth_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/kuma_plushie/textures/bake_baseColor.png", false);
+    // m_suzanne            = Model::LoadModel("../../data/assets/kuma_plushie.glb");
+    m_suzanne = Model::LoadModel("../../data/assets/kuma_plushie/scene.gltf");
+    m_cloth_diff_texture =
+        std::make_shared<OglTexture2D>("../../data/assets/kuma_plushie/textures/bake_baseColor.png", false);
 
     const auto& vertices = m_suzanne->getPositions();
     const auto& indices  = m_suzanne->getIndices();
@@ -281,10 +282,12 @@ void PhysicsSandboxDemoLayer::setupToy()
 
     // torus
     start                   = std::chrono::system_clock::now();
-    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec, false, {0.0f, 1.0f, 0.0f});
-    finish                  = std::chrono::system_clock::now();
-    elapsed_seconds         = finish - start;
-    ms                      = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+    m_aggregate_mass_volume = phx::phxCookMassAggregateVolume(m_triangle_mesh, spec, true, {0.0f, 1.0f, 0.0f});
+    // m_aggregate_mass_volume =
+    //     phx::phxCookMassAggregateVolumeNearestNeighbor(m_triangle_mesh, spec, false, {0.0f, 1.0f, 0.0f});
+    finish          = std::chrono::system_clock::now();
+    elapsed_seconds = finish - start;
+    ms              = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
     APPLICATION_INFO("Time for cooking mass aggregate body: {} seconds | {} ms", elapsed_seconds, ms);
     // m_aggregate_mass_volume =
     //     phx::phxCookMassAggregateVolumeNearestNeighbor(m_triangle_mesh, spec, false, {0.0f, 1.0f, 0.0f});
@@ -583,7 +586,7 @@ void PhysicsSandboxDemoLayer::setupRaycastTests()
     glm::vec3        v1 = glm::vec3(-1.0f, 3.0f, 0.0f);
     glm::vec3        v2 = glm::vec3(1.0f, 3.0f, 0.0f);
     phx::PhxTriangle triangle{v0, v1, v2};
-    triangle.calculateCentroid();
+    triangle.centroid = phx::phxCalculateCentroid(triangle);
     {
 
         std::vector<vec4> lines;

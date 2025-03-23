@@ -1,5 +1,4 @@
-#include "geometry.hpp"
-#include "bvh.hpp"
+#include "phx_geometry.hpp"
 
 #include <core/logging/logging_core.h>
 
@@ -23,10 +22,10 @@ PhxTriangleMesh::PhxTriangleMesh(const PhxVec3Array& input_vertices, const PhxIn
     for(size_t i = 0; i < input_indices.size(); i += 3)
     {
         PhxTriangle triangle;
-        triangle.a = input_vertices[input_indices[i]];
-        triangle.b = input_vertices[input_indices[i + 1]];
-        triangle.c = input_vertices[input_indices[i + 2]];
-        triangle.calculateCentroid();
+        triangle.a        = input_vertices[input_indices[i]];
+        triangle.b        = input_vertices[input_indices[i + 1]];
+        triangle.c        = input_vertices[input_indices[i + 2]];
+        triangle.centroid = phx::phxCalculateCentroid(triangle);
         m_triangles.emplace_back(triangle);
     }
 
@@ -158,10 +157,10 @@ void PhxTriangleMesh::updateTriangles(const PhxVec3Array& vertices)
         // triangle.calculateCentroid();
         // m_triangles.emplace_back(triangle);
 
-        m_triangles[triangle_index].a = vertices[m_indices[i]];
-        m_triangles[triangle_index].b = vertices[m_indices[i + 1]];
-        m_triangles[triangle_index].c = vertices[m_indices[i + 2]];
-        m_triangles[triangle_index].calculateCentroid();
+        m_triangles[triangle_index].a        = vertices[m_indices[i]];
+        m_triangles[triangle_index].b        = vertices[m_indices[i + 1]];
+        m_triangles[triangle_index].c        = vertices[m_indices[i + 2]];
+        m_triangles[triangle_index].centroid = phx::phxCalculateCentroid(m_triangles[triangle_index]);
 
         ++triangle_index;
     }
