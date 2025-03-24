@@ -12,6 +12,7 @@
 
 #include "phx/phx_geometry.hpp"
 #include "phx/rigidbody/phx_rigid_body.hpp"
+#include "physics_world.h"
 
 namespace sputnik::demos
 {
@@ -51,8 +52,8 @@ private:
     RenderSystem*                 m_render_system{nullptr};
 
     // Physics stuff
-    //std::shared_ptr<phx::PhxTriangleMesh> m_triangle_mesh;
-    //PhxVec3Array                          m_initial_mesh_vertices;
+    // std::shared_ptr<phx::PhxTriangleMesh> m_triangle_mesh;
+    // PhxVec3Array                          m_initial_mesh_vertices;
 
     // Physics simulation stuff
     const double kStepSize{0.01};
@@ -62,6 +63,8 @@ private:
     bool         m_reset_simulation{false};
 
     phx::rb::PhxRigidBody m_box_rb;
+    phx::rb::PhxRbGravityForceGen  m_gravity_fgen;
+    sputnik::physics::PhysicsWorld m_phx_world;
 
     // Debug stuff
     bool                   m_draw_bvh{false};

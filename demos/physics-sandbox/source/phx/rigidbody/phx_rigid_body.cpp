@@ -33,9 +33,74 @@ void PhxRigidBody::setInertiaTensor(const PhxMat3& inertia_tensor)
     m_inv_inertia_tensor_local = glm::inverse(inertia_tensor);
 }
 
-void PhxRigidBody::setDamping(const PhxReal& linear_damping, const PhxReal& angular_damping) {}
+void PhxRigidBody::setDamping(const PhxReal& linear_damping, const PhxReal& angular_damping)
+{
+    m_linear_damping  = linear_damping;
+    m_angular_damping = angular_damping;
+}
 
-void PhxRigidBody::setAcceleration(const PhxVec3& acceleration) {}
+void PhxRigidBody::setAcceleration(const PhxVec3& acceleration)
+{
+    m_acceleration = acceleration;
+}
+
+void PhxRigidBody::setPosition(const PhxVec3& position)
+{
+    m_position_world = position;
+}
+
+void PhxRigidBody::setVelocity(const PhxVec3& velocity)
+{
+    m_velocity_world = velocity;
+}
+
+void PhxRigidBody::setRotation(const PhxVec3& rotation)
+{
+    m_angular_velocity_world = rotation;
+}
+
+void PhxRigidBody::setOrientation(const PhxQuat& orientation)
+{
+    m_orientation_world = glm::normalize(orientation);
+}
+
+void PhxRigidBody::setOrientation(const PhxReal& w, const PhxReal& x, const PhxReal& y, const PhxReal& z)
+{
+    m_orientation_world.w = w;
+    m_orientation_world.x = x;
+    m_orientation_world.y = y;
+    m_orientation_world.z = z;
+    m_orientation_world   = glm::normalize(m_orientation_world);
+}
+
+void PhxRigidBody::setInertiaTensorWithHalfSizesAndMass(const PhxVec3& half_sizes, const PhxReal& mass)
+{
+    PhxVec3 squares = {half_sizes.x * half_sizes.x, half_sizes.y * half_sizes.y, half_sizes.z * half_sizes.z};
+    setInertiaTensorWithCoefficients(0.3f * mass * (squares.y + squares.z),
+                                     0.3f * mass * (squares.x + squares.z),
+                                     0.3f * mass * (squares.x + squares.y));
+}
+
+void PhxRigidBody::setInertiaTensorWithCoefficients(const PhxReal& ix,
+                                                    const PhxReal& iy,
+                                                    const PhxReal& iz,
+                                                    const PhxReal& ixy,
+                                                    const PhxReal& ixz,
+                                                    const PhxReal& iyz)
+{
+    PhxMat3 inertia_tensor{};
+    inertia_tensor[0][0] = ix;
+    inertia_tensor[0][1] = -ixy;
+    inertia_tensor[0][2] = -ixz;
+    inertia_tensor[1][0] = -ixy;
+    inertia_tensor[1][1] = iy;
+    inertia_tensor[1][2] = -iyz;
+    inertia_tensor[2][0] = -ixz;
+    inertia_tensor[2][1] = -iyz;
+    inertia_tensor[2][2] = iz;
+
+    m_inv_inertia_tensor_local = glm::inverse(inertia_tensor);
+}
 
 void PhxRigidBody::addForce(const PhxVec3& force)
 {
@@ -63,14 +128,14 @@ void PhxRigidBody::integrate(PhxReal duration)
 
     m_velocity_world += m_acceleration_last_frame * duration;
 
-    m_rotation_world += angular_acceleration * duration;
+    m_angular_velocity_world += angular_acceleration * duration;
 
     m_velocity_world *= std::pow(m_linear_damping, duration);
-    m_rotation_world *= std::pow(m_angular_damping, duration);
+    m_angular_velocity_world *= std::pow(m_angular_damping, duration);
 
     m_position_world += m_velocity_world * duration;
     m_orientation_world +=
-        0.5f * PhxQuat(0.0f, m_rotation_world.x, m_rotation_world.y, m_rotation_world.z) * m_orientation_world;
+        0.5f * PhxQuat(0.0f, m_angular_velocity_world.x, m_angular_velocity_world.y, m_angular_velocity_world.z) * m_orientation_world;
 
     calculateDerivedData();
 
@@ -79,7 +144,7 @@ void PhxRigidBody::integrate(PhxReal duration)
     if(m_can_sleep)
     {
         PhxReal current_motion =
-            phx_dot(m_velocity_world, m_velocity_world) + phx_dot(m_rotation_world, m_rotation_world);
+            phx_dot(m_velocity_world, m_velocity_world) + phx_dot(m_angular_velocity_world, m_angular_velocity_world);
         PhxReal bias = std::pow(0.5f, duration);
         m_motion     = bias * m_motion + (1.0f - bias) * current_motion;
         if(m_motion < phx::kPhxEpsilon)
@@ -119,7 +184,7 @@ void PhxRigidBody::setAwake(bool awake)
     {
         m_is_awake       = false;
         m_velocity_world = PhxVec3(0.0f);
-        m_rotation_world = PhxVec3(0.0f);
+        m_angular_velocity_world = PhxVec3(0.0f);
     }
 }
 
@@ -132,7 +197,11 @@ void PhxRigidBody::setCanSleep(bool can_sleep)
     }
 }
 
-void PhxRigidBody::setMass(const PhxReal& mass) {}
+void PhxRigidBody::setMass(const PhxReal& mass)
+{
+    assert(fabsf(mass) > kPhxEpsilon);
+    m_inv_mass = 1.0f / mass;
+}
 
 void PhxRigidBody::calculateDerivedData()
 {
@@ -143,6 +212,26 @@ void PhxRigidBody::calculateDerivedData()
     calculateInvInsertiaTensorInWorldSpace(m_inv_inertia_tensor_local,
                                            m_transform_matrix_world,
                                            m_inv_inertia_tensor_world);
+}
+
+bool PhxRigidBody::hasFiniteMass() const
+{
+    return m_inv_mass > kPhxEpsilon;
+    // return m_inv_mass >= 0.0f;
+}
+
+PhxReal PhxRigidBody::getMass() const
+{
+    if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
+    {
+        return kPhxFloatMax;
+    }
+    return ((PhxReal)1.0f) / m_inv_mass;
+}
+
+const PhxMat4& PhxRigidBody::getWorldTransform() const
+{
+    return m_transform_matrix_world;
 }
 
 } // namespace phx::rb

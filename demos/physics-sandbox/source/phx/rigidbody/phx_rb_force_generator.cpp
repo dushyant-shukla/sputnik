@@ -5,9 +5,17 @@ namespace phx::rb
 
 ////////////////////////////// Gravity Force Generator //////////////////////////////
 
-PhxRbGravityForceGen::PhxRbGravityForceGen(const PhxVec3& gravity) noexcept {}
+PhxRbGravityForceGen::PhxRbGravityForceGen(const PhxVec3& gravity) noexcept : m_gravity(gravity) {}
 
-void PhxRbGravityForceGen::updateForces(PhxRigidBody* const rigid_body, const PhxReal& duration) noexcept {}
+void PhxRbGravityForceGen::updateForces(PhxRigidBody* const rigid_body, const PhxReal& duration) noexcept
+{
+    if(!rigid_body->hasFiniteMass())
+    {
+        return;
+    }
+
+    rigid_body->addForce(m_gravity * rigid_body->getMass());
+}
 
 ////////////////////////////// Spring Force Generator //////////////////////////////
 

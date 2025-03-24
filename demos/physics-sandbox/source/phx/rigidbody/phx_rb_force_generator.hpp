@@ -27,6 +27,10 @@ public:
     virtual ~PhxRbGravityForceGen() noexcept = default;
 
     virtual void updateForces(PhxRigidBody* const rigid_body, const PhxReal& duration) noexcept override;
+
+private:
+
+    PhxVec3 m_gravity;
 };
 
 class PhxRbSpringForceGen : public PhxRbForceGenerator

@@ -14,8 +14,6 @@ public:
 
     virtual ~PhxRigidBody() = default;
 
-    void setInertiaTensor(const PhxMat3& inertia_tensor);
-
     /*!
      * @brief Adds a force to the rigid body. The force is expressed in world space. This force is applied to the center
      * of mass of the body, thus, has no torque component.
@@ -72,11 +70,36 @@ public:
 
     void setAcceleration(const PhxVec3& acceleration);
 
+    void setPosition(const PhxVec3& position);
+
+    void setVelocity(const PhxVec3& position);
+
+    void setRotation(const PhxVec3& velocity);
+
+    void setOrientation(const PhxQuat& orientation);
+
+    void setOrientation(const PhxReal& w, const PhxReal& x, const PhxReal& y, const PhxReal& z);
+
+    void setInertiaTensorWithHalfSizesAndMass(const PhxVec3& half_sizes, const PhxReal& mass);
+
+    void setInertiaTensorWithCoefficients(const PhxReal& ix,
+                                          const PhxReal& iy,
+                                          const PhxReal& iz,
+                                          const PhxReal& ixy = 0.0f,
+                                          const PhxReal& ixz = 0.0f,
+                                          const PhxReal& iyz = 0.0f);
+
     /*!
      * @brief Calculate internal data from rigid body state. This method must be called anytime rigibody's state is
      * modified directly. It is also called during integration.
      */
     void calculateDerivedData();
+
+    bool hasFiniteMass() const;
+
+    PhxReal getMass() const;
+
+    const PhxMat4& getWorldTransform() const;
 
 protected:
     /*!
@@ -114,7 +137,7 @@ protected:
     /*!
      * @brief Angular velocity (or rotation) of the rigid body in world space.
      */
-    PhxVec3 m_rotation_world;
+    PhxVec3 m_angular_velocity_world;
 
     /*!
      * @brief Holds the amount of motion of the body. The motion is a measure of how much the body is moving. It is a
