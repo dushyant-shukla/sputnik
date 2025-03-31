@@ -37,9 +37,15 @@ private:
     void drawAABB(const phx::PhxAABB& aabb, const mat4& model);
 
     void setupRaycastTests();
+
+    void simulate(const core::TimeStep& time_step);
     void simulatePhysics(const double& total_time, const double& step_size);
 
     void resetSimulation();
+
+    void debugDrawPhxGeometries();
+
+    mat4 getMat4Transform(const PhxMat4& matrix) const;
 
 private:
     // Rendering stuff
@@ -48,8 +54,10 @@ private:
     std::shared_ptr<OglVertexArray> m_vertex_array;
 
     std::shared_ptr<OglTexture2D> m_texture;
-    std::shared_ptr<Model>        m_box;
     RenderSystem*                 m_render_system{nullptr};
+
+    std::shared_ptr<Model> m_sphere;
+    std::shared_ptr<Model> m_box;
 
     // Physics stuff
     // std::shared_ptr<phx::PhxTriangleMesh> m_triangle_mesh;
@@ -62,13 +70,17 @@ private:
     bool         m_simulate_physics{false};
     bool         m_reset_simulation{false};
 
-    phx::rb::PhxRigidBody m_box_rb;
+    phx::rb::PhxRigidBody          m_box_rb;
+    phx::rb::PhxRigidBody          m_sphere_rb;
+    phx::rb::PhxSphereGeometry     m_sphere_geometry;
+    phx::rb::PhxRigidBody          m_big_sphere_rb;
+    phx::rb::PhxSphereGeometry     m_big_sphere_geometry;
     phx::rb::PhxRbGravityForceGen  m_gravity_fgen;
     sputnik::physics::PhysicsWorld m_phx_world;
 
     // Debug stuff
     bool                   m_draw_bvh{false};
-    bool                   m_draw_wireframe{true};
+    bool                   m_draw_wireframe{false};
     bool                   m_draw_mesh{false};
     bool                   m_draw_grid_points{false};
     bool                   m_draw_mesh_grid_points{false};

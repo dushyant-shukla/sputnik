@@ -89,6 +89,8 @@ public:
                                           const PhxReal& ixz = 0.0f,
                                           const PhxReal& iyz = 0.0f);
 
+    void setElasticity(const PhxReal& elasticity);
+
     /*!
      * @brief Calculate internal data from rigid body state. This method must be called anytime rigibody's state is
      * modified directly. It is also called during integration.
@@ -99,13 +101,39 @@ public:
 
     PhxReal getMass() const;
 
+    const PhxReal& getInverseMass() const;
+
     const PhxMat4& getWorldTransform() const;
+
+    PhxVec3 getCenterOfMassInWorldSpace() const;
+
+    PhxVec3 getCenterOfMassInLocalSpace() const;
+
+    PhxVec3 getPointInLocalSpace(const PhxVec3& point) const;
+
+    PhxVec3 getPointInWorldSpace(const PhxVec3& point) const;
+
+    const PhxVec3& getAcceleration() const;
+
+    const PhxVec3& getWorldPosition() const;
+
+    const PhxVec3& getLinerVelocity() const;
+
+    const PhxReal& getElasticity() const;
+
+    void applyLinearImpluse(const PhxVec3& impluse);
 
 protected:
     /*!
      * @brief Inverse mass of the rigid body. If the inverse mass is zero, the body is considered to have infinite mass.
      */
     PhxReal m_inv_mass;
+
+    /*!
+     * @brief Center of mass of the rigid body. This is the point about which all forces and torques are applied. It is
+     * stored in local space.
+     */
+    PhxVec3 m_center_of_mass;
 
     /*!
      * @brief Damping applied to linear motion. Damping is required to remove extra energy from the system
@@ -118,6 +146,14 @@ protected:
      * from instabilities in the numerical integration.
      */
     PhxReal m_angular_damping;
+
+    /*!
+     * @brief Also known as the coefficient of restitution. It is a measure of how much kinetic energy is preserved in a
+     * collision. It is a value between 0 and 1. A value of 0 means that the body will not bounce at all (all of the
+     * kinetic energy is lost), while a value of 1 means that the body will bounce with the same energy it had before
+     * the collision (no loss of kinetic energy).
+     */
+    PhxReal m_elasticity;
 
     /*!
      * @brief Linear position of the rigid body in world space.

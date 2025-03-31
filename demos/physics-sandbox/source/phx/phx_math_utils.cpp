@@ -57,4 +57,9 @@ PhxVec3 phxPerturbate(const PhxVec3& v, const float& epsilon)
     return phx_normalize(result);
 }
 
+PhxVec3 phxRotatePoint(const PhxQuat& q, const PhxVec3& p)
+{
+    return q * p * phx_inv_quat(q);
+}
+
 } // namespace phx

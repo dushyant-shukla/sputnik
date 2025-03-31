@@ -173,7 +173,7 @@ void core::systems::RenderSystem::drawUI()
     if(ImGui::Begin("Lighting"))
     {
         sputnik::editor::Editor::drawWidgetVec3("position", m_light.position, 90.0f);
-        sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 110.0f);
+        sputnik::editor::Editor::drawWidgetColor3("ambient", m_light.ambient, 90.0f);
         sputnik::editor::Editor::drawWidgetColor3("diffuse", m_light.diffuse, 90.0f);
         sputnik::editor::Editor::drawWidgetColor3("specular", m_light.specular, 90.0f);
         sputnik::editor::Editor::drawWidgetFloat("constant", m_light.constant, 90.0f);
@@ -210,6 +210,11 @@ const mat4 RenderSystem::getCameraView() const
     {
         return m_editor_camera->GetCameraView();
     }
+}
+
+void RenderSystem::setCameraType(CameraType type)
+{
+    m_camera_type = type;
 }
 
 ////////////////////////////////////////// Drawing API //////////////////////////////////////////

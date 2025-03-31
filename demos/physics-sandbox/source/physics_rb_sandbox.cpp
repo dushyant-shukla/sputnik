@@ -3,6 +3,8 @@
 
 #include <editor/editor.hpp>
 
+#include <glad/glad.h>
+
 namespace sputnik::demos
 {
 
@@ -73,7 +75,7 @@ PhysicsRigidBodySandboxDemoLayer::PhysicsRigidBodySandboxDemoLayer(const std::st
 
     auto  render_system = RenderSystem::getInstance();
     auto& light         = render_system->getLight();
-    light.position      = vec3(0.0f, 5.0f, 5.0f);
+    light.position      = vec3(0.0f, 280.0f, 220.0f);
     light.ambient       = vec3(1.0f, 1.0f, 1.0f);
     light.diffuse       = vec3(1.0f, 1.0f, 1.0f);
     light.specular      = vec3(1.0f, 1.0f, 1.0f);
@@ -84,7 +86,7 @@ PhysicsRigidBodySandboxDemoLayer::PhysicsRigidBodySandboxDemoLayer(const std::st
     m_box_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
     m_box_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
     m_box_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
-    // m_box_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
+    m_box_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
     m_box_rb.setAwake();
     m_box_rb.setCanSleep(false);
     m_box_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
@@ -95,7 +97,56 @@ PhysicsRigidBodySandboxDemoLayer::PhysicsRigidBodySandboxDemoLayer(const std::st
 
 PhysicsRigidBodySandboxDemoLayer::~PhysicsRigidBodySandboxDemoLayer() {}
 
-void PhysicsRigidBodySandboxDemoLayer::OnAttach() {}
+void PhysicsRigidBodySandboxDemoLayer::OnAttach()
+{
+    m_box    = Model::LoadModel("../../data/assets/box/Box.gltf");
+    m_sphere = Model::LoadModel("../../data/assets/sphere.gltf");
+
+    RenderSystem* render_system = RenderSystem::getInstance();
+
+    render_system->setCameraType(CameraType::EditorCamera);
+
+    EditorCamera::GetInstance()->SetPosition({0.0f, 10.0f, 50.0f});
+
+    m_sphere_rb.setMass(2.5f);
+    m_sphere_rb.setDamping(0.8f, 0.08f);
+    m_sphere_rb.setPosition(PhxVec3(0.0f, 20.0f, 0.0f));
+    m_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
+    m_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
+    m_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+    m_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
+    m_sphere_rb.setElasticity(0.5f);
+    m_sphere_rb.setAwake();
+    m_sphere_rb.setCanSleep(false);
+    m_sphere_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
+    m_sphere_rb.calculateDerivedData();
+    m_phx_world.addRigidBody(&m_sphere_rb);
+
+    m_sphere_geometry.m_radius     = 1.00f;
+    m_sphere_geometry.m_rigid_body = &m_sphere_rb;
+    m_sphere_geometry.updateGeometry();
+    m_phx_world.addGeometry(&m_sphere_geometry);
+
+    // platform sphere
+    m_big_sphere_rb.setMass(0.0f);
+    m_big_sphere_rb.setDamping(0.8f, 0.08f);
+    m_big_sphere_rb.setPosition(PhxVec3(0.0f, -20.0f, 0.0f));
+    m_big_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
+    m_big_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
+    m_big_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+    m_big_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
+    m_big_sphere_rb.setElasticity(1.0f);
+    m_big_sphere_rb.setAwake();
+    m_big_sphere_rb.setCanSleep(false);
+    m_big_sphere_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
+    m_big_sphere_rb.calculateDerivedData();
+    m_phx_world.addRigidBody(&m_big_sphere_rb);
+
+    m_big_sphere_geometry.m_radius     = 30.0f;
+    m_big_sphere_geometry.m_rigid_body = &m_big_sphere_rb;
+    m_big_sphere_geometry.updateGeometry();
+    m_phx_world.addGeometry(&m_big_sphere_geometry);
+}
 
 void PhysicsRigidBodySandboxDemoLayer::OnDetach() {}
 
@@ -103,40 +154,57 @@ void PhysicsRigidBodySandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
     RenderSystem* render_system = RenderSystem::getInstance();
 
-    if(m_simulate_physics)
-    {
-        // const auto& force = 7.0f * phx::phxGenerateRandomUnitVector();
-        // m_box_rb.addForceAtBodyPoint(force, {1.0f, 3.5f, 1.0f});
+    simulate(time_step);
 
-        double frame_time = time_step.GetSeconds();
-        m_accumulated_time += frame_time;
-        while(m_accumulated_time >= kStepSize)
+    // random stuff
+    {
+        // m_vertex_array->bind();
+        //{
+        //     const auto& rb_world_trfs = m_box_rb.getWorldTransform();
+        //     mat4        model         = {};
+        //     model.right    = {rb_world_trfs[0][0], rb_world_trfs[0][1], rb_world_trfs[0][2], rb_world_trfs[0][3]};
+        //     model.up       = {rb_world_trfs[1][0], rb_world_trfs[1][1], rb_world_trfs[1][2], rb_world_trfs[1][3]};
+        //     model.forward  = {rb_world_trfs[2][0], rb_world_trfs[2][1], rb_world_trfs[2][2], rb_world_trfs[2][3]};
+        //     model.position = {rb_world_trfs[3][0], rb_world_trfs[3][1], rb_world_trfs[3][2], rb_world_trfs[3][3]};
+
+        //    mat4 model1 = {};
+        //    model1      = model1.translate({0.0f, 3.0f, 0.0f});
+        //    // model1      = model1.scale({0.25f});
+
+        //    // render_system->drawTriangles(36, material_ruby, model1);
+        //    render_system->drawTriangles(36, material_ruby, model);
+        //}
+        // m_vertex_array->unbind();
+    }
+
+    // render scene geometries
+    if(!m_draw_wireframe)
+    {
+        // mat4 model = {};
+        // model      = model.translate({0.0f, 20.0f, 0.0f});
+        // model      = model.scale({0.50f});
+
+        // const auto& rb_world_trfs = m_sphere_rb.getWorldTransform();
+        // model.right    = {rb_world_trfs[0][0], rb_world_trfs[0][1], rb_world_trfs[0][2], rb_world_trfs[0][3]};
+        // model.up       = {rb_world_trfs[1][0], rb_world_trfs[1][1], rb_world_trfs[1][2], rb_world_trfs[1][3]};
+        // model.forward  = {rb_world_trfs[2][0], rb_world_trfs[2][1], rb_world_trfs[2][2], rb_world_trfs[2][3]};
+        // model.position = {rb_world_trfs[3][0], rb_world_trfs[3][1], rb_world_trfs[3][2], rb_world_trfs[3][3]};
+
         {
-            simulatePhysics(m_total_time, kStepSize);
-            m_accumulated_time -= kStepSize;
-            m_total_time += kStepSize;
+            mat4 model = getMat4Transform(m_sphere_rb.getWorldTransform());
+            model      = model.scale({1.00f});
+            m_sphere->draw(material_blue_shine, model);
+        }
+
+        {
+            mat4 model = getMat4Transform(m_big_sphere_rb.getWorldTransform());
+            // model      = model.translate({0.0f, -20.0f, 0.0f});
+            model = model.scale({30.0f});
+            m_sphere->draw(material_emerald, model);
         }
     }
 
-    m_vertex_array->bind();
-
-    {
-        const auto& rb_world_trfs = m_box_rb.getWorldTransform();
-        mat4        model         = {};
-        model.right    = {rb_world_trfs[0][0], rb_world_trfs[0][1], rb_world_trfs[0][2], rb_world_trfs[0][3]};
-        model.up       = {rb_world_trfs[1][0], rb_world_trfs[1][1], rb_world_trfs[1][2], rb_world_trfs[1][3]};
-        model.forward  = {rb_world_trfs[2][0], rb_world_trfs[2][1], rb_world_trfs[2][2], rb_world_trfs[2][3]};
-        model.position = {rb_world_trfs[3][0], rb_world_trfs[3][1], rb_world_trfs[3][2], rb_world_trfs[3][3]};
-
-        mat4 model1 = {};
-        model1      = model1.translate({0.0f, 3.0f, 0.0f});
-        // model1      = model1.scale({0.25f});
-
-        // render_system->drawTriangles(36, material_ruby, model1);
-        render_system->drawTriangles(36, material_ruby, model);
-    }
-
-    m_vertex_array->unbind();
+    debugDrawPhxGeometries();
 }
 
 void PhysicsRigidBodySandboxDemoLayer::OnEvent() {}
@@ -149,7 +217,7 @@ void PhysicsRigidBodySandboxDemoLayer::OnUpdateUI(const core::TimeStep& time_ste
         // Editor::drawWidgetCheckbox("Reset Simulation", m_reset_simulation, 90.0f, "#reset_simulation");
         // Editor::drawWidgetCheckbox("Render BVH", m_draw_bvh, 90.0f, "#bvh");
         // Editor::drawWidgetCheckbox("Render Mesh", m_draw_mesh, 90.0f, "#mesh");
-        // Editor::drawWidgetCheckbox("Render Wireframe", m_draw_wireframe, 90.0f, "#polygon_mode");
+        Editor::drawWidgetCheckbox("Render Wireframe", m_draw_wireframe, 90.0f, "#polygon_mode");
         // Editor::drawWidgetCheckbox("Render 3D Grid", m_draw_grid_points, 90.0f, "#3d_grid");
         // Editor::drawWidgetCheckbox("Render Mesh Grid Points", m_draw_mesh_grid_points, 90.0f, "#mesh_grid_points");
         // Editor::drawWidgetCheckbox("Render Surface Points", m_render_surface_points, 90.0f, "#surface_points");
@@ -167,12 +235,29 @@ void PhysicsRigidBodySandboxDemoLayer::drawAABB(const phx::PhxAABB& aabb, const 
 
 void PhysicsRigidBodySandboxDemoLayer::setupRaycastTests() {}
 
+void PhysicsRigidBodySandboxDemoLayer::simulate(const core::TimeStep& time_step)
+{
+    if(m_simulate_physics)
+    {
+        m_phx_world.startFrame();
+
+        double frame_time = time_step.GetSeconds();
+        m_accumulated_time += frame_time;
+        while(m_accumulated_time >= kStepSize)
+        {
+            simulatePhysics(m_total_time, kStepSize);
+            m_accumulated_time -= kStepSize;
+            m_total_time += kStepSize;
+        }
+    }
+}
+
 void PhysicsRigidBodySandboxDemoLayer::simulatePhysics(const double& total_time, const double& step_size)
 {
     m_phx_world.startFrame();
 
-    //const auto& force = 2.0f * phx::phxGenerateRandomUnitVector();
-    //const auto& force = phx::phxGenerateRandomUnitVector();
+    // const auto& force = 2.0f * phx::phxGenerateRandomUnitVector();
+    // const auto& force = phx::phxGenerateRandomUnitVector();
     const PhxVec3 force = {0.5f, 0.25f, 0.4f};
     m_box_rb.addForceAtBodyPoint(force, {1.0f, 3.5f, 1.0f});
 
@@ -180,5 +265,44 @@ void PhysicsRigidBodySandboxDemoLayer::simulatePhysics(const double& total_time,
 }
 
 void PhysicsRigidBodySandboxDemoLayer::resetSimulation() {}
+
+void PhysicsRigidBodySandboxDemoLayer::debugDrawPhxGeometries()
+{
+    if(m_draw_wireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        for(auto itr = m_phx_world.geometriesBegin(); itr < m_phx_world.geometriesEnd(); ++itr)
+        {
+            auto geometry = *itr;
+            if(geometry->getType() == phx::rb::PhxGeometryType::Sphere)
+            {
+                auto sphere = dynamic_cast<phx::rb::PhxSphereGeometry*>(geometry);
+                if(sphere)
+                {
+                    mat4 model = getMat4Transform(sphere->getTransform());
+                    model      = model.scale({sphere->m_radius});
+
+                    Material material    = material_white;
+                    material.shader_name = "blinn_phong";
+
+                    m_sphere->draw(material, model);
+                }
+            }
+        }
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+}
+
+mat4 PhysicsRigidBodySandboxDemoLayer::getMat4Transform(const PhxMat4& matrix) const
+{
+    mat4 model     = {};
+    model.right    = {matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]};
+    model.up       = {matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3]};
+    model.forward  = {matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3]};
+    model.position = {matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]};
+    return model;
+}
 
 } // namespace sputnik::demos

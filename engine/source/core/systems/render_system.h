@@ -94,6 +94,8 @@ public:
     const mat4 getCameraProjection() const;
     const mat4 getCameraView() const;
 
+    void setCameraType(CameraType type);
+
     // Drawing API
     void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
     void drawTrianglesIndexed(const u64& vertex_count, const Material& material, const mat4& model);

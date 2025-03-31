@@ -20,6 +20,8 @@ PhxVec3 phxGenerateRandomUnitVector();
 
 PhxVec3 phxPerturbate(const PhxVec3& v, const float& epsilon = kPhxEpsilon);
 
+PhxVec3 phxRotatePoint(const PhxQuat& q, const PhxVec3& p);
+
 // clang-format off
 
 #define phx_normalize(a)		glm::normalize(a)
@@ -39,6 +41,7 @@ PhxVec3 phxPerturbate(const PhxVec3& v, const float& epsilon = kPhxEpsilon);
 #define phx_atan2(a, b)			glm::atan(a, b)
 #define phx_radians(a)			glm::radians(a)
 #define phx_degrees(a)			glm::degrees(a)
+#define phx_inv_quat(a)			glm::inverse(a)
 //#define phx_lerp(a, b, c)		glm::lerp(a, b, c)
 //#define phx_sqrt(a)				glm::sqrt(a)
 //#define phx_pow(a, b)			glm::pow(a, b)
