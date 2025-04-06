@@ -2,8 +2,8 @@
 #include "application.h"
 #include "core/time_step.h"
 #include "core/layers/layer.h"
-#include "graphics/api/renderer.h"
-#include "graphics/core/graphics_subsystem_type.h"
+#include "core/systems/render_system.h"
+#include "core/systems/physics_system.h"
 
 #include <GLFW/glfw3.h>
 
@@ -18,28 +18,38 @@ Application::Application(const std::string& application_name)
     , m_is_minimized(false)
     , m_last_frame_time(0.0f)
 {
-    m_input_manager = core::InputManager::GetInstance();
-    s_instance      = this;
-    graphics::api::Renderer::Init(graphics::core::GraphicsSubsystemType::OPENGL);
-
     sputnik::core::Logger::Init();
+
+    m_input_manager = InputManager::GetInstance();
+    s_instance      = this;
+
+    // Initialize windows, and imgui
+    m_render_system = RenderSystem::getInstance();
+    m_render_system->initialize(RenderSystemType::OPEN_GL);
+
+    m_physics_system = PhysicsSystem::getInstance();
+
+    m_editor = sputnik::editor::Editor::getInstance();
 }
 
-Application ::~Application() {}
+Application::~Application() {}
 
 void Application::Run()
 {
+    m_render_system->setClearColor(0.16f, 0.16f, 0.16f, 1.00f);
     while(m_is_running)
     {
         float          time      = (float)glfwGetTime();
         core::TimeStep time_step = time - m_last_frame_time;
         m_last_frame_time        = time;
 
-        graphics::api::Renderer::SetClearColor(0.16f, 0.16f, 0.16f, 1.00f);
-        graphics::api::Renderer::Clear();
+        m_render_system->clear();
 
         if(!m_is_minimized)
         {
+            m_editor->beginViewportFrame();
+            m_physics_system->simulatePhysics(time_step);
+            m_render_system->update(time_step);
             for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
             {
                 layer->OnPreUpdate(time_step);
@@ -54,10 +64,36 @@ void Application::Run()
             {
                 layer->OnPostUpdate(time_step);
             }
-        }
+            m_editor->endViewportFrame();
 
-        graphics::api::Renderer::Update(time_step);
-        m_input_manager->LateUpdate(time_step);
+            // UI pass
+            m_editor->beginFrame();
+            m_editor->update(time_step);
+            if(m_editor->isViewportActive())
+            {
+                m_render_system->drawUI();
+
+                for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+                {
+                    layer->OnPreUpdateUI(time_step);
+                }
+
+                for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+                {
+                    layer->OnUpdateUI(time_step);
+                }
+
+                for(const std::shared_ptr<core::Layer>& layer : m_application_layer_stack)
+                {
+                    layer->OnPostUpdateUI(time_step);
+                }
+            }
+            m_editor->endFrame();
+
+            m_editor->lateUpdate(time_step);
+            m_input_manager->LateUpdate(time_step);
+            m_render_system->lateUpdate(time_step);
+        }
     }
 }
 

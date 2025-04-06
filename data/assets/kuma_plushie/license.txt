@@ -1,0 +1,11 @@
+Model Information:
+* title:	Kuma Plushie
+* source:	https://sketchfab.com/3d-models/kuma-plushie-ef7953557f80427eadd539e9b0bb328a
+* author:	eggypudding (https://sketchfab.com/eggypudding)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Kuma Plushie" (https://sketchfab.com/3d-models/kuma-plushie-ef7953557f80427eadd539e9b0bb328a) by eggypudding (https://sketchfab.com/eggypudding) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

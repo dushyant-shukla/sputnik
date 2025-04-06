@@ -1,11 +1,10 @@
 #pragma once
 
-#include <platform/win32/win32_window.h>
+#include <main/entry_point.h>
 #include <main/application.h>
-#include <graphics/glcore/shader.h>
-#include <graphics/glcore/texture.h>
-#include <graphics/glcore/index_buffer.h>
-#include <graphics/glcore/vertex_attribute.h>
+#include <core/layers/layer.h>
+#include <core/time_step.h>
+
 #include <vector2.h>
 #include <vector3.h>
 
@@ -14,26 +13,37 @@
 namespace sputnik::demos
 {
 
-class Sandbox : public sputnik::main::Application
+class SandboxDemoLayer : public core::Layer
 {
 
 public:
-    Sandbox();
-    ~Sandbox();
+    SandboxDemoLayer(const std::string& name);
+    virtual ~SandboxDemoLayer();
 
-    virtual void Initialize() override;
-    virtual void Update(float delta_time) override;
-    virtual void Render(float aspect_ratio) override;
-    virtual void Shutdown() override;
+    virtual void OnAttach();
+    virtual void OnDetach();
+    virtual void OnUpdate(const core::TimeStep& time_step);
+    virtual void OnEvent();
+    virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    std::shared_ptr<sputnik::glcore::Shader>                              m_shader;
-    std::shared_ptr<sputnik::glcore::VertexAttribute<ramanujan::Vector3>> m_vertex_positions;
-    std::shared_ptr<sputnik::glcore::VertexAttribute<ramanujan::Vector3>> m_vertex_normals;
-    std::shared_ptr<sputnik::glcore::VertexAttribute<ramanujan::Vector2>> m_vertex_uv;
-    std::shared_ptr<sputnik::glcore::IndexBuffer>                         m_index_buffer;
-    std::shared_ptr<sputnik::glcore::Texture>                             m_texture;
-    float                                                                 m_rotation;
+};
+
+class SandboxDemo : public sputnik::main::Application
+{
+
+public:
+    SandboxDemo(const std::string& name) : sputnik::main::Application(name)
+    {
+        PushLayer(std::make_shared<SandboxDemoLayer>(name));
+    }
+
+    ~SandboxDemo() {}
 };
 
 } // namespace sputnik::demos
+
+sputnik::main::Application* sputnik::main::CreateApplication()
+{
+    return new sputnik::demos::SandboxDemo("Sandbox Demo");
+}

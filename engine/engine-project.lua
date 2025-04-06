@@ -1,11 +1,11 @@
 ------------------------------------------------------------- RENDERER LIBRARY PROJECT CONFIGURATION ------------------------------------------------------
 
-project "sputnik"
+project "engine"
 kind "StaticLib"
 language "C++"
 characterset("MBCS")
 
-targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
+-- targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
 objdir("$(SolutionDir)_output/bin-intermediate/" .. outputdir .. "/%{prj.name}")
 
 pchheader "pch.h"
@@ -16,9 +16,13 @@ files
   "source/**.h",
   "source/**.cpp",
   "source/**.inl",
+  "source/**.hpp",
 
   -- external source files
   "%{externals.glad}/src/glad.c",   -- "%{externals.glad}/src/**.c", -- (**.c) does not work for some reason
+
+  "%{externals.glm}/glm/**.hpp",
+  "%{externals.glm}/glm/**.inl"
 }
 
 includedirs
@@ -36,6 +40,7 @@ externalincludedirs
   "%{include_dir.spdlog}",
   "%{include_dir.imguizmo}",
   "%{include_dir.glfw}",
+  "%{include_dir.glm}",
   "%{externals.imgui}/backends/imgui_impl_glfw.h",
   "%{externals.imgui}/backends/imgui_impl_opengl3.h"
 }

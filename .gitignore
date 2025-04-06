@@ -358,3 +358,5 @@ _output/
 
 **/bin/**
 **/bin-int/**
+**/Debug-windows-x86_64/**
+**/Release-windows-x86_64/**

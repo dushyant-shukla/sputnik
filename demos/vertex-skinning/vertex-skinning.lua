@@ -5,7 +5,7 @@ kind "WindowedApp"
 language "C++"
 characterset("MBCS")
 
-targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
+-- targetdir("$(SolutionDir)_output/bin/" .. outputdir .. "/%{prj.name}")
 objdir("$(SolutionDir)_output/bin-intermediate/" .. outputdir .. "/%{prj.name}")
 
 files
@@ -36,12 +36,13 @@ externalincludedirs
   "%{include_dir.cgltf}",
   "%{include_dir.imgui}",
   "%{include_dir.spdlog}",
-  "%{include_dir.imguizmo}"
+  "%{include_dir.imguizmo}",
+  "%{include_dir.glm}",
 }
 
 links
 {
-  "sputnik"
+  "engine"
 }
 
 -- In debug mode, the application should link to the console subsystem.

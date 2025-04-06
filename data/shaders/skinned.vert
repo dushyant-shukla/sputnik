@@ -9,6 +9,7 @@ layout(location = 4) in ivec4 joints;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 normal_matrix;
 
 uniform mat4 skin_transforms[120];
 
@@ -27,7 +28,7 @@ void main()
     skin += skin_transforms[joints.w] * weights.w;
 
     gl_Position = projection * view * model * skin * vec4(position, 1.0);
-    mat4 normal_matrix = transpose(inverse(model));
+    //mat4 normal_matrix = transpose(inverse(model));
 
     vs_out.frag_position = vec3(model * skin * vec4(position, 1.0));
     vs_out.normal = mat3(skin * normal_matrix) * normal;

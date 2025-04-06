@@ -2,6 +2,8 @@
 
 #include "core/time_step.h"
 
+#include <string>
+
 namespace sputnik::core
 {
 

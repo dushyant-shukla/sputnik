@@ -10,7 +10,7 @@ namespace sputnik::graphics::api
 
 EditorCamera::EditorCamera()
 {
-    m_input_manager = sputnik::core::InputManager::GetInstance();
+    m_input_manager = InputManager::GetInstance();
     UpdateView();
     UpdateProjection();
 }

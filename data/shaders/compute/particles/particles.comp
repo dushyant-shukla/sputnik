@@ -1,0 +1,51 @@
+#version 460 core
+
+layout(local_size_x = 1000, local_size_y = 1, local_size_z = 1) in;
+
+const float gravity_1 = 1000.0;
+const vec3 black_hole_position_1 = vec3(5.0, 0.0, 0.0);
+
+const float gravity_2 = 1000.0;
+const vec3 black_hole_position_2 = vec3(-5.0, 0.0, 0.0);
+
+const float particle_mass = 0.1;
+const float particle_inv_mass = 1.0 / 0.1;
+const float delta_time = 0.0005;
+const float max_distance = 45.0;
+
+layout(std430, binding = 0) buffer particle_positions {
+    vec4 positions[];
+};
+
+layout(std430, binding = 1) buffer particle_velocities {
+    vec4 velocities[];
+};
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    vec3 particle_position = positions[idx].xyz;
+
+    // force from attactor 1
+    vec3 d = black_hole_position_1 - particle_position;
+    float dist = length(d);
+    vec3 force = (gravity_1 / dist) * normalize(d);
+
+    // force from attactor 2
+    d = black_hole_position_2 - particle_position;
+    dist = length(d);
+    force += (gravity_2 / dist) * normalize(d);
+
+    if(dist > max_distance)
+    {
+        positions[idx] = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    else
+    {
+        vec3 a = force * particle_inv_mass;
+
+        // delta(position) = velocity * time + 0.5 * acceleration * delta_time * delta_time
+        positions[idx] = vec4(particle_position + velocities[idx].xyz * delta_time + 0.5 * a * delta_time * delta_time, 1.0);
+
+        velocities[idx] = vec4(velocities[idx].xyz + a * delta_time, 0.0);
+    }
+}

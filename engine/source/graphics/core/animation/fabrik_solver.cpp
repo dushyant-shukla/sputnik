@@ -186,4 +186,36 @@ void FabrikSolver::GlobalPositionsToLocalTransforms()
     }
 }
 
+void FabrikSolver::FetchPoints(std::vector<ramanujan::experimental::vec4>& points)
+{
+    size_t req_size = Size();
+    points.resize(req_size);
+
+    for(unsigned int i = 0, size = Size(); i < size; ++i)
+    {
+        Transform world = GetGlobalTransform(i);
+        points[i]       = ramanujan::experimental::vec4(world.position.x, world.position.y, world.position.z, 1.0f);
+    }
+}
+
+void FabrikSolver::FetchLines(std::vector<ramanujan::experimental::vec4>& points)
+{
+    if(Size() < 2)
+    {
+        return;
+    }
+    size_t required_verts = (static_cast<size_t>(Size()) - 1) * 2;
+    points.resize(required_verts);
+
+    unsigned int index = 0;
+    for(unsigned int i = 0, size = Size(); i < size - 1; ++i)
+    {
+        Transform world = GetGlobalTransform(i);
+        points[index++] = ramanujan::experimental::vec4(world.position.x, world.position.y, world.position.z, 1.0f);
+
+        world           = GetGlobalTransform(i + 1);
+        points[index++] = ramanujan::experimental::vec4(world.position.x, world.position.y, world.position.z, 1.0f);
+    }
+}
+
 } // namespace sputnik::graphics::core

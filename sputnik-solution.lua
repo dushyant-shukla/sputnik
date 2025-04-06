@@ -7,7 +7,10 @@ configurations
   "Release"
 }
 
+-- outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+targetdir(outputdir)
+
 
 externals               = {}
 externals["glad"]       = "$(SolutionDir)engine/externals/glad"
@@ -18,6 +21,7 @@ externals["imgui"]      = "$(SolutionDir)engine/externals/imgui"
 externals["spdlog"]     = "$(SolutionDir)engine/externals/spdlog"
 externals["imguizmo"]   = "$(SolutionDir)engine/externals/imguizmo"
 externals["glfw"]       = "$(SolutionDir)engine/externals/glfw"
+externals["glm"]       = "$(SolutionDir)engine/externals/glm"
 
 include_dir              = {}
 include_dir["glad"]      = "%{externals.glad}/include"
@@ -28,6 +32,7 @@ include_dir["imgui"]     = "%{externals.imgui}"
 include_dir["spdlog"]    = "%{externals.spdlog}/include"
 include_dir["imguizmo"]  = "%{externals.imguizmo}"
 include_dir["glfw"]      = "%{externals.glfw}/include"
+include_dir["glm"]       = "%{externals.glm}"
 
 static_libs           = {}
 static_libs["opengl"] = "opengl32.lib"
@@ -65,19 +70,38 @@ group ""
 
 -- include the renderer project
 include "engine/engine-project.lua"
+-- include "runtime/runtime.lua"
+-- include "editor/editor.lua"
 
 -- include the demo projects
--- include "demos/sandbox/sandbox.lua"
 -- include "demos/curve-plotting/curve-plotting.lua"
 -- include "demos/animation-poses/animation-poses.lua"
 
-group "animation-demos"
+group "demos-animation"
 include "demos/vertex-skinning/vertex-skinning.lua"
-include "demos/ik-ccd-solver/ik-ccd-solver.lua"
-include "demos/fabrik-ik-solver-demo/fabrik-ik-solver-demo.lua"
+include "demos/ik-ccd-solver-basic/ik-ccd-solver-basic.lua"
+include "demos/ik-fabrik-solver-basic/ik-fabrik-solver-basic.lua"
 group ""
 
-group "physics-demos"
-include "demos/physics/particles/basic/basic-particles.lua"
+group "demos-graphics"
+-- include "demos/sandbox/sandbox.lua"
+include "demos/graphics-sandbox/graphics-sandbox.lua"
+include "demos/compute-image/compute-image.lua"
+include "demos/compute-particles/compute-particles.lua"
+include "demos/compute-cloth/compute-cloth.lua"
+group ""
+
+
+group "demos-physics"
+-- include "demos/physics-basic-particles/physics-basic-particles.lua"
+include "demos/physics-basic-mass-spring/physics-basic-mass-spring.lua"
+include "demos/physics-rope-bridge/physics-rope-bridge.lua"
+include "demos/physics-mass-spring-cube/physics-mass-spring-cube.lua"
+include "demos/physics-mass-aggregate-rope/physics-mass-aggregate-rope.lua"
+include "demos/physics-mass-aggregate-cloth/physics-mass-aggregate-cloth.lua"
+include "demos/physics-mass-aggregate-cube/physics-mass-aggregate-cube.lua"
+include "demos/physics-sandbox/physics-sandbox.lua"
+-- include "demos/physics-mass-spring-rope/physics-mass-spring-rope.lua"
+-- include "demos/physics-mass-aggregate-rope/physics-mass-aggregate-rope.lua"
 group ""
 
