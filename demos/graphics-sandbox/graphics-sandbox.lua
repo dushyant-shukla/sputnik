@@ -11,7 +11,8 @@ objdir("$(SolutionDir)_output/bin-intermediate/" .. outputdir .. "/%{prj.name}")
 files
 {
   "source/**.h",
-  "source/**.cpp"
+  "source/**.cpp",
+  "source/**.hpp",
 }
 
 -- includedirs

@@ -39,7 +39,7 @@ public:
 protected:
     void integrate(const PhxReal& duration);
 
-    void resolveContact(const PhxContact& contact);
+    void resolveContact(const PhxContact& contact, const PhxReal& dt);
 
 protected:
     RigidBodies        m_rigid_bodies;

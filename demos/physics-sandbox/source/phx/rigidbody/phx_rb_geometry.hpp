@@ -13,7 +13,11 @@ enum class PhxGeometryType
     Plane,
     HalfSpace,
     Sphere,
-    Box
+    Box,
+    Capsule,
+    Cone,
+    Hull,
+    TriangleMesh
 };
 
 class PhxGeometry

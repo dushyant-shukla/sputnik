@@ -229,6 +229,14 @@ void RenderSystem::drawTrianglesIndexed(const u64& index_count, const Material& 
     m_ogl_renderer->drawTrianglesIndexed(index_count, material, model);
 }
 
+void RenderSystem::drawTrianglesIndexed(const u64&                  vertex_count,
+                                        const Material&             material,
+                                        const mat4&                 model,
+                                        const std::vector<Matrix4>& skin_transformations)
+{
+    m_ogl_renderer->drawTrianglesIndexed(vertex_count, material, model, skin_transformations);
+}
+
 void RenderSystem::drawTrianglesInstanced(const u64& vertex_count, const Material& material, const u32& instance_count)
 {
     m_ogl_renderer->drawTrianglesInstanced(vertex_count, instance_count, material);

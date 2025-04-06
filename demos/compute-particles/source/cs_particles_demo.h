@@ -1,13 +1,15 @@
 #pragma once
 
 #include <main/application.h>
-#include <graphics/glcore/vertex_attribute.h>
-#include <graphics/glcore/shader.h>
+//#include <graphics/glcore/vertex_attribute.h>
+//#include <graphics/glcore/shader.h>
 #include <graphics/core/animation/animation_clip.h>
 #include <graphics/core/animation/pose.h>
-#include <graphics/glcore/debug_draw.h>
+//#include <graphics/glcore/debug_draw.h>
 #include <graphics/core/animation/skeleton.h>
-#include <graphics/glcore/texture.h>
+//#include <graphics/glcore/texture.h>
+#include <graphics/glcore/gl_shader.h>
+#include <graphics/glcore/gl_texture.h>
 #include <graphics/core/animation/skinning_type.h>
 #include <graphics/core/geometry/mesh.h>
 #include <main/entry_point.h>
@@ -24,7 +26,7 @@ namespace sputnik::demos
 
 using namespace ramanujan;
 using namespace ramanujan::experimental;
-using namespace sputnik::graphics::glcore;
+using namespace sputnik::graphics::gl;
 
 class ComputeShaderParticlesDemo : public core::Layer
 {
@@ -39,9 +41,10 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    std::shared_ptr<sputnik::graphics::glcore::Shader>   m_particle_compute_shader;
-    std::shared_ptr<sputnik::graphics::glcore::Shader>   m_particle_draw_shader;
-    std::shared_ptr<VertexAttribute<ramanujan::Vector4>> m_particle_positions;
+    std::unique_ptr<OglVertexArray>                      m_vao;
+    std::shared_ptr<OglShaderProgram>                    m_particle_compute_shader;
+    std::shared_ptr<OglShaderProgram>                    m_particle_draw_shader;
+    //std::shared_ptr<VertexAttribute<ramanujan::Vector4>> m_particle_positions;
 
     unsigned int m_texture_id;
 

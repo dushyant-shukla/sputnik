@@ -60,9 +60,13 @@ public:
      */
     void setAwake(bool awake = true);
 
+    void enableDamping(bool enable_damping = true);
+
     void setCanSleep(bool can_sleep);
 
     void setMass(const PhxReal& mass);
+
+    void setCenterOfMass(const PhxVec3& center_of_mass);
 
     void setInertiaTensor(const PhxMat3& inertia_tensor);
 
@@ -91,6 +95,8 @@ public:
 
     void setElasticity(const PhxReal& elasticity);
 
+    void setFriction(const PhxReal& friction);
+
     /*!
      * @brief Calculate internal data from rigid body state. This method must be called anytime rigibody's state is
      * modified directly. It is also called during integration.
@@ -113,15 +119,31 @@ public:
 
     PhxVec3 getPointInWorldSpace(const PhxVec3& point) const;
 
+    const PhxMat3& getInertiaTensorLocal() const;
+
+    const PhxMat3& getInertiaTensorGlobal() const;
+
+    const PhxMat3& getInverseInertiaTensorInWorldSpace() const;
+
     const PhxVec3& getAcceleration() const;
 
     const PhxVec3& getWorldPosition() const;
 
     const PhxVec3& getLinerVelocity() const;
 
+    const PhxVec3& getAngularVelocity() const;
+
     const PhxReal& getElasticity() const;
 
-    void applyLinearImpluse(const PhxVec3& impluse);
+    const PhxReal& getFriction() const;
+
+    void applyImpulse(const PhxVec3& impluse, const PhxVec3& impluse_point, const PhxReal& dt);
+
+    void applyLinearImpulse(const PhxVec3& impluse, const PhxReal& dt);
+
+    void applyAngularImpulse(const PhxVec3& implulse, const PhxReal& dt);
+
+    void update(const PhxReal& dt);
 
 protected:
     /*!
@@ -155,10 +177,12 @@ protected:
      */
     PhxReal m_elasticity;
 
+    PhxReal m_friction;
+
     /*!
      * @brief Linear position of the rigid body in world space.
      */
-    PhxVec3 m_position_world;
+    PhxVec3 m_position_global;
 
     /*!
      * @brief Angular orientation of the rigid body in world space.
@@ -168,12 +192,12 @@ protected:
     /*!
      * @brief Linear velocity of the rigid body in world space.
      */
-    PhxVec3 m_velocity_world;
+    PhxVec3 m_linear_velocity_global;
 
     /*!
      * @brief Angular velocity (or rotation) of the rigid body in world space.
      */
-    PhxVec3 m_angular_velocity_world;
+    PhxVec3 m_angular_velocity_global;
 
     /*!
      * @brief Holds the amount of motion of the body. The motion is a measure of how much the body is moving. It is a
@@ -185,7 +209,11 @@ protected:
      * @brief The transformation matrix for the rigid body. It is derived from the position and orientation of the body
      * once per frame.
      */
-    PhxMat4 m_transform_matrix_world;
+    PhxMat4 m_transform_matrix_global;
+
+    PhxMat3 m_inertia_tensor_local;
+
+    PhxMat3 m_inertia_tensor_global;
 
     /*!
      * @brief The inverse inertia tensor of the body in world space. The inverse inertia tensor is used to convert
@@ -201,7 +229,7 @@ protected:
     /*!
      * @brief The inverse inertia tensor of the body in world space.
      */
-    PhxMat3 m_inv_inertia_tensor_world;
+    PhxMat3 m_inv_inertia_tensor_global;
 
     /*!
      * @brief Holds the acceleration of the rigid body. This can be used to set acceleration due to gravity or any other
@@ -212,7 +240,7 @@ protected:
     /*!
      * @brief Holds the acceleration of the rigid body during the last frame.
      */
-    PhxVec3 m_acceleration_last_frame;
+    // PhxVec3 m_acceleration_last_frame;
 
     /*!
      * @brief Stores the accumulated force on the rigid body. It's cleared after each integration step.
@@ -228,12 +256,14 @@ protected:
      * @brief A body can be put to sleep to avoid unnecessary computations. A sleeping body is not simulated by the
      * physics.
      */
-    bool m_is_awake;
+    bool m_is_awake{true};
 
     /*!
      * @brief Some bodies should never go to sleep
      */
-    bool m_can_sleep;
+    bool m_can_sleep{false};
+
+    bool m_enable_damping{false};
 };
 
 } // namespace phx::rb

@@ -54,7 +54,8 @@ public:
     // void Bind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot);
 
     void Draw();
-    void draw(const Material& material, const mat4& model = {});
+    void draw(const Material& material, const mat4& model);
+    void draw(const Material& material, const mat4& model, const std::vector<Matrix4>& skin_transformations);
     void drawInstanced(const Material& material, const u32& num_instances);
     void DrawInstanced(unsigned int num_instances);
     // void Unbind(int position_slot, int normal_slot, int uv_slot, int weight_slot, int influence_slot);

@@ -34,6 +34,10 @@ public:
     Transform    GetGlobalTransform(unsigned int joint_index);
     Transform&   operator[](unsigned int index);
 
+    // Some debug methods
+    void FetchPoints(std::vector<ramanujan::experimental::vec4>& points);
+    void FetchLines(std::vector<ramanujan::experimental::vec4>& points);
+
 protected:
     void LocalTransformsToGlobalPositions();
 

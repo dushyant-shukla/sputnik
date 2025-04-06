@@ -4,12 +4,14 @@
 
 #include <vector.hpp>
 #include <matrix.hpp>
+#include <matrix4.h>
 
 #include <glm/glm.hpp>
 
 namespace sputnik::graphics::gl
 {
 
+using namespace ramanujan;
 using namespace ramanujan::experimental;
 
 enum class ShaderStageType : u32
@@ -24,18 +26,18 @@ enum class ShaderStageType : u32
 
 cstring shaderStageTypeToString(const ShaderStageType& type);
 
-//class ShaderStageBits
+// class ShaderStageBits
 //{
-//public:
-//    NON_INSTATIABLE(ShaderStageBits)
+// public:
+//     NON_INSTATIABLE(ShaderStageBits)
 //
-//    static const u32 kVertexShaderBit;
-//    static const u32 kFragmentShaderBit;
-//    static const u32 kGeometryShaderBit;
-//    static const u32 kTessellationControlShaderBit;
-//    static const u32 kTessellationEvaluationShaderBit;
-//    static const u32 kComputeShaderBit;
-//};
+//     static const u32 kVertexShaderBit;
+//     static const u32 kFragmentShaderBit;
+//     static const u32 kGeometryShaderBit;
+//     static const u32 kTessellationControlShaderBit;
+//     static const u32 kTessellationEvaluationShaderBit;
+//     static const u32 kComputeShaderBit;
+// };
 
 /////////////////////////////////// EXPERIMENTAL /////////////////////////////////
 
@@ -140,6 +142,7 @@ public:
     virtual void setFloat3(const std::string& name, const vec3& value);
     virtual void setFloat4(const std::string& name, const vec4& value);
     virtual void setMat4(const std::string& name, const mat4& value);
+    virtual void setMat4s(const std::string& name, const std::vector<Matrix4>& value);
     virtual void setMat3(const std::string& name, const mat3& value);
 
     virtual void setMat4(const std::string& name, const glm::mat4& value);

@@ -1,7 +1,7 @@
 #include "cs_particles_demo.h"
 
-#include <graphics/glcore/uniform.h>
-#include <graphics/glcore/renderer.h>
+// #include <graphics/glcore/uniform.h>
+// #include <graphics/glcore/renderer.h>
 #include <graphics/glcore/gltf_loader.h>
 #include <matrix4.h>
 #include <vector3.h>
@@ -30,11 +30,19 @@ void ComputeShaderParticlesDemo::OnAttach()
 
     // sputnik::graphics::api::EditorCamera::GetInstance()->SetPosition({0.0f, -5.0f, 5.0f});
 
-    m_particle_compute_shader =
-        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/particles/particles.comp");
-    m_particle_draw_shader =
-        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/particles/particles.vert",
-                                                            "../../data/shaders/compute/particles/particles.frag");
+    // m_particle_compute_shader =
+    //     std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/particles/particles.comp");
+
+    m_vao = std::make_unique<OglVertexArray>();
+
+    m_particle_compute_shader = std::make_shared<OglShaderProgram>();
+    m_particle_compute_shader->addShaderStage("../../data/shaders/compute/particles/particles.comp");
+    m_particle_compute_shader->configure();
+
+    m_particle_draw_shader = std::make_shared<OglShaderProgram>();
+    m_particle_draw_shader->addShaderStage("../../data/shaders/compute/particles/particles.vert");
+    m_particle_draw_shader->addShaderStage("../../data/shaders/compute/particles/particles.frag");
+    m_particle_draw_shader->configure();
 
     // each particle has a position (x, y, z, w)
     unsigned int buffer_size = TOTAL_PARTICLE_COUNT * 4 * sizeof(float);
@@ -90,12 +98,12 @@ void ComputeShaderParticlesDemo::OnUpdate(const core::TimeStep& time_step)
 {
     // updating particle positions
     {
-        m_particle_compute_shader->Bind();                       // Bind the compute shader
+        m_particle_compute_shader->bind();                       // Bind the compute shader
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbos[0]); // bind the ssbo for positions
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbos[1]); // bind the ssbo for velocities
         glDispatchCompute(TOTAL_PARTICLE_COUNT / 1000, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        m_particle_compute_shader->Unbind(); // Unbind the compute shader
+        m_particle_compute_shader->unbind(); // Unbind the compute shader
     }
 
     // const auto& camera        = sputnik::graphics::api::Camera::GetInstance();
@@ -103,18 +111,25 @@ void ComputeShaderParticlesDemo::OnUpdate(const core::TimeStep& time_step)
     const auto& projection = camera->GetCameraPerspective();
     const auto& view       = camera->GetCameraView();
 
-    m_particle_draw_shader->Bind();
+    m_particle_draw_shader->bind();
+    m_vao->bind();
     mat4 model{};
-    Uniform<mat4>::Set(m_particle_draw_shader->GetUniform("model"), model);
-    Uniform<mat4>::Set(m_particle_draw_shader->GetUniform("view"), view);
-    Uniform<mat4>::Set(m_particle_draw_shader->GetUniform("projection"), projection);
+    // Uniform<mat4>::Set(m_particle_draw_shader->GetUniform("model"), model);
+    // Uniform<mat4>::Set(m_particle_draw_shader->GetUniform("view"), view);
+    // Uniform<mat4>::Set(m_particle_draw_shader->GetUniform("projection"), projection);
+
+    m_particle_draw_shader->setMat4("model", model);
+    m_particle_draw_shader->setMat4("view", view);
+    m_particle_draw_shader->setMat4("projection", projection);
 
     // render particles
     {
         glBindBuffer(GL_ARRAY_BUFFER, ssbos[0]); // send the data from position ssbo to the vertex shader
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        Uniform<Vector4>::Set(m_particle_draw_shader->GetUniform("color"), m_particle_color);
+        // Uniform<Vector4>::Set(m_particle_draw_shader->GetUniform("color"), m_particle_color);
+        ramanujan::experimental::vec4 color = m_particle_color;
+        m_particle_draw_shader->setFloat4("color", color);
         glPointSize(1.0f);
         glDrawArrays(GL_POINTS, 0, TOTAL_PARTICLE_COUNT); // render the particles
     }
@@ -143,12 +158,15 @@ void ComputeShaderParticlesDemo::OnUpdate(const core::TimeStep& time_step)
                         attactor2_position.z,
                         1.0f};
         glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW);
-        Uniform<Vector4>::Set(m_particle_draw_shader->GetUniform("color"), m_attractor_color);
+        // Uniform<Vector4>::Set(m_particle_draw_shader->GetUniform("color"), m_attractor_color);
+        ramanujan::experimental::vec4 color = m_attractor_color;
+        m_particle_draw_shader->setFloat4("color", color);
         glPointSize(10.0f);
         glDrawArrays(GL_POINTS, 0, 2); // render the attractors
     }
 
-    m_particle_draw_shader->Unbind();
+    m_vao->unbind();
+    m_particle_draw_shader->unbind();
 }
 
 void ComputeShaderParticlesDemo::OnEvent() {}

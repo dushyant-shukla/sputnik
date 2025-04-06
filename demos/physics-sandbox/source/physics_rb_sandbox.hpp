@@ -45,7 +45,7 @@ private:
 
     void debugDrawPhxGeometries();
 
-    mat4 getMat4Transform(const PhxMat4& matrix) const;
+    mat4 getRenderingMat4Transform(const PhxMat4& matrix) const;
 
 private:
     // Rendering stuff
@@ -56,8 +56,11 @@ private:
     std::shared_ptr<OglTexture2D> m_texture;
     RenderSystem*                 m_render_system{nullptr};
 
-    std::shared_ptr<Model> m_sphere;
-    std::shared_ptr<Model> m_box;
+    std::shared_ptr<Model>        m_sphere;
+    std::shared_ptr<Model>        m_box;
+    std::shared_ptr<Model>        m_basketball;
+    std::shared_ptr<OglTexture2D> m_diff_basketball_texture;
+    std::shared_ptr<OglTexture2D> m_cloth_diff_texture;
 
     // Physics stuff
     // std::shared_ptr<phx::PhxTriangleMesh> m_triangle_mesh;

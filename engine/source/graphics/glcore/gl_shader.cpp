@@ -442,6 +442,13 @@ void OglShaderProgram::setMat4(const std::string& name, const mat4& value)
     glUniformMatrix4fv(uniform_id, 1, GL_FALSE, (float*)&value.m[0]);
 }
 
+void OglShaderProgram::setMat4s(const std::string& name, const std::vector<Matrix4>& value)
+{
+    u32 uniform_id = getUniformId(name);
+    // glUniformMatrix4fv(uniform_id, (GLsizei)value.size(), GL_FALSE, (float*)&value[0]);
+    glUniformMatrix4fv(uniform_id, (GLsizei)value.size(), GL_FALSE, (float*)&value[0].v[0]);
+}
+
 void OglShaderProgram::setMat3(const std::string& name, const mat3& value)
 {
     u32 uniform_id = getUniformId(name);

@@ -2,15 +2,20 @@
 
 #include <editor/editor_camera.h>
 #include <graphics/api/camera.h>
-#include <graphics/glcore/uniform.h>
-#include <graphics/api/renderer.h>
+// #include <graphics/glcore/uniform.h>
+// #include <graphics/api/renderer.h>
+#include <core/systems/render_system.h>
 
 #include <constants.h>
 #include <vector.hpp>
 #include <matrix.hpp>
 
+#include <glad/glad.h>
+
 namespace sputnik::demos
 {
+
+using namespace sputnik::core::systems;
 
 ComputerShaderClothDemoLayer::ComputerShaderClothDemoLayer(const std::string& name) : core::Layer{name} {}
 
@@ -21,16 +26,31 @@ void ComputerShaderClothDemoLayer::OnAttach()
     glGenBuffers(2, m_position_ssbos);
     glGenBuffers(2, m_velocity_ssbos);
 
-    m_compute_integration_shader =
-        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/cloth/cloth_integration.comp");
+    m_vao = std::make_unique<OglVertexArray>();
+
+    m_compute_integration_shader = std::make_shared<OglShaderProgram>();
+    m_compute_integration_shader->addShaderStage("../../data/shaders/compute/cloth/cloth_integration.comp");
+    m_compute_integration_shader->configure();
+
     // m_compute_normal_shader =
     //     std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/cloth/cloth_normal.comp");
-    m_cloth_shader = std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/cloth/cloth.vert",
-                                                                         "../../data/shaders/compute/cloth/cloth.frag");
+    // m_cloth_shader =
+    // std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/cloth/cloth.vert",
+    //                                                                     "../../data/shaders/compute/cloth/cloth.frag");
 
-    m_particles_shader =
-        std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/cloth/cloth_particles.vert",
-                                                            "../../data/shaders/compute/cloth/cloth_particles.frag");
+    m_cloth_shader = std::make_shared<OglShaderProgram>();
+    m_cloth_shader->addShaderStage("../../data/shaders/compute/cloth/cloth.vert");
+    m_cloth_shader->addShaderStage("../../data/shaders/compute/cloth/cloth.frag");
+    m_cloth_shader->configure();
+
+    // m_particles_shader =
+    //     std::make_shared<sputnik::graphics::glcore::Shader>("../../data/shaders/compute/cloth/cloth_particles.vert",
+    //                                                         "../../data/shaders/compute/cloth/cloth_particles.frag");
+
+    m_particles_shader = std::make_shared<OglShaderProgram>();
+    m_particles_shader->addShaderStage("../../data/shaders/compute/cloth/cloth_particles.vert");
+    m_particles_shader->addShaderStage("../../data/shaders/compute/cloth/cloth_particles.frag");
+    m_particles_shader->configure();
 
     mat4 transform{};
     transform = transform.translate({0.0f, real(m_cloth_dimensions.y), 0.0f});
@@ -111,10 +131,13 @@ void ComputerShaderClothDemoLayer::OnAttach()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    m_color_texture   = std::make_shared<Texture>("../../data/assets/fabric_basecolor.jpg");
-    m_opacity_texture = std::make_shared<Texture>("../../data/assets/fabric_opacity.jpg");
+    m_color_texture   = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg");
+    m_opacity_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_opacity.jpg");
 
-    sputnik::graphics::api::Renderer::SetCameraType(sputnik::graphics::api::CameraType::EditorCamera);
+    RenderSystem* render_system = RenderSystem::getInstance();
+    render_system->setCameraType(CameraType::EditorCamera);
+
+    // sputnik::graphics::api::Renderer::SetCameraType(sputnik::graphics::api::CameraType::EditorCamera);
 }
 
 void ComputerShaderClothDemoLayer::OnDetach()
@@ -129,33 +152,41 @@ void ComputerShaderClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
 {
     // update the positions and velocities
 
-    //const auto& camera = sputnik::graphics::api::Camera::GetInstance();
-     const auto& camera     = sputnik::graphics::api::EditorCamera::GetInstance();
+    // const auto& camera = sputnik::graphics::api::Camera::GetInstance();
+    const auto& camera     = sputnik::graphics::api::EditorCamera::GetInstance();
     const auto& projection = camera->GetCameraPerspective();
     const auto& view       = camera->GetCameraView();
 
     // draw the particle grid
     {
-        m_particles_shader->Bind();
+        m_vao->bind();
+        m_particles_shader->bind();
 
         mat4 model{};
-        Uniform<mat4>::Set(m_particles_shader->GetUniform("model"), model);
-        Uniform<mat4>::Set(m_particles_shader->GetUniform("view"), view);
-        Uniform<mat4>::Set(m_particles_shader->GetUniform("projection"), projection);
-        Uniform<vec4>::Set(m_particles_shader->GetUniform("color"), m_particle_color);
+        // Uniform<mat4>::Set(m_particles_shader->GetUniform("model"), model);
+        // Uniform<mat4>::Set(m_particles_shader->GetUniform("view"), view);
+        // Uniform<mat4>::Set(m_particles_shader->GetUniform("projection"), projection);
+        // Uniform<vec4>::Set(m_particles_shader->GetUniform("color"), m_particle_color);
+
+        m_particles_shader->setMat4("model", model);
+        m_particles_shader->setMat4("view", view);
+        m_particles_shader->setMat4("projection", projection);
+        m_particles_shader->setFloat4("color", m_particle_color);
+
         glBindBuffer(GL_ARRAY_BUFFER, m_particle_grid_vbo);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
         glBufferData(GL_ARRAY_BUFFER, m_buffer_size, &m_initial_positions[0], GL_DYNAMIC_DRAW);
         glPointSize(2.5f);
-        // glDrawArrays(GL_POINTS, 0, m_num_particles.x * m_num_particles.y); // render the particles
+        glDrawArrays(GL_POINTS, 0, m_num_particles.x * m_num_particles.y); // render the particles
 
-        m_particles_shader->Unbind();
+        m_particles_shader->unbind();
+        m_vao->unbind();
     }
 
     // update the positions and velocities
     {
-        m_compute_integration_shader->Bind(); // Bind the compute shader
+        m_compute_integration_shader->bind(); // Bind the compute shader
         for(int i = 0; i < 5; i++)
         {
             glDispatchCompute(m_num_particles.x / 10, m_num_particles.y / 10, 1);
@@ -169,19 +200,25 @@ void ComputerShaderClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_velocity_ssbos[1 - m_read_buffer_index]);
         }
 
-        m_compute_integration_shader->Unbind(); // Unbind the compute shader
+        m_compute_integration_shader->unbind(); // Unbind the compute shader
     }
 
     // draw the cloth
+    m_vao->bind();
     {
         // glDisable(GL_DEPTH_TEST);
         //   render any debug visuals
-        m_cloth_shader->Bind();
+        m_cloth_shader->bind();
 
         mat4 model{};
-        Uniform<mat4>::Set(m_cloth_shader->GetUniform("model"), model);
-        Uniform<mat4>::Set(m_cloth_shader->GetUniform("view"), view);
-        Uniform<mat4>::Set(m_cloth_shader->GetUniform("projection"), projection);
+        // Uniform<mat4>::Set(m_cloth_shader->GetUniform("model"), model);
+        // Uniform<mat4>::Set(m_cloth_shader->GetUniform("view"), view);
+        // Uniform<mat4>::Set(m_cloth_shader->GetUniform("projection"), projection);
+
+        m_cloth_shader->setMat4("model", model);
+        m_cloth_shader->setMat4("view", view);
+        m_cloth_shader->setMat4("projection", projection);
+
         // Uniform<vec4>::Set(m_draw_shader->GetUniform("color"), m_particle_color);
         glBindBuffer(GL_ARRAY_BUFFER, m_position_ssbos[1 - m_read_buffer_index]);
         // glBindBuffer(GL_ARRAY_BUFFER, m_particle_grid_vbo);
@@ -192,15 +229,22 @@ void ComputerShaderClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        m_color_texture->Set(m_cloth_shader->GetUniform("color_texture"), 0);
-        m_opacity_texture->Set(m_cloth_shader->GetUniform("opacity_texture"), 1);
+        // m_color_texture->Set(m_cloth_shader->GetUniform("color_texture"), 0);
+        // m_opacity_texture->Set(m_cloth_shader->GetUniform("opacity_texture"), 1);
+
+        m_cloth_shader->setInt("color_texture", 0);
+        m_cloth_shader->setInt("opacity_texture", 1);
+
+        m_color_texture->bind(0);
+        m_opacity_texture->bind(1);
+
         glPointSize(2.5f);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_element_buffer);
         glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
 
         // glDrawArrays(GL_POINTS, 0, m_num_particles.x * m_num_particles.y); // render the particles
 
-        m_cloth_shader->Unbind();
+        m_cloth_shader->unbind();
         // glEnable(GL_DEPTH_TEST);
     }
 
@@ -208,13 +252,19 @@ void ComputerShaderClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
     {
         glDisable(GL_DEPTH_TEST);
         //  render any debug visuals
-        m_particles_shader->Bind();
+        m_particles_shader->bind();
 
         mat4 model{};
-        Uniform<mat4>::Set(m_particles_shader->GetUniform("model"), model);
-        Uniform<mat4>::Set(m_particles_shader->GetUniform("view"), view);
-        Uniform<mat4>::Set(m_particles_shader->GetUniform("projection"), projection);
-        Uniform<vec4>::Set(m_particles_shader->GetUniform("color"), m_particle_color);
+        // Uniform<mat4>::Set(m_particles_shader->GetUniform("model"), model);
+        // Uniform<mat4>::Set(m_particles_shader->GetUniform("view"), view);
+        // Uniform<mat4>::Set(m_particles_shader->GetUniform("projection"), projection);
+        // Uniform<vec4>::Set(m_particles_shader->GetUniform("color"), m_particle_color);
+
+        m_particles_shader->setMat4("model", model);
+        m_particles_shader->setMat4("view", view);
+        m_particles_shader->setMat4("projection", projection);
+        m_particles_shader->setFloat4("color", m_particle_color);
+
         glBindBuffer(GL_ARRAY_BUFFER, m_position_ssbos[1 - m_read_buffer_index]);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -223,9 +273,10 @@ void ComputerShaderClothDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
         glDrawArrays(GL_POINTS, 0, m_num_particles.x * m_num_particles.y); // render the particles
 
-        m_particles_shader->Unbind();
+        m_particles_shader->unbind();
         glEnable(GL_DEPTH_TEST);
     }
+    m_vao->unbind();
 }
 
 void ComputerShaderClothDemoLayer::OnEvent() {}

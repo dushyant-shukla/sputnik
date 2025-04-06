@@ -44,11 +44,27 @@ void Model::draw(const Material& material, const mat4& model)
     }
 }
 
+void Model::draw(const Material& material, const mat4& model, const std::vector<Matrix4>& skin_transformations)
+{
+    for(auto& mesh : m_meshes)
+    {
+        mesh.draw(material, model, skin_transformations);
+    }
+}
+
 void Model::drawInstanced(const Material& material, const u32& num_instances)
 {
     for(auto& mesh : m_meshes)
     {
         mesh.drawInstanced(material, num_instances);
+    }
+}
+
+void Model::update(const std::vector<ramanujan::Matrix4>& pose_palette, const bool& cpu_skin)
+{
+    for(auto& mesh : m_meshes)
+    {
+        mesh.CpuSkin(pose_palette);
     }
 }
 

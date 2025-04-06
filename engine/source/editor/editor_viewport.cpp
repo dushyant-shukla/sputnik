@@ -114,30 +114,30 @@ void EditorViewport::renderEditorViewport()
                           m_viewport_bounds[1].first - m_viewport_bounds[0].first,
                           m_viewport_bounds[1].second - m_viewport_bounds[0].second);
 
-        auto [mx, my] = ImGui::GetMousePos();
+        // auto [mx, my] = ImGui::GetMousePos();
 
-        auto input = InputManager::GetInstance();
-        if(input->IsMouseButtonTriggered(MOUSE_BUTTON_LEFT))
-        {
-            ENGINE_ERROR("=========================VIEWPORT ACTIVE==============================");
-            ENGINE_INFO("viewport offset: ({}, {})", viewport_offset.x, viewport_offset.y);
-            ENGINE_INFO("viewport bounds: ({}, {}), ({}, {})",
-                        m_viewport_bounds[0].first,
-                        m_viewport_bounds[0].second,
-                        m_viewport_bounds[1].first,
-                        m_viewport_bounds[1].second);
-            ENGINE_INFO("IMGUI mouse pos: ({}, {})", mx, my);
-            ENGINE_INFO("Input mouse pos: ({}, {})", input->GetMousePositionX(), input->GetMousePositionY());
-            ENGINE_INFO("Input mouse max pos: ({}, {})", input->GetMouseMaxPositionX(), input->GetMouseMaxPositionY());
-            ENGINE_INFO("Cursor pos: ({}, {})",
-                        input->GetCursorPosition().x,
-                        input->GetCursorPosition().y); // this is the same as IMGUI mouse pos, except IMGUI starts
-                                                       // screen at top left, cursor starts at bottom left
-            ENGINE_INFO("Cursor max pos: ({}, {})", input->GetCursorMaxPosition().x, input->GetCursorMaxPosition().y);
-            ENGINE_INFO("Cursor view pos: ({}, {})",
-                        input->GetCursorViewPosition().x,
-                        input->GetCursorViewPosition().y);
-        }
+        // auto input = InputManager::GetInstance();
+        // if(input->IsMouseButtonTriggered(MOUSE_BUTTON_LEFT))
+        //{
+        //     ENGINE_ERROR("=========================VIEWPORT ACTIVE==============================");
+        //     ENGINE_INFO("viewport offset: ({}, {})", viewport_offset.x, viewport_offset.y);
+        //     ENGINE_INFO("viewport bounds: ({}, {}), ({}, {})",
+        //                 m_viewport_bounds[0].first,
+        //                 m_viewport_bounds[0].second,
+        //                 m_viewport_bounds[1].first,
+        //                 m_viewport_bounds[1].second);
+        //     ENGINE_INFO("IMGUI mouse pos: ({}, {})", mx, my);
+        //     ENGINE_INFO("Input mouse pos: ({}, {})", input->GetMousePositionX(), input->GetMousePositionY());
+        //     ENGINE_INFO("Input mouse max pos: ({}, {})", input->GetMouseMaxPositionX(),
+        //     input->GetMouseMaxPositionY()); ENGINE_INFO("Cursor pos: ({}, {})",
+        //                 input->GetCursorPosition().x,
+        //                 input->GetCursorPosition().y); // this is the same as IMGUI mouse pos, except IMGUI starts
+        //                                                // screen at top left, cursor starts at bottom left
+        //     ENGINE_INFO("Cursor max pos: ({}, {})", input->GetCursorMaxPosition().x,
+        //     input->GetCursorMaxPosition().y); ENGINE_INFO("Cursor view pos: ({}, {})",
+        //                 input->GetCursorViewPosition().x,
+        //                 input->GetCursorViewPosition().y);
+        // }
     }
     ImGui::End(); // end "viewport" window
     ImGui::PopStyleVar();

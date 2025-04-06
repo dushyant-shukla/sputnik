@@ -28,7 +28,10 @@ public:
 
     void Draw();
     void draw(const Material& material, const mat4& model = {});
+    void draw(const Material& material, const mat4& model, const std::vector<Matrix4>& skin_transformations);
     void drawInstanced(const Material& material, const u32& num_instances);
+
+    void update(const std::vector<ramanujan::Matrix4>& pose_palette, const bool& cpu_skin = false);
 
     static std::shared_ptr<Model> LoadModel(const std::string& path);
 

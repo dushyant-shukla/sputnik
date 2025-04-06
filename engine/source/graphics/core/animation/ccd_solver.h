@@ -27,6 +27,10 @@ public:
 
     bool Solve(const Transform& target);
 
+    // Some debug methods
+    void FetchPoints(std::vector<ramanujan::experimental::vec4>& points);
+    void FetchLines(std::vector<ramanujan::experimental::vec4>& points);
+
 protected:
     // Local transforms of the joint hierarchy that make up the IK chain.
     // Joint at every index is the child of the joint preceding it.

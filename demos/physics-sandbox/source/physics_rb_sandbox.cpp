@@ -92,7 +92,7 @@ PhysicsRigidBodySandboxDemoLayer::PhysicsRigidBodySandboxDemoLayer(const std::st
     m_box_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
     m_box_rb.calculateDerivedData();
 
-    m_phx_world.addRigidBody(&m_box_rb);
+    // m_phx_world.addRigidBody(&m_box_rb);
 }
 
 PhysicsRigidBodySandboxDemoLayer::~PhysicsRigidBodySandboxDemoLayer() {}
@@ -102,50 +102,78 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
     m_box    = Model::LoadModel("../../data/assets/box/Box.gltf");
     m_sphere = Model::LoadModel("../../data/assets/sphere.gltf");
 
+    m_basketball              = Model::LoadModel("../../data/assets/tennis_ball/scene.gltf");
+    m_diff_basketball_texture = std::make_shared<OglTexture2D>("../../data/assets/uv.png", false);
+    m_cloth_diff_texture      = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
+
     RenderSystem* render_system = RenderSystem::getInstance();
 
     render_system->setCameraType(CameraType::EditorCamera);
 
     EditorCamera::GetInstance()->SetPosition({0.0f, 10.0f, 50.0f});
+    Camera::GetInstance()->SetPosition({0.0f, 10.0f, 50.0f});
 
-    m_sphere_rb.setMass(2.5f);
-    m_sphere_rb.setDamping(0.8f, 0.08f);
-    m_sphere_rb.setPosition(PhxVec3(0.0f, 20.0f, 0.0f));
-    m_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
-    m_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
-    m_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
-    m_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
-    m_sphere_rb.setElasticity(0.5f);
-    m_sphere_rb.setAwake();
-    m_sphere_rb.setCanSleep(false);
-    m_sphere_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
-    m_sphere_rb.calculateDerivedData();
-    m_phx_world.addRigidBody(&m_sphere_rb);
+    {
+        // m_sphere_rb.setMass(2.5f);
+        m_sphere_rb.setMass(1.0f);
+        m_sphere_rb.setCenterOfMass({0.0f, 0.0f, 0.0f});
+        m_sphere_rb.setDamping(0.8f, 0.08f);
+        m_sphere_rb.enableDamping(false);
+        m_sphere_rb.setPosition(PhxVec3(0.0f, 20.0f, 0.0f));
+        m_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+        m_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
+        m_sphere_rb.setElasticity(0.75f);
+        m_sphere_rb.setFriction(0.5f);
+        m_sphere_rb.setAwake();
+        m_sphere_rb.setCanSleep(false);
+        // m_sphere_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
+        PhxReal moment_of_inertia = 0.4f * m_sphere_rb.getMass() * 1.00f * 1.00f; // I = 2/5 * m * r^2
+        PhxMat3 tensor{};
+        tensor[0] = {moment_of_inertia, 0.0f, 0.0f};
+        tensor[1] = {0.0f, moment_of_inertia, 0.0f};
+        tensor[2] = {0.0f, 0.0f, moment_of_inertia};
+        m_sphere_rb.setInertiaTensor(tensor);
+        m_sphere_rb.calculateDerivedData();
+        m_phx_world.addRigidBody(&m_sphere_rb);
 
-    m_sphere_geometry.m_radius     = 1.00f;
-    m_sphere_geometry.m_rigid_body = &m_sphere_rb;
-    m_sphere_geometry.updateGeometry();
-    m_phx_world.addGeometry(&m_sphere_geometry);
+        m_sphere_geometry.m_radius     = 1.00f;
+        m_sphere_geometry.m_rigid_body = &m_sphere_rb;
+        m_sphere_geometry.updateGeometry();
+        m_phx_world.addGeometry(&m_sphere_geometry);
+    }
 
     // platform sphere
-    m_big_sphere_rb.setMass(0.0f);
-    m_big_sphere_rb.setDamping(0.8f, 0.08f);
-    m_big_sphere_rb.setPosition(PhxVec3(0.0f, -20.0f, 0.0f));
-    m_big_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
-    m_big_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
-    m_big_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
-    m_big_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
-    m_big_sphere_rb.setElasticity(1.0f);
-    m_big_sphere_rb.setAwake();
-    m_big_sphere_rb.setCanSleep(false);
-    m_big_sphere_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
-    m_big_sphere_rb.calculateDerivedData();
-    m_phx_world.addRigidBody(&m_big_sphere_rb);
+    {
+        m_big_sphere_rb.setMass(0.0f);
+        m_big_sphere_rb.setCenterOfMass({0.0f, 0.0f, 0.0f});
+        m_big_sphere_rb.setDamping(0.8f, 0.08f);
+        m_big_sphere_rb.enableDamping(false);
+        m_big_sphere_rb.setPosition(PhxVec3(0.0f, -60.0f, 0.0f));
+        m_big_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_big_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_big_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+        m_big_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
+        m_big_sphere_rb.setElasticity(1.0f);
+        m_big_sphere_rb.setFriction(0.5f);
+        m_big_sphere_rb.setAwake();
+        m_big_sphere_rb.setCanSleep(false);
+        // m_big_sphere_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
+        PhxReal moment_of_inertia = 0.4f * m_big_sphere_rb.getMass() * 70.0f * 70.0f; // I = 2/5 * m * r^2
+        PhxMat3 tensor{};
+        tensor[0] = {moment_of_inertia, 0.0f, 0.0f};
+        tensor[1] = {0.0f, moment_of_inertia, 0.0f};
+        tensor[2] = {0.0f, 0.0f, moment_of_inertia};
+        m_big_sphere_rb.setInertiaTensor(tensor);
+        m_big_sphere_rb.calculateDerivedData();
+        m_phx_world.addRigidBody(&m_big_sphere_rb);
 
-    m_big_sphere_geometry.m_radius     = 30.0f;
-    m_big_sphere_geometry.m_rigid_body = &m_big_sphere_rb;
-    m_big_sphere_geometry.updateGeometry();
-    m_phx_world.addGeometry(&m_big_sphere_geometry);
+        m_big_sphere_geometry.m_radius     = 70.0f;
+        m_big_sphere_geometry.m_rigid_body = &m_big_sphere_rb;
+        m_big_sphere_geometry.updateGeometry();
+        m_phx_world.addGeometry(&m_big_sphere_geometry);
+    }
 }
 
 void PhysicsRigidBodySandboxDemoLayer::OnDetach() {}
@@ -180,27 +208,25 @@ void PhysicsRigidBodySandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     // render scene geometries
     if(!m_draw_wireframe)
     {
-        // mat4 model = {};
-        // model      = model.translate({0.0f, 20.0f, 0.0f});
-        // model      = model.scale({0.50f});
-
-        // const auto& rb_world_trfs = m_sphere_rb.getWorldTransform();
-        // model.right    = {rb_world_trfs[0][0], rb_world_trfs[0][1], rb_world_trfs[0][2], rb_world_trfs[0][3]};
-        // model.up       = {rb_world_trfs[1][0], rb_world_trfs[1][1], rb_world_trfs[1][2], rb_world_trfs[1][3]};
-        // model.forward  = {rb_world_trfs[2][0], rb_world_trfs[2][1], rb_world_trfs[2][2], rb_world_trfs[2][3]};
-        // model.position = {rb_world_trfs[3][0], rb_world_trfs[3][1], rb_world_trfs[3][2], rb_world_trfs[3][3]};
-
         {
-            mat4 model = getMat4Transform(m_sphere_rb.getWorldTransform());
+            mat4 model = getRenderingMat4Transform(m_sphere_rb.getWorldTransform());
             model      = model.scale({1.00f});
-            m_sphere->draw(material_blue_shine, model);
+
+            Material material     = {};
+            material.diff_texture = m_diff_basketball_texture;
+            material.shader_name  = "blinn_phong";
+            m_basketball->draw(material, model);
+            // m_sphere->draw(material, model);
         }
 
         {
-            mat4 model = getMat4Transform(m_big_sphere_rb.getWorldTransform());
-            // model      = model.translate({0.0f, -20.0f, 0.0f});
-            model = model.scale({30.0f});
-            m_sphere->draw(material_emerald, model);
+            mat4 model = getRenderingMat4Transform(m_big_sphere_rb.getWorldTransform());
+            model      = model.scale({70.0f});
+
+            Material material     = {};
+            material.shader_name  = "blinn_phong";
+            material.diff_texture = m_diff_basketball_texture;
+            m_sphere->draw(material, model);
         }
     }
 
@@ -280,10 +306,10 @@ void PhysicsRigidBodySandboxDemoLayer::debugDrawPhxGeometries()
                 auto sphere = dynamic_cast<phx::rb::PhxSphereGeometry*>(geometry);
                 if(sphere)
                 {
-                    mat4 model = getMat4Transform(sphere->getTransform());
+                    mat4 model = getRenderingMat4Transform(sphere->getTransform());
                     model      = model.scale({sphere->m_radius});
 
-                    Material material    = material_white;
+                    Material material    = material_ruby;
                     material.shader_name = "blinn_phong";
 
                     m_sphere->draw(material, model);
@@ -295,7 +321,7 @@ void PhysicsRigidBodySandboxDemoLayer::debugDrawPhxGeometries()
     }
 }
 
-mat4 PhysicsRigidBodySandboxDemoLayer::getMat4Transform(const PhxMat4& matrix) const
+mat4 PhysicsRigidBodySandboxDemoLayer::getRenderingMat4Transform(const PhxMat4& matrix) const
 {
     mat4 model     = {};
     model.right    = {matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]};

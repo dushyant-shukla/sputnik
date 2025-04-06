@@ -92,6 +92,10 @@ public:
     // Canonical draw calls
     void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
     void drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model);
+    void drawTrianglesIndexed(const u64&                  index_count,
+                              const Material&             material,
+                              const mat4&                 model,
+                              const std::vector<Matrix4>& skin_transformations);
     void drawTrianglesInstanced(const u64& vertex_count, const u64& instance_count, const Material& material);
     void drawTrianglesIndexedInstanced(const u64& index_count, const u64& instance_count, const Material& material);
     void drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width = 2.5f);
@@ -148,6 +152,7 @@ private:
     std::shared_ptr<OglShaderProgram> m_sky_program;
     std::shared_ptr<OglShaderProgram> m_grid_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_program;
+    std::shared_ptr<OglShaderProgram> m_blinn_phong_skinned_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_instanced_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_pvp_program;
     std::shared_ptr<OglShaderProgram> m_debug_draw_program;

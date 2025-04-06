@@ -140,6 +140,11 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_blinn_phong_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
     m_blinn_phong_program->configure();
 
+    m_blinn_phong_skinned_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_skinned_program->addShaderStage("../../data/shaders/glsl/skinned.vert");
+    m_blinn_phong_skinned_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
+    m_blinn_phong_skinned_program->configure();
+
     m_blinn_phong_pvp_program = std::make_shared<OglShaderProgram>();
     m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong_pvp.vert");
     m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
@@ -373,6 +378,10 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
         m_vao->bind();
         active_program = m_blinn_phong_pvp_program;
     }
+    else if(material.shader_name == "m_blinn_phong_skinned")
+    {
+        active_program = m_blinn_phong_skinned_program;
+    }
 
     glEnable(GL_DEPTH_TEST);
     {
@@ -382,6 +391,66 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
         active_program->bind();
         active_program->setMat4("model", model);
         active_program->setMat4("normal_matrix", normal_matrix);
+        // m_blinn_phong_program->setFloat3("material.ambient", material.ambient);
+        active_program->setFloat3("material.diffuse", material.diffuse);
+        active_program->setFloat3("material.specular", material.specular);
+        active_program->setFloat("material.shininess", material.shininess);
+        if(material.diff_texture)
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            material.diff_texture->bind(0);
+        }
+        else
+        {
+            active_program->setInt("material.diffuse_texture", 0);
+            m_white_texture->bind(0);
+        }
+        if(material.spec_texture)
+        {
+            active_program->setInt("material.specular_texture", 1);
+            material.spec_texture->bind(1);
+        }
+        {
+            active_program->setInt("material.specular_texture", 1);
+            m_white_texture->bind(1);
+        }
+
+        glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
+        if(material.shader_name == "blinn_phong_pvp")
+        {
+            m_vao->unbind();
+        }
+
+        active_program->unbind();
+    }
+    glDisable(GL_DEPTH_TEST);
+}
+
+void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
+                                       const Material&             material,
+                                       const mat4&                 model,
+                                       const std::vector<Matrix4>& skin_transformations)
+{
+    auto active_program = m_blinn_phong_program;
+    if(material.shader_name == "blinn_phong_pvp")
+    {
+        m_vao->bind();
+        active_program = m_blinn_phong_pvp_program;
+    }
+    else if(material.shader_name == "m_blinn_phong_skinned")
+    {
+        active_program = m_blinn_phong_skinned_program;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    {
+        mat4 normal_matrix = model;
+        normal_matrix      = normal_matrix.inverted().transpose(); // (Transpose of inverse of the model matrix)
+
+        active_program->bind();
+        active_program->setMat4("model", model);
+        active_program->setMat4("normal_matrix", normal_matrix);
+        active_program->setMat4s("skin_transforms", skin_transformations);
         // m_blinn_phong_program->setFloat3("material.ambient", material.ambient);
         active_program->setFloat3("material.diffuse", material.diffuse);
         active_program->setFloat3("material.specular", material.specular);

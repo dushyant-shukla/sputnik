@@ -1,18 +1,19 @@
 #pragma once
 
 #include <main/application.h>
-#include <graphics/glcore/shader.h>
+// #include <graphics/glcore/shader.h>
 #include <graphics/core/animation/animation_clip.h>
 #include <graphics/core/animation/pose.h>
-#include <graphics/glcore/debug_draw.h>
+// #include <graphics/glcore/debug_draw.h>
 #include <graphics/core/animation/skeleton.h>
-#include <graphics/glcore/texture.h>
+// #include <graphics/glcore/texture.h>
 #include <graphics/core/animation/skinning_type.h>
 #include <graphics/core/geometry/mesh.h>
 #include <main/entry_point.h>
 #include <core/layers/layer.h>
 #include <core/time_step.h>
 #include <graphics/core/animation/fabrik_solver.h>
+#include <core/systems/render_system.h>
 
 #include <memory>
 #include <vector>
@@ -22,6 +23,7 @@ namespace sputnik::demos
 
 using namespace ramanujan;
 using namespace sputnik::graphics::core;
+using namespace sputnik::core::systems;
 
 class FabrikIKDemo : public core::Layer
 {
@@ -36,10 +38,12 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    Transform                                             m_target;
-    FabrikSolver                                          m_solver;
-    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_ccd_lines;
-    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_ccd_points;
+    Transform    m_target;
+    FabrikSolver m_solver;
+
+    RenderSystem* m_render_system{nullptr};
+    // std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_ccd_lines;
+    // std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_ccd_points;
 
     float m_camera_pitch;
     float m_camera_yaw;

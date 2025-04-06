@@ -231,6 +231,21 @@ void Mesh::draw(const Material& material, const mat4& model)
     m_vertex_array->unbind();
 }
 
+void Mesh::draw(const Material& material, const mat4& model, const std::vector<Matrix4>& skin_transformations)
+{
+    auto render_system = sputnik::core::systems::RenderSystem::getInstance();
+    m_vertex_array->bind();
+    if(m_indices.size() > 0)
+    {
+        render_system->drawTrianglesIndexed((u64)m_indices.size(), material, model, skin_transformations);
+    }
+    else
+    {
+        render_system->drawTriangles((u64)m_position.size(), material, model);
+    }
+    m_vertex_array->unbind();
+}
+
 void Mesh::drawInstanced(const Material& material, const u32& num_instances)
 {
     auto render_system = sputnik::core::systems::RenderSystem::getInstance();

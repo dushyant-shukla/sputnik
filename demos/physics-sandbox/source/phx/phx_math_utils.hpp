@@ -42,6 +42,7 @@ PhxVec3 phxRotatePoint(const PhxQuat& q, const PhxVec3& p);
 #define phx_radians(a)			glm::radians(a)
 #define phx_degrees(a)			glm::degrees(a)
 #define phx_inv_quat(a)			glm::inverse(a)
+#define phx_inv_mat3(a)			glm::inverse(a)
 //#define phx_lerp(a, b, c)		glm::lerp(a, b, c)
 //#define phx_sqrt(a)				glm::sqrt(a)
 //#define phx_pow(a, b)			glm::pow(a, b)

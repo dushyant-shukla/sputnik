@@ -16,6 +16,7 @@ files
   "source/**.h",
   "source/**.cpp",
   "source/**.inl",
+  "source/**.hpp",
 
   -- external source files
   "%{externals.glad}/src/glad.c",   -- "%{externals.glad}/src/**.c", -- (**.c) does not work for some reason

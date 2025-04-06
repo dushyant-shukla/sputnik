@@ -1,23 +1,30 @@
 #pragma once
 
 #include <main/application.h>
-#include <graphics/glcore/shader.h>
+// #include <graphics/glcore/shader.h>
 #include <graphics/core/animation/animation_clip.h>
 #include <graphics/core/animation/pose.h>
-#include <graphics/glcore/debug_draw.h>
+// #include <graphics/glcore/debug_draw.h>
 #include <graphics/core/animation/skeleton.h>
-#include <graphics/glcore/texture.h>
+#include <graphics/glcore/gl_shader.h>
+#include <graphics/glcore/gl_texture.h>
 #include <graphics/core/animation/skinning_type.h>
 #include <graphics/core/geometry/mesh.h>
 #include <main/entry_point.h>
 #include <core/layers/layer.h>
 #include <core/time_step.h>
+#include <core/systems/render_system.h>
 
 #include <memory>
 #include <vector>
 
 namespace sputnik::demos
 {
+
+using namespace sputnik::graphics::api;
+using namespace sputnik::graphics::gl;
+using namespace sputnik::core::systems;
+using namespace ramanujan::experimental;
 
 class VertexSkinningDemo : public core::Layer
 {
@@ -32,16 +39,19 @@ public:
     virtual void OnUpdateUI(const core::TimeStep& time_step);
 
 private:
-    std::shared_ptr<sputnik::graphics::glcore::Texture> m_diffuse_texture;
-    std::shared_ptr<sputnik::graphics::glcore::Texture> m_static_mesh_texture;
+    RenderSystem* m_render_system{nullptr};
 
-    sputnik::graphics::core::SkinningType              m_skinning_type;
-    std::shared_ptr<sputnik::graphics::glcore::Shader> m_static_shader;
-    std::shared_ptr<sputnik::graphics::glcore::Shader> m_skinning_shader;
+    std::shared_ptr<OglTexture2D> m_diffuse_texture;
+    std::shared_ptr<OglTexture2D> m_static_mesh_texture;
+    std::shared_ptr<Model>        m_animated_model;
 
-    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_rest_pose_visual;
-    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_bind_pose_visual;
-    std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_current_pose_visual;
+    sputnik::graphics::core::SkinningType m_skinning_type;
+    std::shared_ptr<OglShaderProgram>     m_static_shader;
+    std::shared_ptr<OglShaderProgram>     m_skinning_shader;
+
+    // std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_rest_pose_visual;
+    // std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_bind_pose_visual;
+    // std::shared_ptr<sputnik::graphics::glcore::DebugDraw> m_current_pose_visual;
 
     std::vector<sputnik::graphics::core::Mesh> m_meshes;
     std::vector<ramanujan::Matrix4>            m_pose_palette;

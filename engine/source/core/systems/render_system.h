@@ -99,6 +99,10 @@ public:
     // Drawing API
     void drawTriangles(const u64& vertex_count, const Material& material, const mat4& model);
     void drawTrianglesIndexed(const u64& vertex_count, const Material& material, const mat4& model);
+    void drawTrianglesIndexed(const u64&                  vertex_count,
+                              const Material&             material,
+                              const mat4&                 model,
+                              const std::vector<Matrix4>& skin_transformations);
     void drawTrianglesInstanced(const u64& vertex_count, const Material& material, const u32& instance_count);
     void drawTrianglesIndexedInstanced(const u64& index_count, const Material& material, const u32& instance_count);
     void drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width = 2.5f);

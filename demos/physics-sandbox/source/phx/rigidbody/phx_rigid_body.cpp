@@ -1,6 +1,8 @@
 #include "phx_rigid_body.hpp"
 #include "../phx_math_utils.hpp"
 
+#include "core/core.h"
+
 namespace phx::rb
 {
 
@@ -11,7 +13,9 @@ calculateTransformationMatrix(const PhxVec3& position, const PhxQuat& orientatio
 }
 
 static void calculateInvInsertiaTensorInWorldSpace(const PhxMat3& inv_inertia_tensor_local,
+                                                   const PhxMat3& inertia_tensor_local,
                                                    const PhxMat4& transform_matrix,
+                                                   PhxMat3&       out_inertia_tensor_world,
                                                    PhxMat3&       out_inv_inertia_tensor_world)
 {
     // When transforming insertia tensor, we are only interested in the rotation part of the transformation matrix,
@@ -26,17 +30,35 @@ static void calculateInvInsertiaTensorInWorldSpace(const PhxMat3& inv_inertia_te
     // Mt: Required transformation (Matrix in the local coordinate space)
     // Remember, transpose of an orthogonal matrix (rotation matix) gives its inverse.
     out_inv_inertia_tensor_world = rot_mat * inv_inertia_tensor_local * glm::transpose(rot_mat);
+    out_inertia_tensor_world     = rot_mat * inertia_tensor_local * glm::transpose(rot_mat);
 }
 
 void PhxRigidBody::setInertiaTensor(const PhxMat3& inertia_tensor)
 {
-    m_inv_inertia_tensor_local = glm::inverse(inertia_tensor);
+    // if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
+    //{
+    //     m_inv_inertia_tensor_local = PhxMat3(1.0f);
+    //     return;
+    // }
+    // m_inv_inertia_tensor_local = glm::inverse(inertia_tensor);
+
+    if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
+    {
+        m_inertia_tensor_local     = PhxMat3(0.0f);
+        m_inv_inertia_tensor_local = PhxMat3(0.0f);
+    }
+    else
+    {
+        m_inertia_tensor_local     = inertia_tensor;
+        m_inv_inertia_tensor_local = phx_inv_mat3(m_inertia_tensor_local);
+    }
 }
 
 void PhxRigidBody::setDamping(const PhxReal& linear_damping, const PhxReal& angular_damping)
 {
     m_linear_damping  = linear_damping;
     m_angular_damping = angular_damping;
+    m_enable_damping  = true;
 }
 
 void PhxRigidBody::setAcceleration(const PhxVec3& acceleration)
@@ -46,17 +68,18 @@ void PhxRigidBody::setAcceleration(const PhxVec3& acceleration)
 
 void PhxRigidBody::setPosition(const PhxVec3& position)
 {
-    m_position_world = position;
+    m_position_global = position;
+    // calculateDerivedData(); // Todo: Is this really needed?
 }
 
 void PhxRigidBody::setVelocity(const PhxVec3& velocity)
 {
-    m_velocity_world = velocity;
+    m_linear_velocity_global = velocity;
 }
 
 void PhxRigidBody::setRotation(const PhxVec3& rotation)
 {
-    m_angular_velocity_world = rotation;
+    m_angular_velocity_global = rotation;
 }
 
 void PhxRigidBody::setOrientation(const PhxQuat& orientation)
@@ -105,6 +128,11 @@ void PhxRigidBody::setInertiaTensorWithCoefficients(const PhxReal& ix,
 void PhxRigidBody::setElasticity(const PhxReal& elasticity)
 {
     m_elasticity = elasticity;
+}
+
+void PhxRigidBody::setFriction(const PhxReal& friction)
+{
+    m_friction = friction;
 }
 
 void PhxRigidBody::addForce(const PhxVec3& force)
@@ -168,29 +196,29 @@ void PhxRigidBody::integrate(PhxReal duration)
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    m_acceleration_last_frame = m_acceleration;
-    // m_velocity_world += m_acceleration_last_frame * duration;
+    // m_acceleration_last_frame = m_acceleration;
+    //// m_velocity_world += m_acceleration_last_frame * duration;
 
-    PhxVec3 total_impluse = getMass() * m_acceleration_last_frame * duration;
+    // PhxVec3 total_impluse = getMass() * m_acceleration_last_frame * duration;
 
-    applyLinearImpluse(total_impluse);
+    // applyLinearImpulse(total_impluse, duration);
 
-    m_position_world += m_velocity_world * duration;
+    // m_position_world += m_velocity_world * duration;
 
-    calculateDerivedData();
+    // calculateDerivedData();
 }
 
 void PhxRigidBody::addForceAtPoint(const PhxVec3& force, const PhxVec3& point)
 {
     m_accumulated_force += force;
-    PhxVec3 torque = phx_cross(point - m_position_world, force);
+    PhxVec3 torque = phx_cross(point - m_position_global, force);
     m_accumulated_torque += torque;
     m_is_awake = true;
 }
 
 void PhxRigidBody::addForceAtBodyPoint(const PhxVec3& force, const PhxVec3& point)
 {
-    PhxVec3 world_point = PhxMat3(m_transform_matrix_world) * point;
+    PhxVec3 world_point = PhxMat3(m_transform_matrix_global) * point;
     addForceAtPoint(force, world_point);
     m_is_awake = true;
 }
@@ -204,10 +232,15 @@ void PhxRigidBody::setAwake(bool awake)
     }
     else
     {
-        m_is_awake               = false;
-        m_velocity_world         = PhxVec3(0.0f);
-        m_angular_velocity_world = PhxVec3(0.0f);
+        m_is_awake                = false;
+        m_linear_velocity_global  = PhxVec3(0.0f);
+        m_angular_velocity_global = PhxVec3(0.0f);
     }
+}
+
+void PhxRigidBody::enableDamping(bool enable_damping)
+{
+    m_enable_damping = enable_damping;
 }
 
 void PhxRigidBody::setCanSleep(bool can_sleep)
@@ -232,15 +265,29 @@ void PhxRigidBody::setMass(const PhxReal& mass)
     }
 }
 
+void PhxRigidBody::setCenterOfMass(const PhxVec3& center_of_mass)
+{
+    m_center_of_mass = center_of_mass;
+}
+
+// static void
+// calculateInvInsertiaTensorInWorldSpace(const PhxMat3& inv_inertia_tensor_local,
+//                                        const PhxMat3& inertia_tensor_local,
+//                                        const PhxMat4& transform_matrix,
+//                                        PhxMat3&       out_inertia_tensor_world,
+//                                        PhxMat3& out_inv_inertia_tensor_world)
+
 void PhxRigidBody::calculateDerivedData()
 {
     m_orientation_world = glm::normalize(m_orientation_world);
 
-    calculateTransformationMatrix(m_position_world, m_orientation_world, m_transform_matrix_world);
+    calculateTransformationMatrix(m_position_global, m_orientation_world, m_transform_matrix_global);
 
     calculateInvInsertiaTensorInWorldSpace(m_inv_inertia_tensor_local,
-                                           m_transform_matrix_world,
-                                           m_inv_inertia_tensor_world);
+                                           m_inertia_tensor_local,
+                                           m_transform_matrix_global,
+                                           m_inertia_tensor_global,
+                                           m_inv_inertia_tensor_global);
 }
 
 bool PhxRigidBody::hasFiniteMass() const
@@ -265,12 +312,12 @@ const PhxReal& PhxRigidBody::getInverseMass() const
 
 const PhxMat4& PhxRigidBody::getWorldTransform() const
 {
-    return m_transform_matrix_world;
+    return m_transform_matrix_global;
 }
 
 PhxVec3 PhxRigidBody::getCenterOfMassInWorldSpace() const
 {
-    PhxVec4 point = PhxVec4(m_position_world, 0.0f) +
+    PhxVec4 point = PhxVec4(m_position_global, 0.0f) +
                     (m_orientation_world * PhxVec4(m_center_of_mass, 0.0f) * glm::inverse(m_orientation_world));
     return PhxVec3{point.x, point.y, point.z};
 }
@@ -293,6 +340,21 @@ PhxVec3 PhxRigidBody::getPointInWorldSpace(const PhxVec3& point) const
     return result;
 }
 
+const PhxMat3& PhxRigidBody::getInertiaTensorLocal() const
+{
+    return m_inertia_tensor_local;
+}
+
+const PhxMat3& PhxRigidBody::getInertiaTensorGlobal() const
+{
+    return m_inertia_tensor_global;
+}
+
+const PhxMat3& PhxRigidBody::getInverseInertiaTensorInWorldSpace() const
+{
+    return m_inv_inertia_tensor_global;
+}
+
 const PhxVec3& PhxRigidBody::getAcceleration() const
 {
     return m_acceleration;
@@ -300,12 +362,17 @@ const PhxVec3& PhxRigidBody::getAcceleration() const
 
 const PhxVec3& PhxRigidBody::getWorldPosition() const
 {
-    return m_position_world;
+    return m_position_global;
 }
 
 const PhxVec3& PhxRigidBody::getLinerVelocity() const
 {
-    return m_velocity_world;
+    return m_linear_velocity_global;
+}
+
+const PhxVec3& PhxRigidBody::getAngularVelocity() const
+{
+    return m_angular_velocity_global;
 }
 
 const PhxReal& PhxRigidBody::getElasticity() const
@@ -313,13 +380,122 @@ const PhxReal& PhxRigidBody::getElasticity() const
     return m_elasticity;
 }
 
-void PhxRigidBody::applyLinearImpluse(const PhxVec3& impluse)
+const PhxReal& PhxRigidBody::getFriction() const
+{
+    return m_friction;
+}
+
+void PhxRigidBody::applyImpulse(const PhxVec3& impluse, const PhxVec3& impluse_point, const PhxReal& dt)
 {
     if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
     {
         return;
     }
-    m_velocity_world += impluse * m_inv_mass;
+
+    applyLinearImpulse(impluse, dt);
+
+    PhxVec3 position        = getCenterOfMassInWorldSpace();
+    PhxVec3 angular_impluse = phx_cross(impluse_point - position, impluse);
+    applyAngularImpulse(angular_impluse, dt);
+}
+
+void PhxRigidBody::applyLinearImpulse(const PhxVec3& impluse, const PhxReal& dt)
+{
+    if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
+    {
+        return;
+    }
+    m_linear_velocity_global += impluse * m_inv_mass;
+
+    if(m_enable_damping && !CMP_FLOAT_EQ(m_linear_damping, 0.0f))
+    {
+        m_linear_velocity_global *= std::pow(m_linear_damping, dt);
+    }
+}
+
+void PhxRigidBody::applyAngularImpulse(const PhxVec3& implulse, const PhxReal& dt)
+{
+    if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
+    {
+        return;
+    }
+    m_angular_velocity_global += m_inv_inertia_tensor_global * implulse;
+
+    if(m_enable_damping && !CMP_FLOAT_EQ(m_angular_damping, 0.0f))
+    {
+        m_angular_velocity_global *= std::pow(m_angular_damping, dt);
+    }
+}
+
+// void PhxRigidBody::update(const PhxReal& dt)
+//{
+//     if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
+//     {
+//         return;
+//     }
+//
+//     m_position_global += m_linear_velocity_global * dt;
+//
+//     PhxVec3 position_cm    = getCenterOfMassInWorldSpace();
+//     PhxVec3 cm_to_position = m_position_global - position_cm;
+//
+//     PhxMat3 rot_mat = glm::mat3_cast(m_orientation_world);
+//     PhxVec3 alpha =
+//         m_inv_inertia_tensor_global *
+//         (phx_cross(m_angular_velocity_global, glm::inverse(m_inv_inertia_tensor_global) *
+//         m_angular_velocity_global));
+//     m_angular_velocity_global += alpha * dt;
+//
+//     PhxVec3 delta_theta           = m_angular_velocity_global * dt;
+//     PhxReal delta_theta_magnitude = phx_magnitude(delta_theta);
+//     PhxQuat dq                    = glm::angleAxis(delta_theta_magnitude, delta_theta);
+//
+//     m_orientation_world = phx_normalize(dq * m_orientation_world);
+//
+//     m_position_global = position_cm + phxRotatePoint(dq, cm_to_position);
+//
+//     calculateDerivedData();
+// }
+
+void PhxRigidBody::update(const PhxReal& dt)
+{
+    if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))
+    {
+        return;
+    }
+
+    m_position_global += m_linear_velocity_global * dt;
+
+    PhxVec3 position_cm    = getCenterOfMassInWorldSpace();
+    PhxVec3 cm_to_position = m_position_global - position_cm;
+
+    PhxMat3 rot_mat = glm::mat3_cast(m_orientation_world);
+
+    PhxVec3 alpha = m_inv_inertia_tensor_global *
+                    (phx_cross(m_angular_velocity_global, m_inertia_tensor_global * m_angular_velocity_global));
+
+    m_angular_velocity_global += alpha * dt;
+
+    // m_angular_velocity_global *= PhxVec3{10.0f, 10.0f, 10.0f};
+    // if(phx_magnitude_sq(m_angular_velocity_global) > 30.0f * 30.0f)
+    //{
+    //     m_angular_velocity_global = phx_normalize(m_angular_velocity_global) * 30.0f;
+    // }
+
+    // APPLICATION_CRITICAL("Angular velocity: {}, {}, {}",
+    //                      m_angular_velocity_global.x,
+    //                      m_angular_velocity_global.y,
+    //                      m_angular_velocity_global.z);
+
+    PhxVec3 delta_theta           = m_angular_velocity_global * dt;
+    PhxReal delta_theta_magnitude = phx_magnitude(delta_theta);
+    PhxQuat dq                    = glm::angleAxis(delta_theta_magnitude, delta_theta);
+
+    m_orientation_world = phx_normalize(dq * m_orientation_world);
+
+    m_position_global = position_cm + phxRotatePoint(dq, cm_to_position);
+
+    calculateDerivedData();
 }
 
 } // namespace phx::rb
