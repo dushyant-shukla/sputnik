@@ -486,7 +486,7 @@ OglShaderStage::OglShaderStage(cstring shader_file_path)
         SPUTNIK_ASSERT_MESSAGE(false, "Shader compilation failed: {}", message);
         glDeleteShader(m_id);
     }
-    ENGINE_INFO("Shader loaded: {}, source: {}", shader_file_path, shader_source);
+    // ENGINE_INFO("Shader loaded: {}, source: {}", shader_file_path, shader_source);
 }
 
 OglShaderStage::OglShaderStage(const ShaderStageType& stage_type, cstring shader_source)
@@ -513,7 +513,7 @@ OglShaderStage::OglShaderStage(const ShaderStageType& stage_type, cstring shader
         SPUTNIK_ASSERT_MESSAGE(false, "Shader compilation failed: {}", message);
         glDeleteShader(m_id);
     }
-    ENGINE_INFO("Shader loaded: source: {}", shader_source);
+    // ENGINE_INFO("Shader loaded: source: {}", shader_source);
 }
 
 OglShaderStage::~OglShaderStage()

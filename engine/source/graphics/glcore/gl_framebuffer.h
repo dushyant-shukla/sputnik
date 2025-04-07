@@ -60,7 +60,7 @@ public:
     u32                             getColorAttachmentId(u32 index = 0);
     u32                             getDepthAttachmentId() const;
 
-    void bind();
+    void bind() const;
     void unbind();
 
 private:

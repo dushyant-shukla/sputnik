@@ -7,10 +7,10 @@
 #include "graphics/api/light.h"
 #include "graphics/api/color_material.h"
 #include "graphics/glcore/gl_buffer.h"
+#include "graphics/glcore/gl_framebuffer.h"
 
 #include <vector.hpp>
 #include <matrix.hpp>
-#include <glm/glm.hpp>
 
 struct GLFWwindow;
 
@@ -20,13 +20,6 @@ namespace sputnik::graphics::gl
 using namespace sputnik::core;
 using namespace ramanujan::experimental;
 using namespace sputnik::graphics::api;
-
-struct PerFrameData
-{
-    alignas(16) mat4 projection;
-    alignas(16) mat4 view;
-    alignas(16) vec3 camera_position;
-};
 
 enum class DrawMode
 {
@@ -38,6 +31,27 @@ enum class DrawMode
     TRIANGLES,
     TRIANGLE_STRIP,
     TRIANGLE_FAN
+};
+
+/*!
+ * @brief Uniform buffer bound to binding point 0.
+ */
+struct PerFrameData
+{
+    alignas(16) mat4 projection;
+    alignas(16) mat4 view;
+    alignas(16) vec3 camera_position;
+};
+
+/*!
+ * @brief Uniform buffer bound to binding point 2.
+ */
+struct ShadowPassBuffer
+{
+    alignas(16) glm::mat4 light_projection;
+    alignas(16) glm::mat4 light_view;
+    alignas(16) glm::vec3 light_position;
+    alignas(16) glm::vec3 light_direction;
 };
 
 struct DrawElementsIndirectCommand
@@ -80,6 +94,7 @@ public:
 
     // Todo:: Indirect draw calls
 
+    void renderAtmosphericScattering(const mat4& projection, const mat4& view);
     void renderAtmosphericScattering();
     void renderEditorGrid();
 
@@ -117,6 +132,8 @@ public:
                          const glm::mat4&         model      = glm::mat4(1.0f),
                          const float&             point_size = 2.5f);
 
+    void drawUI();
+
 protected:
 private:
     OglRenderer(GLFWwindow* const window);
@@ -151,21 +168,28 @@ private:
     // Shader programs
     std::shared_ptr<OglShaderProgram> m_sky_program;
     std::shared_ptr<OglShaderProgram> m_grid_program;
+    std::shared_ptr<OglShaderProgram> m_shadow_pass_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_skinned_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_instanced_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_pvp_program;
     std::shared_ptr<OglShaderProgram> m_debug_draw_program;
 
+    // Framebuffer
+    std::shared_ptr<OglFramebuffer> m_shadow_pass_framebuffer;
+
     // CPU data
-    PerFrameData m_per_frame_data;
-    Light        m_light_data;
+    PerFrameData     m_per_frame_data;
+    Light            m_light_data;
+    ShadowPassBuffer m_shadow_pass_data;
 
     // GPU buffers
     const u8                   kPerFrameDataBindingPoint = 0;
     std::shared_ptr<OglBuffer> m_per_frame_gpu_buffer;
     const u8                   kLightDataBindingPoint = 1;
     std::shared_ptr<OglBuffer> m_light_gpu_buffer;
+    const u8                   kShadowPassBufferBindingPoint = 2;
+    std::shared_ptr<OglBuffer> m_shadow_pass_buffer;
 
     struct VertexData
     {

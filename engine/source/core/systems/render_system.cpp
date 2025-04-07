@@ -181,6 +181,8 @@ void core::systems::RenderSystem::drawUI()
         sputnik::editor::Editor::drawWidgetFloat("quadratic", m_light.quadratic, 90.0f);
     }
     ImGui::End();
+
+    m_ogl_renderer->drawUI();
 }
 
 Light& RenderSystem::getLight()

@@ -13,7 +13,7 @@
 namespace sputnik::graphics::gl
 {
 
-u32 getOglTextureFormat(const TextureFormat& format)
+static u32 getOglTextureFormat(const TextureFormat& format)
 {
     // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexStorage2D.xhtml
     switch(format)
@@ -63,7 +63,7 @@ u32 getOglTextureFormat(const TextureFormat& format)
     return 0;
 }
 
-u32 getOglTextureDataFormat(const TextureFormat& format)
+static u32 getOglTextureDataFormat(const TextureFormat& format)
 {
     // Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexStorage2D.xhtml
     switch(format)
@@ -114,7 +114,7 @@ u32 getOglTextureDataFormat(const TextureFormat& format)
     return 0;
 }
 
-u32 getOglTextureWrap(const TextureWrap& wrap)
+static u32 getOglTextureWrap(const TextureWrap& wrap)
 {
     switch(wrap)
     {
@@ -133,7 +133,7 @@ u32 getOglTextureWrap(const TextureWrap& wrap)
     return 0;
 }
 
-u32 getOglTextureFilter(const TextureFilter& filter)
+static u32 getOglTextureFilter(const TextureFilter& filter)
 {
     switch(filter)
     {
@@ -156,7 +156,7 @@ u32 getOglTextureFilter(const TextureFilter& filter)
     return 0;
 }
 
-u32 getBytesPerPixel(const TextureFormat& format)
+static u32 getBytesPerPixel(const TextureFormat& format)
 {
     switch(format)
     {
@@ -226,7 +226,7 @@ std::ostream& operator<<(std::ostream& os, const TextureSwizzle& swizzle)
     return os;
 }
 
-i32 getOglTextureSwizzle(const TextureSwizzle& swizzle)
+static i32 getOglTextureSwizzle(const TextureSwizzle& swizzle)
 {
     switch(swizzle)
     {
@@ -355,7 +355,7 @@ OglTexture2D& OglTexture2D::operator=(OglTexture2D&& other) noexcept
     return *this;
 }
 
-void OglTexture2D::setData(void* data, const u32& size)
+void OglTexture2D::setData(void* data, const u32& size) const
 {
     u32 expected_size = m_width * m_height * getBytesPerPixel(m_format);
     SPUTNIK_ASSERT_MESSAGE(expected_size == size,
@@ -365,19 +365,19 @@ void OglTexture2D::setData(void* data, const u32& size)
     glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, getOglTextureDataFormat(m_format), GL_UNSIGNED_BYTE, data);
 }
 
-void OglTexture2D::setFiltering(const TextureFilter& min_filter, const TextureFilter& mag_filter)
+void OglTexture2D::setFiltering(const TextureFilter& min_filter, const TextureFilter& mag_filter) const
 {
     glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, getOglTextureFilter(min_filter));
     glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, getOglTextureFilter(mag_filter));
 }
 
-void OglTexture2D::setWrapping(const TextureWrap& s_wrap, const TextureWrap& t_wrap)
+void OglTexture2D::setWrapping(const TextureWrap& s_wrap, const TextureWrap& t_wrap) const
 {
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, getOglTextureWrap(s_wrap));
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, getOglTextureWrap(s_wrap));
 }
 
-void OglTexture2D::bind(const u32& slot)
+void OglTexture2D::bind(const u32& slot) const
 {
     glBindTextureUnit(slot, m_id);
 }

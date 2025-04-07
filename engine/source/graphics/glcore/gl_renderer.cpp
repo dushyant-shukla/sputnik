@@ -7,16 +7,18 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <imgui.h>
+
 namespace sputnik::graphics::gl
 {
 
-void oglMessageCallback(GLenum        source,
-                        GLenum        type,
-                        GLuint        id,
-                        GLenum        severity,
-                        GLsizei       length,
-                        GLchar const* message,
-                        void const*   user_param)
+static void oglMessageCallback(GLenum        source,
+                               GLenum        type,
+                               GLuint        id,
+                               GLenum        severity,
+                               GLsizei       length,
+                               GLchar const* message,
+                               void const*   user_param)
 {
     auto const src_str = [source]()
     {
@@ -116,12 +118,14 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     // #endif // DEBUG
 
     m_per_frame_gpu_buffer = std::make_shared<OglBuffer>(sizeof(PerFrameData));
-    // m_per_frame_gpu_buffer->bind(BufferBindTarget::UniformBuffer, 0); // bind to binding point 0
     m_per_frame_gpu_buffer->bind(BufferBindTarget::UniformBuffer, kPerFrameDataBindingPoint); // bind to binding point 0
 
     m_light_gpu_buffer = std::make_shared<OglBuffer>(sizeof(Light));
-    // m_light_gpu_buffer->bind(BufferBindTarget::UniformBuffer, 1); // bind to binding point 1
     m_light_gpu_buffer->bind(BufferBindTarget::UniformBuffer, kLightDataBindingPoint); // bind to binding point 1
+
+    m_shadow_pass_buffer = std::make_shared<OglBuffer>(sizeof(ShadowPassBuffer));
+    m_shadow_pass_buffer->bind(BufferBindTarget::UniformBuffer,
+                               kShadowPassBufferBindingPoint); // bind to binding point 2
 
     m_vao = std::make_unique<OglVertexArray>();
 
@@ -134,6 +138,11 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_grid_program->addShaderStage("../../data/shaders/glsl/grid.vert");
     m_grid_program->addShaderStage("../../data/shaders/glsl/grid.frag");
     m_grid_program->configure();
+
+    m_shadow_pass_program = std::make_shared<OglShaderProgram>();
+    m_shadow_pass_program->addShaderStage("../../data/shaders/glsl/shadow_pass.vert");
+    m_shadow_pass_program->addShaderStage("../../data/shaders/glsl/shadow_pass.frag");
+    m_shadow_pass_program->configure();
 
     m_blinn_phong_program = std::make_shared<OglShaderProgram>();
     m_blinn_phong_program->addShaderStage("../../data/shaders/glsl/blinn_phong.vert");
@@ -170,6 +179,17 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_red_texture   = std::make_shared<OglTexture2D>(1, 1, &red, TextureFormat::RGBA8);
     m_green_texture = std::make_shared<OglTexture2D>(1, 1, &green, TextureFormat::RGBA8);
     m_blue_texture  = std::make_shared<OglTexture2D>(1, 1, &blue, TextureFormat::RGBA8);
+
+    FramebufferSpecification           framebuffer_spec;
+    FramebufferAttachmentSpecification depth_attachment_spec;
+    depth_attachment_spec.attachment_format = TextureFormat::Depth32F;
+    framebuffer_spec.attachments            = {depth_attachment_spec};
+    framebuffer_spec.width                  = 1024;
+    framebuffer_spec.height                 = 1024;
+    m_shadow_pass_framebuffer               = std::make_shared<OglFramebuffer>(framebuffer_spec);
+    //  m_shadow_pass_framebuffer->bind();
+    //  m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
+    //  m_shadow_pass_framebuffer->unbind();
 }
 
 OglRenderer* OglRenderer::getInstance(GLFWwindow* const window)
@@ -213,11 +233,29 @@ void OglRenderer::render(const mat4& projection, const mat4& view, const vec3& c
     m_per_frame_data.camera_position = camera_position;
     m_per_frame_gpu_buffer->setData(&m_per_frame_data, sizeof(PerFrameData));
 
+    // update shadow pass buffer
+    m_shadow_pass_data.light_direction = {m_light_direction.x,
+                                          m_light_direction.y,
+                                          m_light_direction.z}; // not used right now in shader
+    m_shadow_pass_data.light_position  = {light.position.x, light.position.y, light.position.z};
+    m_shadow_pass_data.light_projection =
+        glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f); // Todo:: use light projection matrix
+    m_shadow_pass_data.light_view = glm::lookAt(m_shadow_pass_data.light_position,
+                                                glm::vec3(0.0f),
+                                                glm::vec3(0.0f, 1.0f, 0.0f)); // Todo:: use light view matrix
+    m_shadow_pass_buffer->setData((void*)&m_shadow_pass_data, sizeof(ShadowPassBuffer));
+
+    // mat4::lookAt(light.position, light.position + m_light_direction, vec3(0.0f, 1.0f, 0.0f));
+
     // update light gpu buffer
     m_light_gpu_buffer->setData((void*)&light, sizeof(Light));
 
-    renderAtmosphericScattering(); // sky
-    renderEditorGrid();            // grid
+    renderAtmosphericScattering(projection, view); // sky
+                                                   // renderAtmosphericScattering(); // sky
+    renderEditorGrid();                            // grid
+
+    // run shadow pass
+    // runShadowPass();
 
     // Todo:: render scene geometry with indirect draw calls
 }
@@ -237,6 +275,68 @@ void OglRenderer::clear()
 void OglRenderer::setClearColor(float r, float g, float b, float a)
 {
     glClearColor(r, g, b, a);
+}
+
+void OglRenderer::renderAtmosphericScattering(const mat4& projection, const mat4& view)
+{
+    m_vao->bind();
+
+    m_preetham_sky_model.SetDirection(m_light_direction);
+    m_preetham_sky_model.Update();
+
+    // mat4 camera_projection{};
+    // mat4 camera_view{};
+    // vec3 camera_position{};
+
+    // if(m_camera_type == CameraType::Camera)
+    //{
+    //     camera_projection = renderer->m_camera->GetCameraPerspective();
+    //     camera_view       = renderer->m_camera->GetCameraView();
+    //     camera_position   = renderer->m_camera->GetCameraPosition();
+    // }
+    // else
+    //{
+    //     camera_projection = renderer->m_editor_camera->GetCameraPerspective();
+    //     camera_view       = renderer->m_editor_camera->GetCameraView();
+    //     camera_position   = renderer->m_editor_camera->GetCameraPosition();
+    // }
+
+    // auto m_editor_camera = EditorCamera::GetInstance();
+    // camera_projection    = projection;
+    // camera_view          = view;
+    // camera_position      = m_editor_camera->GetCameraPosition();
+
+    // removing translation from the view matrix
+    mat4 cubemap_view_mat4{view};
+    cubemap_view_mat4.m[3]  = 0;
+    cubemap_view_mat4.m[7]  = 0;
+    cubemap_view_mat4.m[11] = 0;
+    cubemap_view_mat4.m[15] = 1;
+    cubemap_view_mat4.m[12] = 0;
+    cubemap_view_mat4.m[13] = 0;
+    cubemap_view_mat4.m[14] = 0;
+
+    mat4 cubemap_view_projection_mat4     = projection * cubemap_view_mat4;
+    mat4 inv_cubemap_view_projection_mat4 = cubemap_view_projection_mat4.inverted();
+
+    // setup pipeline state, there should be a PipelineState API with set() and reset(), bind/unbind methods
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
+    m_sky_program->bind();
+
+    m_sky_program->setMat4("inv_view_projection", inv_cubemap_view_projection_mat4);
+
+    m_preetham_sky_model.SetRenderUniforms(m_sky_program);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    m_sky_program->unbind();
+
+    // reset the pipeline state
+    glDepthFunc(GL_LESS); // This is the default depth function
+    glDisable(GL_DEPTH_TEST);
+
+    m_vao->unbind();
 }
 
 void OglRenderer::renderAtmosphericScattering()
@@ -372,7 +472,22 @@ void OglRenderer::drawTriangles(const u64& vertex_count, const Material& materia
 
 void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model)
 {
-    auto active_program = m_blinn_phong_program;
+    // shadow pass
+
+    //{
+    //    m_shadow_pass_program->bind();
+    //    m_shadow_pass_framebuffer->bind();
+    //    m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
+
+    //    glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
+
+    //    m_shadow_pass_framebuffer->unbind();
+    //    m_shadow_pass_program->unbind();
+    //}
+
+    // render pass
+
+    auto& active_program = m_blinn_phong_program;
     if(material.shader_name == "blinn_phong_pvp")
     {
         m_vao->bind();
@@ -730,6 +845,20 @@ void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
     glDisable(GL_DEPTH_TEST);
 }
 
+void OglRenderer::drawUI()
+{
+    // just simple debug, dunno if it works
+    {
+        if(ImGui::Begin("Shadowpass Depth Buffer"))
+        {
+            // uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
+            uint64_t textureID = m_shadow_pass_framebuffer->getDepthAttachmentId();
+            ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{250, 250}, ImVec2{0, 1}, ImVec2{1, 0});
+        }
+        ImGui::End();
+    }
+}
+
 void OglRenderer::drawArrays(const u64& vertex_count, DrawMode mode)
 {
     glDrawArrays(drawModeToGLEnum(mode), 0, (GLsizei)vertex_count);
@@ -781,5 +910,14 @@ GLenum OglRenderer::drawModeToGLEnum(DrawMode mode)
     // assert() // invalid draw mode
     return static_cast<unsigned int>(DrawMode::INVALID);
 }
+
+// void runShadowPass()
+//{
+//   Bind shadow pass framebuffer
+//
+//
+//
+//   Unbind shadow pass framebuffer
+// }
 
 } // namespace sputnik::graphics::gl

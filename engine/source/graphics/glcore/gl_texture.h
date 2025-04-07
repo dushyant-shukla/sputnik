@@ -120,11 +120,11 @@ public:
     OglTexture2D(OglTexture2D&& other) noexcept;
     OglTexture2D& operator=(OglTexture2D&& other) noexcept;
 
-    void setData(void* data, const u32& size);
-    void setFiltering(const TextureFilter& min_filter, const TextureFilter& mag_filter);
-    void setWrapping(const TextureWrap& s_wrap, const TextureWrap& t_wrap);
+    void setData(void* data, const u32& size) const;
+    void setFiltering(const TextureFilter& min_filter, const TextureFilter& mag_filter) const;
+    void setWrapping(const TextureWrap& s_wrap, const TextureWrap& t_wrap) const;
 
-    void bind(const u32& slot = 0);
+    void bind(const u32& slot = 0) const;
     void unbind(const u32& slot = 0);
 
     const u32& getId() const;
