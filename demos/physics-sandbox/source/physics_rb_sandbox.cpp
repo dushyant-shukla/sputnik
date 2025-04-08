@@ -75,7 +75,7 @@ PhysicsRigidBodySandboxDemoLayer::PhysicsRigidBodySandboxDemoLayer(const std::st
 
     auto  render_system = RenderSystem::getInstance();
     auto& light         = render_system->getLight();
-    light.position      = vec3(0.0f, 50.0f, 50.0f);
+    light.position      = vec3(0.0f, 100.0f, -25.0f);
     light.ambient       = vec3(1.0f, 1.0f, 1.0f);
     light.diffuse       = vec3(1.0f, 1.0f, 1.0f);
     light.specular      = vec3(1.0f, 1.0f, 1.0f);
@@ -120,7 +120,7 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
         m_sphere_rb.setDamping(0.8f, 0.08f);
         m_sphere_rb.enableDamping(false);
         m_sphere_rb.setPosition(PhxVec3(0.0f, 20.0f, 0.0f));
-        m_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_sphere_rb.setVelocity(PhxVec3(0.5f, 0.0f, 0.0f));
         m_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
         m_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
         m_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
@@ -239,7 +239,7 @@ void PhysicsRigidBodySandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         Material material     = {};
         material.shader_name  = "blinn_phong";
         material.diff_texture = m_diff_basketball_texture;
-        m_sphere->draw(material, model);
+        // m_sphere->draw(material, model);
     }
 
     debugDrawPhxGeometries();

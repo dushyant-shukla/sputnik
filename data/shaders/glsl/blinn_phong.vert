@@ -10,6 +10,14 @@ layout(std140, binding = 0) uniform PerFrameData {
     vec3 camera_position;
 };
 
+layout(std140, binding = 2) uniform ShadowPassBuffer
+{
+    uniform mat4 light_projection;
+    uniform mat4 light_view;
+   // uniform vec3 light_position;
+    //uniform vec3 light_direction;
+};
+
 uniform mat4 model;
 uniform mat4 normal_matrix;
 
@@ -26,5 +34,6 @@ void main() {
     vs_out.uv = uv;
     vs_out.eye_position = camera_position;
     vs_out.frag_position = vec3(model * vec4(position, 1.0));
+    vs_out.frag_position_light_space = light_projection * light_view * vec4(vs_out.frag_position, 1.0);
     gl_Position = projection * view * model * vec4(position, 1.0);
 }

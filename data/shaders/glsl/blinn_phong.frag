@@ -35,7 +35,7 @@ uniform sampler2D shadow_map;
 
 #include <blinn_phong_lighting.glsl>
 
-float shadowCalculation(vec4 frag_pos_light_space)
+float calculateShadowFactor(vec4 frag_pos_light_space)
 {
     vec3 projected_coords = frag_pos_light_space.xyz / frag_pos_light_space.w;
     projected_coords = projected_coords * 0.5 + 0.5;
@@ -89,7 +89,7 @@ void main() {
 
     float attenuation = calculateAttenuation(light_constant, light_linear, light_quadratic, length(light_position - fs_in.frag_position));
 
-    float shadow = shadowCalculation(fs_in.frag_position_light_space);
+    float shadow = calculateShadowFactor(fs_in.frag_position_light_space);
 
     vec4 light_intensity = vec4(ambient_color + (1.0 - shadow) * (diffuse_color + specular_color), 1.0) / attenuation;
 

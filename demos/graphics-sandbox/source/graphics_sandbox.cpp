@@ -178,23 +178,11 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
     // glEnable(GL_DEPTH_TEST);
 
-    // render woman
-    {
-        mat4 model            = {};
-        model                 = model.translate({0.0, 1.0, 0.0});
-        model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
-        Material material     = {};
-        material.diff_texture = m_diff_texture_woman;
-        material.shader_name  = "blinn_phong";
-        m_animated_model->draw(material, model);
-    }
-    // render woman ends
-
     // render sphere
     {
         mat4 model = {};
         // model      = model.translate({3.0, 3.0, 0.0});
-        model = model.translate({0.0, 3.0, 3.0});
+        model = model.translate({0.0, 3.0, 2.0});
         model = model.scale({1.0});
         // model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
         Material material     = {};
@@ -246,19 +234,20 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     // render using pvp shader
     {
         // draw#2
+
         mat4 model           = {};
-        model                = model.translate({3.0f, 2.0f, 2.0f});
+        model                = model.translate({3.0f, 3.0f, 3.0f});
         model                = model.rotate({0.0f, 1.0f, 0.0f}, 45.0f * kDegToRad);
         model                = model.scale({1.0f});
-        Material material    = material_emerald;
+        Material material    = material_ruby;
         material.shader_name = "blinn_phong_pvp";
         render_system->drawTriangles(36, material, model);
 
         model                = {};
-        model                = model.translate({3.0f, 4.0f, 4.0f});
+        model                = model.translate({3.0f, 2.0f, 2.0f});
         model                = model.rotate({0.0f, 1.0f, 0.0f}, 45.0f * kDegToRad);
         model                = model.scale({1.0f});
-        material             = material_ruby;
+        material    = material_emerald;
         material.shader_name = "blinn_phong_pvp";
         render_system->drawTriangles(36, material, model);
 
@@ -271,7 +260,7 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         Material cloth     = material_rubber_red;
         cloth.shader_name  = "blinn_phong_pvp";
         cloth.diff_texture = m_cloth_diff_texture;
-        render_system->drawTriangles(36, cloth, model);
+        // render_system->drawTriangles(36, cloth, model);
 
         // cloth.shader_name  = "blinn_phong";
         // cloth.diff_texture = m_cloth_diff_texture;
@@ -288,10 +277,23 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         model          = model.translate({0.0, 0.0, 0.0});
         model          = model.scale({20.0f, 2.0f, 20.f});
         Material cloth = material_rubber_red;
-        // render_system->drawTriangles(36, cloth, model);
+        // cloth.shader_name = "blinn_phong_pvp";
+        render_system->drawTriangles(36, cloth, model);
 
         m_vertex_array->unbind();
     }
+
+    // render woman
+    {
+        mat4 model            = {};
+        model                 = model.translate({0.0, 1.0, 0.0});
+        model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+        Material material     = {};
+        material.diff_texture = m_diff_texture_woman;
+        material.shader_name  = "blinn_phong";
+        m_animated_model->draw(material, model);
+    }
+    // render woman ends
 
     // glDisable(GL_DEPTH_TEST);
 }

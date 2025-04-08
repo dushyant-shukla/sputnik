@@ -310,7 +310,8 @@ void OglRenderer::clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     m_viewport_framebuffer->clear();
-    m_shadow_pass_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
+    // m_shadow_pass_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
+    m_shadow_pass_framebuffer->clear();
 }
 
 void OglRenderer::setClearColor(float r, float g, float b, float a)
