@@ -147,7 +147,7 @@ void GraphicsSandboxDemoLayer::OnAttach()
 
     auto  render_system = RenderSystem::getInstance();
     auto& light         = render_system->getLight();
-    light.position      = vec3(0.0f, 5.0f, 5.0f);
+    light.position      = vec3(0.0f, 50.0f, 50.0f);
     light.ambient       = vec3(1.0f, 1.0f, 1.0f);
     light.diffuse       = vec3(1.0f, 1.0f, 1.0f);
     light.specular      = vec3(1.0f, 1.0f, 1.0f);
@@ -193,9 +193,9 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     // render sphere
     {
         mat4 model = {};
-        //model      = model.translate({3.0, 3.0, 0.0});
+        // model      = model.translate({3.0, 3.0, 0.0});
         model = model.translate({0.0, 3.0, 3.0});
-        model      = model.scale({2.0});
+        model = model.scale({1.0});
         // model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
         Material material     = {};
         material.diff_texture = nullptr;
@@ -208,7 +208,7 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     {
         mat4 model = {};
         // model      = model.translate({3.0, 3.0, 0.0});
-        model = model.translate({-2.0, 1.0, 0.0});
+        model = model.translate({-5.0, 3.0, 0.0});
         model = model.scale({0.5});
         // model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
         Material material     = {};
@@ -225,7 +225,7 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         // render cube
         {
             mat4 model{};
-            model = model.translate({3.0, 3.0, -5.0});
+            model = model.translate({5.0, 3.0, -5.0});
             model = model.scale({2.0f});
             Material material_cloth;
             material_cloth.diff_texture = m_cloth_diff_texture;
@@ -237,7 +237,7 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
             mat4 model = {};
             model      = model.translate(render_system->getLight().position);
             model      = model.scale({0.15f});
-            render_system->drawTriangles(36, material_ruby, model);
+            // render_system->drawTriangles(36, material_ruby, model);
         }
 
         m_vertex_array->unbind();
@@ -249,23 +249,49 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         mat4 model           = {};
         model                = model.translate({3.0f, 2.0f, 2.0f});
         model                = model.rotate({0.0f, 1.0f, 0.0f}, 45.0f * kDegToRad);
-        model                = model.scale({0.5f});
-        Material material    = material_white;
+        model                = model.scale({1.0f});
+        Material material    = material_emerald;
         material.shader_name = "blinn_phong_pvp";
         render_system->drawTriangles(36, material, model);
+
+        model                = {};
+        model                = model.translate({3.0f, 4.0f, 4.0f});
+        model                = model.rotate({0.0f, 1.0f, 0.0f}, 45.0f * kDegToRad);
+        model                = model.scale({1.0f});
+        material             = material_ruby;
+        material.shader_name = "blinn_phong_pvp";
+        render_system->drawTriangles(36, material, model);
+
         // draw#2 ends
 
         // draw#1
         model              = {};
         model              = model.translate({0.0, 0.0, 0.0});
         model              = model.scale({20.0f, 2.0f, 20.f});
-        Material cloth     = {};
+        Material cloth     = material_rubber_red;
         cloth.shader_name  = "blinn_phong_pvp";
         cloth.diff_texture = m_cloth_diff_texture;
         render_system->drawTriangles(36, cloth, model);
-        // draw#1 ends
+
+        // cloth.shader_name  = "blinn_phong";
+        // cloth.diff_texture = m_cloth_diff_texture;
+        // m_box->draw(cloth, model);
+        //  draw#1 ends
     }
     // render using pvp ends
+
+    // render base platform
+    {
+        m_vertex_array->bind();
+
+        mat4 model     = {};
+        model          = model.translate({0.0, 0.0, 0.0});
+        model          = model.scale({20.0f, 2.0f, 20.f});
+        Material cloth = material_rubber_red;
+        // render_system->drawTriangles(36, cloth, model);
+
+        m_vertex_array->unbind();
+    }
 
     // glDisable(GL_DEPTH_TEST);
 }

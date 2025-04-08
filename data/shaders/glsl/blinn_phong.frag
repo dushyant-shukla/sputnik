@@ -50,15 +50,15 @@ float shadowCalculation(vec4 frag_pos_light_space)
     // float shadow = current_depth > closest_depth ? 1.0 : 0.0;
 
     // float bias = 0.005;
-    float bias = 0.0;
+    float bias = 0.00001;
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadow_map, 0);
+    vec2 texel_size = 1.0 / textureSize(shadow_map, 0);
     for(int x = -1; x <= 1; ++x)
     {
         for(int y = -1; y <= 1; ++y)
         {
-            float pcfDepth = texture(shadow_map, projected_coords.xy + vec2(x, y) * texelSize).r;
-            shadow += current_depth - bias > pcfDepth  ? 1.0 : 0.0;
+            float pcf_depth = texture(shadow_map, projected_coords.xy + vec2(x, y) * texel_size).r;
+            shadow += current_depth - bias > pcf_depth  ? 1.0 : 0.0;
         }
     }
     shadow /= 9.0;

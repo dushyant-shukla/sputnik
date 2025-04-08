@@ -142,10 +142,16 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_grid_program->configure();
 
     m_shadow_pass_program = std::make_shared<OglShaderProgram>();
-    m_grid_program->setName("shadow_pass_program");
+    m_shadow_pass_program->setName("shadow_pass_program");
     m_shadow_pass_program->addShaderStage("../../data/shaders/glsl/shadow_pass.vert");
     m_shadow_pass_program->addShaderStage("../../data/shaders/glsl/shadow_pass.frag");
     m_shadow_pass_program->configure();
+
+    m_shadow_pass_pvp_program = std::make_shared<OglShaderProgram>();
+    m_shadow_pass_pvp_program->setName("shadow_pass_pvp_program");
+    m_shadow_pass_pvp_program->addShaderStage("../../data/shaders/glsl/shadow_pass_pvp.vert");
+    m_shadow_pass_pvp_program->addShaderStage("../../data/shaders/glsl/shadow_pass.frag");
+    m_shadow_pass_pvp_program->configure();
 
     m_blinn_phong_program = std::make_shared<OglShaderProgram>();
     m_blinn_phong_program->setName("blinn_phong_program");
@@ -471,12 +477,26 @@ void OglRenderer::drawTriangles(const u64& vertex_count, const Material& materia
 
         // active_program->setInt("shadow_map", 2);
         // m_shadow_pass_framebuffer->bindDepthAttachmentTexture(2);
-    }
 
-    // shadow pass
+        // shadow pass
+        glEnable(GL_DEPTH_TEST);
+        m_shadow_pass_pvp_program->bind();
+        m_shadow_pass_pvp_program->setMat4("model", model);
+        m_shadow_pass_framebuffer->bind();
+        // m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
+
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertex_count);
+
+        m_shadow_pass_framebuffer->unbind();
+        m_shadow_pass_pvp_program->unbind();
+        glDisable(GL_DEPTH_TEST);
+    }
+    else
     {
+        // shadow pass
         glEnable(GL_DEPTH_TEST);
         m_shadow_pass_program->bind();
+        m_shadow_pass_program->setMat4("model", model);
         m_shadow_pass_framebuffer->bind();
         // m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
 

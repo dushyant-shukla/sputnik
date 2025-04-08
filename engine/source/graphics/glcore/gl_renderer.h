@@ -172,6 +172,7 @@ private:
     std::shared_ptr<OglShaderProgram> m_sky_program;
     std::shared_ptr<OglShaderProgram> m_grid_program;
     std::shared_ptr<OglShaderProgram> m_shadow_pass_program;
+    std::shared_ptr<OglShaderProgram> m_shadow_pass_pvp_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_skinned_program;
     std::shared_ptr<OglShaderProgram> m_blinn_phong_instanced_program;

@@ -230,6 +230,18 @@ void PhysicsRigidBodySandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         }
     }
 
+    // render light box
+    {
+        mat4 model = {};
+        model      = model.translate(render_system->getLight().position);
+        model      = model.scale({0.30f});
+
+        Material material     = {};
+        material.shader_name  = "blinn_phong";
+        material.diff_texture = m_diff_basketball_texture;
+        m_sphere->draw(material, model);
+    }
+
     debugDrawPhxGeometries();
 }
 
