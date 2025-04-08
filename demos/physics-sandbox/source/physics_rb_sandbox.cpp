@@ -75,7 +75,7 @@ PhysicsRigidBodySandboxDemoLayer::PhysicsRigidBodySandboxDemoLayer(const std::st
 
     auto  render_system = RenderSystem::getInstance();
     auto& light         = render_system->getLight();
-    light.position      = vec3(0.0f, 280.0f, 220.0f);
+    light.position      = vec3(0.0f, 50.0f, 50.0f);
     light.ambient       = vec3(1.0f, 1.0f, 1.0f);
     light.diffuse       = vec3(1.0f, 1.0f, 1.0f);
     light.specular      = vec3(1.0f, 1.0f, 1.0f);

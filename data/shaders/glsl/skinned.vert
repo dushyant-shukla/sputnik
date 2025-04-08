@@ -25,6 +25,7 @@ layout (location = 0) out VS_OUT
     vec2 uv;
     vec3 eye_position;
     vec3 frag_position;
+    vec4 frag_position_light_space;
 } vs_out;
 
 void main()

@@ -50,8 +50,8 @@ struct ShadowPassBuffer
 {
     alignas(16) glm::mat4 light_projection;
     alignas(16) glm::mat4 light_view;
-    alignas(16) glm::vec3 light_position;
-    alignas(16) glm::vec3 light_direction;
+    // alignas(16) glm::vec3 light_position;
+    // alignas(16) glm::vec3 light_direction;
 };
 
 struct DrawElementsIndirectCommand
@@ -134,6 +134,9 @@ public:
 
     void drawUI();
 
+    const uint64_t&                 getViewportAttachmentId() const;
+    const FramebufferSpecification& getViewportFramebufferSpecification() const;
+
 protected:
 private:
     OglRenderer(GLFWwindow* const window);
@@ -175,8 +178,9 @@ private:
     std::shared_ptr<OglShaderProgram> m_blinn_phong_pvp_program;
     std::shared_ptr<OglShaderProgram> m_debug_draw_program;
 
-    // Framebuffer
+    // Framebuffers
     std::shared_ptr<OglFramebuffer> m_shadow_pass_framebuffer;
+    std::shared_ptr<OglFramebuffer> m_viewport_framebuffer;
 
     // CPU data
     PerFrameData     m_per_frame_data;

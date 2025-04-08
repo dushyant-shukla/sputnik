@@ -60,6 +60,9 @@ public:
     u32                             getColorAttachmentId(u32 index = 0);
     u32                             getDepthAttachmentId() const;
 
+    void bindDepthAttachmentTexture(const u32& slot) const;
+    void bindColorAttachmentTexture(u32 index, const u32& slot) const;
+
     void bind() const;
     void unbind();
 

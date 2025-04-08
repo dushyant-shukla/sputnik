@@ -13,6 +13,14 @@ layout(std140, binding = 0) uniform PerFrameData {
     vec3 camera_position;
 };
 
+layout(std140, binding = 2) uniform ShadowPassBuffer
+{
+    uniform mat4 light_projection;
+    uniform mat4 light_view;
+   // uniform vec3 light_position;
+    //uniform vec3 light_direction;
+};
+
 layout(std430, binding = 0) restrict readonly buffer VertexBuffer
 {
     VertexData vertices[];
@@ -26,6 +34,7 @@ layout(location = 0) out VS_OUT {
     vec2 uv;
     vec3 eye_position;
     vec3 frag_position;
+    vec4 frag_position_light_space;
 } vs_out;
 
 vec3 getPosition(int vertex_index)
@@ -51,5 +60,6 @@ void main() {
     vs_out.uv = uv;
     vs_out.eye_position = camera_position;
     vs_out.frag_position = vec3(model * vec4(position, 1.0));
+    vs_out.frag_position_light_space = light_projection * light_view * vec4(vs_out.frag_position, 1.0);
     gl_Position = projection * view * model * vec4(position, 1.0);
 }

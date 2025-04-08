@@ -130,41 +130,49 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_vao = std::make_unique<OglVertexArray>();
 
     m_sky_program = std::make_shared<OglShaderProgram>();
+    m_sky_program->setName("sky_program");
     m_sky_program->addShaderStage("../../data/shaders/sky-rendering/sky.vert");
     m_sky_program->addShaderStage("../../data/shaders/sky-rendering/sky.frag");
     m_sky_program->configure();
 
     m_grid_program = std::make_shared<OglShaderProgram>();
+    m_grid_program->setName("grid_program");
     m_grid_program->addShaderStage("../../data/shaders/glsl/grid.vert");
     m_grid_program->addShaderStage("../../data/shaders/glsl/grid.frag");
     m_grid_program->configure();
 
     m_shadow_pass_program = std::make_shared<OglShaderProgram>();
+    m_grid_program->setName("shadow_pass_program");
     m_shadow_pass_program->addShaderStage("../../data/shaders/glsl/shadow_pass.vert");
     m_shadow_pass_program->addShaderStage("../../data/shaders/glsl/shadow_pass.frag");
     m_shadow_pass_program->configure();
 
     m_blinn_phong_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_program->setName("blinn_phong_program");
     m_blinn_phong_program->addShaderStage("../../data/shaders/glsl/blinn_phong.vert");
     m_blinn_phong_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
     m_blinn_phong_program->configure();
 
     m_blinn_phong_skinned_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_skinned_program->setName("blinn_phong_skinned_program");
     m_blinn_phong_skinned_program->addShaderStage("../../data/shaders/glsl/skinned.vert");
     m_blinn_phong_skinned_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
     m_blinn_phong_skinned_program->configure();
 
     m_blinn_phong_pvp_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_pvp_program->setName("blinn_phong_pvp_program");
     m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong_pvp.vert");
     m_blinn_phong_pvp_program->addShaderStage("../../data/shaders/glsl/blinn_phong.frag");
     m_blinn_phong_pvp_program->configure();
 
     m_blinn_phong_instanced_program = std::make_shared<OglShaderProgram>();
+    m_blinn_phong_instanced_program->setName("blinn_phong_instanced_program");
     m_blinn_phong_instanced_program->addShaderStage("../../data/shaders/glsl/blinn_phong_instanced.vert");
     m_blinn_phong_instanced_program->addShaderStage("../../data/shaders/glsl/blinn_phong_instanced.frag");
     m_blinn_phong_instanced_program->configure();
 
     m_debug_draw_program = std::make_shared<OglShaderProgram>();
+    m_debug_draw_program->setName("debug_draw_program");
     m_debug_draw_program->addShaderStage("../../data/shaders/glsl/debug_draw.vert");
     m_debug_draw_program->addShaderStage("../../data/shaders/glsl/debug_draw.frag");
     m_debug_draw_program->configure();
@@ -180,13 +188,35 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_green_texture = std::make_shared<OglTexture2D>(1, 1, &green, TextureFormat::RGBA8);
     m_blue_texture  = std::make_shared<OglTexture2D>(1, 1, &blue, TextureFormat::RGBA8);
 
-    FramebufferSpecification           framebuffer_spec;
-    FramebufferAttachmentSpecification depth_attachment_spec;
-    depth_attachment_spec.attachment_format = TextureFormat::Depth32F;
-    framebuffer_spec.attachments            = {depth_attachment_spec};
-    framebuffer_spec.width                  = 1024;
-    framebuffer_spec.height                 = 1024;
-    m_shadow_pass_framebuffer               = std::make_shared<OglFramebuffer>(framebuffer_spec);
+    // Configure framebuffers
+    {
+        // Main framebuffer
+        {
+            int width  = 0;
+            int height = 0;
+            glfwGetFramebufferSize(window, &width, &height);
+            FramebufferSpecification           framebuffer_spec;
+            FramebufferAttachmentSpecification color_attachment_spec;
+            color_attachment_spec.attachment_format = TextureFormat::RGBA8;
+            FramebufferAttachmentSpecification depth_attachment_spec;
+            depth_attachment_spec.attachment_format = TextureFormat::Depth24Stencil8;
+            framebuffer_spec.attachments            = {color_attachment_spec, depth_attachment_spec};
+            framebuffer_spec.width                  = width;
+            framebuffer_spec.height                 = height;
+            m_viewport_framebuffer                  = std::make_shared<OglFramebuffer>(framebuffer_spec);
+        }
+
+        // Shadow pass framebuffer
+        {
+            FramebufferSpecification           framebuffer_spec;
+            FramebufferAttachmentSpecification depth_attachment_spec;
+            depth_attachment_spec.attachment_format = TextureFormat::Depth32F;
+            framebuffer_spec.attachments            = {depth_attachment_spec};
+            framebuffer_spec.width                  = 1024;
+            framebuffer_spec.height                 = 1024;
+            m_shadow_pass_framebuffer               = std::make_shared<OglFramebuffer>(framebuffer_spec);
+        }
+    }
     //  m_shadow_pass_framebuffer->bind();
     //  m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
     //  m_shadow_pass_framebuffer->unbind();
@@ -213,6 +243,8 @@ OglRenderer& OglRenderer::operator=(OglRenderer&& other) noexcept
 void OglRenderer::resizeViewport(const u32& width, const u32& height)
 {
     glViewport(0, 0, width, height);
+
+    m_viewport_framebuffer->resize(width, height);
 }
 
 void OglRenderer::resizeViewport(const u32& x, const u32& y, const u32& width, const u32& height)
@@ -234,13 +266,13 @@ void OglRenderer::render(const mat4& projection, const mat4& view, const vec3& c
     m_per_frame_gpu_buffer->setData(&m_per_frame_data, sizeof(PerFrameData));
 
     // update shadow pass buffer
-    m_shadow_pass_data.light_direction = {m_light_direction.x,
-                                          m_light_direction.y,
-                                          m_light_direction.z}; // not used right now in shader
-    m_shadow_pass_data.light_position  = {light.position.x, light.position.y, light.position.z};
+    // m_shadow_pass_data.light_direction = {m_light_direction.x,
+    //                                      m_light_direction.y,
+    //                                      m_light_direction.z}; // not used right now in shader
+    // m_shadow_pass_data.light_position  = {light.position.x, light.position.y, light.position.z};
     m_shadow_pass_data.light_projection =
-        glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f); // Todo:: use light projection matrix
-    m_shadow_pass_data.light_view = glm::lookAt(m_shadow_pass_data.light_position,
+        glm::perspective(glm::radians(45.0f), 1024.0f / 1024.0f, 0.1f, 1000.0f); // Todo:: use light projection matrix
+    m_shadow_pass_data.light_view = glm::lookAt({light.position.x, light.position.y, light.position.z},
                                                 glm::vec3(0.0f),
                                                 glm::vec3(0.0f, 1.0f, 0.0f)); // Todo:: use light view matrix
     m_shadow_pass_buffer->setData((void*)&m_shadow_pass_data, sizeof(ShadowPassBuffer));
@@ -270,15 +302,21 @@ void OglRenderer::lateUpdate(const core::TimeStep& timestep, GLFWwindow* const w
 void OglRenderer::clear()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    m_viewport_framebuffer->clear();
+    m_shadow_pass_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
 }
 
 void OglRenderer::setClearColor(float r, float g, float b, float a)
 {
     glClearColor(r, g, b, a);
+
+    m_viewport_framebuffer->clear({r, g, b, a});
 }
 
 void OglRenderer::renderAtmosphericScattering(const mat4& projection, const mat4& view)
 {
+    m_viewport_framebuffer->bind();
     m_vao->bind();
 
     m_preetham_sky_model.SetDirection(m_light_direction);
@@ -337,10 +375,12 @@ void OglRenderer::renderAtmosphericScattering(const mat4& projection, const mat4
     glDisable(GL_DEPTH_TEST);
 
     m_vao->unbind();
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::renderAtmosphericScattering()
 {
+    m_viewport_framebuffer->bind();
     m_vao->bind();
 
     m_preetham_sky_model.SetDirection(m_light_direction);
@@ -399,10 +439,12 @@ void OglRenderer::renderAtmosphericScattering()
     glDisable(GL_DEPTH_TEST);
 
     m_vao->unbind();
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::renderEditorGrid()
 {
+    m_viewport_framebuffer->bind();
     m_vao->bind();
     m_grid_program->bind();
     glEnable(GL_BLEND);
@@ -415,17 +457,37 @@ void OglRenderer::renderEditorGrid()
     glDisable(GL_BLEND);
     m_grid_program->unbind();
     m_vao->unbind();
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawTriangles(const u64& vertex_count, const Material& material, const mat4& model)
 {
+
     auto active_program = m_blinn_phong_program;
     if(material.shader_name == "blinn_phong_pvp")
     {
         m_vao->bind();
         active_program = m_blinn_phong_pvp_program;
+
+        // active_program->setInt("shadow_map", 2);
+        // m_shadow_pass_framebuffer->bindDepthAttachmentTexture(2);
     }
 
+    // shadow pass
+    {
+        glEnable(GL_DEPTH_TEST);
+        m_shadow_pass_program->bind();
+        m_shadow_pass_framebuffer->bind();
+        // m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
+
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertex_count);
+
+        m_shadow_pass_framebuffer->unbind();
+        m_shadow_pass_program->unbind();
+        glDisable(GL_DEPTH_TEST);
+    }
+
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     {
         mat4 normal_matrix = model;
@@ -438,6 +500,9 @@ void OglRenderer::drawTriangles(const u64& vertex_count, const Material& materia
         active_program->setFloat3("material.diffuse", material.diffuse);
         active_program->setFloat3("material.specular", material.specular);
         active_program->setFloat("material.shininess", material.shininess);
+
+        active_program->setInt("shadow_map", 2);
+        m_shadow_pass_framebuffer->bindDepthAttachmentTexture(2);
         if(material.diff_texture)
         {
             active_program->setInt("material.diffuse_texture", 0);
@@ -468,25 +533,32 @@ void OglRenderer::drawTriangles(const u64& vertex_count, const Material& materia
         active_program->unbind();
     }
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& material, const mat4& model)
 {
     // shadow pass
+    {
+        glEnable(GL_DEPTH_TEST);
+        glCullFace(GL_FRONT);
+        m_shadow_pass_program->bind();
+        m_shadow_pass_program->setMat4("model", model);
+        m_shadow_pass_framebuffer->bind();
+        // m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
 
-    //{
-    //    m_shadow_pass_program->bind();
-    //    m_shadow_pass_framebuffer->bind();
-    //    m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
+        glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
 
-    //    glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
-
-    //    m_shadow_pass_framebuffer->unbind();
-    //    m_shadow_pass_program->unbind();
-    //}
+        m_shadow_pass_framebuffer->unbind();
+        m_shadow_pass_program->unbind();
+        glCullFace(GL_BACK);
+        glDisable(GL_DEPTH_TEST);
+    }
 
     // render pass
 
+    m_viewport_framebuffer->bind();
+    // m_viewport_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
     auto& active_program = m_blinn_phong_program;
     if(material.shader_name == "blinn_phong_pvp")
     {
@@ -510,6 +582,10 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
         active_program->setFloat3("material.diffuse", material.diffuse);
         active_program->setFloat3("material.specular", material.specular);
         active_program->setFloat("material.shininess", material.shininess);
+
+        active_program->setInt("shadow_map", 2);
+        m_shadow_pass_framebuffer->bindDepthAttachmentTexture(2);
+
         if(material.diff_texture)
         {
             active_program->setInt("material.diffuse_texture", 0);
@@ -539,6 +615,7 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
         active_program->unbind();
     }
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
@@ -546,6 +623,21 @@ void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
                                        const mat4&                 model,
                                        const std::vector<Matrix4>& skin_transformations)
 {
+
+    // shadow pass
+    {
+        glEnable(GL_DEPTH_TEST);
+        m_shadow_pass_program->bind();
+        m_shadow_pass_framebuffer->bind();
+        // m_shadow_pass_framebuffer->clear({1.0f, 0.0f, 0.0f, 1.0f});
+
+        glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
+
+        m_shadow_pass_framebuffer->unbind();
+        m_shadow_pass_program->unbind();
+        glDisable(GL_DEPTH_TEST);
+    }
+
     auto active_program = m_blinn_phong_program;
     if(material.shader_name == "blinn_phong_pvp")
     {
@@ -557,6 +649,7 @@ void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
         active_program = m_blinn_phong_skinned_program;
     }
 
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     {
         mat4 normal_matrix = model;
@@ -570,6 +663,10 @@ void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
         active_program->setFloat3("material.diffuse", material.diffuse);
         active_program->setFloat3("material.specular", material.specular);
         active_program->setFloat("material.shininess", material.shininess);
+
+        active_program->setInt("shadow_map", 2);
+        m_shadow_pass_framebuffer->bindDepthAttachmentTexture(2);
+
         if(material.diff_texture)
         {
             active_program->setInt("material.diffuse_texture", 0);
@@ -599,6 +696,7 @@ void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
         active_program->unbind();
     }
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawTrianglesInstanced(const u64& vertex_count, const u64& instance_count, const Material& material)
@@ -614,6 +712,7 @@ void OglRenderer::drawTrianglesInstanced(const u64& vertex_count, const u64& ins
     //     active_program = m_blinn_phong_instanced_program;
     // }
 
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     {
         // mat4 normal_matrix = model;
@@ -651,6 +750,7 @@ void OglRenderer::drawTrianglesInstanced(const u64& vertex_count, const u64& ins
         active_program->unbind();
     }
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawTrianglesIndexedInstanced(const u64&      index_count,
@@ -659,6 +759,7 @@ void OglRenderer::drawTrianglesIndexedInstanced(const u64&      index_count,
 {
     auto active_program = m_blinn_phong_instanced_program;
 
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     {
         // mat4 normal_matrix = model;
@@ -696,10 +797,12 @@ void OglRenderer::drawTrianglesIndexedInstanced(const u64&      index_count,
         active_program->unbind();
     }
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices, const vec3& color, const float& line_width)
 {
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glLineWidth(line_width);
     glEnable(GL_LINE_SMOOTH);
@@ -719,6 +822,7 @@ void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices, const vec3& 
     glDisable(GL_LINE_SMOOTH);
     glLineWidth(1.0f);
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
@@ -726,6 +830,7 @@ void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
                                  const mat4&              model,
                                  const float&             line_width)
 {
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glLineWidth(line_width);
     glEnable(GL_LINE_SMOOTH);
@@ -745,6 +850,7 @@ void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
     glDisable(GL_LINE_SMOOTH);
     glLineWidth(1.0f);
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
@@ -752,6 +858,7 @@ void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
                                  const glm::mat4&         model,
                                  const float&             line_width)
 {
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glLineWidth(line_width);
     glEnable(GL_LINE_SMOOTH);
@@ -771,10 +878,12 @@ void OglRenderer::drawDebugLines(const std::vector<vec4>& vertices,
     glDisable(GL_LINE_SMOOTH);
     glLineWidth(1.0f);
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices, const vec3& color, const float& point_size)
 {
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glPointSize(point_size);
     m_vao->bind();
@@ -793,6 +902,7 @@ void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices, const vec3&
     m_vao->unbind();
 
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
@@ -800,6 +910,7 @@ void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
                                   const mat4&              model,
                                   const float&             point_size)
 {
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glPointSize(point_size);
     m_vao->bind();
@@ -818,6 +929,7 @@ void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
     m_vao->unbind();
 
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
@@ -825,6 +937,7 @@ void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
                                   const glm::mat4&         model,
                                   const float&             point_size)
 {
+    m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glPointSize(point_size);
     m_vao->bind();
@@ -843,6 +956,7 @@ void OglRenderer::drawDebugPoints(const std::vector<vec4>& vertices,
     m_vao->unbind();
 
     glDisable(GL_DEPTH_TEST);
+    m_viewport_framebuffer->unbind();
 }
 
 void OglRenderer::drawUI()
@@ -857,6 +971,16 @@ void OglRenderer::drawUI()
         }
         ImGui::End();
     }
+}
+
+const uint64_t& OglRenderer::getViewportAttachmentId() const
+{
+    return m_viewport_framebuffer->getColorAttachmentId(0);
+}
+
+const FramebufferSpecification& OglRenderer::getViewportFramebufferSpecification() const
+{
+    return m_viewport_framebuffer->getSpecification();
 }
 
 void OglRenderer::drawArrays(const u64& vertex_count, DrawMode mode)

@@ -80,11 +80,11 @@ void OglFramebuffer::reset()
                 m_depth_attachment = std::make_unique<OglTexture2D>(m_specification.width,
                                                                     m_specification.height,
                                                                     TextureFormat::Depth32F,
-                                                                    TextureWrap::ClampToEdge,
-                                                                    TextureWrap::ClampToEdge,
-                                                                    TextureWrap::ClampToEdge,
-                                                                    TextureFilter::Linear,
-                                                                    TextureFilter::Linear);
+                                                                    TextureWrap::ClampToBorder,
+                                                                    TextureWrap::ClampToBorder,
+                                                                    TextureWrap::ClampToBorder,
+                                                                    TextureFilter::Nearest,
+                                                                    TextureFilter::Nearest);
                 // texture->bind();
                 glNamedFramebufferTexture(m_id, GL_DEPTH_ATTACHMENT, m_depth_attachment->getId(), 0);
                 break;
@@ -102,16 +102,16 @@ void OglFramebuffer::reset()
     {
         SPUTNIK_ASSERT(m_color_attachments.size() <= 4, "Framebuffer does not support more than 4 color attachments!");
         GLenum buffers[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
-        //glDrawBuffers((GLsizei)m_color_attachments.size(), buffers);
+        // glDrawBuffers((GLsizei)m_color_attachments.size(), buffers);
         glNamedFramebufferDrawBuffers(m_id, (GLsizei)m_color_attachments.size(), buffers);
     }
     else if(m_color_attachments.empty())
     {
         // Only depth-pass
-        //glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-        //glDrawBuffer(GL_NONE);
-        //glReadBuffer(GL_NONE);
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+        // glDrawBuffer(GL_NONE);
+        // glReadBuffer(GL_NONE);
+        // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         glNamedFramebufferDrawBuffer(m_id, GL_NONE);
         glNamedFramebufferReadBuffer(m_id, GL_NONE);
@@ -232,6 +232,16 @@ u32 OglFramebuffer::getColorAttachmentId(u32 index)
 u32 OglFramebuffer::getDepthAttachmentId() const
 {
     return m_depth_attachment->getId();
+}
+
+void OglFramebuffer::bindDepthAttachmentTexture(const u32& slot) const
+{
+    m_depth_attachment->bind(slot);
+}
+
+void OglFramebuffer::bindColorAttachmentTexture(u32 index, const u32& slot) const
+{
+    m_color_attachments[index]->bind(slot);
 }
 
 void OglFramebuffer::bind() const

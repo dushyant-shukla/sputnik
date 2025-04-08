@@ -36,6 +36,8 @@ private:
     std::shared_ptr<OglTexture2D>   m_cloth_diff_texture;
 
     std::shared_ptr<Model>            m_animated_model;
+    std::shared_ptr<Model>            m_sphere;
+    std::shared_ptr<Model>            m_box;
     std::shared_ptr<OglTexture2D>     m_diff_texture_woman;
 
     std::shared_ptr<OglVertexArray> m_pvp_vertex_array;

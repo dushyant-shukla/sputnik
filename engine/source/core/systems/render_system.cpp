@@ -108,6 +108,13 @@ void RenderSystem::lateUpdate(const TimeStep& timestep)
     m_ogl_renderer->lateUpdate(timestep, m_window->GetNativeWindow());
 }
 
+void RenderSystem::resizeViewport(const u32& width, const u32& height)
+{
+    EditorCamera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+    Camera::GetInstance()->SetViewportSize(static_cast<float>(width), static_cast<float>(height));
+    m_ogl_renderer->resizeViewport(width, height);
+}
+
 void RenderSystem::onWindowResize(const u32& width, const u32& height)
 {
     // Todo:: Temporary until we have event pub/sub system
@@ -291,6 +298,16 @@ void RenderSystem::drawDebugPoints(const std::vector<vec4>& vertices,
                                    const float&             point_size)
 {
     m_ogl_renderer->drawDebugPoints(vertices, color, model, point_size);
+}
+
+const uint64_t& RenderSystem::getViewportAttachmentId() const
+{
+    return m_ogl_renderer->getViewportAttachmentId();
+}
+
+const FramebufferSpecification& RenderSystem::getViewportFramebufferSpecification() const
+{
+    return m_ogl_renderer->getViewportFramebufferSpecification();
 }
 
 } // namespace sputnik::core::systems

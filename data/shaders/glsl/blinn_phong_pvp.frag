@@ -7,6 +7,7 @@ layout(location = 0) in VS_OUT {
     vec2 uv;
     vec3 eye_position;
     vec3 frag_position;
+    vec4 frag_position_light_space;
 } fs_in;
 
 layout(std140, binding = 1) uniform LightData {
@@ -30,7 +31,19 @@ struct Material {
 };
 uniform Material material;
 
+uniform sampler2D shadow_map;
+
 #include <blinn_phong_lighting.glsl>
+
+float shadowCalculation(vec4 frag_pos_light_space)
+{
+    vec3 projected_coords = frag_pos_light_space.xyz / frag_pos_light_space.w;
+    projected_coords = projected_coords * 0.5 + 0.5;
+    float closest_depth = texture(shadow_map, projected_coords.xy).r;
+    float current_depth = projected_coords.z;
+    float shadow = current_depth > closest_depth ? 1.0 : 0.0;
+    return shadow;
+}
 
 void main() {
 
@@ -50,8 +63,12 @@ void main() {
 
     float attenuation = calculateAttenuation(light_constant, light_linear, light_quadratic, length(light_position - fs_in.frag_position));
 
-    vec4 light_intensity = vec4(ambient_color + diffuse_color + specular_color, 1.0) / attenuation;
-    frag_color = light_intensity + vec4(1.0, -1.0, -1.0, 1.0);
+    float shadow = shadowCalculation(fs_in.frag_position_light_space);
+
+    vec4 light_intensity = vec4(ambient_color + (1.0 - shadow) * (diffuse_color + specular_color), 1.0) / attenuation;
+
+    frag_color = light_intensity;
+    // frag_color = light_intensity + vec4(1.0, -1.0, -1.0, 1.0);
     // frag_color.x = 1.0;
     // frag_color.y = 0.0;
     // frag_color.z = 0.0;

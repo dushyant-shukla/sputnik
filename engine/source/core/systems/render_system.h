@@ -8,6 +8,7 @@
 #include "graphics/api/camera.h"
 #include "graphics/window/window.h"
 #include "graphics/api/color_material.h"
+#include "graphics/glcore/gl_framebuffer.h"
 
 #include <vector.hpp>
 #include <matrix.hpp>
@@ -71,6 +72,8 @@ public:
     void update(const TimeStep& delta_time);
     void lateUpdate(const TimeStep& delta_time);
 
+    void resizeViewport(const u32& width, const u32& height);
+
     void onWindowResize(const u32& width, const u32& height);
 
     // const std::unique_ptr<Window>& getWindow();
@@ -126,6 +129,9 @@ public:
                          const vec3&              color,
                          const glm::mat4&         model      = glm::mat4(1.0f),
                          const float&             point_size = 2.5f);
+
+    const uint64_t&                 getViewportAttachmentId() const;
+    const FramebufferSpecification& getViewportFramebufferSpecification() const;
 
 private:
     RenderSystem();

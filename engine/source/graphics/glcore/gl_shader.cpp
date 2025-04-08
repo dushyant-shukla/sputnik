@@ -268,7 +268,7 @@ void OglShaderProgram::link()
         glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)_malloca(length * sizeof(char));
         glGetProgramInfoLog(m_id, length, &length, message);
-        SPUTNIK_ASSERT_MESSAGE(false, "Shader linking failed: {}", message);
+        SPUTNIK_ASSERT_MESSAGE(false, "Shader linking failed. Shader Program:{}\n{}", m_name, message);
         clear();
     }
 
@@ -281,7 +281,10 @@ void OglShaderProgram::link()
         glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)_malloca(length * sizeof(char));
         glGetProgramInfoLog(m_id, length, &length, message);
-        SPUTNIK_ASSERT_MESSAGE(false, "Shader validation failed: {}", message);
+        SPUTNIK_ASSERT_MESSAGE(false,
+                               "Shader validation failed. Shader Program:{}\Validation errors: {}",
+                               m_name,
+                               message);
         clear();
     }
 
@@ -459,6 +462,11 @@ void OglShaderProgram::setMat4(const std::string& name, const glm::mat4& value)
 {
     u32 uniform_id = getUniformId(name);
     glUniformMatrix4fv(uniform_id, 1, GL_FALSE, glm::value_ptr(value[0]));
+}
+
+void OglShaderProgram::setName(const std::string& name)
+{
+    m_name = name;
 }
 
 OglShaderStage::OglShaderStage(cstring shader_file_path)

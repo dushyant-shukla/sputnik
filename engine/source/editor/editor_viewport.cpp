@@ -33,23 +33,24 @@ EditorViewport::EditorViewport(const u32& width, const u32& height)
     framebuffer_spec.attachments = {color_attachment_spec, depth_attachment_spec};
     framebuffer_spec.width       = m_width;
     framebuffer_spec.height      = m_height;
-    m_framebuffer                = std::make_unique<OglFramebuffer>(framebuffer_spec);
+    // m_framebuffer                = std::make_unique<OglFramebuffer>(framebuffer_spec);
 }
 
 EditorViewport::~EditorViewport() {}
 
 void EditorViewport::beginFrame()
 {
-    m_framebuffer->bind();
-    m_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
-    // graphics::api::Renderer::Clear();
+    // m_framebuffer->bind();
+    // m_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
 
+    /////////////////////////////////////////////////////////
+    // graphics::api::Renderer::Clear();
     // graphics::api::Renderer::RenderAtmoshericScattering();
 }
 
 void EditorViewport::endFrame()
 {
-    m_framebuffer->unbind();
+    // m_framebuffer->unbind();
 }
 
 void EditorViewport::update(const core::TimeStep& timestep)
@@ -62,9 +63,13 @@ void EditorViewport::resizeFramebuffer(const bool& force_resize)
 {
     if(shouldResizeFramebuffer() || force_resize)
     {
-        m_framebuffer->resize(static_cast<u32>(m_viewport_size.first), static_cast<u32>(m_viewport_size.second));
+        // m_framebuffer->resize(static_cast<u32>(m_viewport_size.first), static_cast<u32>(m_viewport_size.second));
+
         graphics::api::EditorCamera::GetInstance()->SetViewportSize(m_viewport_size.first, m_viewport_size.second);
         graphics::api::Camera::GetInstance()->SetViewportSize(m_viewport_size.first, m_viewport_size.second);
+
+        RenderSystem::getInstance()->resizeViewport(static_cast<u32>(m_viewport_size.first),
+                                                    static_cast<u32>(m_viewport_size.second));
     }
 }
 
@@ -98,7 +103,10 @@ void EditorViewport::renderEditorViewport()
         ////glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA); // This gives best results
         //  uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId();
-        uint64_t textureID = m_framebuffer->getColorAttachmentId();
+
+        // uint64_t textureID = m_framebuffer->getColorAttachmentId();
+
+        uint64_t textureID = RenderSystem::getInstance()->getViewportAttachmentId();
         ImGui::Image(reinterpret_cast<void*>(textureID),
                      ImVec2{m_viewport_size.first, m_viewport_size.second},
                      ImVec2{0, 1},
@@ -142,18 +150,21 @@ void EditorViewport::renderEditorViewport()
     ImGui::End(); // end "viewport" window
     ImGui::PopStyleVar();
 
-    if(ImGui::Begin("Depth Buffer"))
-    {
-        // uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
-        uint64_t textureID = m_framebuffer->getDepthAttachmentId();
-        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{250, 250}, ImVec2{0, 1}, ImVec2{1, 0});
-    }
-    ImGui::End();
+    // if(ImGui::Begin("Depth Buffer"))
+    //{
+    //     // uint64_t textureID = m_framebuffer->GetColorAttachmentRendererId(1);
+    //     uint64_t textureID = m_framebuffer->getDepthAttachmentId();
+    //     ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{250, 250}, ImVec2{0, 1}, ImVec2{1, 0});
+    // }
+    // ImGui::End();
 }
 
-bool EditorViewport::shouldResizeFramebuffer()
+bool EditorViewport::shouldResizeFramebuffer() const
 {
-    const auto& framebuffer_spec = m_framebuffer->getSpecification();
+    // const auto& framebuffer_spec = m_framebuffer->getSpecification();
+
+    const auto& framebuffer_spec = RenderSystem::getInstance()->getViewportFramebufferSpecification();
+
     if(m_viewport_size.first > 0.0f && m_viewport_size.second > 0.0f &&
        (framebuffer_spec.width != m_viewport_size.first || framebuffer_spec.height != m_viewport_size.second))
     {

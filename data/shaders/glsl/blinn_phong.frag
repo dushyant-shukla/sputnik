@@ -7,6 +7,7 @@ layout(location = 0) in VS_OUT {
     vec2 uv;
     vec3 eye_position;
     vec3 frag_position;
+    vec4 frag_position_light_space;
 } fs_in;
 
 layout(std140, binding = 1) uniform LightData {
@@ -30,7 +31,45 @@ struct Material {
 };
 uniform Material material;
 
+uniform sampler2D shadow_map;
+
 #include <blinn_phong_lighting.glsl>
+
+float shadowCalculation(vec4 frag_pos_light_space)
+{
+    vec3 projected_coords = frag_pos_light_space.xyz / frag_pos_light_space.w;
+    projected_coords = projected_coords * 0.5 + 0.5;
+    float closest_depth = texture(shadow_map, projected_coords.xy).r;
+    float current_depth = projected_coords.z;
+
+    // vec3 normal = normalize(fs_in.normal);
+    // vec3 light_dir = normalize(light_position - fs_in.eye_position);
+    // float bias = max(0.05 * (1.0 - dot(normal, light_dir)), 0.005);
+    // float shadow = (current_depth - bias) > closest_depth ? 1.0 : 0.0;
+
+    // float shadow = current_depth > closest_depth ? 1.0 : 0.0;
+
+    // float bias = 0.005;
+    float bias = 0.0;
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadow_map, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadow_map, projected_coords.xy + vec2(x, y) * texelSize).r;
+            shadow += current_depth - bias > pcfDepth  ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
+
+    if(projected_coords.z > 1.0)
+    {
+        shadow = 0.0;
+    }
+
+    return shadow;
+}
 
 void main() {
 
@@ -50,6 +89,9 @@ void main() {
 
     float attenuation = calculateAttenuation(light_constant, light_linear, light_quadratic, length(light_position - fs_in.frag_position));
 
-    vec4 light_intensity = vec4(ambient_color + diffuse_color + specular_color, 1.0) / attenuation;
+    float shadow = shadowCalculation(fs_in.frag_position_light_space);
+
+    vec4 light_intensity = vec4(ambient_color + (1.0 - shadow) * (diffuse_color + specular_color), 1.0) / attenuation;
+
     frag_color = light_intensity;
 }

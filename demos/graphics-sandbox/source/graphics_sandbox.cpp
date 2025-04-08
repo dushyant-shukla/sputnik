@@ -154,9 +154,12 @@ void GraphicsSandboxDemoLayer::OnAttach()
 
     m_cloth_diff_texture = std::make_shared<OglTexture2D>("../../data/assets/fabric_basecolor.jpg", false);
 
-    m_animated_model     = Model::LoadModel("../../data/assets/Woman.gltf");
-    //m_animated_model     = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
+    m_animated_model = Model::LoadModel("../../data/assets/Woman.gltf");
+    // m_animated_model     = Model::LoadModel("../../data/assets/suzanne_blender_monkey.glb");
     m_diff_texture_woman = std::make_shared<OglTexture2D>("../../data/assets/Woman.png", false);
+
+    m_sphere = Model::LoadModel("../../data/assets/sphere.gltf");
+    m_box    = Model::LoadModel("../../data/assets/box/Box.gltf");
 
     // binding point of VertexData SSBO in blinn phong pvp program is 0
     m_pvp_vertex_buffer = std::make_shared<OglBuffer>((void*)cube_verts.data(), sizeof(VertexData) * cube_verts.size());
@@ -174,6 +177,46 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     RenderSystem* render_system = RenderSystem::getInstance();
 
     // glEnable(GL_DEPTH_TEST);
+
+    // render woman
+    {
+        mat4 model            = {};
+        model                 = model.translate({0.0, 1.0, 0.0});
+        model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+        Material material     = {};
+        material.diff_texture = m_diff_texture_woman;
+        material.shader_name  = "blinn_phong";
+        m_animated_model->draw(material, model);
+    }
+    // render woman ends
+
+    // render sphere
+    {
+        mat4 model = {};
+        //model      = model.translate({3.0, 3.0, 0.0});
+        model = model.translate({0.0, 3.0, 3.0});
+        model      = model.scale({2.0});
+        // model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+        Material material     = {};
+        material.diff_texture = nullptr;
+        material.shader_name  = "blinn_phong";
+        m_sphere->draw(material, model);
+    }
+    // render sphere
+
+    // render box
+    {
+        mat4 model = {};
+        // model      = model.translate({3.0, 3.0, 0.0});
+        model = model.translate({-2.0, 1.0, 0.0});
+        model = model.scale({0.5});
+        // model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+        Material material     = {};
+        material.diff_texture = nullptr;
+        material.shader_name  = "blinn_phong";
+        m_box->draw(material, model);
+    }
+    // render box
 
     // render using vao shader
     {
@@ -202,36 +245,27 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
     // render using pvp shader
     {
-        // draw#1
-        mat4     model{};
-        Material cloth     = {};
-        cloth.shader_name  = "blinn_phong_pvp";
-        cloth.diff_texture = m_cloth_diff_texture;
-        render_system->drawTriangles(36, cloth, model);
-        // draw#1 ends
-
         // draw#2
-        model                = {};
-        model                = model.translate({5.0f, 0.0f, 0.0f});
+        mat4 model           = {};
+        model                = model.translate({3.0f, 2.0f, 2.0f});
         model                = model.rotate({0.0f, 1.0f, 0.0f}, 45.0f * kDegToRad);
         model                = model.scale({0.5f});
         Material material    = material_white;
         material.shader_name = "blinn_phong_pvp";
         render_system->drawTriangles(36, material, model);
         // draw#2 ends
+
+        // draw#1
+        model              = {};
+        model              = model.translate({0.0, 0.0, 0.0});
+        model              = model.scale({20.0f, 2.0f, 20.f});
+        Material cloth     = {};
+        cloth.shader_name  = "blinn_phong_pvp";
+        cloth.diff_texture = m_cloth_diff_texture;
+        render_system->drawTriangles(36, cloth, model);
+        // draw#1 ends
     }
     // render using pvp ends
-
-    // render woman
-    {
-        mat4 model            = {};
-        model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
-        Material material     = {};
-        material.diff_texture = m_diff_texture_woman;
-        material.shader_name  = "blinn_phong";
-        m_animated_model->draw(material, model);
-    }
-    // render woman ends
 
     // glDisable(GL_DEPTH_TEST);
 }

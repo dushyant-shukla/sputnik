@@ -147,6 +147,8 @@ public:
 
     virtual void setMat4(const std::string& name, const glm::mat4& value);
 
+    void setName(const std::string& name);
+
 protected:
     OglShaderProgram(const OglShaderProgram& other)      = delete;
     OglShaderProgram& operator=(OglShaderProgram& other) = delete;
@@ -176,6 +178,7 @@ private:
     std::unordered_map<std::string, u32> m_attributes; // maps attribute name -> index in the shader
     std::unordered_map<std::string, u32> m_uniforms;   // maps uniform name -> index in the shader
     std::vector<OglShaderStage>          m_shader_stages;
+    std::string                          m_name;
 };
 
 } // namespace sputnik::graphics::gl
