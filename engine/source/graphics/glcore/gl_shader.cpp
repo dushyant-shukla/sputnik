@@ -393,7 +393,7 @@ const u32& OglShaderProgram::getUniformId(const std::string& name) const
     return itr->second;
 }
 
-void OglShaderProgram::bind()
+void OglShaderProgram::bind() const
 {
     glUseProgram(m_id);
 }

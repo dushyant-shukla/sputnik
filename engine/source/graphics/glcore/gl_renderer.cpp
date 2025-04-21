@@ -310,7 +310,7 @@ void OglRenderer::clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     m_viewport_framebuffer->clear();
-    // m_shadow_pass_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
+    //m_shadow_pass_framebuffer->clear({1.0f, 1.0f, 1.0f, 1.0f});
     m_shadow_pass_framebuffer->clear();
 }
 
@@ -659,7 +659,7 @@ void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
         glDisable(GL_DEPTH_TEST);
     }
 
-    auto active_program = m_blinn_phong_program;
+    auto& active_program = m_blinn_phong_program;
     if(material.shader_name == "blinn_phong_pvp")
     {
         m_vao->bind();
@@ -722,7 +722,7 @@ void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
 
 void OglRenderer::drawTrianglesInstanced(const u64& vertex_count, const u64& instance_count, const Material& material)
 {
-    auto active_program = m_blinn_phong_instanced_program;
+    auto& active_program = m_blinn_phong_instanced_program;
     // if(material.shader_name == "blinn_phong_pvp")
     //{
     //     m_vao->bind();
@@ -778,7 +778,7 @@ void OglRenderer::drawTrianglesIndexedInstanced(const u64&      index_count,
                                                 const u64&      instance_count,
                                                 const Material& material)
 {
-    auto active_program = m_blinn_phong_instanced_program;
+    auto& active_program = m_blinn_phong_instanced_program;
 
     m_viewport_framebuffer->bind();
     glEnable(GL_DEPTH_TEST);
@@ -994,7 +994,7 @@ void OglRenderer::drawUI()
     }
 }
 
-const uint64_t& OglRenderer::getViewportAttachmentId() const
+const u32& OglRenderer::getViewportAttachmentId() const
 {
     return m_viewport_framebuffer->getColorAttachmentId(0);
 }

@@ -12,7 +12,7 @@
 
 #include "phx/phx_geometry.hpp"
 #include "phx/rigidbody/phx_rigid_body.hpp"
-#include "physics_world.h"
+#include "phx/phx_scene.hpp"
 
 namespace sputnik::demos
 {
@@ -73,13 +73,13 @@ private:
     bool         m_simulate_physics{false};
     bool         m_reset_simulation{false};
 
-    phx::rb::PhxRigidBody          m_box_rb;
-    phx::rb::PhxRigidBody          m_sphere_rb;
-    phx::rb::PhxSphereGeometry     m_sphere_geometry;
-    phx::rb::PhxRigidBody          m_big_sphere_rb;
-    phx::rb::PhxSphereGeometry     m_big_sphere_geometry;
-    phx::rb::PhxRbGravityForceGen  m_gravity_fgen;
-    sputnik::physics::PhysicsWorld m_phx_world;
+    phx::rb::PhxRigidBody         m_box_rb;
+    phx::rb::PhxRigidBody         m_sphere_rb;
+    phx::rb::PhxSphereGeometry    m_sphere_geometry;
+    phx::rb::PhxRigidBody         m_big_sphere_rb;
+    phx::rb::PhxSphereGeometry    m_big_sphere_geometry;
+    phx::rb::PhxRbGravityForceGen m_gravity_fgen;
+    phx::PhxScene                 m_phx_scene;
 
     // Debug stuff
     bool                   m_draw_bvh{false};

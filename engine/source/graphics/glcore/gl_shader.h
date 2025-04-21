@@ -132,7 +132,7 @@ public:
     const u32& getAttributeId(const std::string& name) const;
     const u32& getUniformId(const std::string& name) const;
 
-    void bind();
+    void bind() const;
     void unbind();
 
     virtual void setInt(const std::string& name, const int value);

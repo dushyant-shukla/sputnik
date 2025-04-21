@@ -1,28 +1,28 @@
-#ifndef PHX_WORLD_H
-#define PHX_WORLD_H
+#ifndef PHX_SCENE_H
+#define PHX_SCENE_H
 
-#include "phx/rigidbody/phx_rigid_body.hpp"
-#include "phx/rigidbody/phx_rb_force_generator.hpp"
-#include "phx/rigidbody/phx_rb_geometry.hpp"
-#include "phx/rigidbody/phx_rb_contact.hpp"
+#include "rigidbody/phx_rigid_body.hpp"
+#include "rigidbody/phx_rb_force_generator.hpp"
+#include "rigidbody/phx_rb_geometry.hpp"
+#include "rigidbody/phx_rb_contact.hpp"
 
-namespace sputnik::physics
+namespace phx
 {
 
+using phx::rb::PhxContact;
 using phx::rb::PhxGeometry;
 using phx::rb::PhxRbForceGenerator;
 using phx::rb::PhxRbForceRegistry;
 using phx::rb::PhxRigidBody;
-using phx::rb::PhxContact;
 
 using RigidBodies = std::vector<PhxRigidBody*>;
 using Geometries  = std::vector<PhxGeometry*>;
 
-class PhysicsWorld
+class PhxScene
 {
 public:
-    PhysicsWorld()          = default;
-    virtual ~PhysicsWorld() = default;
+    PhxScene()          = default;
+    virtual ~PhxScene() = default;
 
     void startFrame();
     void runPhysics(const PhxReal& duration);
@@ -38,6 +38,7 @@ public:
 
 protected:
     void integrate(const PhxReal& duration);
+    void integrateDynamic(const PhxReal& duration);
 
     void resolveContact(const PhxContact& contact, const PhxReal& dt);
 
@@ -47,6 +48,6 @@ protected:
     PhxRbForceRegistry m_force_registry;
 };
 
-} // namespace sputnik::physics
+} // namespace phx
 
 #endif // !PHX_WORLD_H

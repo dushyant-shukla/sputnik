@@ -300,7 +300,7 @@ void RenderSystem::drawDebugPoints(const std::vector<vec4>& vertices,
     m_ogl_renderer->drawDebugPoints(vertices, color, model, point_size);
 }
 
-const uint64_t& RenderSystem::getViewportAttachmentId() const
+const u32& RenderSystem::getViewportAttachmentId() const
 {
     return m_ogl_renderer->getViewportAttachmentId();
 }

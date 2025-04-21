@@ -1,12 +1,15 @@
 #pragma once
 
 #include "../phx_types.hpp"
+#include "../phx_math_utils.hpp"
 #include "phx_rb_contact.hpp"
 
 namespace phx::rb
 {
 
 class PhxRigidBody;
+
+using PhxPoint = PhxVec3;
 
 enum class PhxGeometryType
 {
@@ -30,6 +33,8 @@ public:
     virtual PhxGeometryType getType() const;
 
     virtual const PhxMat4& getTransform() const;
+
+    virtual PhxVec3 getPosition() const;
 
     virtual void updateGeometry();
 
@@ -82,6 +87,51 @@ public:
     PhxVec3 m_half_extents{0.0f}; // Half extents of the box.
 };
 
+struct PhxRay
+{
+    PhxPoint origin;
+    PhxVec3  direction;
+    PhxReal  t = kPhxFloatMax; // Max because we want to find the closest intersection.
+};
+
+struct PhxRaycastResult
+{
+    PhxBool   hit = false;
+    PhxReal   t   = kPhxFloatMax;
+    PhxPoint  point{0.0f};
+    glm::vec3 normal{0.0f, 0.0f, 1.0f};
+
+    inline void reset()
+    {
+        hit    = false;
+        t      = kPhxFloatMax;
+        point  = glm::vec3(0.0f);
+        normal = glm::vec3(0.0f, 0.0f, 1.0f);
+    }
+};
+
+/*!
+ * @brief Scene query mode
+ * // Todo:: AnyHit is not supported yet.
+ */
+enum class PhxQueryMode
+{
+    /*
+     * ClosestHit: The closest intersection along the ray is returned.
+     */
+    ClosestHit,
+
+    /*
+     * AnyHit: Any intersection along the ray is returned.
+     */
+    AnyHit,
+
+    /*
+     * AllHits: All intersections along the ray are returned.
+     */
+    AllHits
+};
+
 /////////////////////////////// Intersection Tests /////////////////////////////////
 
 /*!
@@ -106,6 +156,16 @@ bool phxIntersect(const PhxBoxGeometry& box, const PhxHalfSpaceGeometry& half_sp
 
 bool phxIntersect(const PhxSphereGeometry* sphere1, const PhxSphereGeometry* sphere2, PhxContact& contact_out);
 
+bool phxIntersectDynamic(PhxGeometry* const geometry1,
+                         PhxGeometry* const geometry2,
+                         const PhxReal&     dt,
+                         PhxContact&        contact_out);
+
+bool phxIntersectSphereSphereDynamic(const PhxSphereGeometry* sphere1,
+                                     const PhxSphereGeometry* sphere2,
+                                     const PhxReal&           dt,
+                                     PhxContact&              contact_out);
+
 ////////////////////////////// Collision Tests ///////////////////////////////////
 
 struct PhxCollisionData
@@ -114,5 +174,17 @@ struct PhxCollisionData
 
 unsigned int
 phxCollide(const PhxBoxGeometry& box, const PhxHalfSpaceGeometry& half_space, PhxCollisionData* collision_data);
+
+///////////////////////////// Raycasting Tests //////////////////////////////
+
+bool phxRaycast(PhxRay* const                  ray,
+                PhxSphereGeometry* const       sphere,
+                std::vector<PhxRaycastResult>& out_results,
+                const PhxQueryMode&            query_mode = PhxQueryMode::AllHits);
+
+bool phxRaycastSphere(PhxRay* const                  ray,
+                      const PhxVec3&                 sphere_center,
+                      const PhxReal&                 sphere_radius,
+                      std::vector<PhxRaycastResult>& out_results);
 
 } // namespace phx::rb

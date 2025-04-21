@@ -1,56 +1,60 @@
-#include "physics_world.h"
+#include "phx_scene.hpp"
 
-#include "phx/phx_math_utils.hpp"
+#include "phx_math_utils.hpp"
 
 #include "core/core.h"
 
-namespace sputnik::physics
+namespace phx
 {
 
-void PhysicsWorld::runPhysics(const PhxReal& duration)
+using namespace phx::rb;
+
+void PhxScene::runPhysics(const PhxReal& duration)
 {
     // update forces
     m_force_registry.updateForces(duration);
 
     // integrate bodies
-    integrate(duration);
+    // integrate(duration);
+
+    integrateDynamic(duration);
 }
 
-void PhysicsWorld::addRigidBody(PhxRigidBody* body)
+void PhxScene::addRigidBody(PhxRigidBody* body)
 {
     m_rigid_bodies.push_back(body);
 }
 
-void PhysicsWorld::addGeometry(PhxGeometry* geometry)
+void PhxScene::addGeometry(PhxGeometry* geometry)
 {
     m_geometries.push_back(geometry);
 }
 
-void PhysicsWorld::addForceGenerator(PhxRigidBody* body, PhxRbForceGenerator* fgen)
+void PhxScene::addForceGenerator(PhxRigidBody* body, PhxRbForceGenerator* fgen)
 {
     m_force_registry.add(body, fgen);
 }
 
-RigidBodies::const_iterator PhysicsWorld::rigidBodiesBegin() const
+RigidBodies::const_iterator PhxScene::rigidBodiesBegin() const
 {
     return m_rigid_bodies.begin();
 }
 
-RigidBodies::const_iterator PhysicsWorld::rigidBodiesEnd() const
+RigidBodies::const_iterator PhxScene::rigidBodiesEnd() const
 {
     return m_rigid_bodies.end();
 }
 
-Geometries::const_iterator PhysicsWorld::geometriesBegin() const
+Geometries::const_iterator PhxScene::geometriesBegin() const
 {
     return m_geometries.begin();
 }
-Geometries::const_iterator PhysicsWorld::geometriesEnd() const
+Geometries::const_iterator PhxScene::geometriesEnd() const
 {
     return m_geometries.end();
 }
 
-void PhysicsWorld::startFrame()
+void PhxScene::startFrame()
 {
     for(auto itr = m_rigid_bodies.begin(); itr != m_rigid_bodies.end(); ++itr)
     {
@@ -59,7 +63,7 @@ void PhysicsWorld::startFrame()
     }
 }
 
-void PhysicsWorld::integrate(const PhxReal& duration)
+void PhxScene::integrate(const PhxReal& duration)
 {
     // Integrate rigid bodies
     for(auto itr = m_rigid_bodies.begin(); itr != m_rigid_bodies.end(); ++itr)
@@ -121,6 +125,115 @@ void PhysicsWorld::integrate(const PhxReal& duration)
     for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
     {
         (*itr)->updateGeometry();
+    }
+}
+
+static int compareContactsByTimeOfImpact(const void* p1, const void* p2)
+{
+    const PhxContact* cp1 = *(const PhxContact**)p1;
+    const PhxContact* cp2 = *(const PhxContact**)p2;
+    if(cp1->time_of_impact < cp2->time_of_impact)
+    {
+        return 1;
+    }
+    if(cp1->time_of_impact > cp2->time_of_impact)
+    {
+        return -1;
+    }
+    return 0;
+}
+
+void PhxScene::integrateDynamic(const PhxReal& duration)
+{
+    // Integrate rigid bodies
+    for(auto itr = m_rigid_bodies.begin(); itr != m_rigid_bodies.end(); ++itr)
+    {
+        phx::rb::PhxRigidBody* rb            = *itr;
+        PhxVec3                acceleration  = rb->getAcceleration();
+        PhxVec3                total_impluse = rb->getMass() * acceleration * duration;
+        rb->applyLinearImpulse(total_impluse, duration);
+    }
+
+    int       num_contacts = 0;
+    const int max_contacts = m_rigid_bodies.size() * m_rigid_bodies.size();
+
+    std::vector<PhxContact> contacts(max_contacts);
+
+    for(int i = 0; i < m_geometries.size(); ++i)
+    {
+        for(int j = i + 1; j < m_geometries.size(); ++j)
+        {
+            PhxGeometry* geom_a = m_geometries[i];
+            PhxGeometry* geom_b = m_geometries[j];
+
+            // Skip the bodies with infinite masses
+            if(!geom_a->m_rigid_body->hasFiniteMass() && !geom_b->m_rigid_body->hasFiniteMass())
+            {
+                continue;
+            }
+
+            PhxContact contact;
+            if(phxIntersectDynamic(geom_a, geom_b, duration, contact))
+            {
+                contacts[num_contacts] = contact;
+                ++num_contacts;
+            }
+        }
+    }
+
+    // Sort the contacts by time of impact (from earliest to latest)
+    if(num_contacts > 1)
+    {
+        qsort(&contacts[0], num_contacts, sizeof(PhxContact), compareContactsByTimeOfImpact);
+    }
+
+    PhxReal accumulated_time = 0.0f;
+    for(int i = 0; i < num_contacts; ++i)
+    {
+        PhxContact&   contact = contacts[i];
+        const PhxReal dt      = contact.time_of_impact - accumulated_time;
+
+        PhxRigidBody* body_a = contact.body_a;
+        PhxRigidBody* body_b = contact.body_b;
+
+        // Skip the bodies with infinite masses
+        if(!body_a->hasFiniteMass() && !body_b->hasFiniteMass())
+        {
+            continue;
+        }
+
+        // Update rigidbodies
+        for(int j = 0; j < m_rigid_bodies.size(); ++j)
+        {
+            m_rigid_bodies[j]->update(dt);
+        }
+
+        // Update geometries
+        for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
+        {
+            (*itr)->updateGeometry();
+        }
+
+        // Resolve the contact
+        resolveContact(contact, duration);
+        // Update the accumulated time
+        accumulated_time += dt;
+    }
+
+    // Update the rigidbodies for the frame's remaining time
+    const PhxReal time_remaining = duration - accumulated_time;
+    if(time_remaining > 0.0f)
+    {
+        for(int i = 0; i < m_rigid_bodies.size(); ++i)
+        {
+            m_rigid_bodies[i]->update(time_remaining);
+        }
+
+        // Update geometries
+        for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
+        {
+            (*itr)->updateGeometry();
+        }
     }
 }
 
@@ -220,7 +333,7 @@ void PhysicsWorld::integrate(const PhxReal& duration)
 //     body_b->calculateDerivedData();
 // }
 
-void PhysicsWorld::resolveContact(const PhxContact& contact, const PhxReal& dt)
+void PhxScene::resolveContact(const PhxContact& contact, const PhxReal& dt)
 {
     PhxRigidBody* body_a = contact.body_a;
     PhxRigidBody* body_b = contact.body_b;
@@ -285,16 +398,19 @@ void PhysicsWorld::resolveContact(const PhxContact& contact, const PhxReal& dt)
     }
 
     // Adjust bodies so that they are no longer penetrating using projection
-    const PhxReal ta = body_a->getInverseMass() / (body_a->getInverseMass() + body_b->getInverseMass());
-    const PhxReal tb = body_b->getInverseMass() / (body_a->getInverseMass() + body_b->getInverseMass());
-    const PhxVec3 initial_sep_distance       = contact.point_on_b_world - contact.point_on_a_world;
-    PhxVec3       position_with_correction_a = body_a->getWorldPosition() + ta * initial_sep_distance;
-    PhxVec3       position_with_correction_b = body_b->getWorldPosition() - tb * initial_sep_distance;
-    body_a->setPosition(position_with_correction_a);
-    body_b->setPosition(position_with_correction_b);
+    if(CMP_FLOAT_EQ(contact.time_of_impact, 0.0f))
+    {
+        const PhxReal ta = body_a->getInverseMass() / (body_a->getInverseMass() + body_b->getInverseMass());
+        const PhxReal tb = body_b->getInverseMass() / (body_a->getInverseMass() + body_b->getInverseMass());
+        const PhxVec3 initial_sep_distance       = contact.point_on_b_world - contact.point_on_a_world;
+        PhxVec3       position_with_correction_a = body_a->getWorldPosition() + ta * initial_sep_distance;
+        PhxVec3       position_with_correction_b = body_b->getWorldPosition() - tb * initial_sep_distance;
+        body_a->setPosition(position_with_correction_a);
+        body_b->setPosition(position_with_correction_b);
 
-    body_a->calculateDerivedData();
-    body_b->calculateDerivedData();
+        body_a->calculateDerivedData();
+        body_b->calculateDerivedData();
+    }
 }
 
-} // namespace sputnik::physics
+} // namespace phx

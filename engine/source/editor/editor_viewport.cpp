@@ -106,7 +106,7 @@ void EditorViewport::renderEditorViewport()
 
         // uint64_t textureID = m_framebuffer->getColorAttachmentId();
 
-        uint64_t textureID = RenderSystem::getInstance()->getViewportAttachmentId();
+        const u32& textureID = RenderSystem::getInstance()->getViewportAttachmentId();
         ImGui::Image(reinterpret_cast<void*>(textureID),
                      ImVec2{m_viewport_size.first, m_viewport_size.second},
                      ImVec2{0, 1},

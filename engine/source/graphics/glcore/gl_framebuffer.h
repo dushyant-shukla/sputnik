@@ -57,7 +57,7 @@ public:
     FramebufferSpecification&       getSpecification();
     const FramebufferSpecification& getSpecification() const;
     u32                             getColorAttachmentId(u32 index = 0) const;
-    u32                             getColorAttachmentId(u32 index = 0);
+    const u32&                      getColorAttachmentId(u32 index = 0);
     u32                             getDepthAttachmentId() const;
 
     void bindDepthAttachmentTexture(const u32& slot) const;

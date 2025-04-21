@@ -192,6 +192,18 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
     }
     // render sphere
 
+    // render woman
+    {
+        mat4 model            = {};
+        model                 = model.translate({0.0, 1.0, 0.0});
+        model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
+        Material material     = {};
+        material.diff_texture = m_diff_texture_woman;
+        material.shader_name  = "blinn_phong";
+        m_animated_model->draw(material, model);
+    }
+    // render woman ends
+
     // render box
     {
         mat4 model = {};
@@ -247,7 +259,7 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
         model                = model.translate({3.0f, 2.0f, 2.0f});
         model                = model.rotate({0.0f, 1.0f, 0.0f}, 45.0f * kDegToRad);
         model                = model.scale({1.0f});
-        material    = material_emerald;
+        material             = material_emerald;
         material.shader_name = "blinn_phong_pvp";
         render_system->drawTriangles(36, material, model);
 
@@ -282,18 +294,6 @@ void GraphicsSandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
 
         m_vertex_array->unbind();
     }
-
-    // render woman
-    {
-        mat4 model            = {};
-        model                 = model.translate({0.0, 1.0, 0.0});
-        model                 = model.rotate({0.0, 1.0, 0.0}, -90.0f * kDegToRad);
-        Material material     = {};
-        material.diff_texture = m_diff_texture_woman;
-        material.shader_name  = "blinn_phong";
-        m_animated_model->draw(material, model);
-    }
-    // render woman ends
 
     // glDisable(GL_DEPTH_TEST);
 }

@@ -134,7 +134,7 @@ public:
 
     void drawUI();
 
-    const uint64_t&                 getViewportAttachmentId() const;
+    const u32&                      getViewportAttachmentId() const;
     const FramebufferSpecification& getViewportFramebufferSpecification() const;
 
 protected:

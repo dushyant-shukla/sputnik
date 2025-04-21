@@ -130,7 +130,7 @@ public:
                          const glm::mat4&         model      = glm::mat4(1.0f),
                          const float&             point_size = 2.5f);
 
-    const uint64_t&                 getViewportAttachmentId() const;
+    const u32&                      getViewportAttachmentId() const;
     const FramebufferSpecification& getViewportFramebufferSpecification() const;
 
 private:

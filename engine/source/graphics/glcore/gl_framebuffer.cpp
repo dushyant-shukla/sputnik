@@ -224,7 +224,7 @@ u32 OglFramebuffer::getColorAttachmentId(u32 index) const
     return m_color_attachments[index]->getId();
 }
 
-u32 OglFramebuffer::getColorAttachmentId(u32 index)
+const u32& OglFramebuffer::getColorAttachmentId(u32 index)
 {
     return m_color_attachments[index]->getId();
 }

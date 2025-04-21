@@ -26,6 +26,8 @@ struct PhxContact
 
     PhxRigidBody* body_a{nullptr};
     PhxRigidBody* body_b{nullptr};
+
+    PhxReal time_of_impact;
 };
 
 } // namespace phx::rb

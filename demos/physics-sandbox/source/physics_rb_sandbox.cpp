@@ -121,6 +121,7 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
         m_sphere_rb.enableDamping(false);
         m_sphere_rb.setPosition(PhxVec3(0.0f, 20.0f, 0.0f));
         m_sphere_rb.setVelocity(PhxVec3(0.5f, 0.0f, 0.0f));
+        // m_sphere_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
         m_sphere_rb.setRotation(PhxVec3(0.0f, 0.0f, 0.0f));
         m_sphere_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
         m_sphere_rb.setAcceleration(PhxVec3(0.0f, -9.81f, 0.0f));
@@ -136,12 +137,12 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
         tensor[2] = {0.0f, 0.0f, moment_of_inertia};
         m_sphere_rb.setInertiaTensor(tensor);
         m_sphere_rb.calculateDerivedData();
-        m_phx_world.addRigidBody(&m_sphere_rb);
+        m_phx_scene.addRigidBody(&m_sphere_rb);
 
         m_sphere_geometry.m_radius     = 1.00f;
         m_sphere_geometry.m_rigid_body = &m_sphere_rb;
         m_sphere_geometry.updateGeometry();
-        m_phx_world.addGeometry(&m_sphere_geometry);
+        m_phx_scene.addGeometry(&m_sphere_geometry);
     }
 
     // platform sphere
@@ -167,12 +168,12 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
         tensor[2] = {0.0f, 0.0f, moment_of_inertia};
         m_big_sphere_rb.setInertiaTensor(tensor);
         m_big_sphere_rb.calculateDerivedData();
-        m_phx_world.addRigidBody(&m_big_sphere_rb);
+        m_phx_scene.addRigidBody(&m_big_sphere_rb);
 
         m_big_sphere_geometry.m_radius     = 70.0f;
         m_big_sphere_geometry.m_rigid_body = &m_big_sphere_rb;
         m_big_sphere_geometry.updateGeometry();
-        m_phx_world.addGeometry(&m_big_sphere_geometry);
+        m_phx_scene.addGeometry(&m_big_sphere_geometry);
     }
 }
 
@@ -277,7 +278,7 @@ void PhysicsRigidBodySandboxDemoLayer::simulate(const core::TimeStep& time_step)
 {
     if(m_simulate_physics)
     {
-        m_phx_world.startFrame();
+        m_phx_scene.startFrame();
 
         double frame_time = time_step.GetSeconds();
         m_accumulated_time += frame_time;
@@ -292,14 +293,14 @@ void PhysicsRigidBodySandboxDemoLayer::simulate(const core::TimeStep& time_step)
 
 void PhysicsRigidBodySandboxDemoLayer::simulatePhysics(const double& total_time, const double& step_size)
 {
-    m_phx_world.startFrame();
+    m_phx_scene.startFrame();
 
     // const auto& force = 2.0f * phx::phxGenerateRandomUnitVector();
     // const auto& force = phx::phxGenerateRandomUnitVector();
     const PhxVec3 force = {0.5f, 0.25f, 0.4f};
     m_box_rb.addForceAtBodyPoint(force, {1.0f, 3.5f, 1.0f});
 
-    m_phx_world.runPhysics(static_cast<PhxReal>(step_size));
+    m_phx_scene.runPhysics(static_cast<PhxReal>(step_size));
 }
 
 void PhysicsRigidBodySandboxDemoLayer::resetSimulation() {}
@@ -310,7 +311,7 @@ void PhysicsRigidBodySandboxDemoLayer::debugDrawPhxGeometries()
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        for(auto itr = m_phx_world.geometriesBegin(); itr < m_phx_world.geometriesEnd(); ++itr)
+        for(auto itr = m_phx_scene.geometriesBegin(); itr < m_phx_scene.geometriesEnd(); ++itr)
         {
             auto geometry = *itr;
             if(geometry->getType() == phx::rb::PhxGeometryType::Sphere)
