@@ -365,6 +365,11 @@ const PhxVec3& PhxRigidBody::getWorldPosition() const
     return m_position_global;
 }
 
+const PhxQuat& PhxRigidBody::getGlobalOrientation() const
+{
+    return m_orientation_world;
+}
+
 const PhxVec3& PhxRigidBody::getLinerVelocity() const
 {
     return m_linear_velocity_global;

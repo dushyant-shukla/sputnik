@@ -209,6 +209,7 @@ private:
 
     // default textures
     std::shared_ptr<OglTexture2D> m_white_texture;
+    std::shared_ptr<OglTexture2D> m_black_texture;
     std::shared_ptr<OglTexture2D> m_red_texture;
     std::shared_ptr<OglTexture2D> m_green_texture;
     std::shared_ptr<OglTexture2D> m_blue_texture;

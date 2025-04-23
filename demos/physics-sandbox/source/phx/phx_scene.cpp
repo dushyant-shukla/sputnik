@@ -1,6 +1,7 @@
 #include "phx_scene.hpp"
 
 #include "phx_math_utils.hpp"
+#include "phx_broadphase.hpp"
 
 #include "core/core.h"
 
@@ -17,7 +18,9 @@ void PhxScene::runPhysics(const PhxReal& duration)
     // integrate bodies
     // integrate(duration);
 
-    integrateDynamic(duration);
+    // integrateDynamic(duration);
+
+    integrateDynamicWithBroadPhase(duration);
 }
 
 void PhxScene::addRigidBody(PhxRigidBody* body)
@@ -146,6 +149,7 @@ static int compareContactsByTimeOfImpact(const void* p1, const void* p2)
 void PhxScene::integrateDynamic(const PhxReal& duration)
 {
     // Integrate rigid bodies
+    int collision_check_count = 0;
     for(auto itr = m_rigid_bodies.begin(); itr != m_rigid_bodies.end(); ++itr)
     {
         phx::rb::PhxRigidBody* rb            = *itr;
@@ -154,8 +158,8 @@ void PhxScene::integrateDynamic(const PhxReal& duration)
         rb->applyLinearImpulse(total_impluse, duration);
     }
 
-    int       num_contacts = 0;
-    const int max_contacts = m_rigid_bodies.size() * m_rigid_bodies.size();
+    int     num_contacts = 0;
+    PhxSize max_contacts = m_rigid_bodies.size() * m_rigid_bodies.size();
 
     std::vector<PhxContact> contacts(max_contacts);
 
@@ -178,9 +182,110 @@ void PhxScene::integrateDynamic(const PhxReal& duration)
                 contacts[num_contacts] = contact;
                 ++num_contacts;
             }
+            ++collision_check_count;
         }
     }
 
+    APPLICATION_INFO("Total collision checks: {0}", collision_check_count);
+
+    // Sort the contacts by time of impact (from earliest to latest)
+    if(num_contacts > 1)
+    {
+        qsort(&contacts[0], num_contacts, sizeof(PhxContact), compareContactsByTimeOfImpact);
+    }
+
+    PhxReal accumulated_time = 0.0f;
+    for(int i = 0; i < num_contacts; ++i)
+    {
+        PhxContact&   contact = contacts[i];
+        const PhxReal dt      = contact.time_of_impact - accumulated_time;
+
+        PhxRigidBody* body_a = contact.body_a;
+        PhxRigidBody* body_b = contact.body_b;
+
+        // Skip the bodies with infinite masses
+        if(!body_a->hasFiniteMass() && !body_b->hasFiniteMass())
+        {
+            continue;
+        }
+
+        // Update rigidbodies
+        for(int j = 0; j < m_rigid_bodies.size(); ++j)
+        {
+            m_rigid_bodies[j]->update(dt);
+        }
+
+        // Update geometries
+        for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
+        {
+            (*itr)->updateGeometry();
+        }
+
+        // Resolve the contact
+        resolveContact(contact, duration);
+        // Update the accumulated time
+        accumulated_time += dt;
+    }
+
+    // Update the rigidbodies for the frame's remaining time
+    const PhxReal time_remaining = duration - accumulated_time;
+    if(time_remaining > 0.0f)
+    {
+        for(int i = 0; i < m_rigid_bodies.size(); ++i)
+        {
+            m_rigid_bodies[i]->update(time_remaining);
+        }
+
+        // Update geometries
+        for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
+        {
+            (*itr)->updateGeometry();
+        }
+    }
+}
+
+void PhxScene::integrateDynamicWithBroadPhase(const PhxReal& duration)
+{
+    int collision_check_count = 0;
+
+    // Integrate rigid bodies
+    for(auto itr = m_rigid_bodies.begin(); itr != m_rigid_bodies.end(); ++itr)
+    {
+        phx::rb::PhxRigidBody* rb            = *itr;
+        PhxVec3                acceleration  = rb->getAcceleration();
+        PhxVec3                total_impluse = rb->getMass() * acceleration * duration;
+        rb->applyLinearImpulse(total_impluse, duration);
+    }
+
+    // Run broad phase collision checks
+    std::vector<CollisionPair> collision_pairs;
+    broadPhase(m_geometries, collision_pairs, duration);
+
+    // Run narrow phase collision checks
+    int                     num_contacts = 0;
+    PhxSize                 max_contacts = m_rigid_bodies.size() * m_rigid_bodies.size();
+    std::vector<PhxContact> contacts(max_contacts);
+
+    for(auto itr = collision_pairs.begin(); itr != collision_pairs.end(); ++itr)
+    {
+        PhxInt       a      = itr->a;
+        PhxInt       b      = itr->b;
+        PhxGeometry* geom_a = m_geometries[a];
+        PhxGeometry* geom_b = m_geometries[b];
+        // Skip the bodies with infinite masses
+        if(!geom_a->m_rigid_body->hasFiniteMass() && !geom_b->m_rigid_body->hasFiniteMass())
+        {
+            continue;
+        }
+        PhxContact contact;
+        if(phxIntersectDynamic(geom_a, geom_b, duration, contact))
+        {
+            contacts[num_contacts] = contact;
+            ++num_contacts;
+        }
+        ++collision_check_count;
+    }
+    APPLICATION_INFO("Borad phase total collision checks: {0}", collision_check_count);
     // Sort the contacts by time of impact (from earliest to latest)
     if(num_contacts > 1)
     {

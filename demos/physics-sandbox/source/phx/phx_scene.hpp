@@ -39,6 +39,7 @@ public:
 protected:
     void integrate(const PhxReal& duration);
     void integrateDynamic(const PhxReal& duration);
+    void integrateDynamicWithBroadPhase(const PhxReal& duration);
 
     void resolveContact(const PhxContact& contact, const PhxReal& dt);
 

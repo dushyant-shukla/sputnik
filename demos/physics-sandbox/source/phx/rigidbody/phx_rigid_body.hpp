@@ -129,6 +129,8 @@ public:
 
     const PhxVec3& getWorldPosition() const;
 
+    const PhxQuat& getGlobalOrientation() const;
+
     const PhxVec3& getLinerVelocity() const;
 
     const PhxVec3& getAngularVelocity() const;

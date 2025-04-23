@@ -3,6 +3,7 @@
 #include "../phx_types.hpp"
 #include "../phx_math_utils.hpp"
 #include "phx_rb_contact.hpp"
+#include "../phx_bounds.hpp"
 
 namespace phx::rb
 {
@@ -40,6 +41,9 @@ public:
 
     virtual PhxVec3 getAxis(unsigned int index) const;
 
+    virtual PhxBounds getBounds() const                                                    = 0;
+    virtual PhxBounds getBounds(const PhxVec3& position, const PhxQuat& orientation) const = 0;
+
 public:
     PhxRigidBody* m_rigid_body{nullptr}; // The rigid body to which this primitive is attached.
     PhxMat4       m_offset{1.0f};        // Offset of the primitive from the body's center of mass.
@@ -73,6 +77,9 @@ class PhxSphereGeometry : public PhxGeometry
 {
 public:
     PhxSphereGeometry();
+
+    virtual PhxBounds getBounds() const;
+    virtual PhxBounds getBounds(const PhxVec3& position, const PhxQuat& orientation) const;
 
 public:
     PhxReal m_radius{0.0f}; // Radius of the sphere.

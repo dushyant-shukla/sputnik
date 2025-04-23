@@ -175,6 +175,70 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
         m_big_sphere_geometry.updateGeometry();
         m_phx_scene.addGeometry(&m_big_sphere_geometry);
     }
+
+    // Ball 2
+    {
+        m_ball2_rb.setMass(1.0f);
+        m_ball2_rb.setCenterOfMass({0.0f, 0.0f, 0.0f});
+        m_ball2_rb.setDamping(0.8f, 0.08f);
+        m_ball2_rb.enableDamping(false);
+        m_ball2_rb.setPosition(PhxVec3(10.0f, 30.0f, 0.0f));
+        m_ball2_rb.setVelocity(PhxVec3(-50.0f, 0.0f, 0.0f));
+        // m_ball2_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_ball2_rb.setRotation(PhxVec3(10.0f, 0.0f, 0.0f));
+        m_ball2_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+        m_ball2_rb.setAcceleration(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_ball2_rb.setElasticity(0.75f);
+        m_ball2_rb.setFriction(0.5f);
+        m_ball2_rb.setAwake();
+        m_ball2_rb.setCanSleep(false);
+        // m_ball2_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
+        PhxReal moment_of_inertia = 0.4f * m_ball2_rb.getMass() * 1.00f * 1.00f; // I = 2/5 * m * r^2
+        PhxMat3 tensor{};
+        tensor[0] = {moment_of_inertia, 0.0f, 0.0f};
+        tensor[1] = {0.0f, moment_of_inertia, 0.0f};
+        tensor[2] = {0.0f, 0.0f, moment_of_inertia};
+        m_ball2_rb.setInertiaTensor(tensor);
+        m_ball2_rb.calculateDerivedData();
+        m_phx_scene.addRigidBody(&m_ball2_rb);
+
+        m_ball2_geometry.m_radius     = 1.00f;
+        m_ball2_geometry.m_rigid_body = &m_ball2_rb;
+        m_ball2_geometry.updateGeometry();
+        m_phx_scene.addGeometry(&m_ball2_geometry);
+    }
+
+    // Ball 3
+    {
+        m_ball3_rb.setMass(1.0f);
+        m_ball3_rb.setCenterOfMass({0.0f, 0.0f, 0.0f});
+        m_ball3_rb.setDamping(0.8f, 0.08f);
+        m_ball3_rb.enableDamping(false);
+        m_ball3_rb.setPosition(PhxVec3(-10.0f, 30.0f, 0.0f));
+        m_ball3_rb.setVelocity(PhxVec3(50.0f, 0.0f, 0.0f));
+        // m_ball3_rb.setVelocity(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_ball3_rb.setRotation(PhxVec3(10.0f, 0.0f, 0.0f));
+        m_ball3_rb.setOrientation(1.0f, 0.0f, 0.0f, 0.0f);
+        m_ball3_rb.setAcceleration(PhxVec3(0.0f, 0.0f, 0.0f));
+        m_ball3_rb.setElasticity(0.75f);
+        m_ball3_rb.setFriction(0.5f);
+        m_ball3_rb.setAwake();
+        m_ball3_rb.setCanSleep(false);
+        // m_ball3_rb.setInertiaTensorWithHalfSizesAndMass(PhxVec3(2.0f, 1.0f, 1.0f), 2.5f);
+        PhxReal moment_of_inertia = 0.4f * m_ball3_rb.getMass() * 1.00f * 1.00f; // I = 2/5 * m * r^2
+        PhxMat3 tensor{};
+        tensor[0] = {moment_of_inertia, 0.0f, 0.0f};
+        tensor[1] = {0.0f, moment_of_inertia, 0.0f};
+        tensor[2] = {0.0f, 0.0f, moment_of_inertia};
+        m_ball3_rb.setInertiaTensor(tensor);
+        m_ball3_rb.calculateDerivedData();
+        m_phx_scene.addRigidBody(&m_ball3_rb);
+
+        m_ball3_geometry.m_radius     = 1.00f;
+        m_ball3_geometry.m_rigid_body = &m_ball3_rb;
+        m_ball3_geometry.updateGeometry();
+        m_phx_scene.addGeometry(&m_ball3_geometry);
+    }
 }
 
 void PhysicsRigidBodySandboxDemoLayer::OnDetach() {}
@@ -218,6 +282,26 @@ void PhysicsRigidBodySandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
             material.shader_name  = "blinn_phong";
             m_basketball->draw(material, model);
             // m_sphere->draw(material, model);
+        }
+
+        {
+            mat4 model = getRenderingMat4Transform(m_ball2_rb.getWorldTransform());
+            model      = model.scale({1.00f});
+
+            Material material     = {};
+            material.diff_texture = m_diff_basketball_texture;
+            material.shader_name  = "blinn_phong";
+            m_basketball->draw(material, model);
+        }
+
+        {
+            mat4 model = getRenderingMat4Transform(m_ball3_rb.getWorldTransform());
+            model      = model.scale({1.00f});
+
+            Material material     = {};
+            material.diff_texture = m_cloth_diff_texture;
+            material.shader_name  = "blinn_phong";
+            m_basketball->draw(material, model);
         }
 
         {

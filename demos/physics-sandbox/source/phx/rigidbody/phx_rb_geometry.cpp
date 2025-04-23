@@ -36,7 +36,25 @@ PhxVec3 PhxGeometry::getAxis(unsigned int index) const
     return PhxVec3(column[0], column[1], column[2]);
 }
 
+////////////////////////////////// PhxSphereGeometry ///////////////////////////////////
+
 PhxSphereGeometry::PhxSphereGeometry() : PhxGeometry(PhxGeometryType::Sphere) {}
+
+PhxBounds PhxSphereGeometry::getBounds() const
+{
+    PhxBounds bounds;
+    bounds.m_min = PhxVec3(-m_radius, -m_radius, -m_radius);
+    bounds.m_max = PhxVec3(m_radius, m_radius, m_radius);
+    return bounds;
+}
+
+PhxBounds PhxSphereGeometry::getBounds(const PhxVec3& position, const PhxQuat& orientation) const
+{
+    PhxBounds bounds;
+    bounds.m_min = PhxVec3(-m_radius, -m_radius, -m_radius) + position;
+    bounds.m_max = PhxVec3(m_radius, m_radius, m_radius) + position;
+    return bounds;
+}
 
 PhxHalfSpaceGeometry::PhxHalfSpaceGeometry()
     : PhxGeometry(PhxGeometryType::HalfSpace)
@@ -44,6 +62,8 @@ PhxHalfSpaceGeometry::PhxHalfSpaceGeometry()
     , m_distance(0.0f)
 {
 }
+
+///////////////////////////////////// PhxBoxGeometry ///////////////////////////////////
 
 PhxBoxGeometry::PhxBoxGeometry() : PhxGeometry(PhxGeometryType::Box) {}
 

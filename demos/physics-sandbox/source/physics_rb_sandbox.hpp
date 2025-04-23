@@ -81,6 +81,11 @@ private:
     phx::rb::PhxRbGravityForceGen m_gravity_fgen;
     phx::PhxScene                 m_phx_scene;
 
+    phx::rb::PhxRigidBody      m_ball2_rb;
+    phx::rb::PhxSphereGeometry m_ball2_geometry;
+    phx::rb::PhxRigidBody      m_ball3_rb;
+    phx::rb::PhxSphereGeometry m_ball3_geometry;
+
     // Debug stuff
     bool                   m_draw_bvh{false};
     bool                   m_draw_wireframe{false};

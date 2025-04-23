@@ -186,10 +186,12 @@ OglRenderer::OglRenderer(GLFWwindow* const window)
     m_light_direction = vec3(0.0f, sin(m_sun_angle), cos(m_sun_angle)).normalized();
 
     u32 white       = 0xffffffff;
+    u32 black       = 0xff000000;
     u32 red         = 0xff0000ff;
     u32 green       = 0xff00ff00;
     u32 blue        = 0xffff0000;
     m_white_texture = std::make_shared<OglTexture2D>(1, 1, &white, TextureFormat::RGBA8);
+    m_black_texture = std::make_shared<OglTexture2D>(1, 1, &black, TextureFormat::RGBA8);
     m_red_texture   = std::make_shared<OglTexture2D>(1, 1, &red, TextureFormat::RGBA8);
     m_green_texture = std::make_shared<OglTexture2D>(1, 1, &green, TextureFormat::RGBA8);
     m_blue_texture  = std::make_shared<OglTexture2D>(1, 1, &blue, TextureFormat::RGBA8);
@@ -624,7 +626,7 @@ void OglRenderer::drawTrianglesIndexed(const u64& index_count, const Material& m
         }
         {
             active_program->setInt("material.specular_texture", 1);
-            m_white_texture->bind(1);
+            m_black_texture->bind(1);
         }
 
         glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
@@ -705,7 +707,7 @@ void OglRenderer::drawTrianglesIndexed(const u64&                  index_count,
         }
         {
             active_program->setInt("material.specular_texture", 1);
-            m_white_texture->bind(1);
+            m_black_texture->bind(1);
         }
 
         glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
