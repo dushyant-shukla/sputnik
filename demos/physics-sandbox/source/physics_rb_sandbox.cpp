@@ -141,7 +141,8 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
 
         m_sphere_geometry.m_radius     = 1.00f;
         m_sphere_geometry.m_rigid_body = &m_sphere_rb;
-        m_sphere_geometry.updateGeometry();
+        // m_sphere_geometry.updateTransform();
+        m_sphere_geometry.buildGeometry();
         m_phx_scene.addGeometry(&m_sphere_geometry);
     }
 
@@ -172,7 +173,8 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
 
         m_big_sphere_geometry.m_radius     = 70.0f;
         m_big_sphere_geometry.m_rigid_body = &m_big_sphere_rb;
-        m_big_sphere_geometry.updateGeometry();
+        m_big_sphere_geometry.buildGeometry();
+        // m_big_sphere_geometry.updateTransform();
         m_phx_scene.addGeometry(&m_big_sphere_geometry);
     }
 
@@ -204,7 +206,8 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
 
         m_ball2_geometry.m_radius     = 1.00f;
         m_ball2_geometry.m_rigid_body = &m_ball2_rb;
-        m_ball2_geometry.updateGeometry();
+        // m_ball2_geometry.updateTransform();
+        m_ball2_geometry.buildGeometry();
         m_phx_scene.addGeometry(&m_ball2_geometry);
     }
 
@@ -236,7 +239,8 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
 
         m_ball3_geometry.m_radius     = 1.00f;
         m_ball3_geometry.m_rigid_body = &m_ball3_rb;
-        m_ball3_geometry.updateGeometry();
+        // m_ball3_geometry.updateTransform();
+        m_ball3_geometry.buildGeometry();
         m_phx_scene.addGeometry(&m_ball3_geometry);
     }
 }
@@ -368,23 +372,12 @@ void PhysicsRigidBodySandboxDemoLayer::simulate(const core::TimeStep& time_step)
         m_accumulated_time += frame_time;
         while(m_accumulated_time >= kStepSize)
         {
-            simulatePhysics(m_total_time, kStepSize);
+            // simulatePhysics(m_total_time, kStepSize);
+            m_phx_scene.runPhysics(static_cast<PhxReal>(kStepSize));
             m_accumulated_time -= kStepSize;
             m_total_time += kStepSize;
         }
     }
-}
-
-void PhysicsRigidBodySandboxDemoLayer::simulatePhysics(const double& total_time, const double& step_size)
-{
-    m_phx_scene.startFrame();
-
-    // const auto& force = 2.0f * phx::phxGenerateRandomUnitVector();
-    // const auto& force = phx::phxGenerateRandomUnitVector();
-    const PhxVec3 force = {0.5f, 0.25f, 0.4f};
-    m_box_rb.addForceAtBodyPoint(force, {1.0f, 3.5f, 1.0f});
-
-    m_phx_scene.runPhysics(static_cast<PhxReal>(step_size));
 }
 
 void PhysicsRigidBodySandboxDemoLayer::resetSimulation() {}

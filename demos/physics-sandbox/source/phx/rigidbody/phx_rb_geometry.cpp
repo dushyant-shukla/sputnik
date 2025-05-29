@@ -25,7 +25,7 @@ PhxVec3 PhxGeometry::getPosition() const
     return getAxis(3);
 }
 
-void PhxGeometry::updateGeometry()
+void PhxGeometry::updateTransform()
 {
     m_transform = m_rigid_body->getWorldTransform() * m_offset;
 }
@@ -36,25 +36,45 @@ PhxVec3 PhxGeometry::getAxis(unsigned int index) const
     return PhxVec3(column[0], column[1], column[2]);
 }
 
+PhxReal PhxGeometry::fastestLinearSpeed(const PhxVec3& angular_velocity, const PhxVec3& direction) const
+{
+    return PhxReal(0.0);
+}
+
 ////////////////////////////////// PhxSphereGeometry ///////////////////////////////////
 
 PhxSphereGeometry::PhxSphereGeometry() : PhxGeometry(PhxGeometryType::Sphere) {}
 
-PhxBounds PhxSphereGeometry::getBounds() const
+const PhxExtent& PhxSphereGeometry::getBounds() const
 {
-    PhxBounds bounds;
-    bounds.m_min = PhxVec3(-m_radius, -m_radius, -m_radius);
-    bounds.m_max = PhxVec3(m_radius, m_radius, m_radius);
-    return bounds;
+    return m_bounds;
 }
 
-PhxBounds PhxSphereGeometry::getBounds(const PhxVec3& position, const PhxQuat& orientation) const
+PhxExtent PhxSphereGeometry::getBounds(const PhxVec3& position, const PhxQuat& orientation) const
 {
-    PhxBounds bounds;
+    PhxExtent bounds;
     bounds.m_min = PhxVec3(-m_radius, -m_radius, -m_radius) + position;
     bounds.m_max = PhxVec3(m_radius, m_radius, m_radius) + position;
     return bounds;
 }
+
+PhxVec3 PhxSphereGeometry::getSupportPoint(const PhxVec3& direction,
+                                           const PhxVec3& position,
+                                           const PhxQuat& orientation,
+                                           const PhxReal& bias) const
+{
+    PhxVec3 support_point = position + direction * (m_radius + bias);
+    return support_point;
+}
+
+void PhxSphereGeometry::buildGeometry()
+{
+    m_bounds.m_min = PhxVec3(-m_radius, -m_radius, -m_radius);
+    m_bounds.m_max = PhxVec3(m_radius, m_radius, m_radius);
+    updateTransform();
+}
+
+////////////////////////////////// PhxHalfSpaceGeometry /////////////////////////////////
 
 PhxHalfSpaceGeometry::PhxHalfSpaceGeometry()
     : PhxGeometry(PhxGeometryType::HalfSpace)
@@ -65,7 +85,124 @@ PhxHalfSpaceGeometry::PhxHalfSpaceGeometry()
 
 ///////////////////////////////////// PhxBoxGeometry ///////////////////////////////////
 
-PhxBoxGeometry::PhxBoxGeometry() : PhxGeometry(PhxGeometryType::Box) {}
+PhxBoxGeometry::PhxBoxGeometry(const std::vector<PhxVec3>& points) : PhxGeometry(PhxGeometryType::Box)
+{
+    buildGeometry(points);
+}
+
+const PhxExtent& PhxBoxGeometry::getBounds() const
+{
+    return m_bounds;
+}
+
+PhxExtent PhxBoxGeometry::getBounds(const PhxVec3& position, const PhxQuat& orientation) const
+{
+    PhxExtent    bounds;
+    PhxVec3Array points = m_points;
+    for(auto& point : points)
+    {
+        point = phxRotatePoint(orientation, point) + position;
+        bounds.expand(point);
+    }
+    return bounds;
+}
+
+PhxVec3 PhxBoxGeometry::getSupportPoint(const PhxVec3& direction,
+                                        const PhxVec3& position,
+                                        const PhxQuat& orientation,
+                                        const PhxReal& bias) const
+{
+    PhxVec3 max_point    = phxRotatePoint(orientation, m_bounds.m_max) + position;
+    PhxReal max_distance = phx_dot(direction, max_point);
+
+    for(PhxSize i = 1; i < m_points.size(); ++i)
+    {
+        PhxVec3 point    = phxRotatePoint(orientation, m_points[i]) + position;
+        PhxReal distance = phx_dot(direction, point);
+        if(distance > max_distance)
+        {
+            max_distance = distance;
+            max_point    = point;
+        }
+    }
+
+    PhxVec3 normalized_direction = phx_normalize(direction);
+    PhxVec3 bias_vector          = normalized_direction * bias;
+    return max_point + bias_vector;
+}
+
+PhxReal PhxBoxGeometry::fastestLinearSpeed(const PhxVec3& angular_velocity, const PhxVec3& direction) const
+{
+    PhxReal max_speed(0.0);
+    for(const auto& point : m_points)
+    {
+        PhxVec3 r               = point - m_center_of_mass;
+        PhxVec3 linear_velocity = phx_cross(angular_velocity, r);
+        PhxReal speed           = phx_dot(linear_velocity, direction);
+        if(speed > max_speed)
+        {
+            max_speed = speed;
+        }
+    }
+    return max_speed;
+}
+
+void PhxBoxGeometry::buildGeometry(const PhxVec3Array& points)
+{
+    for(PhxSize i = 0; i < points.size(); ++i)
+    {
+        m_bounds.expand(points[i]);
+    }
+
+    m_points.clear();
+
+    // Eight corner vertices of the box
+    // Todo:: This is probably not needed. Just store the input points.
+    m_points.emplace_back(PhxVec3(m_bounds.m_min.x, m_bounds.m_min.y, m_bounds.m_min.z));
+    m_points.emplace_back(PhxVec3(m_bounds.m_max.x, m_bounds.m_min.y, m_bounds.m_min.z));
+    m_points.emplace_back(PhxVec3(m_bounds.m_max.x, m_bounds.m_max.y, m_bounds.m_min.z));
+    m_points.emplace_back(PhxVec3(m_bounds.m_min.x, m_bounds.m_max.y, m_bounds.m_min.z));
+    m_points.emplace_back(PhxVec3(m_bounds.m_min.x, m_bounds.m_min.y, m_bounds.m_max.z));
+    m_points.emplace_back(PhxVec3(m_bounds.m_max.x, m_bounds.m_min.y, m_bounds.m_max.z));
+    m_points.emplace_back(PhxVec3(m_bounds.m_max.x, m_bounds.m_max.y, m_bounds.m_max.z));
+    m_points.emplace_back(PhxVec3(m_bounds.m_min.x, m_bounds.m_max.y, m_bounds.m_max.z));
+
+    m_center_of_mass = (m_bounds.m_min + m_bounds.m_max) * PhxReal(0.5);
+    m_rigid_body->setCenterOfMass(m_center_of_mass);
+}
+
+void PhxBoxGeometry::calculateInertiaTensor()
+{
+    // The inertia tensor for a box is calculated using the formula:
+    // I = (1/12) * m * (h^2 + w^2) for each axis, where h and w are the half extents of the box.
+    PhxReal mass = m_rigid_body->getMass();
+    PhxReal dx   = m_bounds.m_max.x - m_bounds.m_min.x;
+    PhxReal dy   = m_bounds.m_max.y - m_bounds.m_min.y;
+    PhxReal dz   = m_bounds.m_max.z - m_bounds.m_min.z;
+    PhxReal ix   = (1.0f / 12.0f) * mass * (dy * dy + dz * dz);
+    PhxReal iy   = (1.0f / 12.0f) * mass * (dx * dx + dz * dz);
+    PhxReal iz   = (1.0f / 12.0f) * mass * (dx * dx + dy * dy);
+
+    // We also need to account for situations where the box is not centered at the origin.
+    // We will use the parallel axis theorem to adjust the inertia tensor.
+    // The parallel axis theorem states that the inertia tensor around an axis of rotation that is parallel to the axis
+    // of rotation passing through the center of mass is given by:
+    // I = Icm + m * d^2, where,
+    // Icm is the inertia tensor around the center of mass,
+    // m is the mass of the body, and
+    // d is the distance from the center of mass to the axis of rotation.
+
+    const PhxVec3& r        = m_center_of_mass;
+    const PhxReal  r_square = phx_magnitude_sq(r);
+    ix += mass * (r_square - r.x * r.x);
+    iy += mass * (r_square - r.y * r.y);
+    iz += mass * (r_square - r.z * r.z);
+    PhxReal ixy = r.x * r.y;
+    PhxReal ixz = r.x * r.z;
+    PhxReal iyz = r.y * r.z;
+
+    m_rigid_body->setInertiaTensorWithCoefficients(ix, iy, iz, ixy, ixz, iyz);
+}
 
 /////////////////////////////// Intersection methods ///////////////////////////////////
 

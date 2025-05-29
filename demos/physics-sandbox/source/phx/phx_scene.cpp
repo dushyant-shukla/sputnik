@@ -127,7 +127,7 @@ void PhxScene::integrate(const PhxReal& duration)
     // Update geometries
     for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
     {
-        (*itr)->updateGeometry();
+        (*itr)->updateTransform();
     }
 }
 
@@ -218,7 +218,7 @@ void PhxScene::integrateDynamic(const PhxReal& duration)
         // Update geometries
         for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
         {
-            (*itr)->updateGeometry();
+            (*itr)->updateTransform();
         }
 
         // Resolve the contact
@@ -239,7 +239,7 @@ void PhxScene::integrateDynamic(const PhxReal& duration)
         // Update geometries
         for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
         {
-            (*itr)->updateGeometry();
+            (*itr)->updateTransform();
         }
     }
 }
@@ -316,7 +316,7 @@ void PhxScene::integrateDynamicWithBroadPhase(const PhxReal& duration)
         // Update geometries
         for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
         {
-            (*itr)->updateGeometry();
+            (*itr)->updateTransform();
         }
 
         // Resolve the contact
@@ -337,7 +337,7 @@ void PhxScene::integrateDynamicWithBroadPhase(const PhxReal& duration)
         // Update geometries
         for(auto itr = m_geometries.begin(); itr != m_geometries.end(); ++itr)
         {
-            (*itr)->updateGeometry();
+            (*itr)->updateTransform();
         }
     }
 }
