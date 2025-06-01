@@ -139,6 +139,8 @@ public:
 
     const PhxReal& getFriction() const;
 
+    const PhxVec3& getCenterOfMass() const;
+
     void applyImpulse(const PhxVec3& impluse, const PhxVec3& impluse_point, const PhxReal& dt);
 
     void applyLinearImpulse(const PhxVec3& impluse, const PhxReal& dt);

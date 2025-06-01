@@ -20,8 +20,22 @@ enum class PhxGeometryType
     Box,
     Capsule,
     Cone,
-    Hull,
+    ConvexHull,
     TriangleMesh
+};
+
+struct PhxTriangle
+{
+    PhxPoint a;
+    PhxPoint b;
+    PhxPoint c;
+};
+
+struct PhxTriangleVertexIndices
+{
+    PhxSize a{0};
+    PhxSize b{0};
+    PhxSize c{0};
 };
 
 class PhxGeometry
@@ -172,6 +186,44 @@ public:
     PhxVec3Array m_points; // Points of the box (corner vertices) in local space.
 };
 
+class PhxConvexHullGeometry : public PhxGeometry
+{
+public:
+    explicit PhxConvexHullGeometry(const PhxVec3Array& points);
+
+    void buildGeometry();
+
+    virtual const PhxExtent& getBounds() const;
+    virtual PhxExtent        getBounds(const PhxVec3& position, const PhxQuat& orientation) const;
+
+    /*!
+     * @brief The method calculate the support point of the box in the given direction.
+     * @param direction Direction in which to find the support point.
+     * @param position Position of the box in world space.
+     * @param orientation Orientation of the box in world space.
+     * @param bias Bias to add to the support point in the given direction. Useful for shriking and expanding the size
+     * of the shape.
+     * @return The support point in the given direction.
+     */
+    virtual PhxVec3 getSupportPoint(const PhxVec3& direction,
+                                    const PhxVec3& position,
+                                    const PhxQuat& orientation,
+                                    const PhxReal& bias) const;
+
+    /*!
+     * @brief The method calculates the fastest linear speed of the vertex on the box in the given direction.
+     * @param angular_velocity Angular velocity of the box in world space.
+     * @param direction Direction in which to calculate the fastest linear speed.
+     * @return The fastest linear speed of the vertex on the box in the given direction.
+     */
+    virtual PhxReal fastestLinearSpeed(const PhxVec3& angular_velocity, const PhxVec3& direction) const;
+
+private:
+    PhxVec3Array m_points; // Points of the convex hull in local space.
+    PhxExtent    m_extent;
+    PhxMat3      m_inertia_tensor;
+};
+
 struct PhxRay
 {
     PhxPoint origin;
@@ -271,5 +323,19 @@ bool phxRaycastSphere(PhxRay* const                  ray,
                       const PhxVec3&                 sphere_center,
                       const PhxReal&                 sphere_radius,
                       std::vector<PhxRaycastResult>& out_results);
+
+PhxSize phxFindPointIdxFurthestInDirection(const PhxVec3Array& points, const PhxVec3& direction);
+
+PhxReal phxGetDistanceFromLineToPoint(const PhxVec3& line_start, const PhxVec3& line_end, const PhxVec3& point);
+
+PhxVec3 phxFindPointFurthestFromLine(const PhxVec3Array& points, const PhxVec3& line_start, const PhxVec3& line_end);
+
+PhxReal phxGetDistanceFromTriangle(const PhxTriangle& triangle, const PhxVec3& point);
+
+PhxVec3 phxFindPointFurthestFromTriangle(const PhxVec3Array& points, const PhxTriangle& triangle);
+
+void phxBuildTetraHedron(const PhxVec3Array&                 vertices,
+                         PhxVec3Array&                       out_tet_vertices,
+                         PhxArray<PhxTriangleVertexIndices>& out_tet_faces);
 
 } // namespace phx::rb

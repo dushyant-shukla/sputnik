@@ -390,6 +390,11 @@ const PhxReal& PhxRigidBody::getFriction() const
     return m_friction;
 }
 
+const PhxVec3& PhxRigidBody::getCenterOfMass() const
+{
+    return m_center_of_mass;
+}
+
 void PhxRigidBody::applyImpulse(const PhxVec3& impluse, const PhxVec3& impluse_point, const PhxReal& dt)
 {
     if(CMP_FLOAT_EQ(m_inv_mass, 0.0f))

@@ -169,6 +169,8 @@ void PhxBoxGeometry::buildGeometry(const PhxVec3Array& points)
 
     m_center_of_mass = (m_bounds.m_min + m_bounds.m_max) * PhxReal(0.5);
     m_rigid_body->setCenterOfMass(m_center_of_mass);
+
+    calculateInertiaTensor();
 }
 
 void PhxBoxGeometry::calculateInertiaTensor()
@@ -502,6 +504,182 @@ bool phxRaycastSphere(PhxRay* const                  ray,
     out_results.push_back(result);
 
     return true;
+}
+
+PhxSize phxFindPointIdxFurthestInDirection(const PhxVec3Array& points, const PhxVec3& direction)
+{
+    PhxSize max_index    = -1;
+    PhxReal max_distance = phx_dot(points[0], direction);
+    for(PhxSize i = 1; i < points.size(); ++i)
+    {
+        PhxReal distance = phx_dot(points[i], direction);
+        if(distance > max_distance)
+        {
+            max_distance = distance;
+            max_index    = i;
+        }
+    }
+    return max_index;
+}
+
+PhxReal phxGetDistanceFromLineToPoint(const PhxVec3& line_start, const PhxVec3& line_end, const PhxVec3& point)
+{
+    // Read up more at: https://en.wikipedia.org/wiki/Vector_projection
+
+    PhxVec3 line_direction = phx_normalize(line_end - line_start);
+    PhxVec3 line_to_point  = point - line_start;
+    PhxVec3 projection     = phx_dot(line_to_point, line_direction) * line_direction;
+    PhxVec3 rejection = line_to_point - projection; // represents distance of the point from the line in the direction
+                                                    // parallel to the normal to the line.
+    return phx_magnitude(rejection);
+}
+
+PhxVec3 phxFindPointFurthestFromLine(const PhxVec3Array& points, const PhxVec3& line_start, const PhxVec3& line_end)
+{
+    PhxSize max_index    = 0;
+    PhxReal max_distance = phxGetDistanceFromLineToPoint(line_start, line_end, points[0]);
+    for(PhxSize i = 1; i < points.size(); ++i)
+    {
+        PhxReal distance = phxGetDistanceFromLineToPoint(line_start, line_end, points[i]);
+        if(distance > max_distance)
+        {
+            max_distance = distance;
+            max_index    = i;
+        }
+    }
+    return points[max_index];
+}
+
+PhxReal phxGetDistanceFromTriangle(const PhxTriangle& triangle, const PhxVec3& point)
+{
+    PhxVec3 ab     = triangle.b - triangle.a;
+    PhxVec3 ac     = triangle.c - triangle.a;
+    PhxVec3 normal = phx_normalize(phx_cross(ab, ac));
+
+    PhxVec3 ap       = point - triangle.a;
+    PhxReal distance = phx_dot(ap, normal);
+    return distance;
+}
+
+PhxVec3 phxFindPointFurthestFromTriangle(const PhxVec3Array& points, const PhxTriangle& triangle)
+{
+    PhxSize max_index    = 0;
+    PhxReal max_distance = phxGetDistanceFromTriangle(triangle, points[0]);
+    for(PhxSize i = 1; i < points.size(); ++i)
+    {
+        PhxReal distance = phxGetDistanceFromTriangle(triangle, points[i]);
+        if(distance > max_distance)
+        {
+            max_distance = distance;
+            max_index    = i;
+        }
+    }
+    return points[max_index];
+}
+
+void phxBuildTetraHedron(const PhxVec3Array&                 vertices,
+                         PhxVec3Array&                       out_tet_vertices,
+                         PhxArray<PhxTriangleVertexIndices>& out_tet_faces)
+{
+    out_tet_vertices.clear();
+    out_tet_faces.clear();
+
+    PhxVec3 points[4]{};
+    PhxSize index = phxFindPointIdxFurthestInDirection(vertices, PhxVec3(1.0f, 0.0f, 0.0f));
+    points[0]     = vertices[index];
+    index         = phxFindPointIdxFurthestInDirection(vertices, PhxVec3(-1.0f, 0.0f, 0.0f));
+    points[1]     = vertices[index];
+
+    points[2] = phxFindPointFurthestFromLine(vertices, points[0], points[1]);
+    points[3] = phxFindPointFurthestFromTriangle(vertices, PhxTriangle{points[0], points[1], points[2]});
+
+    // Ensure that the tetrahedron faces have a CCW winding order
+    PhxReal distance = phxGetDistanceFromTriangle(PhxTriangle{points[0], points[1], points[2]}, points[3]);
+    if(distance > PhxReal(0.0))
+    {
+        std::swap(points[0], points[1]);
+    }
+
+    out_tet_vertices.insert(out_tet_vertices.end(), points, points + 4);
+
+    // Add the four faces of the tetrahedron
+    out_tet_faces.push_back({0, 1, 2}); // Face 1
+    out_tet_faces.push_back({0, 2, 3}); // Face 2
+    out_tet_faces.push_back({2, 1, 3}); // Face 3
+    out_tet_faces.push_back({1, 0, 3}); // Face 4
+}
+
+PhxConvexHullGeometry::PhxConvexHullGeometry(const PhxVec3Array& points) : PhxGeometry(PhxGeometryType::ConvexHull)
+{
+    m_points = points;
+    buildGeometry();
+}
+
+void PhxConvexHullGeometry::buildGeometry() {}
+
+const PhxExtent& PhxConvexHullGeometry::getBounds() const
+{
+    return m_extent;
+}
+
+PhxExtent PhxConvexHullGeometry::getBounds(const PhxVec3& position, const PhxQuat& orientation) const
+{
+    // Layout of 8 corners
+    // 3----------2 (back face)
+    // |          |
+    // |    7-----|-----6 (front face)
+    // |    |     |     |
+    // 0----|-----1     |
+    //      |           |
+    //      4-----------5
+
+    PhxVec3 corners[8]{};
+
+    // back four cornder (when looking along the z-axis)
+    corners[0] = PhxVec3(m_extent.m_min.x, m_extent.m_min.y, m_extent.m_min.z);
+    corners[1] = PhxVec3(m_extent.m_max.x, m_extent.m_min.y, m_extent.m_min.z);
+    corners[2] = PhxVec3(m_extent.m_max.x, m_extent.m_max.y, m_extent.m_min.z);
+    corners[3] = PhxVec3(m_extent.m_min.x, m_extent.m_max.y, m_extent.m_min.z);
+
+    // front four cornder (when looking along the z-axis)
+    corners[4] = PhxVec3(m_extent.m_min.x, m_extent.m_min.y, m_extent.m_max.z);
+    corners[5] = PhxVec3(m_extent.m_max.x, m_extent.m_min.y, m_extent.m_max.z);
+    corners[6] = PhxVec3(m_extent.m_max.x, m_extent.m_max.y, m_extent.m_max.z);
+    corners[7] = PhxVec3(m_extent.m_min.x, m_extent.m_max.y, m_extent.m_max.z);
+
+    PhxExtent extent;
+    for(PhxSize i = 0; i < 8; ++i)
+    {
+        corners[i] = phxRotatePoint(orientation, corners[i]) + position;
+        extent.expand(corners[i]);
+    }
+
+    return extent;
+}
+
+PhxVec3 PhxConvexHullGeometry::getSupportPoint(const PhxVec3& direction,
+                                               const PhxVec3& position,
+                                               const PhxQuat& orientation,
+                                               const PhxReal& bias) const
+{
+    // Todo:: Implement the support point calculation for convex hull geometry.
+    return PhxVec3();
+}
+
+PhxReal PhxConvexHullGeometry::fastestLinearSpeed(const PhxVec3& angular_velocity, const PhxVec3& direction) const
+{
+    PhxReal max_speed(0.0);
+    for(PhxSize i = 0; i < m_points.size(); ++i)
+    {
+        PhxVec3 r               = m_points[i] - m_rigid_body->getCenterOfMass();
+        PhxVec3 linear_velocity = phx_cross(angular_velocity, r);
+        PhxReal speed           = phx_dot(linear_velocity, direction);
+        if(speed > max_speed)
+        {
+            max_speed = speed;
+        }
+    }
+    return max_speed;
 }
 
 } // namespace phx::rb
