@@ -609,6 +609,183 @@ void phxBuildTetraHedron(const PhxVec3Array&                 vertices,
     out_tet_faces.push_back({1, 0, 3}); // Face 4
 }
 
+void phxExpandConvexHull(const PhxVec3Array&                 vertices,
+                         PhxVec3Array&                       out_hull_vertices,
+                         PhxArray<PhxTriangleVertexIndices>& out_hull_faces)
+{
+    PhxVec3Array external_vertices = vertices;
+    phxRemoveInternalPointsFromConvexHull(out_hull_vertices, out_hull_faces, external_vertices);
+
+    if(external_vertices.size() > 0)
+    {
+    }
+}
+
+void phxBuildConvexHull(const PhxVec3Array&                 vertices,
+                        PhxVec3Array&                       out_hull_vertices,
+                        PhxArray<PhxTriangleVertexIndices>& out_hull_faces)
+{
+    if(vertices.size() > 4)
+    {
+        return;
+    }
+
+    phxBuildTetraHedron(vertices, out_hull_vertices, out_hull_faces);
+
+    phxExpandConvexHull(vertices, out_hull_vertices, out_hull_faces);
+}
+
+void phxRemoveInternalPointsFromConvexHull(const PhxVec3Array&                       hull_vertices,
+                                           const PhxArray<PhxTriangleVertexIndices>& hull_faces,
+                                           PhxVec3Array&                             out_vertices)
+{
+    // Remove any vertices that are inside the hull geometry
+    for(PhxSize i = 0; i < out_vertices.size(); ++i)
+    {
+        const PhxVec3& point       = out_vertices[i];
+        bool           is_external = false;
+
+        for(PhxSize j = 0; j < hull_faces.size(); ++j)
+        {
+            const PhxTriangleVertexIndices& face = hull_faces[j];
+            PhxTriangle triangle{hull_vertices[face.a], hull_vertices[face.b], hull_vertices[face.c]};
+            PhxReal     distance = phxGetDistanceFromTriangle(triangle, point);
+            if(distance > kPhxEpsilon)
+            {
+                // If the vertex is in front of the triangle, it is external to the hull
+                is_external = true;
+                break; // Point is external to the triangle
+            }
+        }
+
+        if(!is_external)
+        {
+            // If the point is not external to any triangle, it is internal to the hull
+            out_vertices.erase(out_vertices.begin() + i);
+            --i; // Adjust index since we removed an element
+        }
+    }
+
+    // Remove any vertices that are too close to the hull vertices
+    for(PhxSize i = 0; i < out_vertices.size(); ++i)
+    {
+        const PhxVec3& point    = out_vertices[i];
+        bool           is_close = false;
+
+        for(PhxSize j = 0; j < hull_vertices.size(); ++j)
+        {
+            // const PhxTriangleVertexIndices& face = hull_faces[j];
+            const PhxPoint hull_vertex     = hull_vertices[j];
+            const PhxVec3  distance_vector = hull_vertex - point;
+            if(phx_magnitude_sq(distance_vector) < (PhxReal(0.01) * PhxReal(0.01)))
+            {
+                is_close = true;
+                break;
+            }
+        }
+
+        if(is_close)
+        {
+            // If the point is a little too close to the hull vertex, remove it
+            out_vertices.erase(out_vertices.begin() + i);
+            --i; // Adjust index since we removed an element
+        }
+    }
+}
+
+void phxRemoveUnreferencedPointsFromConvexHull(PhxVec3Array&                       out_hull_vertices,
+                                               PhxArray<PhxTriangleVertexIndices>& out_hull_faces)
+{
+    // Remove any vertices that are not referenced by any face of the convex hull
+    for(PhxSize i = 0; i < out_hull_vertices.size(); ++i)
+    {
+        bool is_used = false;
+        for(const auto& face : out_hull_faces)
+        {
+            if(face.a == i || face.b == i || face.c == i)
+            {
+                is_used = true;
+                break; // Point is used in a face
+            }
+        }
+
+        if(is_used)
+        {
+            continue;
+        }
+
+        for(PhxSize j = 0; j < out_hull_faces.size(); ++j)
+        {
+            PhxTriangleVertexIndices& face = out_hull_faces[j];
+            if(face.a > i)
+            {
+                --face.a; // Adjust index since we removed an element
+            }
+            if(face.b > i)
+            {
+                --face.b; // Adjust index since we removed an element
+            }
+            if(face.c > i)
+            {
+                --face.c; // Adjust index since we removed an element
+            }
+        }
+
+        out_hull_vertices.erase(out_hull_vertices.begin() + i);
+        --i; // Adjust index since we removed an element
+    }
+}
+
+bool phxIsEdgeUnique(const PhxArray<PhxTriangleVertexIndices>& out_hull_faces,
+                     const PhxArray<PhxInt>&                   facing_triangles,
+                     const PhxInt                              ignore_triangle,
+                     const PhxEdgeVertexIndices&               edge)
+{
+    for(PhxSize i = 0; i < facing_triangles.size(); ++i)
+    {
+        const PhxSize triangle_index = facing_triangles[i];
+        if(ignore_triangle == triangle_index)
+        {
+            continue;
+        }
+
+        const PhxTriangleVertexIndices& triangle = out_hull_faces[triangle_index];
+
+        PhxEdgeVertexIndices edges[3];
+        edges[0] = {triangle.a, triangle.b};
+        edges[1] = {triangle.b, triangle.c};
+        edges[2] = {triangle.c, triangle.a};
+
+        for(PhxSize j = 0; j < 3; ++j)
+        {
+            if(edge == edges[j])
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void phxAddPointToConvexHull(PhxVec3Array&                       out_hull_vertices,
+                             PhxArray<PhxTriangleVertexIndices>& out_hull_faces,
+                             const PhxPoint&                     point)
+{
+    PhxArray<PhxSize> facing_triangles;
+
+    // Find all the triangles that are facing the new point
+    for(PhxSize i = out_hull_faces.size() - 1; i >= 0; --i)
+    {
+        const PhxTriangleVertexIndices& face = out_hull_faces[i];
+        PhxTriangle triangle{out_hull_vertices[face.a], out_hull_vertices[face.b], out_hull_vertices[face.c]};
+        PhxReal     distance = phxGetDistanceFromTriangle(triangle, point);
+        if(distance > kPhxEpsilon)
+        {
+            facing_triangles.push_back(i); // Triangle is facing the new point
+        }
+    }
+}
+
 PhxConvexHullGeometry::PhxConvexHullGeometry(const PhxVec3Array& points) : PhxGeometry(PhxGeometryType::ConvexHull)
 {
     m_points = points;

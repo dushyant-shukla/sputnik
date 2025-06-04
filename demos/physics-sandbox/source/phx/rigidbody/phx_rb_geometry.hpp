@@ -38,6 +38,17 @@ struct PhxTriangleVertexIndices
     PhxSize c{0};
 };
 
+struct PhxEdgeVertexIndices
+{
+    PhxSize a{0};
+    PhxSize b{0};
+
+    inline bool operator==(const PhxEdgeVertexIndices& other) const
+    {
+        return (a == other.a && b == other.b) || (a == other.b && b == other.a);
+    }
+};
+
 class PhxGeometry
 {
 public:
@@ -337,5 +348,29 @@ PhxVec3 phxFindPointFurthestFromTriangle(const PhxVec3Array& points, const PhxTr
 void phxBuildTetraHedron(const PhxVec3Array&                 vertices,
                          PhxVec3Array&                       out_tet_vertices,
                          PhxArray<PhxTriangleVertexIndices>& out_tet_faces);
+
+void phxExpandConvexHull(const PhxVec3Array&                 vertices,
+                         PhxVec3Array&                       out_hull_vertices,
+                         PhxArray<PhxTriangleVertexIndices>& out_hull_faces);
+
+void phxBuildConvexHull(const PhxVec3Array&                 vertices,
+                        PhxVec3Array&                       out_hull_vertices,
+                        PhxArray<PhxTriangleVertexIndices>& out_hull_faces);
+
+void phxRemoveInternalPointsFromConvexHull(const PhxVec3Array&                       hull_vertices,
+                                           const PhxArray<PhxTriangleVertexIndices>& hull_faces,
+                                           PhxVec3Array&                             out_vertices);
+
+void phxRemoveUnreferencedPointsFromConvexHull(PhxVec3Array&                       out_hull_vertices,
+                                               PhxArray<PhxTriangleVertexIndices>& out_hull_faces);
+
+bool phxIsEdgeUnique(const PhxArray<PhxTriangleVertexIndices>& out_hull_faces,
+                     const PhxArray<PhxInt>&                   facing_triangles,
+                     const PhxInt                              ignore_triangle,
+                     const PhxEdgeVertexIndices&               edge);
+
+void phxAddPointToConvexHull(PhxVec3Array&                       out_hull_vertices,
+                             PhxArray<PhxTriangleVertexIndices>& out_hull_faces,
+                             const PhxPoint&                     point);
 
 } // namespace phx::rb
