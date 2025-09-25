@@ -1,5 +1,6 @@
 #include "physics_rb_sandbox.hpp"
 #include "phx/phx_math_utils.hpp"
+#include "phx/rigidbody/phx_rb_geometry.hpp"
 
 #include <editor/editor.hpp>
 
@@ -97,6 +98,8 @@ PhysicsRigidBodySandboxDemoLayer::PhysicsRigidBodySandboxDemoLayer(const std::st
 
 PhysicsRigidBodySandboxDemoLayer::~PhysicsRigidBodySandboxDemoLayer() {}
 
+std::shared_ptr<Model> rock;
+Mesh  cvx_hull_mesh;
 void PhysicsRigidBodySandboxDemoLayer::OnAttach()
 {
     m_box    = Model::LoadModel("../../data/assets/box/Box.gltf");
@@ -243,6 +246,39 @@ void PhysicsRigidBodySandboxDemoLayer::OnAttach()
         m_ball3_geometry.buildGeometry();
         m_phx_scene.addGeometry(&m_ball3_geometry);
     }
+
+    //rock = Model::LoadModel("../../data/assets/rock.gltf");
+    //rock = Model::LoadModel("../../data/assets/toy-teddybear/source/model.gltf");
+    rock = Model::LoadModel("../../data/assets/kuma_plushie/scene.gltf");
+    PhxVec3Array                                rock_vertices;
+    PhxVec3Array                                cvx_hull_vertices;
+    PhxArray<phx::rb::PhxTriangleVertexIndices> cvx_hull_faces;
+    for(const auto& position : rock->getPositions())
+    {
+        rock_vertices.push_back(PhxVec3(position.x, position.y, position.z));
+    }
+    phx::rb::phxBuildConvexHull(rock_vertices, cvx_hull_vertices, cvx_hull_faces);
+    auto& cvx_hull_positions = cvx_hull_mesh.GetPosition();
+    auto& cvx_hull_indices   = cvx_hull_mesh.GetIndices();
+    // std::copy(cvx_hull_vertices.begin(), cvx_hull_vertices.end(), std::back_inserter(cvx_hull_positions));
+
+    for(size_t i = 0; i < cvx_hull_vertices.size(); i++)
+    {
+        cvx_hull_positions.push_back({cvx_hull_vertices[i].x, cvx_hull_vertices[i].y, cvx_hull_vertices[i].z});
+        // cvx_hull_positions.push_back(cvx_hull_faces[i].b);
+        // cvx_hull_positions.push_back(cvx_hull_faces[i].c);
+    }
+
+    for(size_t i = 0; i < cvx_hull_faces.size(); i++)
+    {
+        cvx_hull_indices.push_back(cvx_hull_faces[i].a);
+        cvx_hull_indices.push_back(cvx_hull_faces[i].b);
+        cvx_hull_indices.push_back(cvx_hull_faces[i].c);
+    }
+
+    cvx_hull_mesh.initializeGpuBuffers();
+    // std::copy(cvx_hull_faces.begin(), cvx_hull_faces.end(), std::back_inserter(cvx_hull_faces));
+    int a = 10;
 }
 
 void PhysicsRigidBodySandboxDemoLayer::OnDetach() {}
@@ -316,6 +352,16 @@ void PhysicsRigidBodySandboxDemoLayer::OnUpdate(const core::TimeStep& time_step)
             material.shader_name  = "blinn_phong";
             material.diff_texture = m_diff_basketball_texture;
             m_sphere->draw(material, model);
+        }
+
+        {
+            mat4 model            = {};
+            model      = model.translate({0.0f, 15.0f, 0.0f});
+            //model                 = model.scale({0.25f});
+            Material material     = {};
+            material.shader_name  = "blinn_phong";
+            material.diff_texture = m_diff_basketball_texture;
+            rock->draw(material, model);
         }
     }
 
@@ -405,6 +451,17 @@ void PhysicsRigidBodySandboxDemoLayer::debugDrawPhxGeometries()
                     m_sphere->draw(material, model);
                 }
             }
+        }
+
+        {
+            mat4 model = {};
+            model      = model.translate({0.0f, 15.0f, 0.0f});
+
+            Material material    = material_ruby;
+            material.shader_name = "blinn_phong";
+            cvx_hull_mesh.draw(material, model);
+
+            //rock->draw(material, model);
         }
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

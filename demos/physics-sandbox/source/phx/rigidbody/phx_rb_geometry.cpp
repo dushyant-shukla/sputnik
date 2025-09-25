@@ -1,6 +1,8 @@
 #include "phx_rb_geometry.hpp"
 #include "phx_rigid_body.hpp"
 
+#include <iostream>
+
 namespace phx::rb
 {
 
@@ -508,7 +510,7 @@ bool phxRaycastSphere(PhxRay* const                  ray,
 
 PhxSize phxFindPointIdxFurthestInDirection(const PhxVec3Array& points, const PhxVec3& direction)
 {
-    PhxSize max_index    = -1;
+    PhxSize max_index    = 0;
     PhxReal max_distance = phx_dot(points[0], direction);
     for(PhxSize i = 1; i < points.size(); ++i)
     {
@@ -587,7 +589,8 @@ void phxBuildTetraHedron(const PhxVec3Array&                 vertices,
     PhxVec3 points[4]{};
     PhxSize index = phxFindPointIdxFurthestInDirection(vertices, PhxVec3(1.0f, 0.0f, 0.0f));
     points[0]     = vertices[index];
-    index         = phxFindPointIdxFurthestInDirection(vertices, PhxVec3(-1.0f, 0.0f, 0.0f));
+    //index         = phxFindPointIdxFurthestInDirection(vertices, PhxVec3(-1.0f, 0.0f, 0.0f));
+    index     = phxFindPointIdxFurthestInDirection(vertices, points[0] * (-1.0f));
     points[1]     = vertices[index];
 
     points[2] = phxFindPointFurthestFromLine(vertices, points[0], points[1]);
@@ -601,6 +604,13 @@ void phxBuildTetraHedron(const PhxVec3Array&                 vertices,
     }
 
     out_tet_vertices.insert(out_tet_vertices.end(), points, points + 4);
+    
+    // Debug output for out_tet_vertices
+    std::cout << "Tetrahedron vertices:" << std::endl;
+    for (const auto& vertex : out_tet_vertices)
+    {
+        std::cout << "(" << vertex.x << ", " << vertex.y << ", " << vertex.z << ")" << std::endl;
+    }
 
     // Add the four faces of the tetrahedron
     out_tet_faces.push_back({0, 1, 2}); // Face 1
@@ -616,16 +626,24 @@ void phxExpandConvexHull(const PhxVec3Array&                 vertices,
     PhxVec3Array external_vertices = vertices;
     phxRemoveInternalPointsFromConvexHull(out_hull_vertices, out_hull_faces, external_vertices);
 
-    if(external_vertices.size() > 0)
+    while(external_vertices.size() > 0)
     {
+        PhxInt  point_idx = (PhxInt)phxFindPointIdxFurthestInDirection(external_vertices, external_vertices[0]);
+        PhxVec3 point     = external_vertices[point_idx];
+        external_vertices.erase(external_vertices.begin() + point_idx);
+        phxAddPointToConvexHull(out_hull_vertices, out_hull_faces, point);
+        phxRemoveInternalPointsFromConvexHull(out_hull_vertices, out_hull_faces, external_vertices);
+        std::cout << "Expanding convex hull. New point added. Remainig points: " << external_vertices.size() << std::endl;
     }
+
+    phxRemoveUnreferencedPointsFromConvexHull(out_hull_vertices, out_hull_faces);
 }
 
 void phxBuildConvexHull(const PhxVec3Array&                 vertices,
                         PhxVec3Array&                       out_hull_vertices,
                         PhxArray<PhxTriangleVertexIndices>& out_hull_faces)
 {
-    if(vertices.size() > 4)
+    if(vertices.size() < 4)
     {
         return;
     }
@@ -771,18 +789,61 @@ void phxAddPointToConvexHull(PhxVec3Array&                       out_hull_vertic
                              PhxArray<PhxTriangleVertexIndices>& out_hull_faces,
                              const PhxPoint&                     point)
 {
-    PhxArray<PhxSize> facing_triangles;
+    PhxArray<PhxInt> facing_triangles;
 
     // Find all the triangles that are facing the new point
-    for(PhxSize i = out_hull_faces.size() - 1; i >= 0; --i)
+    for(PhxInt i = static_cast<PhxInt>(out_hull_faces.size() - 1); i >= 0; --i)
     {
         const PhxTriangleVertexIndices& face = out_hull_faces[i];
         PhxTriangle triangle{out_hull_vertices[face.a], out_hull_vertices[face.b], out_hull_vertices[face.c]};
         PhxReal     distance = phxGetDistanceFromTriangle(triangle, point);
-        if(distance > kPhxEpsilon)
+        //if(distance > kPhxEpsilon)
+        if(distance > 0.0f)
         {
             facing_triangles.push_back(i); // Triangle is facing the new point
         }
+    }
+
+    // Find unique edges forming the faces of the hull geometry
+    PhxArray<PhxEdgeVertexIndices> unique_edges;
+    for(PhxInt i = 0; i < facing_triangles.size(); ++i)
+    {
+        const PhxInt                    triangle_index = static_cast<PhxInt>(facing_triangles[i]);
+        const PhxTriangleVertexIndices& face           = out_hull_faces[triangle_index];
+
+        PhxEdgeVertexIndices edges[3];
+        edges[0] = {face.a, face.b};
+        edges[1] = {face.b, face.c};
+        edges[2] = {face.c, face.a};
+
+        for(PhxInt j = 0; j < 3; ++j)
+        {
+            if(phxIsEdgeUnique(out_hull_faces, facing_triangles, triangle_index, edges[j]))
+            {
+                unique_edges.push_back(edges[j]);
+            }
+        }
+    }
+
+    // Remove the old triangles that are facing the new point
+    for(PhxInt i = 0; i < static_cast<PhxInt>(facing_triangles.size()); ++i)
+    {
+        PhxInt triangle_index = facing_triangles[i];
+        out_hull_faces.erase(out_hull_faces.begin() + triangle_index);
+    }
+
+    // Add the new point to the hull vertices
+    PhxSize new_point_index = out_hull_vertices.size();
+    out_hull_vertices.push_back(point);
+
+    // Create new triangles from the unique edges and the new point
+    for(const auto& edge : unique_edges)
+    {
+        PhxTriangleVertexIndices new_face;
+        new_face.a = edge.a;
+        new_face.b = edge.b;
+        new_face.c = new_point_index; // The new point is the third vertex of the triangle
+        out_hull_faces.push_back(new_face);
     }
 }
 
